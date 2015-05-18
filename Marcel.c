@@ -87,7 +87,31 @@ char *extr_arg(char *s, int l){
 	/*
 	 * Configuration
 	 */
+enum _tp_msec {
+	MSEC_INVALID =0,	/* Ignored */
+	MSEC_FSV			/* File String Value */
+};
+
+union CSection {
+	struct {	/* Fields common to all sections */
+		union CSection *next;
+		enum _tp_msec section_type;
+		int sample;
+		pthread_t thread;
+		const char *topic;
+	} common;
+	struct _FSV {
+		union CSection *next;
+		enum _tp_msec section_type;
+		int sample;
+		pthread_t thread;
+		const char *topic;
+		const char *file;
+	} FSV;
+};
+
 struct Config {
+	union CSection *sections;
 	const char *Broker;
 	MQTTClient client;
 } cfg;
@@ -97,6 +121,7 @@ void read_configuration( const char *fch){
 	char l[MAXLINE];
 	char *arg;
 
+	cfg.sections = NULL;
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.client = NULL;
 
@@ -116,6 +141,40 @@ void read_configuration( const char *fch){
 			assert( cfg.Broker = strdup( removeLF(arg) ) );
 			if(debug)
 				printf("Broker : '%s'\n", cfg.Broker);
+		} else if((arg = striKWcmp(l,"*FSV="))){
+			union CSection *n = malloc( sizeof(struct _FSV) );
+			assert(n);
+			memset(n, 0, sizeof(struct _FSV));
+
+			n->common.section_type = MSEC_FSV;
+			n->common.next = cfg.sections;
+			cfg.sections = n;
+			if(debug)
+				printf("Entering section '%s'\n", removeLF(arg));
+		} else if((arg = striKWcmp(l,"File="))){
+			if(!cfg.sections || cfg.sections->common.section_type != MSEC_FSV){
+				fputs("*F* Configuration issue : File directive outside a FSV section\n", stderr);
+					exit(EXIT_FAILURE);
+			}
+			assert( cfg.sections->FSV.file = strdup( removeLF(arg) ));
+			if(debug)
+				printf("\tFile : '%s'\n", cfg.sections->FSV.file);
+		} else if((arg = striKWcmp(l,"Sample="))){
+			if(!cfg.sections){
+				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			cfg.sections->common.sample = atoi( arg );
+			if(debug)
+				printf("\tDelay between samples : %ds\n", cfg.sections->common.sample);
+		} else if((arg = striKWcmp(l,"Topic="))){
+			if(!cfg.sections){
+				fputs("*F* Configuration issue : Topic directive outside a section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			assert( cfg.sections->common.topic = strdup( removeLF(arg) ));
+			if(debug)
+				printf("\tTopic : '%s'\n", cfg.sections->common.topic);
 		}
 	}
 
