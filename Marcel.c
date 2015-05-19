@@ -214,6 +214,59 @@ void brkcleaning(void){	/* Clean broker stuffs */
 	/*
 	 * Processing
 	 */
+void *process_FSV(void *actx){
+	struct _FSV *ctx = actx;	/* Only to avoid zillions of cast */
+	FILE *f;
+	char l[MAXLINE];
+
+		/* Sanity check */
+	if(!ctx->topic){
+		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+		pthread_exit(0);
+	}
+	if(!ctx->file){
+		fprintf(stderr, "*E* configuration error : no file specified for '%s', ignoring this section\n", ctx->topic);
+		pthread_exit(0);
+	}
+
+	if(debug)
+		printf("Launching a processing flow for FSV '%s'\n", ctx->topic);
+
+/* TBD : traité plusieurs FSV dans un seul thread */
+	for(;;){
+		if(!(f = fopen( ctx->file, "r" ))){
+			if(debug)
+				perror( ctx->file );
+			if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
+				int msg;
+				char *emsg;
+				strcpy(l, ctx->topic);
+				strcat(l, "/Alarm");
+				msg = strlen(l) + 2;
+
+				if(strlen(ctx->file) + strlen(emsg = strerror(errno)) + 4 < MAXLINE - msg){
+					strcpy(l + msg, ctx->file);
+					strcat(l + msg, " : ");
+					strcat(l + msg, emsg);
+
+					papub(l, strlen(l + msg), l + msg, 0);
+				} else
+					papub(l, strlen(l + msg), emsg, 0);
+			}
+		} else {
+/*TBD : traitement des messages */
+			fclose(f);
+		}
+
+		sleep( ctx->sample );
+	}
+
+	pthread_exit(0);
+}
+
+void handleInt(int na){
+	exit(EXIT_SUCCESS);
+}
 
 int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
@@ -253,6 +306,7 @@ int main(int ac, char **av){
 		exit(EXIT_FAILURE);
 	}
 
+		/* Connecting to the broker */
 	conn_opts.reliable = 0;
 	MQTTClient_create( &cfg.client, cfg.Broker, "Marcel", MQTTCLIENT_PERSISTENCE_NONE, NULL);
 	MQTTClient_setCallbacks( cfg.client, NULL, connlost, msgarrived, NULL);
@@ -275,6 +329,27 @@ int main(int ac, char **av){
 		exit(EXIT_FAILURE);
 	}
 	atexit(brkcleaning);
+
+		/* Creating childs */
+	assert(!pthread_attr_init (&thread_attr));
+	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+	for(union CSection *s = cfg.sections; s; s = s->common.next){
+		switch(s->common.section_type){
+		case MSEC_FSV:
+			if(s->common.sample){	/* Creates only if sample is set */
+				if(pthread_create( &(s->common.thread), &thread_attr, process_FSV, s) < 0){
+					fputs("*F* Can't create a processing thread\n", stderr);
+					exit(EXIT_FAILURE);
+				}
+			}
+			break;
+		default :	/* Ignore unsupported type */
+			break;
+		}
+	}
+
+	signal(SIGINT, handleInt);
+	pause();
 
 	exit(EXIT_SUCCESS);
 }
