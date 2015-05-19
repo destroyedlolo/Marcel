@@ -197,13 +197,18 @@ void connlost(void *ctx, char *cause){
 	printf("*W* Broker connection lost due to %s\n", cause);
 }
 
-int papub( const char *topic, int length, void *payload, int retained ){	/* Custom wrapper to publish */
+int papub( const char *topic, int length, void *payload, int retained ){ /* Custom wrapper to publish */
 	MQTTClient_message pubmsg = MQTTClient_message_initializer;
 	pubmsg.retained = retained;
 	pubmsg.payloadlen = length;
 	pubmsg.payload = payload;
 
 	return MQTTClient_publishMessage( cfg.client, topic, &pubmsg, NULL);
+}
+
+void brkcleaning(void){	/* Clean broker stuffs */
+	MQTTClient_disconnect(cfg.client, 10000);	/* 10s for the grace period */
+	MQTTClient_destroy(&cfg.client);
 }
 
 	/*
@@ -269,6 +274,7 @@ int main(int ac, char **av){
 		fputs("Unable to connect : Unknown version\n", stderr);
 		exit(EXIT_FAILURE);
 	}
+	atexit(brkcleaning);
 
 	exit(EXIT_SUCCESS);
 }
