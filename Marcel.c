@@ -181,9 +181,39 @@ void read_configuration( const char *fch){
 	fclose(f);
 }
 
+	/*
+	 * Broker related functions
+	 */
+int msgarrived(void *ctx, char *topic, int tlen, MQTTClient_message *msg){
+	if(debug)
+		printf("*I* Unexpected message arrival (topic : '%s')\n", topic);
+
+	MQTTClient_freeMessage(&msg);
+	MQTTClient_free(topic);
+	return 1;
+}
+
+void connlost(void *ctx, char *cause){
+	printf("*W* Broker connection lost due to %s\n", cause);
+}
+
+int papub( const char *topic, int length, void *payload, int retained ){	/* Custom wrapper to publish */
+	MQTTClient_message pubmsg = MQTTClient_message_initializer;
+	pubmsg.retained = retained;
+	pubmsg.payloadlen = length;
+	pubmsg.payload = payload;
+
+	return MQTTClient_publishMessage( cfg.client, topic, &pubmsg, NULL);
+}
+
+	/*
+	 * Processing
+	 */
+
 int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
 	pthread_attr_t thread_attr;
+	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 
 	if(ac > 0){
 		int i;
@@ -212,6 +242,33 @@ int main(int ac, char **av){
 		}
 	}
 	read_configuration( conf_file );
+
+	if(!cfg.sections){
+		fputs("*F* No section defined : giving up ...\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+
+	conn_opts.reliable = 0;
+	MQTTClient_create( &cfg.client, cfg.Broker, "Marcel", MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	MQTTClient_setCallbacks( cfg.client, NULL, connlost, msgarrived, NULL);
+
+	switch( MQTTClient_connect( cfg.client, &conn_opts) ){
+	case MQTTCLIENT_SUCCESS : 
+		break;
+	case 1 : fputs("Unable to connect : Unacceptable protocol version\n", stderr);
+		exit(EXIT_FAILURE);
+	case 2 : fputs("Unable to connect : Identifier rejected\n", stderr);
+		exit(EXIT_FAILURE);
+	case 3 : fputs("Unable to connect : Server unavailable\n", stderr);
+		exit(EXIT_FAILURE);
+	case 4 : fputs("Unable to connect : Bad user name or password\n", stderr);
+		exit(EXIT_FAILURE);
+	case 5 : fputs("Unable to connect : Not authorized\n", stderr);
+		exit(EXIT_FAILURE);
+	default :
+		fputs("Unable to connect : Unknown version\n", stderr);
+		exit(EXIT_FAILURE);
+	}
 
 	exit(EXIT_SUCCESS);
 }
