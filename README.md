@@ -13,11 +13,13 @@
 
     gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
 
-    #Launch options :#
-    Marcel knows the following options :
-    * *-d* : verbose output
-    * *-f<file>* : loads <file> as configuration file. The default one is `/usr/local/etc/Marcel.conf`
+#Launch options :#
+Marcel knows the following options :
+* *-d* : verbose output
+* *-f<file>* : loads <file> as configuration file. The default one is `/usr/local/etc/Marcel.conf`
 
-    Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
+Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
 
-    > Written with [StackEdit](https://stackedit.io/).
+#Side note#
+The name is a tribute to my late rabbit that passed away some days back before I did started this project : he stayed at home to keep our house. RIP.
+> Written with [StackEdit](https://stackedit.io/).
