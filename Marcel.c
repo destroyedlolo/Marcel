@@ -120,6 +120,7 @@ void read_configuration( const char *fch){
 	FILE *f;
 	char l[MAXLINE];
 	char *arg;
+	union CSection *last_section=NULL;
 
 	cfg.sections = NULL;
 	cfg.Broker = "tcp://localhost:1883";
@@ -147,34 +148,37 @@ void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct _FSV));
 
 			n->common.section_type = MSEC_FSV;
-			n->common.next = cfg.sections;
-			cfg.sections = n;
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
 			if(debug)
 				printf("Entering section '%s'\n", removeLF(arg));
 		} else if((arg = striKWcmp(l,"File="))){
-			if(!cfg.sections || cfg.sections->common.section_type != MSEC_FSV){
+			if(!last_section || last_section->common.section_type != MSEC_FSV){
 				fputs("*F* Configuration issue : File directive outside a FSV section\n", stderr);
 					exit(EXIT_FAILURE);
 			}
-			assert( cfg.sections->FSV.file = strdup( removeLF(arg) ));
+			assert( last_section->FSV.file = strdup( removeLF(arg) ));
 			if(debug)
-				printf("\tFile : '%s'\n", cfg.sections->FSV.file);
+				printf("\tFile : '%s'\n", last_section->FSV.file);
 		} else if((arg = striKWcmp(l,"Sample="))){
-			if(!cfg.sections){
+			if(!last_section){
 				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			cfg.sections->common.sample = atoi( arg );
+			last_section->common.sample = atoi( arg );
 			if(debug)
-				printf("\tDelay between samples : %ds\n", cfg.sections->common.sample);
+				printf("\tDelay between samples : %ds\n", last_section->common.sample);
 		} else if((arg = striKWcmp(l,"Topic="))){
-			if(!cfg.sections){
+			if(!last_section){
 				fputs("*F* Configuration issue : Topic directive outside a section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			assert( cfg.sections->common.topic = strdup( removeLF(arg) ));
+			assert( last_section->common.topic = strdup( removeLF(arg) ));
 			if(debug)
-				printf("\tTopic : '%s'\n", cfg.sections->common.topic);
+				printf("\tTopic : '%s'\n", last_section->common.topic);
 		}
 	}
 
@@ -232,33 +236,42 @@ void *process_FSV(void *actx){
 	if(debug)
 		printf("Launching a processing flow for FSV '%s'\n", ctx->topic);
 
-/* TBD : traité plusieurs FSV dans un seul thread */
-	for(;;){
-		if(!(f = fopen( ctx->file, "r" ))){
-			if(debug)
-				perror( ctx->file );
-			if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
-				int msg;
-				char *emsg;
-				strcpy(l, ctx->topic);
-				strcat(l, "/Alarm");
-				msg = strlen(l) + 2;
+	for(;;){	/* Infinite loop to process messages */
+		ctx = actx;	/* Back to the 1st one */
+		for(;;){
+			if(!(f = fopen( ctx->file, "r" ))){
+				if(debug)
+					perror( ctx->file );
+				if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
+					int msg;
+					char *emsg;
+					strcpy(l, ctx->topic);
+					strcat(l, "/Alarm");
+					msg = strlen(l) + 2;
 
-				if(strlen(ctx->file) + strlen(emsg = strerror(errno)) + 4 < MAXLINE - msg){
-					strcpy(l + msg, ctx->file);
-					strcat(l + msg, " : ");
-					strcat(l + msg, emsg);
+					if(strlen(ctx->file) + strlen(emsg = strerror(errno)) + 4 < MAXLINE - msg){
+						strcpy(l + msg, ctx->file);
+						strcat(l + msg, " : ");
+						strcat(l + msg, emsg);
 
-					papub(l, strlen(l + msg), l + msg, 0);
-				} else
-					papub(l, strlen(l + msg), emsg, 0);
-			}
-		} else {
+						papub(l, strlen(l + msg), l + msg, 0);
+					} else
+						papub(l, strlen(l + msg), emsg, 0);
+				}
+			} else {
 /*TBD : traitement des messages */
-			fclose(f);
+puts(ctx->topic);
+				fclose(f);
+			}
+
+			if(!(ctx = (struct _FSV *)ctx->next))	/* It was the last entry */
+				break;
+			if(ctx->section_type != MSEC_FSV || ctx->sample)	/* Not the same kind or new thread rauested */
+				break;
 		}
 
-		sleep( ctx->sample );
+puts("dodo");
+		sleep( ((struct _FSV *)actx)->sample );
 	}
 
 	pthread_exit(0);
@@ -336,6 +349,9 @@ int main(int ac, char **av){
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		switch(s->common.section_type){
 		case MSEC_FSV:
+/* ATTENTION, lorsque plusieurs types seront implémenté, on peut grouper les sections
+ * uniquement s'ils sont du même type
+ */
 			if(s->common.sample){	/* Creates only if sample is set */
 				if(pthread_create( &(s->common.thread), &thread_attr, process_FSV, s) < 0){
 					fputs("*F* Can't create a processing thread\n", stderr);
