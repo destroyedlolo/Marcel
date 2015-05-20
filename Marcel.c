@@ -18,6 +18,7 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  *	18/05/2015	- LF start of development (inspired from TeleInfod)
+ *	20/05/2015	- LF - v1.0 - "file float value" working
  *
  */
 #include <stdio.h>
@@ -34,7 +35,7 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
 	/* PAHO library needed */ 
 #include <MQTTClient.h>
 
-#define VERSION "0.1"
+#define VERSION "1.0"
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
 #define BRK_KEEPALIVE 60	/* Keep alive signal to the broker */
@@ -89,7 +90,7 @@ char *extr_arg(char *s, int l){
 	 */
 enum _tp_msec {
 	MSEC_INVALID =0,	/* Ignored */
-	MSEC_FSV			/* File String Value */
+	MSEC_FFV			/* File String Value */
 };
 
 union CSection {
@@ -100,14 +101,14 @@ union CSection {
 		pthread_t thread;
 		const char *topic;
 	} common;
-	struct _FSV {
+	struct _FFV {
 		union CSection *next;
 		enum _tp_msec section_type;
 		int sample;
 		pthread_t thread;
 		const char *topic;
 		const char *file;
-	} FSV;
+	} FFV;
 };
 
 struct Config {
@@ -142,12 +143,12 @@ void read_configuration( const char *fch){
 			assert( cfg.Broker = strdup( removeLF(arg) ) );
 			if(debug)
 				printf("Broker : '%s'\n", cfg.Broker);
-		} else if((arg = striKWcmp(l,"*FSV="))){
-			union CSection *n = malloc( sizeof(struct _FSV) );
+		} else if((arg = striKWcmp(l,"*FFV="))){
+			union CSection *n = malloc( sizeof(struct _FFV) );
 			assert(n);
-			memset(n, 0, sizeof(struct _FSV));
+			memset(n, 0, sizeof(struct _FFV));
 
-			n->common.section_type = MSEC_FSV;
+			n->common.section_type = MSEC_FFV;
 			if(last_section)
 				last_section->common.next = n;
 			else	/* First section */
@@ -156,13 +157,13 @@ void read_configuration( const char *fch){
 			if(debug)
 				printf("Entering section '%s'\n", removeLF(arg));
 		} else if((arg = striKWcmp(l,"File="))){
-			if(!last_section || last_section->common.section_type != MSEC_FSV){
-				fputs("*F* Configuration issue : File directive outside a FSV section\n", stderr);
+			if(!last_section || last_section->common.section_type != MSEC_FFV){
+				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);
 					exit(EXIT_FAILURE);
 			}
-			assert( last_section->FSV.file = strdup( removeLF(arg) ));
+			assert( last_section->FFV.file = strdup( removeLF(arg) ));
 			if(debug)
-				printf("\tFile : '%s'\n", last_section->FSV.file);
+				printf("\tFile : '%s'\n", last_section->FFV.file);
 		} else if((arg = striKWcmp(l,"Sample="))){
 			if(!last_section){
 				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
@@ -218,8 +219,8 @@ void brkcleaning(void){	/* Clean broker stuffs */
 	/*
 	 * Processing
 	 */
-void *process_FSV(void *actx){
-	struct _FSV *ctx = actx;	/* Only to avoid zillions of cast */
+void *process_FFV(void *actx){
+	struct _FFV *ctx = actx;	/* Only to avoid zillions of cast */
 	FILE *f;
 	char l[MAXLINE];
 
@@ -234,7 +235,7 @@ void *process_FSV(void *actx){
 	}
 
 	if(debug)
-		printf("Launching a processing flow for FSV '%s'\n", ctx->topic);
+		printf("Launching a processing flow for FFV '%s'\n", ctx->topic);
 
 	for(;;){	/* Infinite loop to process messages */
 		ctx = actx;	/* Back to the 1st one */
@@ -259,19 +260,23 @@ void *process_FSV(void *actx){
 						papub(l, strlen(l + msg), emsg, 0);
 				}
 			} else {
-/*TBD : traitement des messages */
-puts(ctx->topic);
+				float val;
+				fscanf(f, "%f", &val);	/* Only to normalize the response */
+				sprintf(l,"%.1f", val);
+
+				papub( ctx->topic, strlen(l), l, 0 );
+				if(debug)
+					printf("FFV : %s -> %f\n", ctx->topic, val);
 				fclose(f);
 			}
 
-			if(!(ctx = (struct _FSV *)ctx->next))	/* It was the last entry */
+			if(!(ctx = (struct _FFV *)ctx->next))	/* It was the last entry */
 				break;
-			if(ctx->section_type != MSEC_FSV || ctx->sample)	/* Not the same kind or new thread rauested */
+			if(ctx->section_type != MSEC_FFV || ctx->sample)	/* Not the same kind or new thread rauested */
 				break;
 		}
 
-puts("dodo");
-		sleep( ((struct _FSV *)actx)->sample );
+		sleep( ((struct _FFV *)actx)->sample );
 	}
 
 	pthread_exit(0);
@@ -348,12 +353,12 @@ int main(int ac, char **av){
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		switch(s->common.section_type){
-		case MSEC_FSV:
+		case MSEC_FFV:
 /* ATTENTION, lorsque plusieurs types seront implémenté, on peut grouper les sections
  * uniquement s'ils sont du même type
  */
 			if(s->common.sample){	/* Creates only if sample is set */
-				if(pthread_create( &(s->common.thread), &thread_attr, process_FSV, s) < 0){
+				if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
 					fputs("*F* Can't create a processing thread\n", stderr);
 					exit(EXIT_FAILURE);
 				}
