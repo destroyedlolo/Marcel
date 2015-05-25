@@ -22,6 +22,7 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
  *
  *	18/05/2015	- LF start of development (inspired from TeleInfod)
  *	20/05/2015	- LF - v1.0 - "file float value" working
+ *	25/05/2015	- LF - v1.1 - Adding "Freebox"
  *
  */
 #include <stdio.h>
@@ -34,6 +35,12 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
 #include <unistd.h>
 #include <pthread.h>
 #include <signal.h>
+#ifdef FREEBOX
+#	include <sys/types.h>
+#	include	<sys/socket.h>
+#	include	<netinet/in.h>
+#	include	<netdb.h>
+#endif
 
 	/* PAHO library needed */ 
 #include <MQTTClient.h>
@@ -248,7 +255,7 @@ void *process_FFV(void *actx){
 	FILE *f;
 	char l[MAXLINE];
 
-		/* Sanity check */
+		/* Sanity checks */
 	if(!ctx->topic){
 		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
 		pthread_exit(0);
@@ -305,6 +312,63 @@ void *process_FFV(void *actx){
 
 	pthread_exit(0);
 }
+
+#ifdef FREEBOX
+#define FBX_HOST	"mafreebox.freebox.fr"
+#define FBX_URI "/pub/fbx_info.txt"
+#define FBX_PORT	80
+void *process_Freebox(void *actx){
+	struct _FreeBox *ctx = actx;	/* Only to avoid zillions of cast */
+	char l[MAXLINE];
+	struct hostent *server;
+	struct sockaddr_in serv_addr;
+
+		/* Sanity checks */
+	if(!ctx->topic){
+		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+		pthread_exit(0);
+	}
+	if(!(server = gethostbyname( FBX_HOST ))){
+		perror( FBX_HOST );
+		fputs("*E* Stopping this thread\n", stderr);
+		pthread_exit(0);
+	}
+
+	memset( &serv_addr, '0', sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	memcpy( &serv_addr.sin_addr.s_addr, server->h_addr_list, server->h_length );
+	serv_addr.sin_port = htons( FBX_PORT );
+
+	if(debug)
+		printf("Launching a processing flow for Freebox\n");
+
+	for(;;){	/* Infinite loop to process data */
+		int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+puts("0");
+		if(sockfd < 0){
+			fprintf(stderr, "*E* Can't create socket : %s\n", strerror( errno ));
+			fputs("*E* Stopping this thread\n", stderr);
+			pthread_exit(0);
+		}
+puts("1");
+		connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr));
+puts("2");
+#if 0
+		if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
+/*AF : Send error topic */
+puts("2");
+			perror("*E* Connecting");
+		}
+#endif
+puts("bip");
+		close(sockfd);
+		sleep( ctx->sample );
+	}
+
+	pthread_exit(0);
+}
+#endif
 
 void handleInt(int na){
 	exit(EXIT_SUCCESS);
@@ -392,6 +456,9 @@ int main(int ac, char **av){
 		case MSEC_FREEBOX:
 			if(!s->common.sample){
 				fputs("*E* Freebox section without sample time : ignoring ...\n", stderr);
+			} else if(pthread_create( &(s->common.thread), &thread_attr, process_Freebox, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
 			}
 			break;
 #endif
