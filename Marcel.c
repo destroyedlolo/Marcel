@@ -5,6 +5,9 @@
  *	Compilation
 gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
  *
+ * Additional options :
+ *	-DFREEBOX : enable Freebox statistics
+ *
  *	Copyright 2015 Laurent Faillie
  *
  *		Marcel is covered by
@@ -90,7 +93,8 @@ char *extr_arg(char *s, int l){
 	 */
 enum _tp_msec {
 	MSEC_INVALID =0,	/* Ignored */
-	MSEC_FFV			/* File String Value */
+	MSEC_FFV,			/* File String Value */
+	MSEC_FREEBOX		/* FreeBox */
 };
 
 union CSection {
@@ -109,6 +113,13 @@ union CSection {
 		const char *topic;
 		const char *file;
 	} FFV;
+	struct _FreeBox {
+		union CSection *next;
+		enum _tp_msec section_type;
+		int sample;
+		pthread_t thread;
+		const char *topic;
+	} FreeBox;
 };
 
 struct Config {
@@ -156,6 +167,19 @@ void read_configuration( const char *fch){
 			last_section = n;
 			if(debug)
 				printf("Entering section '%s'\n", removeLF(arg));
+		} else if((arg = striKWcmp(l,"*Freebox"))){
+			union CSection *n = malloc( sizeof(struct _FreeBox) );
+			assert(n);
+			memset(n, 0, sizeof(struct _FreeBox));
+
+			n->common.section_type = MSEC_FREEBOX;
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(debug)
+				puts("Entering section 'Freebox");
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);
@@ -272,7 +296,7 @@ void *process_FFV(void *actx){
 
 			if(!(ctx = (struct _FFV *)ctx->next))	/* It was the last entry */
 				break;
-			if(ctx->section_type != MSEC_FFV || ctx->sample)	/* Not the same kind or new thread rauested */
+			if(ctx->section_type != MSEC_FFV || ctx->sample)	/* Not the same kind or new thread requested */
 				break;
 		}
 
@@ -364,6 +388,13 @@ int main(int ac, char **av){
 				}
 			}
 			break;
+#ifdef FREEBOX
+		case MSEC_FREEBOX:
+			if(!s->common.sample){
+				fputs("*E* Freebox section without sample time : ignoring ...\n", stderr);
+			}
+			break;
+#endif
 		default :	/* Ignore unsupported type */
 			break;
 		}
