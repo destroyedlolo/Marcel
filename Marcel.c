@@ -391,8 +391,8 @@ void *process_Freebox(void *actx){
 		} else while( socketreadline(sockfd, l, sizeof(l)) != -1 ){
 			if(strstr(l, "ATM")){
 				int u, d, lm;
-				sscanf(l+25,"%d", &d);
-				sscanf(l+44,"%d", &u);
+				if(sscanf(l+25,"%d", &d) != 1) d=-1;
+				if(sscanf(l+44,"%d", &u) != 1) u=-1;
 
 				lm = sprintf(l, "%s/DownloadATM", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
@@ -411,8 +411,8 @@ void *process_Freebox(void *actx){
 				float u, d; 
 				int lm;
 
-				sscanf(l+25,"%f", &d);
-				sscanf(l+44,"%f", &u);
+				if(sscanf(l+25,"%f", &d) != 1) d = -1;
+				if(sscanf(l+44,"%f", &u) != 1) u = -1;
 
 				lm = sprintf(l, "%s/DownloadMarge", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
@@ -424,6 +424,82 @@ void *process_Freebox(void *actx){
 				lm = sprintf(l, "%s/UploadMarge", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%.2f", u );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+			} else if(striKWcmp(l, "  WAN")){
+				int u, d, lm;
+
+				if(sscanf(l+40,"%d", &d) != 1) d = -1;
+				if(sscanf(l+55,"%d", &u) != 1) u = -1;
+
+				lm = sprintf(l, "%s/DownloadWIFI", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", d );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+
+				lm = sprintf(l, "%s/UploadWIFI", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", u );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+			} else if(striKWcmp(l, "  Ethernet")){
+				int u, d, lm;
+
+				if(sscanf(l+40,"%d", &d) != 1) d = -1;
+				if(sscanf(l+55,"%d", &u) != 1) u = -1;
+
+				lm = sprintf(l, "%s/DownloadTV", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", d );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+
+				lm = sprintf(l, "%s/UploadTV", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", u );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+			} else if(striKWcmp(l, "  USB")){
+				int u, d, lm;
+
+				if(sscanf(l+40,"%d", &d) != 1) d = -1;
+				if(sscanf(l+55,"%d", &u) != 1) u = -1;
+
+				lm = sprintf(l, "%s/DownloadUSB", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", d );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+
+				lm = sprintf(l, "%s/UploadUSB", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", u );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+			} else if(striKWcmp(l, "  Switch")){
+				int u, d, lm;
+
+				if(sscanf(l+40,"%d", &d) != 1) d = -1;
+				if(sscanf(l+55,"%d", &u) != 1) u = -1;
+
+				lm = sprintf(l, "%s/DownloadLan", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", d );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+
+				lm = sprintf(l, "%s/UploadLan", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", u );
 				papub( l, strlen(l+lm), l+lm, 0 );
 				if(debug)
 					printf("Freebox : %s -> %s\n", l, l+lm);
