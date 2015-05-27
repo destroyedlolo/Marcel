@@ -215,7 +215,7 @@ void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(debug)
-				puts("Entering section 'Freebox");
+				puts("Entering section 'Freebox'");
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);
@@ -369,7 +369,7 @@ void *process_Freebox(void *actx){
 	memset( &serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons( FBX_PORT );
-	memcpy(&serv_addr.sin_addr.s_addr,server->h_addr_list,server->h_length);
+	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
 
 	if(debug)
 		printf("Launching a processing flow for Freebox\n");
@@ -377,20 +377,59 @@ void *process_Freebox(void *actx){
 	for(;;){	/* Infinite loop to process data */
 		int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-puts("0");
 		if(sockfd < 0){
 			fprintf(stderr, "*E* Can't create socket : %s\n", strerror( errno ));
 			fputs("*E* Stopping this thread\n", stderr);
 			pthread_exit(0);
 		}
-puts("1");
 		if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
 /*AF : Send error topic */
-puts("2");
 			perror("*E* Connecting");
+		} else if( send(sockfd, FBX_REQ, strlen(FBX_REQ), 0) == -1 ){
+/*AF : Send error topic */
+			perror("*E* Sending");
+		} else while( socketreadline(sockfd, l, sizeof(l)) != -1 ){
+			if(strstr(l, "ATM")){
+				int u, d, lm;
+				sscanf(l+25,"%d", &d);
+				sscanf(l+44,"%d", &u);
+
+				lm = sprintf(l, "%s/DownloadATM", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", d );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+
+				lm = sprintf(l, "%s/UploadATM", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%d", u );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+			} else if(striKWcmp(l, "  Marge de bruit")){
+				float u, d; 
+				int lm;
+
+				sscanf(l+25,"%f", &d);
+				sscanf(l+44,"%f", &u);
+
+				lm = sprintf(l, "%s/DownloadMarge", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%.2f", d );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+
+				lm = sprintf(l, "%s/UploadMarge", ctx->topic) + 2;
+				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+				sprintf( l+lm, "%.2f", u );
+				papub( l, strlen(l+lm), l+lm, 0 );
+				if(debug)
+					printf("Freebox : %s -> %s\n", l, l+lm);
+			}
 		}
 
-puts("bip");
 		close(sockfd);
 		sleep( ctx->sample );
 	}
