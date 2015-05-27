@@ -95,6 +95,35 @@ char *extr_arg(char *s, int l){
 	return s;
 }
 
+size_t socketreadline( int fd, char *l, size_t sz){
+/* read a line :
+ * -> 	fd : file descriptor to read
+ *		l : buffer to store the result
+ *		sz : max size of the result
+ * <- size read, -1 if error or EoF
+ */
+	int s=0;
+	char *p = l, c;
+
+	for(;;){
+		int r = read( fd, &c, 1);
+
+		if(r == -1)
+			return -1;
+		else if(!r){	/* EOF */
+			return -1;
+		} else if(c == '\n')
+			break;
+		else {
+			*p++ = c;
+			s++;
+		}
+	}
+	*p = '\0';
+
+	return s;
+}
+
 	/*
 	 * Configuration
 	 */
@@ -317,6 +346,9 @@ void *process_FFV(void *actx){
 #define FBX_HOST	"mafreebox.freebox.fr"
 #define FBX_URI "/pub/fbx_info.txt"
 #define FBX_PORT	80
+
+#define FBX_REQ "GET "FBX_URI" HTTP/1.0\n\n"
+
 void *process_Freebox(void *actx){
 	struct _FreeBox *ctx = actx;	/* Only to avoid zillions of cast */
 	char l[MAXLINE];
@@ -334,10 +366,10 @@ void *process_Freebox(void *actx){
 		pthread_exit(0);
 	}
 
-	memset( &serv_addr, '0', sizeof(serv_addr));
+	memset( &serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	memcpy( &serv_addr.sin_addr.s_addr, server->h_addr_list, server->h_length );
 	serv_addr.sin_port = htons( FBX_PORT );
+	memcpy(&serv_addr.sin_addr.s_addr,server->h_addr_list,server->h_length);
 
 	if(debug)
 		printf("Launching a processing flow for Freebox\n");
@@ -352,15 +384,12 @@ puts("0");
 			pthread_exit(0);
 		}
 puts("1");
-		connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr));
-puts("2");
-#if 0
 		if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
 /*AF : Send error topic */
 puts("2");
 			perror("*E* Connecting");
 		}
-#endif
+
 puts("bip");
 		close(sockfd);
 		sleep( ctx->sample );
