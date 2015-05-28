@@ -13,6 +13,10 @@
 
     gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
 
+Add following options to include related modules :
+* -DFREEBOX : Enable Freebox statistics (French Internet provider)
+* -DUPS : Enable UPS monitoring, NUT needed
+
 #Launch options :#
 Marcel knows the following options :
 * *-d* : verbose output
@@ -21,5 +25,5 @@ Marcel knows the following options :
 Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
 
 #Side note#
-The name is a tribute to my late rabbit that passed away some days back before I did started this project : he stayed at home to keep our house. RIP.
+The name is a tribute to my late rabbit that passed away some days before I did started this project : he stayed at home to keep our house. RIP.
 > Written with [StackEdit](https://stackedit.io/).

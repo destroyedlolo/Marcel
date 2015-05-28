@@ -7,6 +7,7 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
  *
  * Additional options :
  *	-DFREEBOX : enable Freebox statistics
+ *	-DUPS : enable UPS statistics (NUT needed)
  *
  *	Copyright 2015 Laurent Faillie
  *
@@ -23,7 +24,7 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
  *	18/05/2015	- LF start of development (inspired from TeleInfod)
  *	20/05/2015	- LF - v1.0 - "file float value" working
  *	25/05/2015	- LF - v1.1 - Adding "Freebox"
- *
+ *	28/05/2015	- LF - v1.2 - Adding UPS
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +46,7 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
 	/* PAHO library needed */ 
 #include <MQTTClient.h>
 
-#define VERSION "1.0"
+#define VERSION "1.2"
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
 #define BRK_KEEPALIVE 60	/* Keep alive signal to the broker */
@@ -130,7 +131,8 @@ size_t socketreadline( int fd, char *l, size_t sz){
 enum _tp_msec {
 	MSEC_INVALID =0,	/* Ignored */
 	MSEC_FFV,			/* File String Value */
-	MSEC_FREEBOX		/* FreeBox */
+	MSEC_FREEBOX,		/* FreeBox */
+	MSEC_UPS			/* UPS */
 };
 
 union CSection {
@@ -156,6 +158,16 @@ union CSection {
 		pthread_t thread;
 		const char *topic;
 	} FreeBox;
+	struct _UPS {
+		union CSection *next;
+		enum _tp_msec section_type;
+		int sample;
+		pthread_t thread;
+		const char *topic;
+		const char *section_name;
+		const char *host;
+		int port;
+	} Ups;
 };
 
 struct Config {
@@ -194,8 +206,8 @@ void read_configuration( const char *fch){
 			union CSection *n = malloc( sizeof(struct _FFV) );
 			assert(n);
 			memset(n, 0, sizeof(struct _FFV));
-
 			n->common.section_type = MSEC_FFV;
+
 			if(last_section)
 				last_section->common.next = n;
 			else	/* First section */
@@ -207,8 +219,8 @@ void read_configuration( const char *fch){
 			union CSection *n = malloc( sizeof(struct _FreeBox) );
 			assert(n);
 			memset(n, 0, sizeof(struct _FreeBox));
-
 			n->common.section_type = MSEC_FREEBOX;
+
 			if(last_section)
 				last_section->common.next = n;
 			else	/* First section */
@@ -216,6 +228,21 @@ void read_configuration( const char *fch){
 			last_section = n;
 			if(debug)
 				puts("Entering section 'Freebox'");
+		} else if((arg = striKWcmp(l,"*UPS="))){
+			union CSection *n = malloc( sizeof(struct _UPS) );
+			assert(n);
+			memset(n, 0, sizeof(struct _UPS));
+			n->common.section_type = MSEC_UPS;
+
+			assert( n->Ups.section_name = strdup( removeLF(arg) ) );
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(debug)
+				printf("Entering section 'UPS/%s'\n", n->Ups.section_name);
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);
@@ -224,6 +251,25 @@ void read_configuration( const char *fch){
 			assert( last_section->FFV.file = strdup( removeLF(arg) ));
 			if(debug)
 				printf("\tFile : '%s'\n", last_section->FFV.file);
+		} else if((arg = striKWcmp(l,"Host="))){
+			if(!last_section || last_section->common.section_type != MSEC_UPS){
+				fputs("*F* Configuration issue : Host directive outside a UPS section\n", stderr);
+					exit(EXIT_FAILURE);
+			}
+			assert( last_section->Ups.host = strdup( removeLF(arg) ));
+			if(debug)
+				printf("\tHost : '%s'\n", last_section->Ups.host);
+		} else if((arg = striKWcmp(l,"Port="))){
+			if(!last_section || last_section->common.section_type != MSEC_UPS){
+				fputs("*F* Configuration issue : Port directive outside a UPS section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			if(!(last_section->Ups.port = atoi(arg))){
+				fputs("*F* Configuration issue : Port is null (or is not a number)\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			if(debug)
+				printf("\tPort : %d\n", last_section->Ups.port);
 		} else if((arg = striKWcmp(l,"Sample="))){
 			if(!last_section){
 				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
@@ -540,7 +586,7 @@ int main(int ac, char **av){
 			} else if(!strcmp(av[i], "-d")){
 				debug = 1;
 				puts("Marcel (c) L.Faillie 2015");
-				printf("%s (%s) starting ...\n", basename(av[0]), VERSION);
+				printf("%s v%s starting ...\n", basename(av[0]), VERSION);
 			} else if(!strncmp(av[i], "-f", 2))
 				conf_file = av[i] + 2;
 			else {
