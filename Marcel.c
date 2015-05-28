@@ -560,6 +560,69 @@ void *process_Freebox(void *actx){
 }
 #endif
 
+#ifdef UPS
+void *process_UPS(void *actx){
+	struct _UPS *ctx = actx;	/* Only to avoid zillions of cast */
+	char l[MAXLINE];
+	struct hostent *server;
+	struct sockaddr_in serv_addr;
+
+		/* Sanity checks */
+	if(!ctx->topic){
+		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+		pthread_exit(0);
+	}
+	if(!ctx->host || !ctx->port){
+		fputs("*E* configuration error : Don't know how to reach NUT\n", stderr);
+		pthread_exit(0);
+	}
+
+	if(!(server = gethostbyname( ctx->host ))){
+		perror( ctx->host );
+		fputs("*E* Stopping this thread\n", stderr);
+		pthread_exit(0);
+	}
+
+	memset( &serv_addr, 0, sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons( ctx->port );
+	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
+
+	if(debug)
+		printf("Launching a processing flow for UPS/%s\n", ctx->section_name);
+
+	for(;;){	/* Infinite loop to process data */
+		int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+		if(sockfd < 0){
+			fprintf(stderr, "*E* Can't create socket : %s\n", strerror( errno ));
+			fputs("*E* Stopping this thread\n", stderr);
+			pthread_exit(0);
+		}
+		if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
+/*AF : Send error topic */
+			perror("*E* Connecting");
+		} else {
+/*AF : Test only
+ * add list of variables into configuration and loop on them
+ */
+			const char *cmd = "GET VAR onduleur ups.load\n";
+			if( send(sockfd, cmd , strlen(cmd), 0) == -1 ){
+/*AF : Send error topic */
+				perror("*E* Sending");
+			} else {
+printf("=> %d\n", socketreadline(sockfd, l, sizeof(l)) );
+puts(l);
+			}
+
+			close(sockfd);
+			sleep( ctx->sample );
+		}
+	}
+	pthread_exit(0);
+}
+#endif
+
 void handleInt(int na){
 	exit(EXIT_SUCCESS);
 }
@@ -632,9 +695,6 @@ int main(int ac, char **av){
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		switch(s->common.section_type){
 		case MSEC_FFV:
-/* ATTENTION, lorsque plusieurs types seront implémenté, on peut grouper les sections
- * uniquement s'ils sont du même type
- */
 			if(s->common.sample){	/* Creates only if sample is set */
 				if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
 					fputs("*F* Can't create a processing thread\n", stderr);
@@ -650,6 +710,16 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}
+			break;
+#endif
+#ifdef UPS
+		case MSEC_UPS:
+			if(!s->common.sample){ /* we won't group UPS to prevent too many DNS lookup */
+				fputs("*E* UPS section without sample time : ignoring ...\n", stderr);
+			} else if(pthread_create( &(s->common.thread), &thread_attr, process_UPS, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
+			}			
 			break;
 #endif
 		default :	/* Ignore unsupported type */
