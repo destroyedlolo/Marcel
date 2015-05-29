@@ -586,8 +586,8 @@ void *process_UPS(void *actx){
 	struct sockaddr_in serv_addr;
 
 		/* Sanity checks */
-	if(!ctx->topic){
-		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+	if(!ctx->topic || !ctx->section_name){
+		fputs("*E* configuration error : section name or topic specified, ignoring this section\n", stderr);
 		pthread_exit(0);
 	}
 	if(!ctx->host || !ctx->port){
@@ -621,18 +621,27 @@ void *process_UPS(void *actx){
 /*AF : Send error topic */
 			perror("*E* Connecting");
 		} else {
-/*AF : Test only
- * add list of variables into configuration and loop on them
- */
-			const char *cmd = "GET VAR onduleur ups.load\n";
-			if( send(sockfd, cmd , strlen(cmd), 0) == -1 ){
+			for(struct var *v = ctx->var_list; v; v = v->next){
+				sprintf(l, "GET VAR %s %s\n", ctx->section_name, v->name);
+				if( send(sockfd, l , strlen(l), 0) == -1 ){
 /*AF : Send error topic */
-				perror("*E* Sending");
-			} else {
-printf("=> %d\n", socketreadline(sockfd, l, sizeof(l)) );
-puts(l);
+					perror("*E* Sending");
+				} else {
+					char *ps, *pe;
+					socketreadline(sockfd, l, sizeof(l));
+					if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') )){
+						if(debug)
+							printf("*E* %s/%s : unexpected result '%s'\n", ctx->section_name, v->name, l);
+					} else {
+						ps++; *pe++ = 0;	/* Extract only the result */
+						assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
+						sprintf( pe, "%s/%s", ctx->topic, v->name );
+						papub( pe, strlen(ps), ps, 0 );
+						if(debug)
+							printf("UPS : %s -> '%s'\n", pe, ps);
+					}
+				}
 			}
-
 			close(sockfd);
 			sleep( ctx->sample );
 		}
