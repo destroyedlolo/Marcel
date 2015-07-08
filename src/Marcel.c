@@ -1,9 +1,7 @@
 /*
  * Marcel
- *	A daemon to publish some smart home data to MQTT broker
- *
- *	Compilation
-gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
+ *	A daemon to publish smart home data to MQTT broker and rise alert
+ *	if needed.
  *
  * Additional options :
  *	-DFREEBOX : enable Freebox statistics
@@ -25,6 +23,8 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
  *	20/05/2015	- LF - v1.0 - "file float value" working
  *	25/05/2015	- LF - v1.1 - Adding "Freebox"
  *	28/05/2015	- LF - v1.2 - Adding UPS
+ *				-------
+ *	08/07/2015	- LF - start v2.0 - make source modular
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,10 +46,7 @@ gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
 	/* PAHO library needed */ 
 #include <MQTTClient.h>
 
-#define VERSION "1.2"
-#define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
-#define MAXLINE 1024	/* Maximum length of a line to be read */
-#define BRK_KEEPALIVE 60	/* Keep alive signal to the broker */
+#include "Marcel.h"
 
 int debug = 0;
 
@@ -84,7 +81,6 @@ char *mystrdup(const char *as){
 	strcpy(s, as);
 	return s;
 }
-#define strdup(s) mystrdup(s)
 
 char *extr_arg(char *s, int l){ 
 /* Extract an argument from TéléInfo trame 
