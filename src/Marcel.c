@@ -30,6 +30,7 @@
 #include "Freebox.h"
 #include "UPS.h"
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -320,7 +321,7 @@ static void *process_FFV(void *actx){
 
 						papub(l, strlen(l + msg), l + msg, 0);
 					} else
-						papub(l, strlen(l + msg), emsg, 0);
+						papub(l, strlen(emsg), emsg, 0);
 				}
 			} else {
 				float val;
