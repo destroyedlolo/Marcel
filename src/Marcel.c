@@ -26,6 +26,8 @@
  *				-------
  *	08/07/2015	- LF - start v2.0 - make source modular
  */
+#include "Marcel.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,7 +36,6 @@
 #include <libgen.h>
 #include <assert.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <signal.h>
 #ifdef FREEBOX
 #	include <sys/types.h>
@@ -42,11 +43,6 @@
 #	include	<netinet/in.h>
 #	include	<netdb.h>
 #endif
-
-	/* PAHO library needed */ 
-#include <MQTTClient.h>
-
-#include "Marcel.h"
 
 int debug = 0;
 
@@ -124,60 +120,6 @@ size_t socketreadline( int fd, char *l, size_t sz){
 	/*
 	 * Configuration
 	 */
-enum _tp_msec {
-	MSEC_INVALID =0,	/* Ignored */
-	MSEC_FFV,			/* File String Value */
-	MSEC_FREEBOX,		/* FreeBox */
-	MSEC_UPS			/* UPS */
-};
-
-struct var {	/* Storage for var list */
-	struct var *next;
-	const char *name;
-};
-
-union CSection {
-	struct {	/* Fields common to all sections */
-		union CSection *next;
-		enum _tp_msec section_type;
-		int sample;
-		pthread_t thread;
-		const char *topic;
-	} common;
-	struct _FFV {
-		union CSection *next;
-		enum _tp_msec section_type;
-		int sample;
-		pthread_t thread;
-		const char *topic;
-		const char *file;
-	} FFV;
-	struct _FreeBox {
-		union CSection *next;
-		enum _tp_msec section_type;
-		int sample;
-		pthread_t thread;
-		const char *topic;
-	} FreeBox;
-	struct _UPS {
-		union CSection *next;
-		enum _tp_msec section_type;
-		int sample;
-		pthread_t thread;
-		const char *topic;
-		const char *section_name;
-		const char *host;
-		int port;
-		struct var *var_list;
-	} Ups;
-};
-
-struct Config {
-	union CSection *sections;
-	const char *Broker;
-	MQTTClient client;
-} cfg;
-
 void read_configuration( const char *fch){
 	FILE *f;
 	char l[MAXLINE];
