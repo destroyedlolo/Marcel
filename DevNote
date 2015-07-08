@@ -1,0 +1,12 @@
+This file contains internal notes for the development or before addition in the main documentation.
+
+Alerting
+========
+
+Topic : Alarm/<subject>
+	- <subject> to identify the alert 
+Payload : [S|E]error message
+	- S : start of the alert
+	- E : End of the alert
+	- error message : information to be send.
+

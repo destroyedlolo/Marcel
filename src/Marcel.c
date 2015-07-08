@@ -310,18 +310,26 @@ static void *process_FFV(void *actx){
 				if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
 					int msg;
 					char *emsg;
-					strcpy(l, ctx->topic);
-					strcat(l, "/Alarm");
+					strcpy(l, "Alarm/");
+					strcat(l, ctx->topic);
 					msg = strlen(l) + 2;
 
-					if(strlen(ctx->file) + strlen(emsg = strerror(errno)) + 4 < MAXLINE - msg){
-						strcpy(l + msg, ctx->file);
+					if(strlen(ctx->file) + strlen(emsg = strerror(errno)) + 5 < MAXLINE - msg){ /* S + " : " + 0 */
+						*(l + msg) = 'S';
+						strcpy(l + msg + 1, ctx->file);
 						strcat(l + msg, " : ");
 						strcat(l + msg, emsg);
 
 						papub(l, strlen(l + msg), l + msg, 0);
-					} else
-						papub(l, strlen(emsg), emsg, 0);
+					} else if( strlen(emsg) + 2 < MAXLINE - msg ){	/* S + error message */
+						*(l + msg) = 'S';
+						strcpy(l + msg + 1, emsg);
+
+						papub(l, strlen(l + msg), l + msg, 0);
+					} else {
+						char *msg = "Can't open file (and not enough space for the error)";
+						papub(l, strlen(msg), msg, 0);
+					}
 				}
 			} else {
 				float val;
