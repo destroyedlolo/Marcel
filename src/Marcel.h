@@ -1,6 +1,8 @@
 /* Marcel.h
+ * 	Shared definition
  *
- * Shared definition
+ * This file is part of Marcel project and is following the same
+ * license rules (see LICENSE file)
  *
  * 08/07/2015	- LF - start v2.0 - make source modular
  */
@@ -15,16 +17,6 @@
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
 #define BRK_KEEPALIVE 60	/* Keep alive signal to the broker */
-
-	/* Helper functions */
-extern int debug;
-
-extern char *removeLF(char *);
-extern char *striKWcmp( char *, const char * );
-extern char *mystrdup(const char *);
-#define strdup(s) mystrdup(s)
-
-extern size_t socketreadline( int, char *, size_t);
 
 	/* Configuration / context */
 enum _tp_msec {
@@ -81,4 +73,16 @@ struct Config {
 	MQTTClient client;
 } cfg;
 
+	/* Helper functions */
+extern int debug;
+
+extern char *removeLF(char *);
+extern char *striKWcmp( char *, const char * );
+extern char *mystrdup(const char *);
+#define strdup(s) mystrdup(s)
+
+extern size_t socketreadline( int, char *, size_t);
+
+	/* Broker related */
+int papub( const char *, int, void *, int);
 #endif
