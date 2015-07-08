@@ -1,4 +1,4 @@
-/* Freebox.h
+/* Freebox.c
  * 	Definitions related to Freebox figures handling
  *
  * This file is part of Marcel project and is following the same
