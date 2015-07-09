@@ -23,7 +23,8 @@ enum _tp_msec {
 	MSEC_INVALID =0,	/* Ignored */
 	MSEC_FFV,			/* File String Value */
 	MSEC_FREEBOX,		/* FreeBox */
-	MSEC_UPS			/* UPS */
+	MSEC_UPS,			/* UPS */
+	MSEC_DEADPUBLISHER	/* alarm on missing MQTT messages */
 };
 
 struct var {	/* Storage for var list */
@@ -65,6 +66,15 @@ union CSection {
 		int port;
 		struct var *var_list;
 	} Ups;
+	struct _DeadPublisher {
+		union CSection *next;
+		enum _tp_msec section_type;
+		int sample;
+		pthread_t thread;
+		const char *topic;	/* Topic to wait data from */
+		int rcv;	/* Event for data receiving */
+		int timer;	/* associated timer */
+	} DeadPublisher;
 };
 
 struct Config {
