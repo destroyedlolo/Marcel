@@ -3,6 +3,15 @@
 
 gotoall: all
 
+
+#The compiler (may be customized for compiler's options).
+cc=gcc -Wall -DFREEBOX -DUPS -lpthread -lpaho-mqtt3c -std=c99
+
+src/DeadPublisherDetection.o : src/DeadPublisherDetection.c \
+  src/DeadPublisherDetection.h 
+	$(cc) -c -o src/DeadPublisherDetection.o \
+  src/DeadPublisherDetection.c 
+
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'stdio.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
@@ -12,10 +21,6 @@ gotoall: all
 # Warning : 'sys/socket.h' can't be located for this node.
 # Warning : 'netinet/in.h' can't be located for this node.
 # Warning : 'netdb.h' can't be located for this node.
-
-#The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DFREEBOX -DUPS -lpthread -lpaho-mqtt3c -std=c99
-
 src/Freebox.o : src/Freebox.c src/Freebox.h 
 	$(cc) -c -o src/Freebox.o src/Freebox.c 
 
@@ -32,13 +37,24 @@ src/Freebox.o : src/Freebox.c src/Freebox.h
 # Warning : 'sys/socket.h' can't be located for this node.
 # Warning : 'netinet/in.h' can't be located for this node.
 # Warning : 'netdb.h' can't be located for this node.
-src/Marcel.o : src/Marcel.c src/UPS.h src/Freebox.h src/Marcel.h 
+src/Marcel.o : src/Marcel.c src/DeadPublisherDetection.h src/UPS.h \
+  src/Freebox.h src/Marcel.h 
 	$(cc) -c -o src/Marcel.o src/Marcel.c 
 
+# Warning : 'string.h' can't be located for this node.
+# Warning : 'errno.h' can't be located for this node.
+# Warning : 'assert.h' can't be located for this node.
+# Warning : 'unistd.h' can't be located for this node.
+# Warning : 'sys/types.h' can't be located for this node.
+# Warning : 'sys/socket.h' can't be located for this node.
+# Warning : 'netinet/in.h' can't be located for this node.
+# Warning : 'netdb.h' can't be located for this node.
 src/UPS.o : src/UPS.c src/UPS.h 
 	$(cc) -c -o src/UPS.o src/UPS.c 
 
-Marcel : src/UPS.o src/Marcel.o src/Freebox.o 
-	 $(cc) -o Marcel src/UPS.o src/Marcel.o src/Freebox.o 
+Marcel : src/UPS.o src/Marcel.o src/Freebox.o \
+  src/DeadPublisherDetection.o 
+	 $(cc) -o Marcel src/UPS.o src/Marcel.o src/Freebox.o \
+  src/DeadPublisherDetection.o 
 
 all: Marcel 

@@ -29,7 +29,7 @@
 #include "Marcel.h"
 #include "Freebox.h"
 #include "UPS.h"
-
+#include "DeadPublisherDetection.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -468,6 +468,14 @@ int main(int ac, char **av){
 			}			
 			break;
 #endif
+		case MSEC_DEADPUBLISHER:
+			if(!s->common.sample){
+				fputs("*E* DeadPublisher section without sample time : ignoring ...\n", stderr);
+			} else if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
+			}			
+			break;
 		default :	/* Ignore unsupported type */
 			break;
 		}
