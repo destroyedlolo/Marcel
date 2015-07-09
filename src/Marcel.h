@@ -69,11 +69,12 @@ union CSection {
 	struct _DeadPublisher {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;
+		int sample;			/* Timeout */
 		pthread_t thread;
 		const char *topic;	/* Topic to wait data from */
-		int rcv;	/* Event for data receiving */
-		int timer;	/* associated timer */
+		const char *errorid;
+		int rcv;			/* Event for data receiving */
+		int timer;			/* associated timer */
 	} DeadPublisher;
 };
 

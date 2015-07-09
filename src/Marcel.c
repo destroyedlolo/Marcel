@@ -189,6 +189,21 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(debug)
 				printf("Entering section 'UPS/%s'\n", n->Ups.section_name);
+		} else if((arg = striKWcmp(l,"*DPD="))){
+			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
+			assert(n);
+			memset(n, 0, sizeof(struct _DeadPublisher));
+			n->common.section_type = MSEC_DEADPUBLISHER;
+
+			assert( n->Ups.section_name = strdup( removeLF(arg) ) );
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(debug)
+				printf("Entering section 'DeadPublisher/%s'\n", n->Ups.section_name);
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);
