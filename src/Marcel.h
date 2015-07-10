@@ -73,6 +73,8 @@ union CSection {
 		pthread_t thread;
 		const char *topic;	/* Topic to wait data from */
 		const char *errorid;
+		int rcv;			/* Event for data receiving */
+		int timer;			/* associated timer */
 	} DeadPublisher;
 };
 
