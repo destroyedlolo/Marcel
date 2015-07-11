@@ -131,6 +131,7 @@ static void read_configuration( const char *fch){
 	cfg.sections = NULL;
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.client = NULL;
+	cfg.DPDlast = 0;
 
 	if(debug)
 		printf("Reading configuration file '%s'\n", fch);
@@ -204,6 +205,10 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(debug)
 				printf("Entering section 'DeadPublisher/%s'\n", n->Ups.section_name);
+		} else if(!strcmp(l,"DPDLast\n")){	/* DPD grouped at the end of the configuration file */
+			cfg.DPDlast = 1;
+			if(debug)
+				puts("Dead Publisher Detect (DPD) sections are grouped at the end of the configuration");
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);

@@ -83,6 +83,7 @@ struct Config {
 	union CSection *sections;
 	const char *Broker;
 	MQTTClient client;
+	int DPDlast;
 } cfg;
 
 	/* Helper functions */
