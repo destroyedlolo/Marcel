@@ -10,6 +10,10 @@
 #ifndef MARCEL_H
 #define MARCEL_H
 
+#if 0
+#define _POSIX_C_SOURCE 199309L	/* Otherwise some defines/types are not defined with -std=c99 */
+#endif
+
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
@@ -74,7 +78,6 @@ union CSection {
 		const char *topic;	/* Topic to wait data from */
 		const char *errorid;
 		int rcv;			/* Event for data receiving */
-		int timer;			/* associated timer */
 	} DeadPublisher;
 };
 
