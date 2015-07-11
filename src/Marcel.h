@@ -10,9 +10,7 @@
 #ifndef MARCEL_H
 #define MARCEL_H
 
-#if 0
-#define _POSIX_C_SOURCE 199309L	/* Otherwise some defines/types are not defined with -std=c99 */
-#endif
+#define _POSIX_C_SOURCE 200112L	/* Otherwise some defines/types are not defined with -std=c99 */
 
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 

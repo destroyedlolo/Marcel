@@ -9,38 +9,53 @@
 
 #include "DeadPublisherDetection.h"
 
-#include <time.h>
-#include <sys/timerfd.h>
+#include <sys/time.h>
+#include <sys/select.h>
+
 #include <sys/eventfd.h>
 #include <unistd.h>
 
 extern void *process_DPD(void *actx){
 	struct _DeadPublisher *ctx = actx;	/* Only to avoid zillions of cast */
-	struct itimerspec itval;
+	struct timespec ts;
 
 	if(( ctx->rcv = eventfd( 0, 0 )) == -1 ){
 		perror("eventfd()");
 		pthread_exit(0);
 	}
 
-	itval.it_value.tv_sec = (time_t)ctx->sample;
-	itval.it_value.tv_nsec = 0;
-	itval.it_interval.tv_sec = 0;
-	itval.it_interval.tv_nsec = 0;
-	if(( ctx->timer = timerfd_create( CLOCK_REALTIME, 0 )) == -1){
-		perror("timerfd()");
-		close( ctx->rcv );
-		ctx->rcv = -1;
-		pthread_exit(0);
-	}
-
 	if( MQTTClient_subscribe( cfg.client, ctx->topic, 0 ) != MQTTCLIENT_SUCCESS ){
 		close( ctx->rcv );
-		close( ctx->timer );
+		ctx->rcv = 1;
 		fprintf(stderr, "Can't subscribe to '%s'\n", ctx->topic );
 		pthread_exit(0);
 	}
 
+	ts.tv_sec = (time_t)ctx->sample;
+	ts.tv_nsec = 0;
+
+	{
+		fd_set rfds;
+		FD_ZERO( &rfds );
+		FD_SET( ctx->rcv, &rfds );
+
+		switch( pselect( ctx->rcv+1, &rfds, NULL, NULL, &ts, NULL ) ){
+		case -1:	/* Error */
+			close( ctx->rcv );
+			ctx->rcv = 1;
+			perror("pselect()");
+			pthread_exit(0);
+		case 0:		/* timeout */
+			puts("timeout");
+			break;
+		default:	/* Got some data */
+			break;
+		}
+	}
+
+	close( ctx->rcv );
+	ctx->rcv = 1;
+	
 	pthread_exit(0);
 }
 
