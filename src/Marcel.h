@@ -84,6 +84,7 @@ struct Config {
 	const char *Broker;
 	MQTTClient client;
 	int DPDlast;
+	struct _DeadPublisher *first_DPD;
 } cfg;
 
 	/* Helper functions */

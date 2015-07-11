@@ -132,6 +132,7 @@ static void read_configuration( const char *fch){
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.client = NULL;
 	cfg.DPDlast = 0;
+	cfg.first_DPD = NULL;
 
 	if(debug)
 		printf("Reading configuration file '%s'\n", fch);
@@ -196,15 +197,18 @@ static void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct _DeadPublisher));
 			n->common.section_type = MSEC_DEADPUBLISHER;
 
-			assert( n->DeadPublisher.topic = strdup( removeLF(arg) ) );
+			assert( n->DeadPublisher.errorid = strdup( removeLF(arg) ) );
 
 			if(last_section)
 				last_section->common.next = n;
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
+			if(!cfg.first_DPD)
+				cfg.first_DPD = (struct _DeadPublisher *)n;
+
 			if(debug)
-				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.topic);
+				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.errorid);
 		} else if(!strcmp(l,"DPDLast\n")){	/* DPD grouped at the end of the configuration file */
 			cfg.DPDlast = 1;
 			if(debug)
@@ -231,7 +235,7 @@ static void read_configuration( const char *fch){
 				exit(EXIT_FAILURE);
 			}
 			if(!(last_section->Ups.port = atoi(arg))){
-				fputs("*F* Configuration issue : Port is null (or is not a number)\n", stderr);
+				fputs("*F* Configurstruct _DeadPublisher *ation issue : Port is null (or is not a number)\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 			if(debug)
@@ -441,6 +445,10 @@ int main(int ac, char **av){
 	atexit(brkcleaning);
 
 		/* Creating childs */
+	if(debug)
+		puts("\nCreating childs processes\n"
+			   "---------------------------");
+
 	assert(!pthread_attr_init (&thread_attr));
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 	for(union CSection *s = cfg.sections; s; s = s->common.next){

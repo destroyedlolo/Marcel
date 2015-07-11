@@ -19,6 +19,24 @@ extern void *process_DPD(void *actx){
 	struct _DeadPublisher *ctx = actx;	/* Only to avoid zillions of cast */
 	struct timespec ts;
 
+		/* Sanity checks */
+	if(!ctx->topic){
+		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+		pthread_exit(0);
+	}
+	if(!ctx->sample){
+		fprintf(stderr, "*E* configuration error : no timeout specified for DPD '%s', ignoring this section\n", ctx->topic);
+		pthread_exit(0);
+	}
+	if(!*ctx->errorid){
+		fprintf(stderr, "*E* configuration error : no errorid specified for DPD '%s', ignoring this section\n", ctx->topic);
+		pthread_exit(0);
+	}
+
+	if(debug)
+		printf("Launching a processing flow for DeadPublisherDetect (DPD) '%s'\n", ctx->topic);
+
+		/* Creating the fd for the notification */
 	if(( ctx->rcv = eventfd( 0, 0 )) == -1 ){
 		perror("eventfd()");
 		pthread_exit(0);
