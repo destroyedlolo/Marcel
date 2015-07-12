@@ -80,16 +80,6 @@ char *mystrdup(const char *as){
 	return s;
 }
 
-char *extr_arg(char *s, int l){ 
-/* Extract an argument from TéléInfo trame 
- *	s : argument string just after the token
- *	l : length of the argument
- */
-	s++;	/* Skip the leading space */
-	s[l]=0;
-	return s;
-}
-
 size_t socketreadline( int fd, char *l, size_t sz){
 /* read a line :
  * -> 	fd : file descriptor to read
@@ -439,7 +429,7 @@ int main(int ac, char **av){
 	case 5 : fputs("Unable to connect : Not authorized\n", stderr);
 		exit(EXIT_FAILURE);
 	default :
-		fputs("Unable to connect : Unknown version\n", stderr);
+		fputs("Unable to connect\n", stderr);
 		exit(EXIT_FAILURE);
 	}
 	atexit(brkcleaning);
