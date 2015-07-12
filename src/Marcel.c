@@ -30,6 +30,7 @@
 #include "Freebox.h"
 #include "UPS.h"
 #include "DeadPublisherDetection.h"
+#include "MQTT_tools.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -267,7 +268,7 @@ static void read_configuration( const char *fch){
 	/*
 	 * Broker related functions
 	 */
-static int msgarrived(void *ctx, char *topic, int tlen, MQTTClient_message *msg){
+static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	if(debug)
 		printf("*I* Unexpected message arrival (topic : '%s')\n", topic);
 

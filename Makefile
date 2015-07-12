@@ -3,6 +3,10 @@
 
 gotoall: all
 
+# Warning : 'sys/time.h' can't be located for this node.
+# Warning : 'sys/select.h' can't be located for this node.
+# Warning : 'sys/eventfd.h' can't be located for this node.
+# Warning : 'unistd.h' can't be located for this node.
 
 #The compiler (may be customized for compiler's options).
 cc=gcc -Wall -DFREEBOX -DUPS -lpthread -lpaho-mqtt3c -std=c99
@@ -37,9 +41,12 @@ src/Freebox.o : src/Freebox.c src/Freebox.h
 # Warning : 'sys/socket.h' can't be located for this node.
 # Warning : 'netinet/in.h' can't be located for this node.
 # Warning : 'netdb.h' can't be located for this node.
-src/Marcel.o : src/Marcel.c src/DeadPublisherDetection.h src/UPS.h \
-  src/Freebox.h src/Marcel.h 
+src/Marcel.o : src/Marcel.c src/MQTT_tools.h \
+  src/DeadPublisherDetection.h src/UPS.h src/Freebox.h src/Marcel.h 
 	$(cc) -c -o src/Marcel.o src/Marcel.c 
+
+src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h 
+	$(cc) -c -o src/MQTT_tools.o src/MQTT_tools.c 
 
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'errno.h' can't be located for this node.
@@ -52,9 +59,9 @@ src/Marcel.o : src/Marcel.c src/DeadPublisherDetection.h src/UPS.h \
 src/UPS.o : src/UPS.c src/UPS.h 
 	$(cc) -c -o src/UPS.o src/UPS.c 
 
-Marcel : src/UPS.o src/Marcel.o src/Freebox.o \
+Marcel : src/UPS.o src/MQTT_tools.o src/Marcel.o src/Freebox.o \
   src/DeadPublisherDetection.o 
-	 $(cc) -o Marcel src/UPS.o src/Marcel.o src/Freebox.o \
-  src/DeadPublisherDetection.o 
+	 $(cc) -o Marcel src/UPS.o src/MQTT_tools.o src/Marcel.o \
+  src/Freebox.o src/DeadPublisherDetection.o 
 
 all: Marcel 
