@@ -52,7 +52,7 @@ extern void *process_DPD(void *actx){
 	ts.tv_sec = (time_t)ctx->sample;
 	ts.tv_nsec = 0;
 
-	{
+	for(;;){
 		fd_set rfds;
 		FD_ZERO( &rfds );
 		FD_SET( ctx->rcv, &rfds );
@@ -64,9 +64,13 @@ extern void *process_DPD(void *actx){
 			perror("pselect()");
 			pthread_exit(0);
 		case 0:		/* timeout */
-			puts("timeout");
+puts("*d* timeout");
 			break;
-		default:	/* Got some data */
+		default:{	/* Got some data */
+				uint64_t v;
+				read(ctx->rcv, &v, sizeof( uint64_t ));	/* AF : normally, return value has to be check */
+puts("*d* data arrived");
+			}
 			break;
 		}
 	}

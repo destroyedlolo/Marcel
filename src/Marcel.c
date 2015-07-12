@@ -196,7 +196,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(!cfg.first_DPD)
-				cfg.first_DPD = (struct _DeadPublisher *)n;
+				cfg.first_DPD = n;
 
 			if(debug)
 				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.errorid);
@@ -269,8 +269,19 @@ static void read_configuration( const char *fch){
 	 * Broker related functions
 	 */
 static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+	union CSection *DPD = cfg.DPDlast ? cfg.first_DPD : cfg.sections;
+
 	if(debug)
-		printf("*I* Unexpected message arrival (topic : '%s')\n", topic);
+		printf("*I* message arrival (topic : '%s', msg : '%s')\n", topic, (const char *)msg->payload);
+
+	for(; DPD; DPD = DPD->common.next){
+		if(DPD->common.section_type != MSEC_DEADPUBLISHER)
+			continue;
+		if(!mqtttokcmp(DPD->DeadPublisher.topic, topic)){	/* Topic found */
+			uint64_t v = 1;
+			write( DPD->DeadPublisher.rcv, &v, sizeof(v) );	/* Signal it */
+		}
+	}
 
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
