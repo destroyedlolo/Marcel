@@ -25,7 +25,7 @@ src/DeadPublisherDetection.o : src/DeadPublisherDetection.c \
 # Warning : 'sys/socket.h' can't be located for this node.
 # Warning : 'netinet/in.h' can't be located for this node.
 # Warning : 'netdb.h' can't be located for this node.
-src/Freebox.o : src/Freebox.c src/Freebox.h 
+src/Freebox.o : src/Freebox.c src/MQTT_tools.h src/Freebox.h 
 	$(cc) -c -o src/Freebox.o src/Freebox.c 
 
 # Warning : 'stdio.h' can't be located for this node.
@@ -56,7 +56,7 @@ src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h
 # Warning : 'sys/socket.h' can't be located for this node.
 # Warning : 'netinet/in.h' can't be located for this node.
 # Warning : 'netdb.h' can't be located for this node.
-src/UPS.o : src/UPS.c src/UPS.h 
+src/UPS.o : src/UPS.c src/MQTT_tools.h src/UPS.h 
 	$(cc) -c -o src/UPS.o src/UPS.c 
 
 Marcel : src/UPS.o src/MQTT_tools.o src/Marcel.o src/Freebox.o \

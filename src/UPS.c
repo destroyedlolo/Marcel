@@ -9,6 +9,7 @@
 #ifdef UPS
 
 #include "UPS.h"
+#include "MQTT_tools.h"
 
 #include <string.h>
 #include <errno.h>
@@ -77,7 +78,7 @@ void *process_UPS(void *actx){
 						ps++; *pe++ = 0;	/* Extract only the result */
 						assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
 						sprintf( pe, "%s/%s", ctx->topic, v->name );
-						papub( pe, strlen(ps), ps, 0 );
+						mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
 						if(debug)
 							printf("UPS : %s -> '%s'\n", pe, ps);
 					}

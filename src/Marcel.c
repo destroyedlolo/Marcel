@@ -292,15 +292,6 @@ static void connlost(void *ctx, char *cause){
 	printf("*W* Broker connection lost due to %s\n", cause);
 }
 
-int papub( const char *topic, int length, void *payload, int retained ){ /* Custom wrapper to publish */
-	MQTTClient_message pubmsg = MQTTClient_message_initializer;
-	pubmsg.retained = retained;
-	pubmsg.payloadlen = length;
-	pubmsg.payload = payload;
-
-	return MQTTClient_publishMessage( cfg.client, topic, &pubmsg, NULL);
-}
-
 static void brkcleaning(void){	/* Clean broker stuffs */
 	MQTTClient_disconnect(cfg.client, 10000);	/* 10s for the grace period */
 	MQTTClient_destroy(&cfg.client);
@@ -346,15 +337,15 @@ static void *process_FFV(void *actx){
 						strcat(l + msg, " : ");
 						strcat(l + msg, emsg);
 
-						papub(l, strlen(l + msg), l + msg, 0);
+						mqttpublish(cfg.client, l, strlen(l + msg), l + msg, 0);
 					} else if( strlen(emsg) + 2 < MAXLINE - msg ){	/* S + error message */
 						*(l + msg) = 'S';
 						strcpy(l + msg + 1, emsg);
 
-						papub(l, strlen(l + msg), l + msg, 0);
+						mqttpublish(cfg.client, l, strlen(l + msg), l + msg, 0);
 					} else {
 						char *msg = "Can't open file (and not enough space for the error)";
-						papub(l, strlen(msg), msg, 0);
+						mqttpublish(cfg.client, l, strlen(msg), msg, 0);
 					}
 				}
 			} else {
@@ -362,7 +353,7 @@ static void *process_FFV(void *actx){
 				fscanf(f, "%f", &val);	/* Only to normalize the response */
 				sprintf(l,"%.1f", val);
 
-				papub( ctx->topic, strlen(l), l, 0 );
+				mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
 				if(debug)
 					printf("FFV : %s -> %f\n", ctx->topic, val);
 				fclose(f);
