@@ -76,6 +76,7 @@ union CSection {
 		const char *topic;	/* Topic to wait data from */
 		const char *errorid;
 		int rcv;			/* Event for data receiving */
+		int inerror;		/* true if this DPD is in error */
 	} DeadPublisher;
 };
 

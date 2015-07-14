@@ -8,12 +8,14 @@
  */
 
 #include "DeadPublisherDetection.h"
+#include "MQTT_tools.h"
 
 #include <sys/time.h>
 #include <sys/select.h>
 
 #include <sys/eventfd.h>
 #include <unistd.h>
+#include <string.h>
 
 extern void *process_DPD(void *actx){
 	struct _DeadPublisher *ctx = actx;	/* Only to avoid zillions of cast */
@@ -63,13 +65,40 @@ extern void *process_DPD(void *actx){
 			ctx->rcv = 1;
 			perror("pselect()");
 			pthread_exit(0);
-		case 0:		/* timeout */
-puts("*d* timeout");
+		case 0:	/* timeout */
+			if(debug)
+				printf("*I* timeout for DPD '%s'\n", ctx->errorid);
+			if( !ctx->inerror ){
+				char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
+				const char *msg_info = "SNo data received after %d seconds";
+				char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
+				int msg_len;
+
+				strcpy( topic, "Alert/" );
+				strcat( topic, ctx->errorid );
+
+				msg_len = sprintf( msg, msg_info, ctx->sample );
+
+				if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS ){
+					if(debug)
+						printf("*I* Alert raises for DPD '%s'\n", ctx->errorid);
+						ctx->inerror = 1;
+					}
+			}
 			break;
 		default:{	/* Got some data */
 				uint64_t v;
 				read(ctx->rcv, &v, sizeof( uint64_t ));	/* AF : normally, return value has to be check */
-puts("*d* data arrived");
+				if( ctx->inerror ){
+					char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
+					strcpy( topic, "Alert/" );
+					strcat( topic, ctx->errorid );
+					if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS ){
+						if(debug)
+							printf("*I* Alert corrected for DPD '%s'\n", ctx->errorid);
+						ctx->inerror = 0;
+					}
+				}
 			}
 			break;
 		}

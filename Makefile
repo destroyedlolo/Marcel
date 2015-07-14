@@ -7,12 +7,13 @@ gotoall: all
 # Warning : 'sys/select.h' can't be located for this node.
 # Warning : 'sys/eventfd.h' can't be located for this node.
 # Warning : 'unistd.h' can't be located for this node.
+# Warning : 'string.h' can't be located for this node.
 
 #The compiler (may be customized for compiler's options).
 cc=gcc -Wall -DFREEBOX -DUPS -lpthread -lpaho-mqtt3c -std=c99
 
 src/DeadPublisherDetection.o : src/DeadPublisherDetection.c \
-  src/DeadPublisherDetection.h 
+  src/MQTT_tools.h src/DeadPublisherDetection.h 
 	$(cc) -c -o src/DeadPublisherDetection.o \
   src/DeadPublisherDetection.c 
 
