@@ -86,6 +86,11 @@ struct Config {
 	MQTTClient client;
 	int DPDlast;
 	union CSection *first_DPD;
+	struct {
+		const char *Host;
+		const char *Page;
+		const char *Payload;
+	} ErrorSMS;
 } cfg;
 
 	/* Helper functions */
