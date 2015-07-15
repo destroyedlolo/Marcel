@@ -283,11 +283,14 @@ static void read_configuration( const char *fch){
 	 */
 static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	union CSection *DPD = cfg.DPDlast ? cfg.first_DPD : cfg.sections;
+	const char *aid;
 
 	if(debug)
 		printf("*I* message arrival (topic : '%s', msg : '%s')\n", topic, (const char *)msg->payload);
 
-	for(; DPD; DPD = DPD->common.next){
+	if((aid = striKWcmp(topic,"Alert/")))
+		rcv_alert( aid, msg->payload );
+	else for(; DPD; DPD = DPD->common.next){
 		if(DPD->common.section_type != MSEC_DEADPUBLISHER)
 			continue;
 		if(!mqtttokcmp(DPD->DeadPublisher.topic, topic)){	/* Topic found */

@@ -11,4 +11,6 @@
 #define ALERTING_H
 
 extern void init_alerting(void);
+extern void rcv_alert(const char *id, const char *msg);
+
 #endif

@@ -18,3 +18,7 @@ void init_alerting(void){
 		exit(EXIT_FAILURE);
 	}
 }
+
+void rcv_alert(const char *id, const char *msg){
+printf("*d* Alert '%s'/'%s'\n", id, msg);
+}
