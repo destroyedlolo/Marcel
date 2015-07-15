@@ -31,6 +31,7 @@
 #include "UPS.h"
 #include "DeadPublisherDetection.h"
 #include "MQTT_tools.h"
+#include "Alerting.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -448,6 +449,8 @@ int main(int ac, char **av){
 		exit(EXIT_FAILURE);
 	}
 	atexit(brkcleaning);
+
+	init_alerting();
 
 		/* Creating childs */
 	if(debug)
