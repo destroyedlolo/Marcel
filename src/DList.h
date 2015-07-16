@@ -21,4 +21,6 @@ struct DList {
 	struct DLNode *last;
 };
 
+void DLListInit( struct DList * );
+void DLAdd( struct DList *, struct DLNode * );
 #endif

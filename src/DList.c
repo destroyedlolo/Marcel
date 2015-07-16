@@ -14,3 +14,12 @@
 void DLListInit( struct DList *l ){
 	l->first = l->last = NULL;
 }
+
+void DLAdd( struct DList *l, struct DLNode *n ){
+	n->next = NULL;
+	if(!(n->prev = l->last))	/* The list is empty */
+		l->first = n;
+	else
+		n->prev->next = n;
+	l->last = n;
+}

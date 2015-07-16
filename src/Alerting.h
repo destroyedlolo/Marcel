@@ -12,6 +12,14 @@
 
 #include "DList.h"
 
+	/* Active alert list */
+struct alert {
+	struct DLNode node;
+	const char *alert;
+};
+
+extern struct DList alerts;
+
 extern void init_alerting(void);
 extern void rcv_alert(const char *id, const char *msg);
 
