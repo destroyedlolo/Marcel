@@ -10,6 +10,8 @@
 #ifndef ALERTING_H
 #define ALERTING_H
 
+#include "DList.h"
+
 extern void init_alerting(void);
 extern void rcv_alert(const char *id, const char *msg);
 
