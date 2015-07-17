@@ -23,4 +23,6 @@ struct DList {
 
 void DLListInit( struct DList * );
 void DLAdd( struct DList *, struct DLNode * );
+void DLRemove( struct DList *, struct DLNode * );
+
 #endif

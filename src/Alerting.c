@@ -48,5 +48,11 @@ printf("*d* Alert '%s'/'%s' (an:%p)\n", id, msg, an);
 			DLAdd( &alerts, (struct DLNode *)an );
 		}
 	} else {	/* Alert's over */
+		if(an){
+			DLRemove( &alerts, (struct DLNode *)an );
+
+			free( (void *)an->alert );
+			free( an );
+		}
 	}
 }
