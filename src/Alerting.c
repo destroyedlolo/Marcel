@@ -12,11 +12,18 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 struct DList alerts;
 
 static struct alert *findalert(const char *id){
-printf("*d* f:%p l:%p\n", alerts.first, alerts.last);
+printf("*d* lst - f:%p l:%p\n", alerts.first, alerts.last);
+	for(struct alert *an = (struct alert *)alerts.first; an; an = (struct alert *)an->node.next){
+printf("*d*\t%p p:%p n:%p\n", an, an->node.prev, an->node.next);
+		if(!strcmp(id, an->alert))
+			return an;
+	}
+
 	return NULL;
 }
 
@@ -30,14 +37,15 @@ void init_alerting(void){
 }
 
 void rcv_alert(const char *id, const char *msg){
-	struct alert *al = findalert(id);
-printf("*d* Alert '%s'/'%s'\n", id, msg);
+	struct alert *an = findalert(id);
+printf("*d* Alert '%s'/'%s' (an:%p)\n", id, msg, an);
 
 	if(*msg == 'S'){	/* rise this alert */
-		if(!al){	/* And it's a new one */
-			assert( al = malloc( sizeof(struct alert) ) );
-			assert( al->alert = strdup( id ) );
+		if(!an){	/* And it's a new one */
+			assert( an = malloc( sizeof(struct alert) ) );
+			assert( an->alert = strdup( id ) );
 
+			DLAdd( &alerts, (struct DLNode *)an );
 		}
 	} else {	/* Alert's over */
 	}
