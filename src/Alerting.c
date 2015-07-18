@@ -13,9 +13,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
+
+#include <curl/curl.h>
 
 struct DList alerts;
 
@@ -23,39 +22,12 @@ static void sendSMS( const char *msg ){
 /* Code comes from Jerry Jeremiah's 
  * http://stackoverflow.com/questions/22077802/simple-c-example-of-doing-an-http-post-and-consuming-the-response
  */
-	struct hostent *server;
-    struct sockaddr_in serv_addr;
-    int sockfd, bytes, sent, received, total;
 
 	if(!cfg.ErrorSMS.Host)
 		return;
 
 puts(msg);
 
-	/* lookup the ip address */
-	if(!(server = gethostbyname( cfg.ErrorSMS.Host ))){
-		fputs("*E* Can't find SMS host : disabling SMS sending\n", stderr);
-		cfg.ErrorSMS.Host = NULL;
-		return;
-	}
-
-	memset( &serv_addr, 0, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons( cfg.ErrorSMS.Port );
-	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
-
-	/* create the socket */
-	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-		perror("*E* SMS' Socket()");
-		exit(EXIT_FAILURE);
-	}
-
-	if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
-		perror("*E* Connecting for SMS sending");
-		return;
-	}
-
-	close(sockfd);
 }
 
 static struct alert *findalert(const char *id){
@@ -82,6 +54,8 @@ void init_alerting(void){
 			puts("*W* SMS sending not fully configured : disabling SMS sending");
 		cfg.ErrorSMS.Host = NULL;
 	}
+
+	curl_global_init(CURL_GLOBAL_ALL);
 }
 
 void rcv_alert(const char *id, const char *msg){

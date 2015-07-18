@@ -4,9 +4,14 @@
 gotoall: all
 
 # Warning : 'stdlib.h' can't be located for this node.
+# Warning : 'assert.h' can't be located for this node.
+# Warning : 'string.h' can't be located for this node.
+# Warning : 'sys/socket.h' can't be located for this node.
+# Warning : 'netinet/in.h' can't be located for this node.
+# Warning : 'netdb.h' can't be located for this node.
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DFREEBOX -DUPS -lpthread -lpaho-mqtt3c -std=c99
+cc=gcc -Wall -DFREEBOX -DUPS -lcurl -lpthread -lpaho-mqtt3c -std=c99
 
 src/Alerting.o : src/Alerting.c src/Alerting.h src/Marcel.h 
 	$(cc) -c -o src/Alerting.o src/Alerting.c 
@@ -21,6 +26,8 @@ src/DeadPublisherDetection.o : src/DeadPublisherDetection.c \
 	$(cc) -c -o src/DeadPublisherDetection.o \
   src/DeadPublisherDetection.c 
 
+# Warning : 'stddef.h' can't be located for this node.
+# Warning : 'stdio.h' can't be located for this node.
 src/DList.o : src/DList.c src/DList.h 
 	$(cc) -c -o src/DList.o src/DList.c 
 
