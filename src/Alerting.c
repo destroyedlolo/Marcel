@@ -16,6 +16,13 @@
 
 struct DList alerts;
 
+static void sendSMS( const char *msg ){
+/* Code comes from Jerry Jeremiah's 
+ * http://stackoverflow.com/questions/22077802/simple-c-example-of-doing-an-http-post-and-consuming-the-response
+ */
+
+}
+
 static struct alert *findalert(const char *id){
 printf("*d* lst - f:%p l:%p\n", alerts.first, alerts.last);
 	for(struct alert *an = (struct alert *)alerts.first; an; an = (struct alert *)an->node.next){

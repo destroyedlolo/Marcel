@@ -126,6 +126,11 @@ static void read_configuration( const char *fch){
 	cfg.DPDlast = 0;
 	cfg.first_DPD = NULL;
 
+	cfg.ErrorSMS.Host = NULL;
+	cfg.ErrorSMS.Port = 80;	/* Default value for a web server */
+	cfg.ErrorSMS.Page = NULL;
+	cfg.ErrorSMS.Payload = NULL;
+
 	if(debug)
 		printf("Reading configuration file '%s'\n", fch);
 
@@ -150,6 +155,10 @@ static void read_configuration( const char *fch){
 			assert( cfg.ErrorSMS.Page= strdup( removeLF(arg) ) );
 			if(debug)
 				printf("SMS Page : '%s'\n", cfg.ErrorSMS.Page);
+		} else if((arg = striKWcmp(l,"SMSPort="))){
+			cfg.ErrorSMS.Port = atoi( arg );
+			if(debug)
+				printf("SMS Port : '%d'\n", cfg.ErrorSMS.Port);
 		} else if((arg = striKWcmp(l,"SMSPayload="))){
 			assert( cfg.ErrorSMS.Payload= strdup( removeLF(arg) ) );
 			if(debug)
