@@ -39,12 +39,23 @@ puts(msg);
 		return;
 	}
 
+	memset( &serv_addr, 0, sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons( cfg.ErrorSMS.Port );
+	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
+
 	/* create the socket */
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-		perror("SMS' Socket()");
+		perror("*E* SMS' Socket()");
 		exit(EXIT_FAILURE);
 	}
 
+	if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
+		perror("*E* Connecting for SMS sending");
+		return;
+	}
+
+	close(sockfd);
 }
 
 static struct alert *findalert(const char *id){
