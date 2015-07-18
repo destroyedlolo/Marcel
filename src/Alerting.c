@@ -13,6 +13,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
 
 struct DList alerts;
 
@@ -20,6 +23,27 @@ static void sendSMS( const char *msg ){
 /* Code comes from Jerry Jeremiah's 
  * http://stackoverflow.com/questions/22077802/simple-c-example-of-doing-an-http-post-and-consuming-the-response
  */
+	struct hostent *server;
+    struct sockaddr_in serv_addr;
+    int sockfd, bytes, sent, received, total;
+
+	if(!cfg.ErrorSMS.Host)
+		return;
+
+puts(msg);
+
+	/* lookup the ip address */
+	if(!(server = gethostbyname( cfg.ErrorSMS.Host ))){
+		fputs("*E* Can't find SMS host : disabling SMS sending\n", stderr);
+		cfg.ErrorSMS.Host = NULL;
+		return;
+	}
+
+	/* create the socket */
+	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+		perror("SMS' Socket()");
+		exit(EXIT_FAILURE);
+	}
 
 }
 
@@ -41,6 +65,12 @@ void init_alerting(void){
 		fputs("Can't subscribe to 'Alert/#'", stderr);
 		exit(EXIT_FAILURE);
 	}
+
+	if(!cfg.ErrorSMS.Host || !cfg.ErrorSMS.Port || !cfg.ErrorSMS.Page || !cfg.ErrorSMS.Payload){
+		if(debug)
+			puts("*W* SMS sending not fully configured : disabling SMS sending");
+		cfg.ErrorSMS.Host = NULL;
+	}
 }
 
 void rcv_alert(const char *id, const char *msg){
@@ -49,6 +79,10 @@ printf("*d* Alert '%s'/'%s' (an:%p)\n", id, msg, an);
 
 	if(*msg == 'S'){	/* rise this alert */
 		if(!an){	/* And it's a new one */
+			char smsg[ strlen(id) + strlen(msg) + 3 ];	/* \0 replaces the leading msg character */
+			sprintf( smsg, "%s : %s", id, msg+1 );
+			sendSMS( smsg );
+
 			assert( an = malloc( sizeof(struct alert) ) );
 			assert( an->alert = strdup( id ) );
 
