@@ -85,6 +85,10 @@ printf("*d* Alert '%s'/'%s' (an:%p)\n", id, msg, an);
 		}
 	} else {	/* Alert's over */
 		if(an){
+			char smsg[ strlen(id) + 13];
+			sprintf( smsg, "%s : recovered", id );
+			sendSMS( smsg );
+
 			DLRemove( &alerts, (struct DLNode *)an );
 
 			free( (void *)an->alert );
