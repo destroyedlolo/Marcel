@@ -126,8 +126,7 @@ static void read_configuration( const char *fch){
 	cfg.DPDlast = 0;
 	cfg.first_DPD = NULL;
 
-	cfg.ErrorSMS.Url = NULL;
-	cfg.ErrorSMS.Payload = NULL;
+	cfg.SMSurl = NULL;
 
 	if(debug)
 		printf("Reading configuration file '%s'\n", fch);
@@ -146,13 +145,9 @@ static void read_configuration( const char *fch){
 			if(debug)
 				printf("Broker : '%s'\n", cfg.Broker);
 		} else if((arg = striKWcmp(l,"SMSUrl="))){
-			assert( cfg.ErrorSMS.Url = strdup( removeLF(arg) ) );
+			assert( cfg.SMSurl = strdup( removeLF(arg) ) );
 			if(debug)
-				printf("SMS Url : '%s'\n", cfg.ErrorSMS.Url);
-		} else if((arg = striKWcmp(l,"SMSPayload="))){
-			assert( cfg.ErrorSMS.Payload= strdup( removeLF(arg) ) );
-			if(debug)
-				printf("SMS Payload : '%s'\n", cfg.ErrorSMS.Payload);
+				printf("SMS Url : '%s'\n", cfg.SMSurl);
 		} else if((arg = striKWcmp(l,"*FFV="))){
 			union CSection *n = malloc( sizeof(struct _FFV) );
 			assert(n);

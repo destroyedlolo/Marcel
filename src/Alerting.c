@@ -21,23 +21,20 @@ struct DList alerts;
 static void sendSMS( const char *msg ){
 	CURL *curl;
 		
-	if(!cfg.ErrorSMS.Url)
+	if(!cfg.SMSurl)
 		return;
 
 	if((curl = curl_easy_init())){
 		CURLcode res;
-		char amsg[ strlen(cfg.ErrorSMS.Payload) + strlen(msg) ];	/* room for \0 provided by "%s" */
+		char *emsg;
+		char aurl[ strlen(cfg.SMSurl) + strlen( emsg=curl_easy_escape(curl,msg,0) ) ];	/* room for \0 provided by the %s replacement */
 
-		sprintf( amsg, cfg.ErrorSMS.Payload, msg );
-puts(amsg);
+		sprintf( aurl, cfg.SMSurl, emsg );
+		curl_free(emsg);
 
-		curl_easy_setopt(curl, CURLOPT_URL, cfg.ErrorSMS.Url);
+		curl_easy_setopt(curl, CURLOPT_URL, aurl);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, amsg);
-/*
-		if(debug)
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, readresp);
-*/
+
 		if((res = curl_easy_perform(curl)) != CURLE_OK)
 			fprintf(stderr, "*E* Sending SMS : %s\n", curl_easy_strerror(res));
 
@@ -64,11 +61,8 @@ void init_alerting(void){
 		exit(EXIT_FAILURE);
 	}
 
-	if(!cfg.ErrorSMS.Url || !cfg.ErrorSMS.Payload){
-		if(debug)
-			puts("*W* SMS sending not fully configured : disabling SMS sending");
-		cfg.ErrorSMS.Url = NULL;
-	}
+	if(!cfg.SMSurl && debug)
+		puts("*W* SMS sending not fully configured : disabling SMS sending");
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	atexit( curl_global_cleanup );
