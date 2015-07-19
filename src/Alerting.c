@@ -20,15 +20,28 @@ struct DList alerts;
 
 static void sendSMS( const char *msg ){
 	CURL *curl;
-	CURLcode res;
 		
 	if(!cfg.ErrorSMS.Url)
 		return;
 
-puts(msg);
-
 	if((curl = curl_easy_init())){
-		
+		CURLcode res;
+		char amsg[ strlen(cfg.ErrorSMS.Payload) + strlen(msg) ];	/* room for \0 provided by "%s" */
+
+		sprintf( amsg, cfg.ErrorSMS.Payload, msg );
+puts(amsg);
+
+		curl_easy_setopt(curl, CURLOPT_URL, cfg.ErrorSMS.Url);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, amsg);
+/*
+		if(debug)
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, readresp);
+*/
+		if((res = curl_easy_perform(curl)) != CURLE_OK)
+			fprintf(stderr, "*E* Sending SMS : %s\n", curl_easy_strerror(res));
+
+		curl_easy_cleanup(curl);
 	}
 }
 
