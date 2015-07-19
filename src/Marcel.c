@@ -126,9 +126,7 @@ static void read_configuration( const char *fch){
 	cfg.DPDlast = 0;
 	cfg.first_DPD = NULL;
 
-	cfg.ErrorSMS.Host = NULL;
-	cfg.ErrorSMS.Port = 80;	/* Default value for a web server */
-	cfg.ErrorSMS.Page = NULL;
+	cfg.ErrorSMS.Url = NULL;
 	cfg.ErrorSMS.Payload = NULL;
 
 	if(debug)
@@ -147,18 +145,10 @@ static void read_configuration( const char *fch){
 			assert( cfg.Broker = strdup( removeLF(arg) ) );
 			if(debug)
 				printf("Broker : '%s'\n", cfg.Broker);
-		} else if((arg = striKWcmp(l,"SMSHost="))){
-			assert( cfg.ErrorSMS.Host = strdup( removeLF(arg) ) );
+		} else if((arg = striKWcmp(l,"SMSUrl="))){
+			assert( cfg.ErrorSMS.Url = strdup( removeLF(arg) ) );
 			if(debug)
-				printf("SMS Host : '%s'\n", cfg.ErrorSMS.Host);
-		} else if((arg = striKWcmp(l,"SMSPage="))){
-			assert( cfg.ErrorSMS.Page= strdup( removeLF(arg) ) );
-			if(debug)
-				printf("SMS Page : '%s'\n", cfg.ErrorSMS.Page);
-		} else if((arg = striKWcmp(l,"SMSPort="))){
-			cfg.ErrorSMS.Port = atoi( arg );
-			if(debug)
-				printf("SMS Port : '%d'\n", cfg.ErrorSMS.Port);
+				printf("SMS Url : '%s'\n", cfg.ErrorSMS.Url);
 		} else if((arg = striKWcmp(l,"SMSPayload="))){
 			assert( cfg.ErrorSMS.Payload= strdup( removeLF(arg) ) );
 			if(debug)

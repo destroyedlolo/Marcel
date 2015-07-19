@@ -87,9 +87,7 @@ struct Config {
 	int DPDlast;
 	union CSection *first_DPD;
 	struct {
-		const char *Host;
-		int Port;
-		const char *Page;
+		const char *Url;
 		const char *Payload;
 	} ErrorSMS;
 } cfg;

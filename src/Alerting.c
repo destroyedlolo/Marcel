@@ -19,15 +19,17 @@
 struct DList alerts;
 
 static void sendSMS( const char *msg ){
-/* Code comes from Jerry Jeremiah's 
- * http://stackoverflow.com/questions/22077802/simple-c-example-of-doing-an-http-post-and-consuming-the-response
- */
-
-	if(!cfg.ErrorSMS.Host)
+	CURL *curl;
+	CURLcode res;
+		
+	if(!cfg.ErrorSMS.Url)
 		return;
 
 puts(msg);
 
+	if((curl = curl_easy_init())){
+		
+	}
 }
 
 static struct alert *findalert(const char *id){
@@ -49,13 +51,14 @@ void init_alerting(void){
 		exit(EXIT_FAILURE);
 	}
 
-	if(!cfg.ErrorSMS.Host || !cfg.ErrorSMS.Port || !cfg.ErrorSMS.Page || !cfg.ErrorSMS.Payload){
+	if(!cfg.ErrorSMS.Url || !cfg.ErrorSMS.Payload){
 		if(debug)
 			puts("*W* SMS sending not fully configured : disabling SMS sending");
-		cfg.ErrorSMS.Host = NULL;
+		cfg.ErrorSMS.Url = NULL;
 	}
 
 	curl_global_init(CURL_GLOBAL_ALL);
+	atexit( curl_global_cleanup );
 }
 
 void rcv_alert(const char *id, const char *msg){
