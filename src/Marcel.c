@@ -275,14 +275,11 @@ static void read_configuration( const char *fch){
 	/*
 	 * Broker related functions
 	 */
-static int msgarrived(void *actx, char *atopic, int tlen, MQTTClient_message *msg){
+static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	union CSection *DPD = cfg.DPDlast ? cfg.first_DPD : cfg.sections;
 	const char *aid;
-	char topic[tlen + 1];
 	char payload[msg->payloadlen + 1];
 
-	memcpy(topic, atopic, tlen);
-	topic[tlen] = 0;
 	memcpy(payload, msg->payload, msg->payloadlen);
 	payload[msg->payloadlen] = 0;
 
@@ -301,7 +298,7 @@ static int msgarrived(void *actx, char *atopic, int tlen, MQTTClient_message *ms
 	}
 
 	MQTTClient_freeMessage(&msg);
-	MQTTClient_free(atopic);
+	MQTTClient_free(topic);
 	return 1;
 }
 
