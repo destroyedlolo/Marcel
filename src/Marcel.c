@@ -25,6 +25,7 @@
  *	28/05/2015	- LF - v1.2 - Adding UPS
  *				-------
  *	08/07/2015	- LF - start v2.0 - make source modular
+ *	21/07/2015	- LF - secure non-NULL MQTT payload
  */
 #include "Marcel.h"
 #include "Freebox.h"
