@@ -43,9 +43,13 @@ static void sendSMS( const char *msg ){
 }
 
 static struct alert *findalert(const char *id){
+#ifdef DEBUG
 printf("*d* lst - f:%p l:%p\n", alerts.first, alerts.last);
+#endif
 	for(struct alert *an = (struct alert *)alerts.first; an; an = (struct alert *)an->node.next){
+#ifdef DEBUG
 printf("*d*\t%p p:%p n:%p\n", an, an->node.prev, an->node.next);
+#endif
 		if(!strcmp(id, an->alert))
 			return an;
 	}
@@ -70,7 +74,6 @@ void init_alerting(void){
 
 void rcv_alert(const char *id, const char *msg){
 	struct alert *an = findalert(id);
-printf("*d* Alert '%s'/'%s' (an:%p)\n", id, msg, an);
 
 	if(*msg == 'S'){	/* rise this alert */
 		if(!an){	/* And it's a new one */
