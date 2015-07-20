@@ -90,7 +90,7 @@ struct Config {
 } cfg;
 
 	/* Helper functions */
-extern int debug;
+extern int verbose;
 
 extern char *removeLF(char *);
 extern char *striKWcmp( char *, const char * );

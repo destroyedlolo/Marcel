@@ -19,7 +19,7 @@ Add following options to include related modules :
 
 #Launch options :#
 Marcel knows the following options :
-* *-d* : verbose output
+* *-v* : verbose output
 * *-f<file>* : loads <file> as configuration file. The default one is `/usr/local/etc/Marcel.conf`
 
 Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).

@@ -61,7 +61,7 @@ void init_alerting(void){
 		exit(EXIT_FAILURE);
 	}
 
-	if(!cfg.SMSurl && debug)
+	if(!cfg.SMSurl && verbose)
 		puts("*W* SMS sending not fully configured : disabling SMS sending");
 
 	curl_global_init(CURL_GLOBAL_ALL);

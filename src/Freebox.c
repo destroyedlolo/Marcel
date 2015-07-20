@@ -44,7 +44,7 @@ void *process_Freebox(void *actx){
 	serv_addr.sin_port = htons( FBX_PORT );
 	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
 
-	if(debug)
+	if(verbose)
 		printf("Launching a processing flow for Freebox\n");
 
 	for(;;){	/* Infinite loop to process data */
@@ -71,14 +71,14 @@ void *process_Freebox(void *actx){
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", d );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 
 				lm = sprintf(l, "%s/UploadATM", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", u );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 			} else if(striKWcmp(l, "  Marge de bruit")){
 				float u, d; 
@@ -91,14 +91,14 @@ void *process_Freebox(void *actx){
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%.2f", d );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 
 				lm = sprintf(l, "%s/UploadMarge", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%.2f", u );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 			} else if(striKWcmp(l, "  WAN")){
 				int u, d, lm;
@@ -110,14 +110,14 @@ void *process_Freebox(void *actx){
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", d );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 
 				lm = sprintf(l, "%s/UploadWIFI", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", u );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 			} else if(striKWcmp(l, "  Ethernet")){
 				int u, d, lm;
@@ -129,14 +129,14 @@ void *process_Freebox(void *actx){
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", d );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 
 				lm = sprintf(l, "%s/UploadTV", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", u );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 			} else if(striKWcmp(l, "  USB")){
 				int u, d, lm;
@@ -148,14 +148,14 @@ void *process_Freebox(void *actx){
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", d );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 
 				lm = sprintf(l, "%s/UploadUSB", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", u );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 			} else if(striKWcmp(l, "  Switch")){
 				int u, d, lm;
@@ -167,14 +167,14 @@ void *process_Freebox(void *actx){
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", d );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 
 				lm = sprintf(l, "%s/UploadLan", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", u );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
-				if(debug)
+				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 			}
 		}

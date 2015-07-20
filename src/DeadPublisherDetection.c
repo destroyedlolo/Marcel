@@ -35,7 +35,7 @@ extern void *process_DPD(void *actx){
 		pthread_exit(0);
 	}
 
-	if(debug)
+	if(verbose)
 		printf("Launching a processing flow for DeadPublisherDetect (DPD) '%s'\n", ctx->topic);
 
 		/* Creating the fd for the notification */
@@ -66,7 +66,7 @@ extern void *process_DPD(void *actx){
 			perror("pselect()");
 			pthread_exit(0);
 		case 0:	/* timeout */
-			if(debug)
+			if(verbose)
 				printf("*I* timeout for DPD '%s'\n", ctx->errorid);
 			if( !ctx->inerror ){
 				char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
@@ -80,7 +80,7 @@ extern void *process_DPD(void *actx){
 				msg_len = sprintf( msg, msg_info, ctx->sample );
 
 				if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS ){
-					if(debug)
+					if(verbose)
 						printf("*I* Alert raises for DPD '%s'\n", ctx->errorid);
 						ctx->inerror = 1;
 					}
@@ -94,7 +94,7 @@ extern void *process_DPD(void *actx){
 					strcpy( topic, "Alert/" );
 					strcat( topic, ctx->errorid );
 					if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS ){
-						if(debug)
+						if(verbose)
 							printf("*I* Alert corrected for DPD '%s'\n", ctx->errorid);
 						ctx->inerror = 0;
 					}

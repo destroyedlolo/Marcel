@@ -48,7 +48,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-int debug = 0;
+int verbose = 0;
 
 	/*
 	 * Helpers
@@ -128,7 +128,7 @@ static void read_configuration( const char *fch){
 
 	cfg.SMSurl = NULL;
 
-	if(debug)
+	if(verbose)
 		printf("Reading configuration file '%s'\n", fch);
 
 	if(!(f=fopen(fch, "r"))){
@@ -142,11 +142,11 @@ static void read_configuration( const char *fch){
 
 		if((arg = striKWcmp(l,"Broker="))){
 			assert( cfg.Broker = strdup( removeLF(arg) ) );
-			if(debug)
+			if(verbose)
 				printf("Broker : '%s'\n", cfg.Broker);
 		} else if((arg = striKWcmp(l,"SMSUrl="))){
 			assert( cfg.SMSurl = strdup( removeLF(arg) ) );
-			if(debug)
+			if(verbose)
 				printf("SMS Url : '%s'\n", cfg.SMSurl);
 		} else if((arg = striKWcmp(l,"*FFV="))){
 			union CSection *n = malloc( sizeof(struct _FFV) );
@@ -159,7 +159,7 @@ static void read_configuration( const char *fch){
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
-			if(debug)
+			if(verbose)
 				printf("Entering section '%s'\n", removeLF(arg));
 		} else if((arg = striKWcmp(l,"*Freebox"))){
 			union CSection *n = malloc( sizeof(struct _FreeBox) );
@@ -172,7 +172,7 @@ static void read_configuration( const char *fch){
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
-			if(debug)
+			if(verbose)
 				puts("Entering section 'Freebox'");
 		} else if((arg = striKWcmp(l,"*UPS="))){
 			union CSection *n = malloc( sizeof(struct _UPS) );
@@ -187,7 +187,7 @@ static void read_configuration( const char *fch){
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
-			if(debug)
+			if(verbose)
 				printf("Entering section 'UPS/%s'\n", n->Ups.section_name);
 		} else if((arg = striKWcmp(l,"*DPD="))){
 			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
@@ -205,11 +205,11 @@ static void read_configuration( const char *fch){
 			if(!cfg.first_DPD)
 				cfg.first_DPD = n;
 
-			if(debug)
+			if(verbose)
 				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.errorid);
 		} else if(!strcmp(l,"DPDLast\n")){	/* DPD grouped at the end of the configuration file */
 			cfg.DPDlast = 1;
-			if(debug)
+			if(verbose)
 				puts("Dead Publisher Detect (DPD) sections are grouped at the end of the configuration");
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
@@ -217,7 +217,7 @@ static void read_configuration( const char *fch){
 					exit(EXIT_FAILURE);
 			}
 			assert( last_section->FFV.file = strdup( removeLF(arg) ));
-			if(debug)
+			if(verbose)
 				printf("\tFile : '%s'\n", last_section->FFV.file);
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
@@ -225,7 +225,7 @@ static void read_configuration( const char *fch){
 					exit(EXIT_FAILURE);
 			}
 			assert( last_section->Ups.host = strdup( removeLF(arg) ));
-			if(debug)
+			if(verbose)
 				printf("\tHost : '%s'\n", last_section->Ups.host);
 		} else if((arg = striKWcmp(l,"Port="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
@@ -236,7 +236,7 @@ static void read_configuration( const char *fch){
 				fputs("*F* Configurstruct _DeadPublisher *ation issue : Port is null (or is not a number)\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			if(debug)
+			if(verbose)
 				printf("\tPort : %d\n", last_section->Ups.port);
 		} else if((arg = striKWcmp(l,"Var="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
@@ -248,7 +248,7 @@ static void read_configuration( const char *fch){
 			assert( v->name = strdup( removeLF(arg) ));
 			v->next = last_section->Ups.var_list;
 			last_section->Ups.var_list = v;
-			if(debug)
+			if(verbose)
 				printf("\tVar : '%s'\n", v->name);
 		} else if((arg = striKWcmp(l,"Sample="))){
 			if(!last_section){
@@ -256,7 +256,7 @@ static void read_configuration( const char *fch){
 				exit(EXIT_FAILURE);
 			}
 			last_section->common.sample = atoi( arg );
-			if(debug)
+			if(verbose)
 				printf("\tDelay between samples : %ds\n", last_section->common.sample);
 		} else if((arg = striKWcmp(l,"Topic="))){
 			if(!last_section){
@@ -264,7 +264,7 @@ static void read_configuration( const char *fch){
 				exit(EXIT_FAILURE);
 			}
 			assert( last_section->common.topic = strdup( removeLF(arg) ));
-			if(debug)
+			if(verbose)
 				printf("\tTopic : '%s'\n", last_section->common.topic);
 		}
 	}
@@ -279,7 +279,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 	union CSection *DPD = cfg.DPDlast ? cfg.first_DPD : cfg.sections;
 	const char *aid;
 
-	if(debug)
+	if(verbose)
 		printf("*I* message arrival (topic : '%s', msg : '%s')\n", topic, (const char *)msg->payload);
 
 	if((aid = striKWcmp(topic,"Alert/")))
@@ -325,14 +325,14 @@ static void *process_FFV(void *actx){
 		pthread_exit(0);
 	}
 
-	if(debug)
+	if(verbose)
 		printf("Launching a processing flow for FFV '%s'\n", ctx->topic);
 
 	for(;;){	/* Infinite loop to process messages */
 		ctx = actx;	/* Back to the 1st one */
 		for(;;){
 			if(!(f = fopen( ctx->file, "r" ))){
-				if(debug)
+				if(verbose)
 					perror( ctx->file );
 				if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
 					int msg;
@@ -364,7 +364,7 @@ static void *process_FFV(void *actx){
 				sprintf(l,"%.1f", val);
 
 				mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
-				if(debug)
+				if(verbose)
 					printf("FFV : %s -> %f\n", ctx->topic, val);
 				fclose(f);
 			}
@@ -398,14 +398,14 @@ int main(int ac, char **av){
 					"Publish Smart Home figures to an MQTT broker\n"
 					"Known options are :\n"
 					"\t-h : this online help\n"
-					"\t-d : enable debug messages\n"
+					"\t-d : enable verbose messages\n"
 					"\t-f<file> : read <file> for configuration\n"
 					"\t\t(default is '%s')\n",
 					basename(av[0]), VERSION, DEFAULT_CONFIGURATION_FILE
 				);
 				exit(EXIT_FAILURE);
 			} else if(!strcmp(av[i], "-d")){
-				debug = 1;
+				verbose = 1;
 				puts("Marcel (c) L.Faillie 2015");
 				printf("%s v%s starting ...\n", basename(av[0]), VERSION);
 			} else if(!strncmp(av[i], "-f", 2))
@@ -450,7 +450,7 @@ int main(int ac, char **av){
 	init_alerting();
 
 		/* Creating childs */
-	if(debug)
+	if(verbose)
 		puts("\nCreating childs processes\n"
 			   "---------------------------");
 

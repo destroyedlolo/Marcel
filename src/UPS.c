@@ -48,7 +48,7 @@ void *process_UPS(void *actx){
 	serv_addr.sin_port = htons( ctx->port );
 	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
 
-	if(debug)
+	if(verbose)
 		printf("Launching a processing flow for UPS/%s\n", ctx->section_name);
 
 	for(;;){	/* Infinite loop to process data */
@@ -72,14 +72,14 @@ void *process_UPS(void *actx){
 					char *ps, *pe;
 					socketreadline(sockfd, l, sizeof(l));
 					if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') )){
-						if(debug)
+						if(verbose)
 							printf("*E* %s/%s : unexpected result '%s'\n", ctx->section_name, v->name, l);
 					} else {
 						ps++; *pe++ = 0;	/* Extract only the result */
 						assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
 						sprintf( pe, "%s/%s", ctx->topic, v->name );
 						mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
-						if(debug)
+						if(verbose)
 							printf("UPS : %s -> '%s'\n", pe, ps);
 					}
 				}
