@@ -275,15 +275,22 @@ static void read_configuration( const char *fch){
 	/*
 	 * Broker related functions
 	 */
-static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+static int msgarrived(void *actx, char *atopic, int tlen, MQTTClient_message *msg){
 	union CSection *DPD = cfg.DPDlast ? cfg.first_DPD : cfg.sections;
 	const char *aid;
+	char topic[tlen + 1];
+	char payload[msg->payloadlen + 1];
+
+	memcpy(topic, atopic, tlen);
+	topic[tlen] = 0;
+	memcpy(payload, msg->payload, msg->payloadlen);
+	payload[msg->payloadlen] = 0;
 
 	if(verbose)
-		printf("*I* message arrival (topic : '%s', msg : '%s')\n", topic, (const char *)msg->payload);
+		printf("*I* message arrival (topic : '%s', msg : '%s')\n", topic, payload);
 
 	if((aid = striKWcmp(topic,"Alert/")))
-		rcv_alert( aid, msg->payload );
+		rcv_alert( aid, payload );
 	else for(; DPD; DPD = DPD->common.next){
 		if(DPD->common.section_type != MSEC_DEADPUBLISHER)
 			continue;
@@ -294,7 +301,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 	}
 
 	MQTTClient_freeMessage(&msg);
-	MQTTClient_free(topic);
+	MQTTClient_free(atopic);
 	return 1;
 }
 
