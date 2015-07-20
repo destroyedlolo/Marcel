@@ -398,13 +398,13 @@ int main(int ac, char **av){
 					"Publish Smart Home figures to an MQTT broker\n"
 					"Known options are :\n"
 					"\t-h : this online help\n"
-					"\t-d : enable verbose messages\n"
+					"\t-v : enable verbose messages\n"
 					"\t-f<file> : read <file> for configuration\n"
 					"\t\t(default is '%s')\n",
 					basename(av[0]), VERSION, DEFAULT_CONFIGURATION_FILE
 				);
 				exit(EXIT_FAILURE);
-			} else if(!strcmp(av[i], "-d")){
+			} else if(!strcmp(av[i], "-v")){
 				verbose = 1;
 				puts("Marcel (c) L.Faillie 2015");
 				printf("%s v%s starting ...\n", basename(av[0]), VERSION);
