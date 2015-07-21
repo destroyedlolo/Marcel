@@ -17,7 +17,6 @@ void DLListInit( struct DList *l ){
 }
 
 void DLAdd( struct DList *l, struct DLNode *n ){
-puts("*d* DLAdd()");
 	n->next = NULL;
 	if(!(n->prev = l->last))	/* The list is empty */
 		l->first = n;
@@ -27,7 +26,6 @@ puts("*d* DLAdd()");
 }
 
 void DLRemove( struct DList *l, struct DLNode *n ){
-puts("*d* DLRemove()");
 	if(n->next)
 		n->next->prev = n->prev;
 	else	/* Last of the list */
