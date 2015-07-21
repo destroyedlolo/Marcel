@@ -16,6 +16,7 @@
 Add following options to include related modules :
 * -DFREEBOX : Enable Freebox statistics (French Internet provider)
 * -DUPS : Enable UPS monitoring, NUT needed
+* -DLUA : Enable Lua user function (v3.0+)
 
 #Launch options :#
 Marcel knows the following options :

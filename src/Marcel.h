@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
-#define VERSION "2.1"
+#define VERSION "3.0"
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
 #define BRK_KEEPALIVE 60	/* Keep alive signal to the broker */
@@ -100,5 +100,14 @@ extern char *mystrdup(const char *);
 extern size_t socketreadline( int, char *, size_t);
 
 	/* Broker related */
-int papub( const char *, int, void *, int);
+extern int papub( const char *, int, void *, int);
+
+	/* Lua related */
+#ifdef LUA
+#include <lua.h>		/* Lua's Basic */
+extern lua_State *L;
+
+extern void init_Lua( void );
 #endif
+#endif
+

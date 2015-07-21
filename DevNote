@@ -10,3 +10,12 @@ Payload : [S|E]error message
 	- E : End of the alert
 	- error message : information to be send.
 
+Lua user function
+=================
+
+Lua stores its own information in a context which is not thread safe.
+I had 2 options :
+1/ to create a dedicated context per section (implemented as thread), but in this case, each and every callback lives its own life and can't share code or information with others
+2/ to use an unique context and lock it's access.
+
+I choose the 2nd way which is more "natural" for users, but as a consequence, only one callback can run at a time. It means callbacks must be as fast as possible to avoid dead locks.
