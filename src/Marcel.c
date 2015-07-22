@@ -461,6 +461,7 @@ int main(int ac, char **av){
 	atexit(brkcleaning);
 
 	init_alerting();
+	init_Lua( conf_file );
 
 
 		/* Creating childs */
