@@ -87,6 +87,7 @@ struct Config {
 	int DPDlast;
 	union CSection *first_DPD;
 	const char *SMSurl;
+	const char *luascript;
 } cfg;
 
 	/* Helper functions */
@@ -107,7 +108,7 @@ extern int papub( const char *, int, void *, int);
 #include <lua.h>		/* Lua's Basic */
 extern lua_State *L;
 
-extern void init_Lua( void );
+extern void init_Lua( const char * );
 #endif
 #endif
 

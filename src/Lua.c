@@ -17,15 +17,17 @@
 
 #ifdef LUA
 lua_State *L;
+pthread_mutex_t onefunc;	/* Only one func can run at a time */
 
 static void clean_lua(void){
 	lua_close(L);
 }
 
-void init_Lua( void ){
+void init_Lua( const char *conffile ){
 	L = lua_open();		/* opens Lua */
 	luaL_openlibs(L);	/* and it's libraries */
 	atexit(clean_lua);
 
+	pthread_mutex_init( &onefunc, NULL);
 }
 #endif

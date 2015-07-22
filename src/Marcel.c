@@ -129,6 +129,8 @@ static void read_configuration( const char *fch){
 
 	cfg.SMSurl = NULL;
 
+	cfg.luascript = NULL;
+
 	if(verbose)
 		printf("Reading configuration file '%s'\n", fch);
 
@@ -149,6 +151,12 @@ static void read_configuration( const char *fch){
 			assert( cfg.SMSurl = strdup( removeLF(arg) ) );
 			if(verbose)
 				printf("SMS Url : '%s'\n", cfg.SMSurl);
+#ifdef LUA
+		} else if((arg = striKWcmp(l,"FuncScript="))){
+			assert( cfg.luascript = strdup( removeLF(arg) ) );
+			if(verbose)
+				printf("Functions definition script : '%s'\n", cfg.luascript);
+#endif
 		} else if((arg = striKWcmp(l,"*FFV="))){
 			union CSection *n = malloc( sizeof(struct _FFV) );
 			assert(n);
@@ -453,6 +461,7 @@ int main(int ac, char **av){
 	atexit(brkcleaning);
 
 	init_alerting();
+
 
 		/* Creating childs */
 	if(verbose)
