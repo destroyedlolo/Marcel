@@ -453,7 +453,7 @@ int main(int ac, char **av){
 
 		/* Connecting to the broker */
 	conn_opts.reliable = 0;
-	MQTTClient_create( &cfg.client, cfg.Broker, "Marcel", MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	MQTTClient_create( &cfg.client, cfg.Broker, cfg.ClientID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
 	MQTTClient_setCallbacks( cfg.client, NULL, connlost, msgarrived, NULL);
 
 	switch( MQTTClient_connect( cfg.client, &conn_opts) ){
