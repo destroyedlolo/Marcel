@@ -25,8 +25,8 @@
  *	28/05/2015	- LF - v1.2 - Adding UPS
  *				-------
  *	08/07/2015	- LF - start v2.0 - make source modular
- *	21/07/2015	- LF - secure non-NULL MQTT payload
- *	26/07/2015	- LF - v2.1 - Add ConnectionLostIsFatal
+ *	21/07/2015	- LF - v2.1 - secure non-NULL MQTT payload
+ *	26/07/2015	- LF - v2.2 - Add ConnectionLostIsFatal
  */
 #include "Marcel.h"
 #include "Freebox.h"
