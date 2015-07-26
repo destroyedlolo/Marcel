@@ -26,6 +26,7 @@
  *				-------
  *	08/07/2015	- LF - start v2.0 - make source modular
  *	21/07/2015	- LF - secure non-NULL MQTT payload
+ *	26/07/2015	- LF - v2.1 - Add ConnectionLostIsFatal
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -125,6 +126,7 @@ static void read_configuration( const char *fch){
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.client = NULL;
 	cfg.DPDlast = 0;
+	cfg.ConLostFatal = 0;
 	cfg.first_DPD = NULL;
 
 	cfg.SMSurl = NULL;
@@ -220,6 +222,10 @@ static void read_configuration( const char *fch){
 			cfg.DPDlast = 1;
 			if(verbose)
 				puts("Dead Publisher Detect (DPD) sections are grouped at the end of the configuration");
+		} else if(!strcmp(l,"ConnectionLostIsFatal")){	/* Crash if the broker connection is lost */
+			cfg.ConLostFatal = 1;
+			if(verbose)
+				puts("Crash if the broker connection is lost");
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);
@@ -313,6 +319,8 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 
 static void connlost(void *ctx, char *cause){
 	printf("*W* Broker connection lost due to %s\n", cause);
+	if(cfg.ConLostFatal)
+		exit(EXIT_FAILURE);
 }
 
 static void brkcleaning(void){	/* Clean broker stuffs */
@@ -461,8 +469,9 @@ int main(int ac, char **av){
 	atexit(brkcleaning);
 
 	init_alerting();
+#ifdef LUA
 	init_Lua( conf_file );
-
+#endif
 
 		/* Creating childs */
 	if(verbose)

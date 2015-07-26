@@ -85,6 +85,7 @@ struct Config {
 	const char *Broker;
 	MQTTClient client;
 	int DPDlast;
+	int ConLostFatal;
 	union CSection *first_DPD;
 	const char *SMSurl;
 	const char *luascript;
