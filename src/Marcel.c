@@ -27,6 +27,7 @@
  *	08/07/2015	- LF - start v2.0 - make source modular
  *	21/07/2015	- LF - v2.1 - secure non-NULL MQTT payload
  *	26/07/2015	- LF - v2.2 - Add ConnectionLostIsFatal
+ *	27/07/2015	- LF - v2.3 - Add ClientID to avoid connection loss during my tests
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -44,6 +45,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/utsname.h>	/* uname */
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -124,6 +126,7 @@ static void read_configuration( const char *fch){
 
 	cfg.sections = NULL;
 	cfg.Broker = "tcp://localhost:1883";
+	cfg.ClientID = "Marcel";
 	cfg.client = NULL;
 	cfg.DPDlast = 0;
 	cfg.ConLostFatal = 0;
@@ -149,6 +152,10 @@ static void read_configuration( const char *fch){
 			assert( cfg.Broker = strdup( removeLF(arg) ) );
 			if(verbose)
 				printf("Broker : '%s'\n", cfg.Broker);
+		} else if((arg = striKWcmp(l,"ClientID="))){
+			assert( cfg.ClientID = strdup( removeLF(arg) ) );
+			if(verbose)
+				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
 		} else if((arg = striKWcmp(l,"SMSUrl="))){
 			assert( cfg.SMSurl = strdup( removeLF(arg) ) );
 			if(verbose)
