@@ -222,7 +222,7 @@ static void read_configuration( const char *fch){
 			cfg.DPDlast = 1;
 			if(verbose)
 				puts("Dead Publisher Detect (DPD) sections are grouped at the end of the configuration");
-		} else if(!strcmp(l,"ConnectionLostIsFatal")){	/* Crash if the broker connection is lost */
+		} else if(!strcmp(l,"ConnectionLostIsFatal\n")){	/* Crash if the broker connection is lost */
 			cfg.ConLostFatal = 1;
 			if(verbose)
 				puts("Crash if the broker connection is lost");
