@@ -28,6 +28,8 @@
  *	21/07/2015	- LF - v2.1 - secure non-NULL MQTT payload
  *	26/07/2015	- LF - v2.2 - Add ConnectionLostIsFatal
  *	27/07/2015	- LF - v2.3 - Add ClientID to avoid connection loss during my tests
+ *				-------
+ *	07/07/2015	- LF - switch v3.0 - Add Lua user function in DPD
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -272,6 +274,14 @@ static void read_configuration( const char *fch){
 			last_section->Ups.var_list = v;
 			if(verbose)
 				printf("\tVar : '%s'\n", v->name);
+		} else if((arg = striKWcmp(l,"Func="))){
+			if(!last_section || last_section->common.section_type != MSEC_DEADPUBLISHER){
+				fputs("*F* Configuration issue : Func directive outside a DPD section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			assert( last_section->DeadPublisher.funcname = strdup( removeLF(arg) ));
+			if(verbose)
+				printf("\tFunction : '%s'\n", last_section->DeadPublisher.funcname);
 		} else if((arg = striKWcmp(l,"Sample="))){
 			if(!last_section){
 				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
