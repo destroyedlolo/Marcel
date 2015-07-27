@@ -279,6 +279,10 @@ static void read_configuration( const char *fch){
 				fputs("*F* Configuration issue : Func directive outside a DPD section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
+#ifndef LUA
+			fputs("*F* User functions can only be used when compiled with Lua support\n", stderr);
+			exit(EXIT_FAILURE);
+#endif
 			assert( last_section->DeadPublisher.funcname = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tFunction : '%s'\n", last_section->DeadPublisher.funcname);
@@ -528,8 +532,8 @@ int main(int ac, char **av){
 			break;
 #endif
 		case MSEC_DEADPUBLISHER:
-			if(!s->common.sample){
-				fputs("*E* DeadPublisher section without sample time : ignoring ...\n", stderr);
+			if(!s->common.sample && !s->DeadPublisher.funcname){
+				fputs("*E* DeadPublisher section without sample time or user function defined : ignoring ...\n", stderr);
 			} else if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);

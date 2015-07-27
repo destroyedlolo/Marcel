@@ -9,7 +9,7 @@ gotoall: all
 # Warning : 'curl/curl.h' can't be located for this node.
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DFREEBOX -DUPS -lcurl -lpthread -lpaho-mqtt3c -DxLUA -llua -std=c99
+cc=gcc -Wall -DFREEBOX -DUPS -lcurl -lpthread -lpaho-mqtt3c -DLUA -llua -std=c99
 
 src/Alerting.o : src/Alerting.c src/Alerting.h src/Marcel.h 
 	$(cc) -c -o src/Alerting.o src/Alerting.c 
@@ -59,6 +59,7 @@ src/Lua.o : src/Lua.c src/Marcel.h
 # Warning : 'assert.h' can't be located for this node.
 # Warning : 'unistd.h' can't be located for this node.
 # Warning : 'signal.h' can't be located for this node.
+# Warning : 'sys/utsname.h' can't be located for this node.
 # Warning : 'sys/types.h' can't be located for this node.
 # Warning : 'sys/socket.h' can't be located for this node.
 # Warning : 'netinet/in.h' can't be located for this node.
