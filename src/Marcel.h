@@ -78,6 +78,7 @@ union CSection {
 		int rcv;			/* Event for data receiving */
 		int inerror;		/* true if this DPD is in error */
 		const char *funcname;	/* User function to call on data arrival */
+		int funcid;			/* Function id in Lua registry */
 	} DeadPublisher;
 };
 
@@ -112,6 +113,7 @@ extern int papub( const char *, int, void *, int);
 extern lua_State *L;
 
 extern void init_Lua( const char * );
+extern int findUserFunc( const char * );
 #endif
 #endif
 

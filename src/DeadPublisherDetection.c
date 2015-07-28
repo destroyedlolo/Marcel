@@ -5,6 +5,7 @@
  * license rules (see LICENSE file)
  *
  * 09/07/2015	- LF - First version
+ * 28/07/2015	- LF - Add user function
  */
 
 #include "DeadPublisherDetection.h"
@@ -16,6 +17,11 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
+
+#ifdef LUA
+#include <lauxlib.h>
+#endif
 
 extern void *process_DPD(void *actx){
 	struct _DeadPublisher *ctx = actx;	/* Only to avoid zillions of cast */
@@ -26,15 +32,18 @@ extern void *process_DPD(void *actx){
 		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
 		pthread_exit(0);
 	}
-	if(!ctx->sample){
-		fprintf(stderr, "*E* configuration error : no timeout specified for DPD '%s', ignoring this section\n", ctx->topic);
-		pthread_exit(0);
-	}
 	if(!*ctx->errorid){
 		fprintf(stderr, "*E* configuration error : no errorid specified for DPD '%s', ignoring this section\n", ctx->topic);
 		pthread_exit(0);
 	}
-
+#ifdef LUA
+	if(ctx->funcname){
+		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
+			fprintf(stderr, "*F* configuration error : user function \"%s\" is not defined\n", ctx->funcname);
+			exit(EXIT_FAILURE);
+		}
+	}
+#endif
 	if(verbose)
 		printf("Launching a processing flow for DeadPublisherDetect (DPD) '%s'\n", ctx->topic);
 
