@@ -41,6 +41,15 @@ int findUserFunc( const char *fn ){
 	return ref;
 }
 
+void execUserFunc( struct _DeadPublisher *ctx, const char *topic, const char *msg){
+	if(ctx->funcid != LUA_TNIL){	/* A function is defined */
+		lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
+		lua_pushstring( L, topic);
+		lua_pushstring( L, msg);
+		lua_pcall( L, 2, 0, 0);
+	}
+}
+
 void init_Lua( const char *conffile ){
 	if( cfg.luascript ){
 		char *copy_cf;

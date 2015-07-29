@@ -330,6 +330,10 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		if(!mqtttokcmp(DPD->DeadPublisher.topic, topic)){	/* Topic found */
 			uint64_t v = 1;
 			write( DPD->DeadPublisher.rcv, &v, sizeof(v) );	/* Signal it */
+
+#ifdef LUA
+			execUserFunc( &(DPD->DeadPublisher), topic, payload );
+#endif
 		}
 	}
 
