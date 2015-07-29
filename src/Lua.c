@@ -9,6 +9,7 @@
  */
 
 #include "Marcel.h"
+#include "Alerting.h"
 
 #include <stdlib.h>
 #include <assert.h>

@@ -72,30 +72,37 @@ void init_alerting(void){
 	atexit( curl_global_cleanup );
 }
 
-void rcv_alert(const char *id, const char *msg){
+void RiseAlert(const char *id, const char *msg){
 	struct alert *an = findalert(id);
 
-	if(*msg == 'S'){	/* rise this alert */
-		if(!an){	/* And it's a new one */
-			char smsg[ strlen(id) + strlen(msg) + 3 ];	/* \0 replaces the leading msg character */
-			sprintf( smsg, "%s : %s", id, msg+1 );
-			sendSMS( smsg );
+	if(!an){	/* It's a new alert */
+		char smsg[ strlen(id) + strlen(msg) + 4 ];
+		sprintf( smsg, "%s : %s", id, msg );
+		sendSMS( smsg );
 
-			assert( an = malloc( sizeof(struct alert) ) );
-			assert( an->alert = strdup( id ) );
-
-			DLAdd( &alerts, (struct DLNode *)an );
-		}
-	} else {	/* Alert's over */
-		if(an){
-			char smsg[ strlen(id) + 13];
-			sprintf( smsg, "%s : recovered", id );
-			sendSMS( smsg );
-
-			DLRemove( &alerts, (struct DLNode *)an );
-
-			free( (void *)an->alert );
-			free( an );
-		}
+		assert( an = malloc( sizeof(struct alert) ) );
+		assert( an->alert = strdup( id ) );
+		DLAdd( &alerts, (struct DLNode *)an );
 	}
+}
+
+void AlertIsOver(const char *id){
+	struct alert *an = findalert(id);
+
+	if(an){	/* The alert exists */
+		char smsg[ strlen(id) + 13];
+		sprintf( smsg, "%s : recovered", id );
+		sendSMS( smsg );
+
+		DLRemove( &alerts, (struct DLNode *)an );
+		free( (void *)an->alert );
+		free( an );
+	}
+}
+
+void rcv_alert(const char *id, const char *msg){
+	if(*msg == 'S')	/* rise this alert */
+		RiseAlert(id, msg+1);
+	else	/* Alert's over */
+		AlertIsOver(id);
 }
