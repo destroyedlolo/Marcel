@@ -4,5 +4,7 @@
 -- that are called by User Test Subscribers section (UTS)
 
 function UPSBatCharge( topic, val )
-	print("In Lua", topic, val);
+	print("In Lua", topic, val)
+
+	Marcel.RiseAlert()
 end

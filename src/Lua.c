@@ -50,6 +50,20 @@ void execUserFunc( struct _DeadPublisher *ctx, const char *topic, const char *ms
 	}
 }
 
+static int lmRiseAlert(lua_State *L){
+	return 0;
+}
+
+static int lmDropAlert(lua_State *L){
+	return 0;
+}
+
+static const struct luaL_reg MarcelLib [] = {
+	{"RiseAlert", lmRiseAlert},
+	{"DropAlert", lmDropAlert},
+	{NULL, NULL}
+};
+
 void init_Lua( const char *conffile ){
 	if( cfg.luascript ){
 		char *copy_cf;
@@ -72,6 +86,12 @@ void init_Lua( const char *conffile ){
 		}
 
 		pthread_mutex_init( &onefunc, NULL);
+
+		luaL_newmetatable(L, "Marcel");
+		lua_pushstring(L, "__index");
+		lua_pushvalue(L, -2);
+		lua_settable(L, -3);	/* metatable.__index = metatable */
+		luaL_register(L,"Marcel", MarcelLib);
 	} else if(verbose)
 		puts("*W* No FuncScript defined, Lua disabled");
 }
