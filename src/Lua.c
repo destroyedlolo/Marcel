@@ -30,7 +30,7 @@ static void clean_lua(void){
 int findUserFunc( const char *fn ){
 	lua_getglobal(L, fn);
 	if( lua_type(L, -1) != LUA_TFUNCTION ){
-		if(verbose)
+		if(verbose && lua_type(L, -1) != LUA_TNIL )
 			fprintf(stderr, "*E* \"%s\" is not a function, a %s.\n", fn, lua_typename(L, lua_type(L, -1)) );
 		lua_pop(L, 1);
 		return LUA_REFNIL;
