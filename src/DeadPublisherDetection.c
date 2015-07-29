@@ -25,7 +25,7 @@
 
 extern void *process_DPD(void *actx){
 	struct _DeadPublisher *ctx = actx;	/* Only to avoid zillions of cast */
-	struct timespec ts;
+	struct timespec ts, *uts;
 
 		/* Sanity checks */
 	if(!ctx->topic){
@@ -60,15 +60,20 @@ extern void *process_DPD(void *actx){
 		pthread_exit(0);
 	}
 
-	ts.tv_sec = (time_t)ctx->sample;
-	ts.tv_nsec = 0;
+	if(ctx->sample){
+		ts.tv_sec = (time_t)ctx->sample;
+		ts.tv_nsec = 0;
+
+		uts = &ts;
+	} else
+		uts = NULL;
 
 	for(;;){
 		fd_set rfds;
 		FD_ZERO( &rfds );
 		FD_SET( ctx->rcv, &rfds );
 
-		switch( pselect( ctx->rcv+1, &rfds, NULL, NULL, &ts, NULL ) ){
+		switch( pselect( ctx->rcv+1, &rfds, NULL, NULL, uts, NULL ) ){
 		case -1:	/* Error */
 			close( ctx->rcv );
 			ctx->rcv = 1;
