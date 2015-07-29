@@ -35,13 +35,15 @@ int findUserFunc( const char *fn ){
 		lua_pop(L, 1);
 		return LUA_REFNIL;
 	}
-	return LUA_REFNIL;
+
+	int ref = luaL_ref(L,LUA_REGISTRYINDEX);	/* Get the reference to the function */
+
+	return ref;
 }
 
 void init_Lua( const char *conffile ){
 	if( cfg.luascript ){
 		char *copy_cf;
-		int err;
 
 		assert( copy_cf = strdup(conffile) );
 		if(chdir( dirname( copy_cf )) == -1){
@@ -54,7 +56,8 @@ void init_Lua( const char *conffile ){
 		luaL_openlibs(L);	/* and it's libraries */
 		atexit(clean_lua);
 
-		if(( err = luaL_loadfile(L, cfg.luascript) )){
+		int err = luaL_loadfile(L, cfg.luascript) || lua_pcall(L, 0, 0, 0);
+		if(err){
 			fprintf(stderr, "*F* '%s' : %s\n", cfg.luascript, lua_tostring(L, -1));
 			exit(EXIT_FAILURE);
 		}
