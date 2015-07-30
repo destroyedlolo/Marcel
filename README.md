@@ -14,9 +14,14 @@
     gcc -std=c99 -lpthread -lpaho-mqtt3c -Wall Marcel.c -o Marcel
 
 Add following options to include related modules :
-* -DFREEBOX : Enable Freebox statistics (French Internet provider)
-* -DUPS : Enable UPS monitoring, NUT needed
-* -DLUA : Enable Lua user function (v3.0+)
+* **-DFREEBOX** : Enable Freebox statistics (French Internet provider)
+* **-DUPS** : Enable UPS monitoring, NUT needed
+* **-DLUA** : Enable Lua user function (v3.0+)
+
+#Lua custom methods :#
+Following methods are exposed thru **Marcel** object :
+* **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel an alert condition
+* **Marcel.ClearAlert(** topic **)** : Clear an alert condition
 
 #Launch options :#
 Marcel knows the following options :
