@@ -44,10 +44,12 @@ int findUserFunc( const char *fn ){
 
 void execUserFunc( struct _DeadPublisher *ctx, const char *topic, const char *msg){
 	if(ctx->funcid != LUA_TNIL){	/* A function is defined */
+		pthread_mutex_lock( &onefunc );
 		lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
 		lua_pushstring( L, topic);
 		lua_pushstring( L, msg);
 		lua_pcall( L, 2, 0, 0);
+		pthread_mutex_unlock( &onefunc );
 	}
 }
 
