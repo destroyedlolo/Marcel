@@ -54,16 +54,33 @@ void execUserFunc( struct _DeadPublisher *ctx, const char *topic, const char *ms
 }
 
 static int lmRiseAlert(lua_State *L){
+	if(lua_gettop(L) != 2){
+		fputs("*E* In your Lua code, RiseAlert() requires 2 arguments : topic, message\n", stderr);
+		return 0;
+	}
+
+	const char *topic = luaL_checkstring(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	RiseAlert( topic, msg );
+	
 	return 0;
 }
 
-static int lmDropAlert(lua_State *L){
+static int lmClearAlert(lua_State *L){
+	if(lua_gettop(L) != 1){
+		fputs("*E* In your Lua code, ClearAlert() requires 1 argument : topic\n", stderr);
+		return 0;
+	}
+
+	const char *topic = luaL_checkstring(L, 1);
+	AlertIsOver( topic );
+
 	return 0;
 }
 
 static const struct luaL_reg MarcelLib [] = {
 	{"RiseAlert", lmRiseAlert},
-	{"DropAlert", lmDropAlert},
+	{"ClearAlert", lmClearAlert},
 	{NULL, NULL}
 };
 

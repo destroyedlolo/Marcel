@@ -80,6 +80,9 @@ void RiseAlert(const char *id, const char *msg){
 		sprintf( smsg, "%s : %s", id, msg );
 		sendSMS( smsg );
 
+		if(verbose)
+			printf("*I* SMS sent : '%s' : '%s'\n", id, msg);
+
 		assert( an = malloc( sizeof(struct alert) ) );
 		assert( an->alert = strdup( id ) );
 		DLAdd( &alerts, (struct DLNode *)an );
@@ -93,6 +96,9 @@ void AlertIsOver(const char *id){
 		char smsg[ strlen(id) + 13];
 		sprintf( smsg, "%s : recovered", id );
 		sendSMS( smsg );
+
+		if(verbose)
+			printf("*I* Alert cleared for '%s'\n", id);
 
 		DLRemove( &alerts, (struct DLNode *)an );
 		free( (void *)an->alert );

@@ -163,10 +163,10 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("SMS Url : '%s'\n", cfg.SMSurl);
 #ifdef LUA
-		} else if((arg = striKWcmp(l,"FuncScript="))){
+		} else if((arg = striKWcmp(l,"UserFuncScript="))){
 			assert( cfg.luascript = strdup( removeLF(arg) ) );
 			if(verbose)
-				printf("Functions definition script : '%s'\n", cfg.luascript);
+				printf("User functions definition script : '%s'\n", cfg.luascript);
 #endif
 		} else if((arg = striKWcmp(l,"*FFV="))){
 			union CSection *n = malloc( sizeof(struct _FFV) );
