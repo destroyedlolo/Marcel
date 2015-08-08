@@ -1,7 +1,6 @@
--- Functions.lua
+-- UPSBatCharge.lua
 --
--- This file contains some example for user defined function
--- that are called by when receiving a DPD value
+-- Rise an alert if my UPS run out of battery
 
 function UPSBatCharge( topic, val )
 	if val < 20 then
