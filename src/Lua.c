@@ -22,7 +22,6 @@
 #include <lualib.h>		/* Functions to open libraries */
 
 lua_State *L;
-pthread_mutex_t onefunc;	/* Only one func can run at a time */
 
 static void clean_lua(void){
 	lua_close(L);
@@ -104,8 +103,6 @@ void init_Lua( const char *conffile ){
 			fprintf(stderr, "*F* '%s' : %s\n", cfg.luascript, lua_tostring(L, -1));
 			exit(EXIT_FAILURE);
 		}
-
-		pthread_mutex_init( &onefunc, NULL);
 
 		luaL_newmetatable(L, "Marcel");
 		lua_pushstring(L, "__index");

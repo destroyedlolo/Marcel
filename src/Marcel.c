@@ -30,6 +30,8 @@
  *	27/07/2015	- LF - v2.3 - Add ClientID to avoid connection loss during my tests
  *				-------
  *	07/07/2015	- LF - switch v3.0 - Add Lua user function in DPD
+ *	09/08/2015	- LF - 3.1 - Add mutex to avoid parallel subscription which seems
+ *					trashing broker connection
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -55,6 +57,7 @@
 #include <netdb.h>
 
 int verbose = 0;
+pthread_mutex_t onefunc;	/* Only one func can run at a time */
 
 	/*
 	 * Helpers
@@ -493,6 +496,7 @@ int main(int ac, char **av){
 	}
 	atexit(brkcleaning);
 
+	pthread_mutex_init( &onefunc, NULL);
 	init_alerting();
 #ifdef LUA
 	init_Lua( conf_file );

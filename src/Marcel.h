@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
-#define VERSION "3.0"
+#define VERSION "3.1"
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
 #define BRK_KEEPALIVE 60	/* Keep alive signal to the broker */
@@ -96,6 +96,7 @@ struct Config {
 
 	/* Helper functions */
 extern int verbose;
+extern pthread_mutex_t onefunc;
 
 extern char *removeLF(char *);
 extern char *striKWcmp( char *, const char * );
