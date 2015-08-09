@@ -32,6 +32,8 @@
  *	07/07/2015	- LF - switch v3.0 - Add Lua user function in DPD
  *	09/08/2015	- LF - 3.1 - Add mutex to avoid parallel subscription which seems
  *					trashing broker connection
+ *	09/08/2015	- LF - 3.2 - all subscriptions are done in the main thread as it seems 
+ *					paho is not thread safe.
  */
 #include "Marcel.h"
 #include "Freebox.h"
