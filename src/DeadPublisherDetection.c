@@ -53,6 +53,7 @@ extern void *process_DPD(void *actx){
 		pthread_exit(0);
 	}
 
+/*
 	pthread_mutex_lock( &onefunc );
 	if( MQTTClient_subscribe( cfg.client, ctx->topic, 0 ) != MQTTCLIENT_SUCCESS ){
 		close( ctx->rcv );
@@ -61,7 +62,7 @@ extern void *process_DPD(void *actx){
 		pthread_exit(0);
 	}
 	pthread_mutex_unlock( &onefunc );
-
+*/
 	if(ctx->sample){
 		ts.tv_sec = (time_t)ctx->sample;
 		ts.tv_nsec = 0;

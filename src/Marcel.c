@@ -540,12 +540,20 @@ int main(int ac, char **av){
 			break;
 #endif
 		case MSEC_DEADPUBLISHER:
-			if(!s->common.sample && !s->DeadPublisher.funcname){
+			if(!s->common.topic){
+				fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+			} else if(!*s->DeadPublisher.errorid){
+				fprintf(stderr, "*E* configuration error : no errorid specified for DPD '%s', ignoring this section\n", s->common.topic);
+			} else if(!s->common.sample && !s->DeadPublisher.funcname){
 				fputs("*E* DeadPublisher section without sample time or user function defined : ignoring ...\n", stderr);
-			} else if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
-				exit(EXIT_FAILURE);
-			}			
+			} else {
+				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
+					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
+				} else if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
+					fputs("*F* Can't create a processing thread\n", stderr);
+					exit(EXIT_FAILURE);
+				}
+			}
 			break;
 		default :	/* Ignore unsupported type */
 			break;
