@@ -57,7 +57,6 @@
 #include <netdb.h>
 
 int verbose = 0;
-pthread_mutex_t onefunc;	/* Only one func can run at a time */
 
 	/*
 	 * Helpers
@@ -496,7 +495,6 @@ int main(int ac, char **av){
 	}
 	atexit(brkcleaning);
 
-	pthread_mutex_init( &onefunc, NULL);
 	init_alerting();
 #ifdef LUA
 	init_Lua( conf_file );

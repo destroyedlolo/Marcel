@@ -96,7 +96,6 @@ struct Config {
 
 	/* Helper functions */
 extern int verbose;
-extern pthread_mutex_t onefunc;
 
 extern char *removeLF(char *);
 extern char *striKWcmp( char *, const char * );

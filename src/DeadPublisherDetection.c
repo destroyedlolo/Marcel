@@ -28,14 +28,6 @@ extern void *process_DPD(void *actx){
 	struct timespec ts, *uts;
 
 		/* Sanity checks */
-	if(!ctx->topic){
-		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
-		pthread_exit(0);
-	}
-	if(!*ctx->errorid){
-		fprintf(stderr, "*E* configuration error : no errorid specified for DPD '%s', ignoring this section\n", ctx->topic);
-		pthread_exit(0);
-	}
 #ifdef LUA
 	if(ctx->funcname){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
@@ -53,16 +45,6 @@ extern void *process_DPD(void *actx){
 		pthread_exit(0);
 	}
 
-/*
-	pthread_mutex_lock( &onefunc );
-	if( MQTTClient_subscribe( cfg.client, ctx->topic, 0 ) != MQTTCLIENT_SUCCESS ){
-		close( ctx->rcv );
-		ctx->rcv = 1;
-		fprintf(stderr, "Can't subscribe to '%s'\n", ctx->topic );
-		pthread_exit(0);
-	}
-	pthread_mutex_unlock( &onefunc );
-*/
 	if(ctx->sample){
 		ts.tv_sec = (time_t)ctx->sample;
 		ts.tv_nsec = 0;

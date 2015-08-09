@@ -22,6 +22,7 @@
 #include <lualib.h>		/* Functions to open libraries */
 
 lua_State *L;
+pthread_mutex_t onefunc;	/* Only one func can run at a time */
 
 static void clean_lua(void){
 	lua_close(L);
@@ -109,6 +110,8 @@ void init_Lua( const char *conffile ){
 		lua_pushvalue(L, -2);
 		lua_settable(L, -3);	/* metatable.__index = metatable */
 		luaL_register(L,"Marcel", MarcelLib);
+
+		pthread_mutex_init( &onefunc, NULL);
 	} else if(verbose)
 		puts("*W* No FuncScript defined, Lua disabled");
 }

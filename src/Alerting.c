@@ -60,12 +60,10 @@ printf("*d*\t%p p:%p n:%p\n", an, an->node.prev, an->node.next);
 void init_alerting(void){
 	DLListInit( &alerts );
 
-	pthread_mutex_lock( &onefunc );
 	if( MQTTClient_subscribe( cfg.client, "Alert/#", 0) != MQTTCLIENT_SUCCESS ){
 		fputs("Can't subscribe to 'Alert/#'", stderr);
 		exit(EXIT_FAILURE);
 	}
-	pthread_mutex_unlock( &onefunc );
 
 	if(!cfg.SMSurl && verbose)
 		puts("*W* SMS sending not fully configured : disabling SMS sending");
