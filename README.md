@@ -32,7 +32,7 @@ Following methods are exposed thru **Marcel** object :
 * **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
 
-**Notez-bien :** Marcel is able run only **one Lua function at once**. Consequently, such functions have to be as fast as possible.
+**Notez-bien :** Marcel is able run only **one Lua function at once**. Consequently, your functions have to be as fast as possible.
 
 #Installation :#
 A startup script for OpenRC has been provided in sub-directory ... startup_scripts.
