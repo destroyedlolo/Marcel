@@ -1,6 +1,9 @@
 # Marcel
-
-**Marcel** is a versatile daemon to publish easily some data to an **MQTT broker**.
+**Marcel** is a lightweight versatile daemon to
+- publish easily some figures to an **MQTT broker** (1wire probe values, UPS, ...)
+- watchdog on published data 
+- custom checks can be implemented through Lua scripts
+- finally send SMS in case a test failed and then when it recovers.
 
 #Requirements :#
 * MQTT broker (I personally use [Mosquitto](http://mosquitto.org/) )
