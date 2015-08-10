@@ -27,13 +27,15 @@ I strongly suggest to modify then launch **remake.sh** instead of tedious Makefi
 By default, Marcel reads **/usr/local/etc/Marcel.conf** as configuration file (may be changed using command line option **-f**).
 Have a look on provided file which contains comprehensive explanation of known directives.
 
-#Installation :#
-A startup script for OpenRC has been provided in sub-directory ... startup_scripts.
-
 #Lua custom methods :#
 Following methods are exposed thru **Marcel** object :
 * **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
+
+**Notez-bien :** Marcel is able run only **one Lua function at once**. Consequently, such functions have to be as fast as possible.
+
+#Installation :#
+A startup script for OpenRC has been provided in sub-directory ... startup_scripts.
 
 #Launch options :#
 Marcel knows the following options :
