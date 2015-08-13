@@ -87,7 +87,8 @@ extern void *process_DPD(void *actx){
 			break;
 		default:{	/* Got some data */
 				uint64_t v;
-				read(ctx->rcv, &v, sizeof( uint64_t ));	/* AF : normally, return value has to be check */
+				if(read(ctx->rcv, &v, sizeof( uint64_t )) == -1)
+					perror("eventfd - reading notification");
 				if( ctx->inerror ){
 					char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
 					strcpy( topic, "Alert/" );

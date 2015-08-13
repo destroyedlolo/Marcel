@@ -333,7 +333,8 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 			continue;
 		if(!mqtttokcmp(DPD->DeadPublisher.topic, topic)){	/* Topic found */
 			uint64_t v = 1;
-			write( DPD->DeadPublisher.rcv, &v, sizeof(v) );	/* Signal it */
+			if(write( DPD->DeadPublisher.rcv, &v, sizeof(v) ) == -1)	/* Signal it */
+				perror("eventfd to signal message reception");
 
 #ifdef LUA
 			execUserFunc( &(DPD->DeadPublisher), topic, payload );
@@ -410,12 +411,16 @@ static void *process_FFV(void *actx){
 				}
 			} else {
 				float val;
-				fscanf(f, "%f", &val);	/* Only to normalize the response */
-				sprintf(l,"%.1f", val);
+				if(!fscanf(f, "%f", &val)){
+					if(verbose)
+						printf("FFV : %s -> Unable to read a float value.\n", ctx->topic);
+				} else {	/* Only to normalize the response */
+					sprintf(l,"%.1f", val);
 
-				mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
-				if(verbose)
-					printf("FFV : %s -> %f\n", ctx->topic, val);
+					mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
+					if(verbose)
+						printf("FFV : %s -> %f\n", ctx->topic, val);
+				}
 				fclose(f);
 			}
 

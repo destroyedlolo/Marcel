@@ -9,7 +9,7 @@ gotoall: all
 # Warning : 'curl/curl.h' can't be located for this node.
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DFREEBOX -DUPS -lcurl -lpthread -lpaho-mqtt3c -DLUA -llua -std=c99
+cc=gcc -Wall -O2 -DFREEBOX -DUPS -lcurl -lpthread -lpaho-mqtt3c -DLUA -llua -std=c99
 
 src/Alerting.o : src/Alerting.c src/Alerting.h src/Marcel.h 
 	$(cc) -c -o src/Alerting.o src/Alerting.c 
