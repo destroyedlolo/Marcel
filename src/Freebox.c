@@ -106,14 +106,14 @@ void *process_Freebox(void *actx){
 				if(sscanf(l+40,"%d", &d) != 1) d = -1;
 				if(sscanf(l+55,"%d", &u) != 1) u = -1;
 
-				lm = sprintf(l, "%s/DownloadWIFI", ctx->topic) + 2;
+				lm = sprintf(l, "%s/DownloadWAN", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", d );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
 				if(verbose)
 					printf("Freebox : %s -> %s\n", l, l+lm);
 
-				lm = sprintf(l, "%s/UploadWIFI", ctx->topic) + 2;
+				lm = sprintf(l, "%s/UploadWAN", ctx->topic) + 2;
 				assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 				sprintf( l+lm, "%d", u );
 				mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
