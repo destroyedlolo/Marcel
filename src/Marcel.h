@@ -39,34 +39,34 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		int sample;
-		pthread_t thread;
+		pthread_t thread;	/* Child to handle this section */
 		const char *topic;
 	} common;
 	struct _FFV {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;
+		int sample;			/* delay b/w 2 samples */
 		pthread_t thread;
-		const char *topic;
-		const char *file;
+		const char *topic;	/* Topic to publish to */
+		const char *file;	/* File containing the data to read */
 	} FFV;
 	struct _FreeBox {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;
-		pthread_t thread;
-		const char *topic;
+		int sample;			/* delay b/w 2 samples */
+		pthread_t thread;	
+		const char *topic;	/* Root of the topics to publish to */
 	} FreeBox;
 	struct _UPS {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;
+		int sample;			/* delay b/w 2 samples */
 		pthread_t thread;
-		const char *topic;
-		const char *section_name;
-		const char *host;
-		int port;
-		struct var *var_list;
+		const char *topic;	/* Root of the topics to publish to */
+		const char *section_name;	/* Name of the UPS as defined in NUT */
+		const char *host;	/* NUT's server */
+		int port;			/* NUT's port */
+		struct var *var_list;	/* List of variables to read */
 	} Ups;
 	struct _DeadPublisher {
 		union CSection *next;
@@ -83,15 +83,15 @@ union CSection {
 };
 
 struct Config {
-	union CSection *sections;
-	const char *Broker;
-	const char *ClientID;
+	union CSection *sections;	/* Sections' list */
+	const char *Broker;		/* Broker's URL */
+	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
 	MQTTClient client;
-	int DPDlast;
-	int ConLostFatal;
-	union CSection *first_DPD;
-	const char *SMSurl;
-	const char *luascript;
+	int DPDlast;			/* Dead Publisher Detect are grouped at the end of sections list */
+	int ConLostFatal;		/* Die if broker connection is lost */
+	union CSection *first_DPD;	/* Pointer to the first DPD */
+	const char *SMSurl;		/* Where to send SMS */
+	const char *luascript;	/* file containing Lua functions */
 } cfg;
 
 	/* Helper functions */
