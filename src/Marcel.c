@@ -213,6 +213,24 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				printf("Entering section 'UPS/%s'\n", n->Ups.section_name);
+		} else if((arg = striKWcmp(l,"*Every="))){
+			union CSection *n = malloc( sizeof(struct _Every) );
+			assert(n);
+			memset(n, 0, sizeof(struct _Every));
+			n->common.section_type = MSEC_EVERY;
+
+#ifndef LUA
+			fputs("*F* Every section is only available when compiled with Lua support\n", stderr);
+			exit(EXIT_FAILURE);
+#endif
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(verbose)
+				printf("Entering section 'Every/%s'\n", removeLF(arg) );
 		} else if((arg = striKWcmp(l,"*DPD="))){
 			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
 			assert(n);
@@ -279,8 +297,11 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("\tVar : '%s'\n", v->name);
 		} else if((arg = striKWcmp(l,"Func="))){
-			if(!last_section || last_section->common.section_type != MSEC_DEADPUBLISHER){
-				fputs("*F* Configuration issue : Func directive outside a DPD section\n", stderr);
+			if(!last_section || (
+				last_section->common.section_type != MSEC_DEADPUBLISHER &&
+				last_section->common.section_type != MSEC_EVERY 
+			)){
+				fputs("*F* Configuration issue : Func directive outside a DPD or Every section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 #ifndef LUA

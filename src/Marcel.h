@@ -27,7 +27,7 @@ enum _tp_msec {
 	MSEC_FREEBOX,		/* FreeBox */
 	MSEC_UPS,			/* UPS */
 	MSEC_DEADPUBLISHER,	/* alarm on missing MQTT messages */
-	MSEC_TIMER			/* Launch a function at given interval */
+	MSEC_EVERY			/* Launch a function at given interval */
 };
 
 struct var {	/* Storage for var list */
@@ -75,13 +75,13 @@ union CSection {
 		int sample;			/* Timeout */
 		pthread_t thread;
 		const char *topic;	/* Topic to wait data from */
-		const char *errorid;
-		int rcv;			/* Event for data receiving */
-		int inerror;		/* true if this DPD is in error */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
+		const char *errorid;	/* Error's name */
+		int rcv;			/* Event for data receiving */
+		int inerror;		/* true if this DPD is in error */
 	} DeadPublisher;
-	struct _Timer {
+	struct _Every {
 		union CSection *next;
 		enum _tp_msec section_type;
 		int sample;			/* Delay b/w launches */
@@ -89,7 +89,7 @@ union CSection {
 		const char *topic;	/* Not used */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
-	} Timer;
+	} Every;
 };
 
 struct Config {
