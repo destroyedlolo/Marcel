@@ -31,6 +31,9 @@ src/DeadPublisherDetection.o : src/DeadPublisherDetection.c \
 src/DList.o : src/DList.c src/DList.h 
 	$(cc) -c -o src/DList.o src/DList.c 
 
+src/Every.o : src/Every.c src/Every.h 
+	$(cc) -c -o src/Every.o src/Every.c 
+
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'stdio.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
@@ -66,8 +69,9 @@ src/Lua.o : src/Lua.c src/Alerting.h src/Marcel.h
 # Warning : 'sys/socket.h' can't be located for this node.
 # Warning : 'netinet/in.h' can't be located for this node.
 # Warning : 'netdb.h' can't be located for this node.
-src/Marcel.o : src/Marcel.c src/Alerting.h src/MQTT_tools.h \
-  src/DeadPublisherDetection.h src/UPS.h src/Freebox.h src/Marcel.h 
+src/Marcel.o : src/Marcel.c src/Every.h src/Alerting.h \
+  src/MQTT_tools.h src/DeadPublisherDetection.h src/UPS.h \
+  src/Freebox.h src/Marcel.h 
 	$(cc) -c -o src/Marcel.o src/Marcel.c 
 
 src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h 
@@ -85,10 +89,10 @@ src/UPS.o : src/UPS.c src/MQTT_tools.h src/UPS.h
 	$(cc) -c -o src/UPS.o src/UPS.c 
 
 Marcel : src/UPS.o src/MQTT_tools.o src/Marcel.o src/Lua.o \
-  src/Freebox.o src/DList.o src/DeadPublisherDetection.o \
+  src/Freebox.o src/Every.o src/DList.o src/DeadPublisherDetection.o \
   src/Alerting.o 
 	 $(cc) -o Marcel src/UPS.o src/MQTT_tools.o src/Marcel.o \
-  src/Lua.o src/Freebox.o src/DList.o src/DeadPublisherDetection.o \
-  src/Alerting.o 
+  src/Lua.o src/Freebox.o src/Every.o src/DList.o \
+  src/DeadPublisherDetection.o src/Alerting.o 
 
 all: Marcel 

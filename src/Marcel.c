@@ -34,6 +34,7 @@
  *					trashing broker connection
  *	09/08/2015	- LF - 3.2 - all subscriptions are done in the main thread as it seems 
  *					paho is not thread safe.
+ *	07/09/2015	- LF - 3.3 - Adding Every tasks.
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -41,6 +42,7 @@
 #include "DeadPublisherDetection.h"
 #include "MQTT_tools.h"
 #include "Alerting.h"
+#include "Every.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -563,6 +565,18 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}			
+			break;
+#endif
+#ifdef LUA
+		case MSEC_EVERY:
+			if(!s->common.sample)
+				fputs("*E* EVERY without sample time is useless : ignoring ...\n", stderr);
+			else if(!s->Every.funcname)
+				fputs("*E* EVERY without function defined : ignoring ...\n", stderr);
+			else if(pthread_create( &(s->common.thread), &thread_attr, process_Every, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
+			}
 			break;
 #endif
 		case MSEC_DEADPUBLISHER:
