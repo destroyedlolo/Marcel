@@ -23,7 +23,7 @@
 #include <lauxlib.h>
 #endif
 
-extern void *process_DPD(void *actx){
+void *process_DPD(void *actx){
 	struct _DeadPublisher *ctx = actx;	/* Only to avoid zillions of cast */
 	struct timespec ts, *uts;
 
