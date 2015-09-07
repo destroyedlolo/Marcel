@@ -9,8 +9,29 @@
 #ifdef LUA	/* Only useful with Lua support */
 
 #include "Every.h"
+#include "Marcel.h"
+
+#include <stdlib.h>
+#include <lauxlib.h>
 
 void *process_Every(void *actx){
+	struct _Every *ctx = actx;	/* Only to avoid zillions of cast */
+
+	if(ctx->funcname){
+		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
+			fprintf(stderr, "*F* configuration error : user function \"%s\" is not defined\n", ctx->funcname);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	if(verbose)
+		printf("Launching a processing flow for '%s' Every task\n", ctx->funcname);
+
+
+	for(;;){
+	}
+
+	pthread_exit(0);
 }
 
 #endif /* LUA */

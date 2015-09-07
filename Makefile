@@ -31,7 +31,7 @@ src/DeadPublisherDetection.o : src/DeadPublisherDetection.c \
 src/DList.o : src/DList.c src/DList.h 
 	$(cc) -c -o src/DList.o src/DList.c 
 
-src/Every.o : src/Every.c src/Every.h 
+src/Every.o : src/Every.c src/Marcel.h src/Every.h 
 	$(cc) -c -o src/Every.o src/Every.c 
 
 # Warning : 'string.h' can't be located for this node.
