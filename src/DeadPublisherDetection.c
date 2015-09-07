@@ -85,7 +85,11 @@ void *process_DPD(void *actx){
 					}
 			}
 			break;
-		default:{	/* Got some data */
+		default:{	/* Got some data
+					 *
+					 * Notez-Bien : Lua's user function is launched in 
+					 * Marcel.c/msgarrived() directly
+					 */
 				uint64_t v;
 				if(read(ctx->rcv, &v, sizeof( uint64_t )) == -1)
 					perror("eventfd - reading notification");
