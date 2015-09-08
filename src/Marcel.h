@@ -124,7 +124,7 @@ extern lua_State *L;
 
 extern void init_Lua( const char * );
 extern int findUserFunc( const char * );
-extern void execUserFunc( struct _DeadPublisher *, const char *, const char *);
+extern void execUserFuncTopic( struct _DeadPublisher *, const char *, const char *);
 #endif
 #endif
 

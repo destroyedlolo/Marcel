@@ -360,7 +360,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 				perror("eventfd to signal message reception");
 
 #ifdef LUA
-			execUserFunc( &(DPD->DeadPublisher), topic, payload );
+			execUserFuncTopic( &(DPD->DeadPublisher), topic, payload );
 #endif
 		}
 	}
