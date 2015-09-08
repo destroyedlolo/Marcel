@@ -86,7 +86,7 @@ union CSection {
 		enum _tp_msec section_type;
 		int sample;			/* Delay b/w launches */
 		pthread_t thread;
-		const char *topic;	/* Not used */
+		const char *name;	/* Name of the section, passed to Lua function */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 	} Every;
@@ -124,7 +124,8 @@ extern lua_State *L;
 
 extern void init_Lua( const char * );
 extern int findUserFunc( const char * );
-extern void execUserFuncTopic( struct _DeadPublisher *, const char *, const char *);
+extern void execUserFuncDeadPublisher( struct _DeadPublisher *, const char *, const char *);
+extern void execUserFuncEvery( struct _Every * );
 #endif
 #endif
 

@@ -42,7 +42,7 @@ int findUserFunc( const char *fn ){
 	return ref;
 }
 
-void execUserFuncTopic( struct _DeadPublisher *ctx, const char *topic, const char *msg){
+void execUserFuncDeadPublisher( struct _DeadPublisher *ctx, const char *topic, const char *msg){
 	if(ctx->funcid != LUA_TNIL){	/* A function is defined */
 		pthread_mutex_lock( &onefunc );
 		lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
@@ -51,6 +51,9 @@ void execUserFuncTopic( struct _DeadPublisher *ctx, const char *topic, const cha
 		lua_pcall( L, 2, 0, 0);
 		pthread_mutex_unlock( &onefunc );
 	}
+}
+
+void execUserFuncEvery( struct _Every *ctx ){
 }
 
 static int lmRiseAlert(lua_State *L){

@@ -28,8 +28,8 @@ void *process_Every(void *actx){
 		printf("Launching a processing flow for '%s' Every task\n", ctx->funcname);
 
 
-	for(;;){
-	}
+	for(;;)
+		execUserFuncEvery( ctx );
 
 	pthread_exit(0);
 }
