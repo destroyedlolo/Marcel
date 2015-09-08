@@ -221,6 +221,8 @@ static void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct _Every));
 			n->common.section_type = MSEC_EVERY;
 
+			assert( n->Every.name = strdup( removeLF(arg) ));
+
 #ifndef LUA
 			fputs("*F* Every section is only available when compiled with Lua support\n", stderr);
 			exit(EXIT_FAILURE);
@@ -232,7 +234,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				printf("Entering section 'Every/%s'\n", removeLF(arg) );
+				printf("Entering section 'Every/%s'\n", n->Every.name );
 		} else if((arg = striKWcmp(l,"*DPD="))){
 			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
 			assert(n);

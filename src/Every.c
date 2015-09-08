@@ -12,6 +12,7 @@
 #include "Marcel.h"
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <lauxlib.h>
 
 void *process_Every(void *actx){
@@ -28,8 +29,10 @@ void *process_Every(void *actx){
 		printf("Launching a processing flow for '%s' Every task\n", ctx->funcname);
 
 
-	for(;;)
+	for(;;){
 		execUserFuncEvery( ctx );
+		sleep( ctx->sample );
+	}
 
 	pthread_exit(0);
 }

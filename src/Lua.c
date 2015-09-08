@@ -54,6 +54,11 @@ void execUserFuncDeadPublisher( struct _DeadPublisher *ctx, const char *topic, c
 }
 
 void execUserFuncEvery( struct _Every *ctx ){
+	pthread_mutex_lock( &onefunc );
+	lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
+	lua_pushstring( L, ctx->name );
+	lua_pcall( L, 1, 0, 0);
+	pthread_mutex_unlock( &onefunc );
 }
 
 static int lmRiseAlert(lua_State *L){
