@@ -31,6 +31,9 @@ src/DeadPublisherDetection.o : src/DeadPublisherDetection.c \
 src/DList.o : src/DList.c src/DList.h 
 	$(cc) -c -o src/DList.o src/DList.c 
 
+# Warning : 'stdlib.h' can't be located for this node.
+# Warning : 'unistd.h' can't be located for this node.
+# Warning : 'lauxlib.h' can't be located for this node.
 src/Every.o : src/Every.c src/Marcel.h src/Every.h 
 	$(cc) -c -o src/Every.o src/Every.c 
 
@@ -47,12 +50,13 @@ src/Freebox.o : src/Freebox.c src/MQTT_tools.h src/Freebox.h
 	$(cc) -c -o src/Freebox.o src/Freebox.c 
 
 # Warning : 'stdlib.h' can't be located for this node.
+# Warning : 'string.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
 # Warning : 'libgen.h' can't be located for this node.
 # Warning : 'unistd.h' can't be located for this node.
 # Warning : 'lauxlib.h' can't be located for this node.
 # Warning : 'lualib.h' can't be located for this node.
-src/Lua.o : src/Lua.c src/Alerting.h src/Marcel.h 
+src/Lua.o : src/Lua.c src/MQTT_tools.h src/Alerting.h src/Marcel.h 
 	$(cc) -c -o src/Lua.o src/Lua.c 
 
 # Warning : 'stdio.h' can't be located for this node.

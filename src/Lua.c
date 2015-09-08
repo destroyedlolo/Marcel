@@ -10,8 +10,11 @@
 
 #include "Marcel.h"
 #include "Alerting.h"
+#include "MQTT_tools.h"
+
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <libgen.h>		/* dirname ... */
 #include <unistd.h>		/* chdir ... */
@@ -48,7 +51,11 @@ void execUserFuncDeadPublisher( struct _DeadPublisher *ctx, const char *topic, c
 		lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
 		lua_pushstring( L, topic);
 		lua_pushstring( L, msg);
-		lua_pcall( L, 2, 0, 0);
+		if(lua_pcall( L, 2, 0, 0)){
+			fprintf(stderr, "DPD / '%s' : %s\n", topic, lua_tostring(L, -1));
+			lua_pop(L, 1);  /* pop error message from the stack */
+			lua_pop(L, 1);  /* pop NIL from the stack */
+		}
 		pthread_mutex_unlock( &onefunc );
 	}
 }
@@ -57,7 +64,11 @@ void execUserFuncEvery( struct _Every *ctx ){
 	pthread_mutex_lock( &onefunc );
 	lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
 	lua_pushstring( L, ctx->name );
-	lua_pcall( L, 1, 0, 0);
+	if(lua_pcall( L, 1, 0, 0)){
+		fprintf(stderr, "Every / %s : %s\n", ctx->name, lua_tostring(L, -1));
+		lua_pop(L, 1);  /* pop error message from the stack */
+		lua_pop(L, 1);  /* pop NIL from the stack */
+	}
 	pthread_mutex_unlock( &onefunc );
 }
 
@@ -86,9 +97,24 @@ static int lmClearAlert(lua_State *L){
 	return 0;
 }
 
+static int lmPublish(lua_State *L){
+	if(lua_gettop(L) != 2){
+		fputs("*E* In your Lua code, Publish() requires 2 arguments : topic and value.\n", stderr);
+		return 0;
+	}
+
+	const char *topic = luaL_checkstring(L, 1),
+				*val = luaL_checkstring(L, 2);
+
+	mqttpublish( cfg.client, topic, strlen(val), (void *)val, 0 );
+
+	return 0;
+}
+
 static const struct luaL_reg MarcelLib [] = {
 	{"RiseAlert", lmRiseAlert},
 	{"ClearAlert", lmClearAlert},
+	{"MQTTPublish", lmPublish},
 	{NULL, NULL}
 };
 
