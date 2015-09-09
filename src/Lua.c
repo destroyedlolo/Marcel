@@ -111,10 +111,26 @@ static int lmPublish(lua_State *L){
 	return 0;
 }
 
+static int lmHostname(lua_State *L){
+	char n[HOST_NAME_MAX];
+	gethostname(n, HOST_NAME_MAX);
+
+	lua_pushstring(L, n);
+	return 1;
+}
+
+static int lmClientID(lua_State *L){
+	lua_pushstring(L, cfg.ClientID);
+
+	return 1;
+}
+
 static const struct luaL_reg MarcelLib [] = {
 	{"RiseAlert", lmRiseAlert},
 	{"ClearAlert", lmClearAlert},
 	{"MQTTPublish", lmPublish},
+	{"Hostname", lmHostname},
+	{"ClientID", lmClientID},
 	{NULL, NULL}
 };
 

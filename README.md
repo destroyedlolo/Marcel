@@ -31,9 +31,14 @@ By default, Marcel reads **/usr/local/etc/Marcel.conf** as configuration file (m
 Have a look on provided file which contains comprehensive explanation of known directives.
 
 #Lua custom methods :#
-Following methods are exposed thru **Marcel** object :
+Following methods are exposed to Lua code through **Marcel** object :
 * **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
+
+* **Marcel.MQTTPublish(** topic, value **)** : Publish a value to MQTT broker
+
+* **Marcel.Hostname()** : As the name said, host's name
+* **Marcel.ClientID()** : Configured MQTT client id
 
 **Notez-bien :** Marcel is able run only **one Lua function at once**. Consequently, your functions have to be as fast as possible.
 
