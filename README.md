@@ -32,13 +32,14 @@ Have a look on provided file which contains comprehensive explanation of known d
 
 #Lua custom methods :#
 Following methods are exposed to Lua code through **Marcel** object :
-* **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel an alert condition
+* **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel about an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
 
 * **Marcel.MQTTPublish(** topic, value **)** : Publish a value to MQTT broker
 
 * **Marcel.Hostname()** : As the name said, host's name
 * **Marcel.ClientID()** : Configured MQTT client id
+* **Marcel.Version()** : Marcel's version (*have a look on **scripts/AllVerif.lua** for an usage example*)
 
 **Notez-bien :** Marcel is able run only **one Lua function at once**. Consequently, your functions have to be as fast as possible.
 
