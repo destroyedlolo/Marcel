@@ -125,12 +125,19 @@ static int lmClientID(lua_State *L){
 	return 1;
 }
 
+static int lmVersion(lua_State *L){
+	lua_pushstring(L, VERSION);
+
+	return 1;
+}
+
 static const struct luaL_reg MarcelLib [] = {
 	{"RiseAlert", lmRiseAlert},
 	{"ClearAlert", lmClearAlert},
 	{"MQTTPublish", lmPublish},
 	{"Hostname", lmHostname},
 	{"ClientID", lmClientID},
+	{"Version", lmVersion},
 	{NULL, NULL}
 };
 
@@ -149,17 +156,17 @@ void init_Lua( const char *conffile ){
 		luaL_openlibs(L);	/* and it's libraries */
 		atexit(clean_lua);
 
-		int err = luaL_loadfile(L, cfg.luascript) || lua_pcall(L, 0, 0, 0);
-		if(err){
-			fprintf(stderr, "*F* '%s' : %s\n", cfg.luascript, lua_tostring(L, -1));
-			exit(EXIT_FAILURE);
-		}
-
 		luaL_newmetatable(L, "Marcel");
 		lua_pushstring(L, "__index");
 		lua_pushvalue(L, -2);
 		lua_settable(L, -3);	/* metatable.__index = metatable */
 		luaL_register(L,"Marcel", MarcelLib);
+
+		int err = luaL_loadfile(L, cfg.luascript) || lua_pcall(L, 0, 0, 0);
+		if(err){
+			fprintf(stderr, "*F* '%s' : %s\n", cfg.luascript, lua_tostring(L, -1));
+			exit(EXIT_FAILURE);
+		}
 
 		pthread_mutex_init( &onefunc, NULL);
 	} else if(verbose)
