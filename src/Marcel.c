@@ -104,7 +104,7 @@ size_t socketreadline( int fd, char *l, size_t sz){
 	int s=0;
 	char *p = l, c;
 
-	for(;;){
+	for( ; p-l< sz; ){
 		int r = read( fd, &c, 1);
 
 		if(r == -1)
