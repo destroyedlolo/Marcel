@@ -9,7 +9,7 @@ gotoall: all
 # Warning : 'curl/curl.h' can't be located for this node.
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -O2 -DFREEBOX -DUPS -lcurl -lpthread -lpaho-mqtt3c -DLUA -llua -std=c99
+cc=gcc -Wall -O2 -DFREEBOX -DUPS -DMETEO -lcurl -lpthread -lpaho-mqtt3c -DLUA -llua -std=c99
 
 src/Alerting.o : src/Alerting.c src/Alerting.h src/Marcel.h 
 	$(cc) -c -o src/Alerting.o src/Alerting.c 
@@ -78,6 +78,9 @@ src/Marcel.o : src/Marcel.c src/Every.h src/Alerting.h \
   src/Freebox.h src/Marcel.h 
 	$(cc) -c -o src/Marcel.o src/Marcel.c 
 
+src/Meteo.o : src/Meteo.c src/Meteo.h 
+	$(cc) -c -o src/Meteo.o src/Meteo.c 
+
 src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h 
 	$(cc) -c -o src/MQTT_tools.o src/MQTT_tools.c 
 
@@ -92,11 +95,11 @@ src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h
 src/UPS.o : src/UPS.c src/MQTT_tools.h src/UPS.h 
 	$(cc) -c -o src/UPS.o src/UPS.c 
 
-Marcel : src/UPS.o src/MQTT_tools.o src/Marcel.o src/Lua.o \
+Marcel : src/UPS.o src/MQTT_tools.o src/Meteo.o src/Marcel.o src/Lua.o \
   src/Freebox.o src/Every.o src/DList.o src/DeadPublisherDetection.o \
   src/Alerting.o 
-	 $(cc) -o Marcel src/UPS.o src/MQTT_tools.o src/Marcel.o \
-  src/Lua.o src/Freebox.o src/Every.o src/DList.o \
+	 $(cc) -o Marcel src/UPS.o src/MQTT_tools.o src/Meteo.o \
+  src/Marcel.o src/Lua.o src/Freebox.o src/Every.o src/DList.o \
   src/DeadPublisherDetection.o src/Alerting.o 
 
 all: Marcel 

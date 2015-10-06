@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
-#define VERSION "3.3"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "3.4"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -28,7 +28,8 @@ enum _tp_msec {
 	MSEC_FREEBOX,		/* FreeBox */
 	MSEC_UPS,			/* UPS */
 	MSEC_DEADPUBLISHER,	/* alarm on missing MQTT messages */
-	MSEC_EVERY			/* Launch a function at given interval */
+	MSEC_EVERY,			/* Launch a function at given interval */
+	MSEC_METEOST		/* Short Term meteo */
 };
 
 struct var {	/* Storage for var list */
@@ -91,6 +92,16 @@ union CSection {
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 	} Every;
+	struct _MeteoST {
+		union CSection *next;
+		enum _tp_msec section_type;
+		int sample;			/* Delay b/w 2 queries */
+		pthread_t thread;	/* Child to handle this section */
+		const char *topic;	/* Root of the topics to publish to */
+		const char *City;	/* CityName,Country to query */
+		const char *Units;	/* Result's units */
+		const char *Lang;	/* Result's language */
+	} MeteoST;
 };
 
 struct Config {
