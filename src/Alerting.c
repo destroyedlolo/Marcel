@@ -67,9 +67,6 @@ void init_alerting(void){
 
 	if(!cfg.SMSurl && verbose)
 		puts("*W* SMS sending not fully configured : disabling SMS sending");
-
-	curl_global_init(CURL_GLOBAL_ALL);
-	atexit( curl_global_cleanup );
 }
 
 void RiseAlert(const char *id, const char *msg){

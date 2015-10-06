@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
-#define VERSION "3.4"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "4.0"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */

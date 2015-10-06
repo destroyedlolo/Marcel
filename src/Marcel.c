@@ -35,6 +35,8 @@
  *	09/08/2015	- LF - 3.2 - all subscriptions are done in the main thread as it seems 
  *					paho is not thread safe.
  *	07/09/2015	- LF - 3.3 - Adding Every tasks.
+ *				-------
+ *	06/10/2015	- LF - switch to v4.0 - curl can be used in several "section"
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -54,6 +56,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/utsname.h>	/* uname */
+#include <curl/curl.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -584,6 +587,11 @@ int main(int ac, char **av){
 	}
 	atexit(brkcleaning);
 
+		/* Curl related */
+	curl_global_init(CURL_GLOBAL_ALL);
+	atexit( curl_global_cleanup );
+
+		/* Sections related */
 	init_alerting();
 #ifdef LUA
 	init_Lua( conf_file );
