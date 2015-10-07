@@ -45,6 +45,7 @@
 #include "MQTT_tools.h"
 #include "Alerting.h"
 #include "Every.h"
+#include "Meteo.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -662,6 +663,16 @@ int main(int ac, char **av){
 				}
 			}
 			break;
+#ifdef METEO
+		case MSEC_METEOST:
+			if(!s->common.sample){ /* we won't METEO */
+				fputs("*E* MeteoST section without sample time : ignoring ...\n", stderr);
+			} else if(pthread_create( &(s->common.thread), &thread_attr, process_MeteoST, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
+			}			
+			break;
+#endif
 		default :	/* Ignore unsupported type */
 			break;
 		}

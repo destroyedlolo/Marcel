@@ -17,7 +17,7 @@
 	 */
 #define APIKEY "eeec13daf6e332c80ff3b648fbf628aa"
 
-extern void *process_Meteo(void *);
+extern void *process_MeteoST(void *);
 
 #endif
 #endif
