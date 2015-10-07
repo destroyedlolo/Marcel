@@ -8,7 +8,7 @@
 #include <curl/curl.h>
 #include <stdlib.h>		/* memory */
 #include <string.h>		/* memcpy() */
-#include <ctype.h>		/* isdigit() */
+#include <json-c/json.h>
 
 #include "Meteo.h"
 
@@ -59,6 +59,7 @@ void *process_MeteoST(void *actx){
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
+			json_object * jobj = json_tokener_parse(chunk.memory);
 		} else
 			fprintf(stderr, "*E* Querying meteo : %s\n", curl_easy_strerror(res));
 
