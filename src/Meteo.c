@@ -41,6 +41,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
 void *process_MeteoST(void *actx){
 	CURL *curl;
+	enum json_tokener_error jerr = json_tokener_success;
 
 	if(verbose)
 		printf("Launching a processing flow for MeteoST\n");
@@ -52,14 +53,28 @@ void *process_MeteoST(void *actx){
 		chunk.memory = malloc(1);
 		chunk.size = 0;
 
-		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/tst.json");
+		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/meteo_tst.json");
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
-			json_object * jobj = json_tokener_parse(chunk.memory);
+			json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
+			if(jerr != json_tokener_success)
+				fprintf(stderr, "*E* Querying meteo : %s\n", json_tokener_error_desc(jerr));
+			else {
+				json_object_object_foreach(jobj, key, val){
+					if(!strcmp(key,"list")){
+						if(json_object_get_type(val) != json_type_array){
+							fputs("*E* Can't find expected table of forcast\n", stderr);
+							break;
+						}
+printf("%d r:%d\n", json_object_get_type(val), json_type_array);
+					}
+				}
+			}
+			json_object_put(jobj);
 		} else
 			fprintf(stderr, "*E* Querying meteo : %s\n", curl_easy_strerror(res));
 
