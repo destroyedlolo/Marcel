@@ -5,12 +5,14 @@
  */
 
 #ifndef METEO_H
+#include "Meteo.h"
+#include "MQTT_tools.h"
+
 #include <curl/curl.h>
 #include <stdlib.h>		/* memory */
 #include <string.h>		/* memcpy() */
+#include <assert.h>
 #include <json-c/json.h>
-
-#include "Meteo.h"
 
 	/* Curl's
 	 * Storing downloaded information in memory
@@ -39,8 +41,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 	return realsize;
 }
 
-void *process_MeteoST(void *actx){
-	struct _MeteoST *ctx = actx;	/* Only to avoid zillions of cast */
+static void MeteoST(struct _MeteoST *ctx){
 	CURL *curl;
 	enum json_tokener_error jerr = json_tokener_success;
 
@@ -56,8 +57,11 @@ void *process_MeteoST(void *actx){
 		chunk.size = 0;
 
 		sprintf(url, URLMETEO, ctx->City, ctx->Units, ctx->Lang);
-/*		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/meteo_tst.json"); */
+#if 1
+		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/meteo_tst.json");
+#else
 		curl_easy_setopt(curl, CURLOPT_URL, url);
+#endif
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
@@ -70,16 +74,17 @@ void *process_MeteoST(void *actx){
 			else {
 				struct json_object *wlist = json_object_object_get( jobj, "list");
 				if(wlist){
-					struct json_object *wo = json_object_array_get_idx( wlist, 0 );	/* Weather's object */
-					struct json_object *wod = json_object_object_get( wo, "dt" );	/* Weather's data */
-					time_t t = json_object_get_int64( wod );
-puts(ctime(&t));
 					int nbre = json_object_array_length(wlist);
+					char l[MAXLINE];
 					for(int i=0; i<nbre; i++){
-						wo = json_object_array_get_idx( wlist, i );
-						wod = json_object_object_get( wo, "dt" );
-						t = json_object_get_int64( wod );
-puts(ctime(&t));
+						struct json_object *wo = json_object_array_get_idx( wlist, i );	/* Weather's object */
+						struct json_object *wod = json_object_object_get( wo, "dt" );	/* Weather's data */
+
+						int lm = sprintf(l, "%s/%d/time", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%u", json_object_get_int(wod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
 					}
 				}
 /*
@@ -102,7 +107,10 @@ printf("%d r:%d\n", json_object_get_type(val), json_type_array);
 		curl_easy_cleanup(curl);
 		free(chunk.memory);
 	}
+}
 
+void *process_MeteoST(void *actx){
+	MeteoST(/* struct _MeteoST * */actx);
 	pthread_exit(0);
 }
 

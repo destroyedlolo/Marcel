@@ -83,7 +83,7 @@ src/Marcel.o : src/Marcel.c src/Meteo.h src/Every.h src/Alerting.h \
 # Warning : 'stdlib.h' can't be located for this node.
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'json-c/json.h' can't be located for this node.
-src/Meteo.o : src/Meteo.c src/Meteo.h 
+src/Meteo.o : src/Meteo.c src/MQTT_tools.h src/Meteo.h 
 	$(cc) -c -o src/Meteo.o src/Meteo.c 
 
 src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h 
