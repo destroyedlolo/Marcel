@@ -85,19 +85,14 @@ static void MeteoST(struct _MeteoST *ctx){
 						sprintf( l+lm, "%u", json_object_get_int(wod));
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 
+						wod = json_object_object_get( wo, "main" );
+						struct json_object *swod = json_object_object_get( wod, "temp");
+						lm = sprintf(l, "%s/%d/temperature", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 					}
 				}
-/*
-				json_object_object_foreach(jobj, key, val){
-					if(!strcmp(key,"list")){
-						if(json_object_get_type(val) != json_type_array){
-							fputs("*E* Can't find expected table of forcast\n", stderr);
-							break;
-						}
-printf("%d r:%d\n", json_object_get_type(val), json_type_array);
-					}
-				}
-*/
 			}
 			json_object_put(jobj);
 		} else
