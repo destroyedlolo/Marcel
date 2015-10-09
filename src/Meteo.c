@@ -91,6 +91,19 @@ static void MeteoST(struct _MeteoST *ctx){
 						assert( lm+1 < MAXLINE-10 );
 						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "pressure");
+						lm = sprintf(l, "%s/%d/pressure", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "humidity");
+						lm = sprintf(l, "%s/%d/humidity", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%d", json_object_get_int(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
 					}
 				}
 			}
