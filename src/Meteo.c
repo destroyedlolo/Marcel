@@ -40,6 +40,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 }
 
 void *process_MeteoST(void *actx){
+	struct _MeteoST *ctx = actx;	/* Only to avoid zillions of cast */
 	CURL *curl;
 	enum json_tokener_error jerr = json_tokener_success;
 
@@ -47,13 +48,16 @@ void *process_MeteoST(void *actx){
 		printf("Launching a processing flow for MeteoST\n");
 
 	if((curl = curl_easy_init())){
+		char url[strlen(URLMETEO) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
 		CURLcode res;
 		struct MemoryStruct chunk;
 
 		chunk.memory = malloc(1);
 		chunk.size = 0;
 
-		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/meteo_tst.json");
+		sprintf(url, URLMETEO, ctx->City, ctx->Units, ctx->Lang);
+/*		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/meteo_tst.json"); */
+		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
@@ -64,6 +68,21 @@ void *process_MeteoST(void *actx){
 			if(jerr != json_tokener_success)
 				fprintf(stderr, "*E* Querying meteo : %s\n", json_tokener_error_desc(jerr));
 			else {
+				struct json_object *wlist = json_object_object_get( jobj, "list");
+				if(wlist){
+					struct json_object *wo = json_object_array_get_idx( wlist, 0 );	/* Weather's object */
+					struct json_object *wod = json_object_object_get( wo, "dt" );	/* Weather's data */
+					time_t t = json_object_get_int64( wod );
+puts(ctime(&t));
+					int nbre = json_object_array_length(wlist);
+					for(int i=0; i<nbre; i++){
+						wo = json_object_array_get_idx( wlist, i );
+						wod = json_object_object_get( wo, "dt" );
+						t = json_object_get_int64( wod );
+puts(ctime(&t));
+					}
+				}
+/*
 				json_object_object_foreach(jobj, key, val){
 					if(!strcmp(key,"list")){
 						if(json_object_get_type(val) != json_type_array){
@@ -73,6 +92,7 @@ void *process_MeteoST(void *actx){
 printf("%d r:%d\n", json_object_get_type(val), json_type_array);
 					}
 				}
+*/
 			}
 			json_object_put(jobj);
 		} else
