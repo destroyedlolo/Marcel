@@ -239,14 +239,14 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				printf("Entering section 'Every/%s'\n", n->Every.name );
-		} else if((arg = striKWcmp(l,"*MeteoST"))){
-			union CSection *n = malloc( sizeof(struct _MeteoST) );
+		} else if((arg = striKWcmp(l,"*Meteo3H"))){
+			union CSection *n = malloc( sizeof(struct _Meteo) );
 			assert(n);
-			memset(n, 0, sizeof(struct _MeteoST));
-			n->common.section_type = MSEC_METEOST;
+			memset(n, 0, sizeof(struct _Meteo));
+			n->common.section_type = MSEC_METEO3H;
 
 #ifndef METEO
-			fputs("*F* MeteoST section is only available when compiled with METEO support\n", stderr);
+			fputs("*F* Meteo3H section is only available when compiled with METEO support\n", stderr);
 			exit(EXIT_FAILURE);
 #endif
 
@@ -256,7 +256,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				puts("Entering section 'Meteo Short Term'");
+				puts("Entering section 'Meteo 3H");
 		} else if((arg = striKWcmp(l,"*DPD="))){
 			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
 			assert(n);
@@ -355,43 +355,43 @@ static void read_configuration( const char *fch){
 				printf("\tTopic : '%s'\n", last_section->common.topic);
 		} else if((arg = striKWcmp(l,"City="))){
 			if(!last_section || (
-				last_section->common.section_type != MSEC_METEOST &&
-				last_section->common.section_type != MSEC_EVERY 
+				last_section->common.section_type != MSEC_METEO3H &&
+				last_section->common.section_type != MSEC_METEOD
 			)){
 				fputs("*F* Configuration issue : City directive outside a Meteo* section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			assert( last_section->MeteoST.City = strdup( removeLF(arg) ));
+			assert( last_section->Meteo.City = strdup( removeLF(arg) ));
 			if(verbose)
-				printf("\tCity : '%s'\n", last_section->MeteoST.City);
+				printf("\tCity : '%s'\n", last_section->Meteo.City);
 		} else if((arg = striKWcmp(l,"Units="))){
 			if(!last_section || (
-				last_section->common.section_type != MSEC_METEOST &&
-				last_section->common.section_type != MSEC_EVERY 
+				last_section->common.section_type != MSEC_METEO3H &&
+				last_section->common.section_type != MSEC_METEOD
 			)){
 				fputs("*F* Configuration issue : Units directive outside a Meteo* section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			assert( last_section->MeteoST.Units = strdup( removeLF(arg) ));
-			if( strcmp( last_section->MeteoST.Units, "metric" ) &&
-				strcmp( last_section->MeteoST.Units, "imperial" ) &&
-				strcmp( last_section->MeteoST.Units, "Standard" ) ){
+			assert( last_section->Meteo.Units = strdup( removeLF(arg) ));
+			if( strcmp( last_section->Meteo.Units, "metric" ) &&
+				strcmp( last_section->Meteo.Units, "imperial" ) &&
+				strcmp( last_section->Meteo.Units, "Standard" ) ){
 				fputs("*F* Configuration issue : Units can only be only \"metric\" or \"imperial\" or \"Standard\"\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 			if(verbose)
-				printf("\tUnits : '%s'\n", last_section->MeteoST.Units);
+				printf("\tUnits : '%s'\n", last_section->Meteo.Units);
 		} else if((arg = striKWcmp(l,"Lang="))){
 			if(!last_section || (
-				last_section->common.section_type != MSEC_METEOST &&
-				last_section->common.section_type != MSEC_EVERY 
+				last_section->common.section_type != MSEC_METEO3H &&
+				last_section->common.section_type != MSEC_METEOD
 			)){
 				fputs("*F* Configuration issue : Lang directive outside a Meteo* section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			assert( last_section->MeteoST.Lang = strdup( removeLF(arg) ));
+			assert( last_section->Meteo.Lang = strdup( removeLF(arg) ));
 			if(verbose)
-				printf("\tLang : '%s'\n", last_section->MeteoST.Lang);
+				printf("\tLang : '%s'\n", last_section->Meteo.Lang);
 		}
 	}
 
@@ -664,10 +664,10 @@ int main(int ac, char **av){
 			}
 			break;
 #ifdef METEO
-		case MSEC_METEOST:
+		case MSEC_METEO3H:
 			if(!s->common.sample){ /* we won't METEO */
-				fputs("*E* MeteoST section without sample time : ignoring ...\n", stderr);
-			} else if(pthread_create( &(s->common.thread), &thread_attr, process_MeteoST, s) < 0){
+				fputs("*E* Meteo3H section without sample time : ignoring ...\n", stderr);
+			} else if(pthread_create( &(s->common.thread), &thread_attr, process_Meteo3H, s) < 0){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}			

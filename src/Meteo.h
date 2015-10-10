@@ -15,9 +15,9 @@
 	 * and is it reserved to this project.
 	 * Be smart and request another one if you need your own key
 	 */
-#define URLMETEO "http://api.openweathermap.org/data/2.5/forecast?q=%s&mode=json&units=%s&lang=%s&appid=eeec13daf6e332c80ff3b648fbf628aa"
+#define URLMETEO3H "http://api.openweathermap.org/data/2.5/forecast?q=%s&mode=json&units=%s&lang=%s&appid=eeec13daf6e332c80ff3b648fbf628aa"
 
-extern void *process_MeteoST(void *);
+extern void *process_Meteo3H(void *);
 
 #endif
 #endif

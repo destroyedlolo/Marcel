@@ -41,23 +41,23 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 	return realsize;
 }
 
-static void MeteoST(struct _MeteoST *ctx){
+static void Meteo3H(struct _Meteo *ctx){
 	CURL *curl;
 	enum json_tokener_error jerr = json_tokener_success;
 
 	if(verbose)
-		printf("Launching a processing flow for MeteoST\n");
+		printf("Launching a processing flow for Meteo\n");
 
 	if((curl = curl_easy_init())){
-		char url[strlen(URLMETEO) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
+		char url[strlen(URLMETEO3H) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
 		CURLcode res;
 		struct MemoryStruct chunk;
 
 		chunk.memory = malloc(1);
 		chunk.size = 0;
 
-		sprintf(url, URLMETEO, ctx->City, ctx->Units, ctx->Lang);
-#if 1
+		sprintf(url, URLMETEO3H, ctx->City, ctx->Units, ctx->Lang);
+#if 0
 		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/meteo_tst.json");
 #else
 		curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -117,8 +117,8 @@ static void MeteoST(struct _MeteoST *ctx){
 	}
 }
 
-void *process_MeteoST(void *actx){
-	MeteoST(/* struct _MeteoST * */actx);
+void *process_Meteo3H(void *actx){
+	Meteo3H(actx);
 	pthread_exit(0);
 }
 

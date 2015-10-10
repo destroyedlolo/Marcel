@@ -29,7 +29,8 @@ enum _tp_msec {
 	MSEC_UPS,			/* UPS */
 	MSEC_DEADPUBLISHER,	/* alarm on missing MQTT messages */
 	MSEC_EVERY,			/* Launch a function at given interval */
-	MSEC_METEOST		/* Short Term meteo */
+	MSEC_METEO3H,		/* 3H meteo */
+	MSEC_METEOD			/* Daily meteo */
 };
 
 struct var {	/* Storage for var list */
@@ -92,7 +93,7 @@ union CSection {
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 	} Every;
-	struct _MeteoST {
+	struct _Meteo {
 		union CSection *next;
 		enum _tp_msec section_type;
 		int sample;			/* Delay b/w 2 queries */
@@ -101,7 +102,7 @@ union CSection {
 		const char *City;	/* CityName,Country to query */
 		const char *Units;	/* Result's units */
 		const char *Lang;	/* Result's language */
-	} MeteoST;
+	} Meteo;
 };
 
 struct Config {
