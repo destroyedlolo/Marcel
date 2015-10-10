@@ -12,6 +12,7 @@
 #include <stdlib.h>		/* memory */
 #include <string.h>		/* memcpy() */
 #include <assert.h>
+#include <unistd.h>		/* sleep() */
 #include <json-c/json.h>
 
 	/* Curl's
@@ -128,7 +129,7 @@ static void MeteoD(struct _Meteo *ctx){
 	enum json_tokener_error jerr = json_tokener_success;
 
 	if(verbose)
-		printf("Launching a processing flow for Meteo Daily\n");
+		puts("*D* Querying Meteo daily");
 
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEOD) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
@@ -188,6 +189,51 @@ static void MeteoD(struct _Meteo *ctx){
 						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 
+						wod = json_object_object_get( wo, "weather" );
+						wod = json_object_array_get_idx( wod, 0 );
+						swod = json_object_object_get( wod, "description");
+						lm = sprintf(l, "%s/%d/weather/description", ctx->topic, i) + 2;
+						const char *ts = json_object_get_string(swod);
+						assert( lm+1 < MAXLINE-strlen(ts) );
+						sprintf( l+lm, "%s", ts);
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "icon");
+						lm = sprintf(l, "%s/%d/weather/code", ctx->topic, i) + 2;
+						ts = json_object_get_string(swod);
+						assert( lm+1 < MAXLINE-strlen(ts) );
+						sprintf( l+lm, "%s", ts);
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "pressure" );
+						lm = sprintf(l, "%s/%d/pressure", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(wod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "clouds" );
+						lm = sprintf(l, "%s/%d/clouds", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%d", json_object_get_int(wod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "humidity" );
+						lm = sprintf(l, "%s/%d/humidity", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%d", json_object_get_int(wod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "speed" );
+						lm = sprintf(l, "%s/%d/wind/speed", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(wod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "deg" );
+						lm = sprintf(l, "%s/%d/wind/direction", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%d", json_object_get_int(wod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 					}
 				}
 			}
@@ -203,7 +249,14 @@ static void MeteoD(struct _Meteo *ctx){
 
 
 void *process_MeteoD(void *actx){
-	MeteoD(actx);
+	if(verbose)
+		printf("Launching a processing flow for Meteo Daily\n");
+
+	for(;;){
+		MeteoD(actx);
+		sleep( ((struct _Meteo *)actx)->sample);
+	}
+
 	pthread_exit(0);
 }
 
