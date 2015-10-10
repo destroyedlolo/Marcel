@@ -16,8 +16,10 @@
 	 * Be smart and request another one if you need your own key
 	 */
 #define URLMETEO3H "http://api.openweathermap.org/data/2.5/forecast?q=%s&mode=json&units=%s&lang=%s&appid=eeec13daf6e332c80ff3b648fbf628aa"
+#define URLMETEOD "http://api.openweathermap.org/data/2.5/forecast/daily?q=%s&mode=json&units=%s&lang=%s&appid=eeec13daf6e332c80ff3b648fbf628aa"
 
 extern void *process_Meteo3H(void *);
+extern void *process_MeteoD(void *);
 
 #endif
 #endif

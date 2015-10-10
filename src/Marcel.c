@@ -257,6 +257,24 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				puts("Entering section 'Meteo 3H");
+		} else if((arg = striKWcmp(l,"*MeteoDaily"))){
+			union CSection *n = malloc( sizeof(struct _Meteo) );
+			assert(n);
+			memset(n, 0, sizeof(struct _Meteo));
+			n->common.section_type = MSEC_METEOD;
+
+#ifndef METEO
+			fputs("*F* MeteoDaily section is only available when compiled with METEO support\n", stderr);
+			exit(EXIT_FAILURE);
+#endif
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(verbose)
+				puts("Entering section 'Meteo Daily");
 		} else if((arg = striKWcmp(l,"*DPD="))){
 			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
 			assert(n);
@@ -668,6 +686,14 @@ int main(int ac, char **av){
 			if(!s->common.sample){ /* we won't METEO */
 				fputs("*E* Meteo3H section without sample time : ignoring ...\n", stderr);
 			} else if(pthread_create( &(s->common.thread), &thread_attr, process_Meteo3H, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
+			}			
+			break;
+		case MSEC_METEOD:
+			if(!s->common.sample){ /* we won't METEO */
+				fputs("*E* Meteo Daily section without sample time : ignoring ...\n", stderr);
+			} else if(pthread_create( &(s->common.thread), &thread_attr, process_MeteoD, s) < 0){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}			

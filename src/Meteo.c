@@ -104,6 +104,7 @@ static void Meteo3H(struct _Meteo *ctx){
 						sprintf( l+lm, "%d", json_object_get_int(swod));
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 
+
 					}
 				}
 			}
@@ -119,6 +120,90 @@ static void Meteo3H(struct _Meteo *ctx){
 
 void *process_Meteo3H(void *actx){
 	Meteo3H(actx);
+	pthread_exit(0);
+}
+
+static void MeteoD(struct _Meteo *ctx){
+	CURL *curl;
+	enum json_tokener_error jerr = json_tokener_success;
+
+	if(verbose)
+		printf("Launching a processing flow for Meteo Daily\n");
+
+	if((curl = curl_easy_init())){
+		char url[strlen(URLMETEOD) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
+		CURLcode res;
+		struct MemoryStruct chunk;
+
+		chunk.memory = malloc(1);
+		chunk.size = 0;
+
+		sprintf(url, URLMETEOD, ctx->City, ctx->Units, ctx->Lang);
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+
+		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
+			json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
+			if(jerr != json_tokener_success)
+				fprintf(stderr, "*E* Querying meteo daily : %s\n", json_tokener_error_desc(jerr));
+			else {
+				struct json_object *wlist = json_object_object_get( jobj, "list");
+				if(wlist){
+					int nbre = json_object_array_length(wlist);
+					char l[MAXLINE];
+					for(int i=0; i<nbre; i++){
+						struct json_object *wo = json_object_array_get_idx( wlist, i );	/* Weather's object */
+						struct json_object *wod = json_object_object_get( wo, "dt" );	/* Weather's data */
+
+						int lm = sprintf(l, "%s/%d/time", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%u", json_object_get_int(wod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "temp" );
+						struct json_object *swod = json_object_object_get( wod, "day");
+						lm = sprintf(l, "%s/%d/temperature/day", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "night");
+						lm = sprintf(l, "%s/%d/temperature/night", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "eve");
+						lm = sprintf(l, "%s/%d/temperature/evening", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "morn");
+						lm = sprintf(l, "%s/%d/temperature/morning", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+					}
+				}
+			}
+			json_object_put(jobj);
+		} else
+			fprintf(stderr, "*E* Querying meteo : %s\n", curl_easy_strerror(res));
+
+			/* Cleanup */
+		curl_easy_cleanup(curl);
+		free(chunk.memory);
+	}
+}
+
+
+void *process_MeteoD(void *actx){
+	MeteoD(actx);
 	pthread_exit(0);
 }
 
