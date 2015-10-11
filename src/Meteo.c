@@ -46,9 +46,6 @@ static void Meteo3H(struct _Meteo *ctx){
 	CURL *curl;
 	enum json_tokener_error jerr = json_tokener_success;
 
-	if(verbose)
-		printf("Launching a processing flow for Meteo\n");
-
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEO3H) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
 		CURLcode res;
@@ -120,7 +117,14 @@ static void Meteo3H(struct _Meteo *ctx){
 }
 
 void *process_Meteo3H(void *actx){
-	Meteo3H(actx);
+	if(verbose)
+		printf("Launching a processing flow for Meteo 3H\n");
+
+	for(;;){
+		Meteo3H(actx);
+		sleep( ((struct _Meteo *)actx)->sample);
+	}
+
 	pthread_exit(0);
 }
 
