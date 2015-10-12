@@ -46,6 +46,9 @@ static void Meteo3H(struct _Meteo *ctx){
 	CURL *curl;
 	enum json_tokener_error jerr = json_tokener_success;
 
+	if(verbose)
+		puts("*D* Querying Meteo 3H");
+
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEO3H) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
 		CURLcode res;
@@ -102,6 +105,41 @@ static void Meteo3H(struct _Meteo *ctx){
 						sprintf( l+lm, "%d", json_object_get_int(swod));
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 
+						wod = json_object_object_get( wo, "weather" );
+						wod = json_object_array_get_idx( wod, 0 );
+						swod = json_object_object_get( wod, "description");
+						lm = sprintf(l, "%s/%d/weather/description", ctx->topic, i) + 2;
+						const char *ts = json_object_get_string(swod);
+						assert( lm+1 < MAXLINE-strlen(ts) );
+						sprintf( l+lm, "%s", ts);
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "icon");
+						lm = sprintf(l, "%s/%d/weather/code", ctx->topic, i) + 2;
+						ts = json_object_get_string(swod);
+						assert( lm+1 < MAXLINE-strlen(ts) );
+						sprintf( l+lm, "%s", ts);
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "clouds" );
+						swod = json_object_object_get( wod, "all");
+						lm = sprintf(l, "%s/%d/clouds", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%d", json_object_get_int(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						wod = json_object_object_get( wo, "wind" );
+						swod = json_object_object_get( wod, "speed");
+						lm = sprintf(l, "%s/%d/wind/speed", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+
+						swod = json_object_object_get( wod, "deg");
+						lm = sprintf(l, "%s/%d/wind/direction", ctx->topic, i) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%.2lf", json_object_get_double(swod));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 
 					}
 				}
