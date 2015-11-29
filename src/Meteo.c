@@ -107,6 +107,7 @@ static void Meteo3H(struct _Meteo *ctx){
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
 
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
 			json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
