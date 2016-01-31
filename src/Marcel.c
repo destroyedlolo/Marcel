@@ -37,6 +37,9 @@
  *	07/09/2015	- LF - 3.3 - Adding Every tasks.
  *				-------
  *	06/10/2015	- LF - switch to v4.0 - curl can be used in several "section"
+ *	29/10/2015	- LF - 4.1 - Add meteo forcast
+ *	29/11/2015	- LF - 4.2 - Correct meteo forcast icon
+ *	31/01/2016	- LF - 4.3 - Add AlertCommand
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -145,6 +148,7 @@ static void read_configuration( const char *fch){
 	cfg.first_DPD = NULL;
 
 	cfg.SMSurl = NULL;
+	cfg.AlertCmd= NULL;
 
 	cfg.luascript = NULL;
 
@@ -172,6 +176,10 @@ static void read_configuration( const char *fch){
 			assert( cfg.SMSurl = strdup( removeLF(arg) ) );
 			if(verbose)
 				printf("SMS Url : '%s'\n", cfg.SMSurl);
+		} else if((arg = striKWcmp(l,"AlertCommand="))){
+			assert( cfg.AlertCmd = strdup( removeLF(arg) ) );
+			if(verbose)
+				printf("Alert Command : '%s'\n", cfg.AlertCmd);
 #ifdef LUA
 		} else if((arg = striKWcmp(l,"UserFuncScript="))){
 			assert( cfg.luascript = strdup( removeLF(arg) ) );

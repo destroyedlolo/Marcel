@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
-#define VERSION "4.2"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "4.3"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -114,6 +114,7 @@ struct Config {
 	int ConLostFatal;		/* Die if broker connection is lost */
 	union CSection *first_DPD;	/* Pointer to the first DPD */
 	const char *SMSurl;		/* Where to send SMS */
+	const char *AlertCmd;	/* External command to send alerts */
 	const char *luascript;	/* file containing Lua functions */
 } cfg;
 

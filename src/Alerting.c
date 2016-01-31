@@ -42,6 +42,38 @@ static void sendSMS( const char *msg ){
 	}
 }
 
+static void AlertCmd( const char *id, const char *msg ){
+	const char *p = cfg.AlertCmd;
+	size_t nbre=0;	/* # of %t% in the string */
+
+	if(!p)
+		return;
+
+	while((p = strstr(p, "%t%"))){
+		nbre++;
+		p += 3;	/* add '%t%' length */
+	}
+
+	char tcmd[ strlen(cfg.AlertCmd) + nbre*strlen(id) + 1 ];
+	char *d = tcmd;
+	p = cfg.AlertCmd;
+
+	while(*p){
+		if(*p =='%' && !strncmp(p, "%t%",3)){
+			for(const char *s = id; *s; s++)
+				if(*s =='"')
+					*d++ = '\'';
+				else
+					*d++ = *s;
+			p += 3;
+		} else
+			*d++ = *p++;
+	}
+	*d = 0;
+
+printf("res :<%s>\n", tcmd);
+}
+
 static struct alert *findalert(const char *id){
 #ifdef DEBUG
 printf("*d* lst - f:%p l:%p\n", alerts.first, alerts.last);
@@ -66,7 +98,9 @@ void init_alerting(void){
 	}
 
 	if(!cfg.SMSurl && verbose)
-		puts("*W* SMS sending not fully configured : disabling SMS sending");
+		puts("*W* SMS sending not configured : disabling SMS sending");
+	if(!cfg.AlertCmd && verbose)
+		puts("*W* Alert's command not configured : disabling external alerting");
 }
 
 void RiseAlert(const char *id, const char *msg){
@@ -76,9 +110,10 @@ void RiseAlert(const char *id, const char *msg){
 		char smsg[ strlen(id) + strlen(msg) + 4 ];
 		sprintf( smsg, "%s : %s", id, msg );
 		sendSMS( smsg );
+		AlertCmd( id, msg );
 
 		if(verbose)
-			printf("*I* SMS sent : '%s' : '%s'\n", id, msg);
+			printf("*I* Alert sent : '%s' : '%s'\n", id, msg);
 
 		assert( an = malloc( sizeof(struct alert) ) );
 		assert( an->alert = strdup( id ) );
