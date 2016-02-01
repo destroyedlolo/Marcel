@@ -71,7 +71,14 @@ static void AlertCmd( const char *id, const char *msg ){
 	}
 	*d = 0;
 
-printf("res :<%s>\n", tcmd);
+
+	FILE *f = popen( tcmd, "w");
+	if(!f){
+		perror("popen()");
+		return;
+	}
+	fputs(msg, f);
+	fclose(f);
 }
 
 static struct alert *findalert(const char *id){
