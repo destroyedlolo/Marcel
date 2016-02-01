@@ -32,10 +32,12 @@ Have a look on provided file which contains comprehensive explanation of known d
 
 #Lua custom methods :#
 Following methods are exposed to Lua code through **Marcel** object :
+* **Marcel.MQTTPublish(** topic, value **)** : Publish a value to MQTT broker
+
 * **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel about an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
 
-* **Marcel.MQTTPublish(** topic, value **)** : Publish a value to MQTT broker
+* **Marcel.SendMessage(** title **,** Text **)** : send a message using AlertCommand facility. Generally used to send a mail (which is not considered as an alert)
 
 * **Marcel.Hostname()** : As the name said, host's name
 * **Marcel.ClientID()** : Configured MQTT client id
@@ -54,5 +56,5 @@ Marcel knows the following options :
 Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
 
 #Side note#
-The name is a tribute to my late rabbit that passed away some days before I did started this project : he stayed at home to keep our house. RIP.
+The name is a tribute to my late rabbit that passed away some days before I did started this project : he stayed at home as keeper. RIP.
 > Written with [StackEdit](https://stackedit.io/).

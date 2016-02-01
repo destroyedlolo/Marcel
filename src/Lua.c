@@ -72,6 +72,19 @@ void execUserFuncEvery( struct _Every *ctx ){
 	pthread_mutex_unlock( &onefunc );
 }
 
+static int lmSendMsg(lua_State *L){
+	if(lua_gettop(L) != 2){
+		fputs("*E* In your Lua code, SendMessage() requires 2 arguments : title and message\n", stderr);
+		return 0;
+	}
+
+	const char *topic = luaL_checkstring(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	AlertCmd( topic, msg );
+	
+	return 0;
+}
+
 static int lmRiseAlert(lua_State *L){
 	if(lua_gettop(L) != 2){
 		fputs("*E* In your Lua code, RiseAlert() requires 2 arguments : topic, message\n", stderr);
@@ -132,6 +145,7 @@ static int lmVersion(lua_State *L){
 }
 
 static const struct luaL_reg MarcelLib [] = {
+	{"SendMessage", lmSendMsg},
 	{"RiseAlert", lmRiseAlert},
 	{"ClearAlert", lmClearAlert},
 	{"MQTTPublish", lmPublish},

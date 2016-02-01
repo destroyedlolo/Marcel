@@ -42,7 +42,7 @@ static void sendSMS( const char *msg ){
 	}
 }
 
-static void AlertCmd( const char *id, const char *msg ){
+void AlertCmd( const char *id, const char *msg ){
 	const char *p = cfg.AlertCmd;
 	size_t nbre=0;	/* # of %t% in the string */
 

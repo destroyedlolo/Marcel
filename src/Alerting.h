@@ -23,6 +23,7 @@ extern struct DList alerts;
 extern void init_alerting(void);
 extern void RiseAlert(const char *id, const char *msg);
 extern void AlertIsOver(const char *id);
+extern void AlertCmd( const char *id, const char *msg );
 
 extern void rcv_alert(const char *id, const char *msg);
 
