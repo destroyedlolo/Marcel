@@ -20,7 +20,8 @@ struct DList alerts;
 
 static void sendSMS( const char *msg ){
 	CURL *curl;
-		
+
+puts("SMS");
 	if(!cfg.SMSurl)
 		return;
 
@@ -46,6 +47,7 @@ void AlertCmd( const char *id, const char *msg ){
 	const char *p = cfg.AlertCmd;
 	size_t nbre=0;	/* # of %t% in the string */
 
+puts("Mail");
 	if(!p)
 		return;
 
@@ -110,13 +112,14 @@ void init_alerting(void){
 		puts("*W* Alert's command not configured : disabling external alerting");
 }
 
-void RiseAlert(const char *id, const char *msg){
+void RiseAlert(const char *id, const char *msg, int withSMS){
 	struct alert *an = findalert(id);
 
 	if(!an){	/* It's a new alert */
 		char smsg[ strlen(id) + strlen(msg) + 4 ];
 		sprintf( smsg, "%s : %s", id, msg );
-		sendSMS( smsg );
+		if(withSMS)
+			sendSMS( smsg );
 		AlertCmd( id, msg );
 
 		if(verbose)
@@ -146,8 +149,8 @@ void AlertIsOver(const char *id){
 }
 
 void rcv_alert(const char *id, const char *msg){
-	if(*msg == 'S')	/* rise this alert */
-		RiseAlert(id, msg+1);
+	if(*msg == 'S' || *msg == 's' )	/* Rise an alert */
+		RiseAlert(id, msg+1, *msg == 'S');
 	else	/* Alert's over */
 		AlertIsOver(id);
 }

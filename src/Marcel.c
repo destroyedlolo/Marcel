@@ -40,6 +40,7 @@
  *	29/10/2015	- LF - 4.1 - Add meteo forcast
  *	29/11/2015	- LF - 4.2 - Correct meteo forcast icon
  *	31/01/2016	- LF - 4.3 - Add AlertCommand
+ *	04/02/2016	- LF - 4.4 - Alert can send only a mail
  */
 #include "Marcel.h"
 #include "Freebox.h"
