@@ -55,7 +55,7 @@ Marcel knows the following options :
 
 Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
 
-#Alerts vs Notification
+#Alerts vs Notifications
 * Alerts respond to ' **Alert/sub topic/message**'
 * Notifications respond to ' **Notification/sub topic/message**'
 
