@@ -1,10 +1,11 @@
 /* Alerting.c
- * 	Handle SMS alerting
+ * 	Handle SMS and Mail alerting
  *
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)
  *
  * 16/07/2015	- LF - First version
+ * 24/02/2016	- LF - 4.5 - Add Notifications
  */
 
 #include "Marcel.h"
@@ -21,7 +22,6 @@ struct DList alerts;
 static void sendSMS( const char *msg ){
 	CURL *curl;
 
-puts("SMS");
 	if(!cfg.SMSurl)
 		return;
 
@@ -47,7 +47,6 @@ void AlertCmd( const char *id, const char *msg ){
 	const char *p = cfg.AlertCmd;
 	size_t nbre=0;	/* # of %t% in the string */
 
-puts("Mail");
 	if(!p)
 		return;
 
@@ -106,6 +105,11 @@ void init_alerting(void){
 		exit(EXIT_FAILURE);
 	}
 
+	if( MQTTClient_subscribe( cfg.client, "Notification/#", 0) != MQTTCLIENT_SUCCESS ){
+		fputs("Can't subscribe to 'Notification/#'", stderr);
+		exit(EXIT_FAILURE);
+	}
+
 	if(!cfg.SMSurl && verbose)
 		puts("*W* SMS sending not configured : disabling SMS sending");
 	if(!cfg.AlertCmd && verbose)
@@ -154,3 +158,15 @@ void rcv_alert(const char *id, const char *msg){
 	else	/* Alert's over */
 		AlertIsOver(id);
 }
+
+void rcv_notification(const char *id, const char *msg){
+	char smsg[ strlen(id) + strlen(msg) + 4 ];
+	sprintf( smsg, "%s : %s", id, msg+1);
+	if(*msg == 'S')
+		sendSMS( smsg );
+	AlertCmd( id, msg+1 );
+
+	if(verbose)
+		printf("*I* Alert sent : '%s' : '%s'\n", id, msg+1);
+}
+

@@ -26,5 +26,6 @@ extern void AlertIsOver(const char *id);
 extern void AlertCmd( const char *id, const char *msg );
 
 extern void rcv_alert(const char *id, const char *msg);
+extern void rcv_notification(const char *id, const char *msg);
 
 #endif

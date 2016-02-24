@@ -55,6 +55,18 @@ Marcel knows the following options :
 
 Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
 
+#Alerts vs Notification
+* Alerts respond to ' **Alert/*sub topic*/*message* **'
+* Notifications respond to ' **Notification/*sub topic*/*message* **'
+
+If the first character of *message* is an '**S**' or '**s**' it's meaning an alert is raising and a communication will be send only if it's not an already *open* alert.
+A *message* not starting with  '**S**' or '**s**' means the alert is closing.
+
+Unlike Alerts, Notifications are not checked against duplication : in other words, communication are unconditionally sent.
+
+* **S** : both SMS and Mail will be send
+* **s** : only Mail will be send
+
 #Side note#
 The name is a tribute to my late rabbit that passed away some days before I did started this project : he stayed at home as keeper. RIP.
 > Written with [StackEdit](https://stackedit.io/).

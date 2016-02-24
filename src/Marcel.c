@@ -41,6 +41,7 @@
  *	29/11/2015	- LF - 4.2 - Correct meteo forcast icon
  *	31/01/2016	- LF - 4.3 - Add AlertCommand
  *	04/02/2016	- LF - 4.4 - Alert can send only a mail
+ *	24/02/2016	- LF - 4.5 - Add Notifications
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -441,6 +442,8 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 
 	if((aid = striKWcmp(topic,"Alert/")))
 		rcv_alert( aid, payload );
+	else if((aid = striKWcmp(topic,"Notification/")))
+		rcv_notification( aid, payload );
 	else for(; DPD; DPD = DPD->common.next){
 		if(DPD->common.section_type != MSEC_DEADPUBLISHER)
 			continue;
