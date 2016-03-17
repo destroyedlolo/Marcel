@@ -4,10 +4,12 @@
  *	if needed.
  *
  * Additional options :
- *	-DFREEBOX : enable Freebox statistics
+ *	-DFREEBOX : enable Freebox (v4 / v5) statistics
  *	-DUPS : enable UPS statistics (NUT needed)
+ *	-DLUA : enable Lua user functions
+ *	-DMETEO : enable meteo forcast publishing
  *
- *	Copyright 2015 Laurent Faillie
+ *	Copyright 2015-2016 Laurent Faillie
  *
  *		Marcel is covered by
  *		Creative Commons Attribution-NonCommercial 3.0 License
@@ -577,7 +579,7 @@ int main(int ac, char **av){
 				exit(EXIT_FAILURE);
 			} else if(!strcmp(av[i], "-v")){
 				verbose = 1;
-				puts("Marcel (c) L.Faillie 2015");
+				puts("Marcel (c) L.Faillie 2015-2016");
 				printf("%s v%s starting ...\n", basename(av[0]), VERSION);
 			} else if(!strncmp(av[i], "-f", 2))
 				conf_file = av[i] + 2;
