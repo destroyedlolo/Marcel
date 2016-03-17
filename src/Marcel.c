@@ -562,32 +562,32 @@ int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
 	pthread_attr_t thread_attr;
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+	int c;
 
-	if(ac > 0){
-		int i;
-		for(i=1; i<ac; i++){
-			if(!strcmp(av[i], "-h")){
-				fprintf(stderr, "%s (%s)\n"
-					"Publish Smart Home figures to an MQTT broker\n"
-					"Known options are :\n"
-					"\t-h : this online help\n"
-					"\t-v : enable verbose messages\n"
-					"\t-f<file> : read <file> for configuration\n"
-					"\t\t(default is '%s')\n",
-					basename(av[0]), VERSION, DEFAULT_CONFIGURATION_FILE
-				);
-				exit(EXIT_FAILURE);
-			} else if(!strcmp(av[i], "-v")){
-				verbose = 1;
-				puts("Marcel (c) L.Faillie 2015-2016");
-				printf("%s v%s starting ...\n", basename(av[0]), VERSION);
-			} else if(!strncmp(av[i], "-f", 2))
-				conf_file = av[i] + 2;
-			else {
-				fprintf(stderr, "Unknown option '%s'\n%s -h\n\tfor some help\n", av[i], av[0]);
-				exit(EXIT_FAILURE);
-			}
-		}
+	while((c = getopt(ac, av, "vhf:")) != EOF) switch(c){
+	case 'h':
+		fprintf(stderr, "%s (%s)\n"
+			"Publish Smart Home figures to an MQTT broker\n"
+			"Known options are :\n"
+			"\t-h : this online help\n"
+			"\t-v : enable verbose messages\n"
+			"\t-f<file> : read <file> for configuration\n"
+			"\t\t(default is '%s')\n",
+			basename(av[0]), VERSION, DEFAULT_CONFIGURATION_FILE
+		);
+		exit(EXIT_FAILURE);
+		break;
+	case 'v':
+		verbose = 1;
+		puts("Marcel (c) L.Faillie 2015-2016");
+		printf("%s v%s starting ...\n", basename(av[0]), VERSION);
+		break;
+	case 'f':
+		conf_file = optarg;
+		break;
+	default:
+		fprintf(stderr, "Unknown option '%c'\n%s -h\n\tfor some help\n", c, av[0]);
+		exit(EXIT_FAILURE);
 	}
 	read_configuration( conf_file );
 
