@@ -72,6 +72,8 @@
 #include <netdb.h>
 
 int verbose = 0;
+int configtest = 0;
+struct Config cfg;
 
 	/*
 	 * Helpers
@@ -151,10 +153,11 @@ static void read_configuration( const char *fch){
 	cfg.ConLostFatal = 0;
 	cfg.first_DPD = NULL;
 
+	cfg.luascript = NULL;
+
 	cfg.SMSurl = NULL;
 	cfg.AlertCmd= NULL;
-
-	cfg.luascript = NULL;
+	cfg.notiflist=NULL;
 
 	if(verbose)
 		printf("Reading configuration file '%s'\n", fch);
@@ -177,9 +180,15 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
 		} else if((arg = striKWcmp(l,"SMSUrl="))){
-			assert( cfg.SMSurl = strdup( removeLF(arg) ) );
-			if(verbose)
-				printf("SMS Url : '%s'\n", cfg.SMSurl);
+			if(cfg.notiflist){
+				assert( cfg.notiflist->url = strdup( removeLF(arg) ) );
+				if(verbose)
+					printf("\tSMS Url : '%s'\n", cfg.notiflist->url);
+			} else {
+				assert( cfg.SMSurl = strdup( removeLF(arg) ) );
+				if(verbose)
+					printf("SMS Url : '%s'\n", cfg.SMSurl);
+			}
 		} else if((arg = striKWcmp(l,"AlertCommand="))){
 			assert( cfg.AlertCmd = strdup( removeLF(arg) ) );
 			if(verbose)
@@ -190,6 +199,22 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("User functions definition script : '%s'\n", cfg.luascript);
 #endif
+		} else if((arg = striKWcmp(l,"$alert="))){
+			struct notification *n = malloc( sizeof(struct notification) );
+			assert(n);
+			memset(n, 0, sizeof(struct notification));
+
+			if(!*arg || *arg == '\n'){
+				fputs("*F* Unamed $alert section, giving up !\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+
+			n->id = *arg;
+			n->next = cfg.notiflist;
+			cfg.notiflist = n;
+
+			if(verbose)
+				printf("Entering alert definition '%c'\n", n->id);
 		} else if((arg = striKWcmp(l,"*FFV="))){
 			union CSection *n = malloc( sizeof(struct _FFV) );
 			assert(n);
@@ -564,7 +589,7 @@ int main(int ac, char **av){
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 	int c;
 
-	while((c = getopt(ac, av, "vhf:")) != EOF) switch(c){
+	while((c = getopt(ac, av, "vhf:t")) != EOF) switch(c){
 	case 'h':
 		fprintf(stderr, "%s (%s)\n"
 			"Publish Smart Home figures to an MQTT broker\n"
@@ -572,11 +597,14 @@ int main(int ac, char **av){
 			"\t-h : this online help\n"
 			"\t-v : enable verbose messages\n"
 			"\t-f<file> : read <file> for configuration\n"
-			"\t\t(default is '%s')\n",
+			"\t\t(default is '%s')\n"
+			"\t-t : test configuration file and exit\n",
 			basename(av[0]), VERSION, DEFAULT_CONFIGURATION_FILE
 		);
 		exit(EXIT_FAILURE);
 		break;
+	case 't':
+		configtest = 1;
 	case 'v':
 		verbose = 1;
 		puts("Marcel (c) L.Faillie 2015-2016");
@@ -591,6 +619,11 @@ int main(int ac, char **av){
 	}
 	read_configuration( conf_file );
 
+	if(configtest){
+		fputs("*W* Testing only the configuration ... leaving.\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+		
 	if(!cfg.sections){
 		fputs("*F* No section defined : giving up ...\n", stderr);
 		exit(EXIT_FAILURE);

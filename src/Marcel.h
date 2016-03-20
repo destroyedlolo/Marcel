@@ -5,6 +5,7 @@
  * license rules (see LICENSE file)
  *
  * 08/07/2015	- LF - start v2.0 - make source modular
+ * 20/03/2016	- LF - add multiple notification handling
  */
 
 #ifndef MARCEL_H
@@ -15,7 +16,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
-#define VERSION "4.5"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "4.6"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -105,7 +106,14 @@ union CSection {
 	} Meteo;
 };
 
-struct Config {
+struct notification {
+	struct notification *next;
+	char id;
+	char *url;
+	char *cmd;
+};
+
+extern struct Config {
 	union CSection *sections;	/* Sections' list */
 	const char *Broker;		/* Broker's URL */
 	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
@@ -113,9 +121,12 @@ struct Config {
 	int DPDlast;			/* Dead Publisher Detect are grouped at the end of sections list */
 	int ConLostFatal;		/* Die if broker connection is lost */
 	union CSection *first_DPD;	/* Pointer to the first DPD */
+	const char *luascript;	/* file containing Lua functions */
+		/* Single alert / notification */
 	const char *SMSurl;		/* Where to send SMS */
 	const char *AlertCmd;	/* External command to send alerts */
-	const char *luascript;	/* file containing Lua functions */
+		/* Alerts by id */
+	struct notification *notiflist;
 } cfg;
 
 	/* Helper functions */
