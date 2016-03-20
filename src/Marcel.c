@@ -44,6 +44,7 @@
  *	31/01/2016	- LF - 4.3 - Add AlertCommand
  *	04/02/2016	- LF - 4.4 - Alert can send only a mail
  *	24/02/2016	- LF - 4.5 - Add Notifications
+ *	20/03/2016	- LF - 4.6 - Add named notifications
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -190,9 +191,15 @@ static void read_configuration( const char *fch){
 					printf("SMS Url : '%s'\n", cfg.SMSurl);
 			}
 		} else if((arg = striKWcmp(l,"AlertCommand="))){
-			assert( cfg.AlertCmd = strdup( removeLF(arg) ) );
-			if(verbose)
-				printf("Alert Command : '%s'\n", cfg.AlertCmd);
+			if(cfg.notiflist){
+				assert( cfg.notiflist->cmd = strdup( removeLF(arg) ) );
+				if(verbose)
+					printf("\tAlert Command : '%s'\n", cfg.notiflist->cmd);
+			} else {
+				assert( cfg.AlertCmd = strdup( removeLF(arg) ) );
+				if(verbose)
+					printf("Alert Command : '%s'\n", cfg.AlertCmd);
+			}
 #ifdef LUA
 		} else if((arg = striKWcmp(l,"UserFuncScript="))){
 			assert( cfg.luascript = strdup( removeLF(arg) ) );

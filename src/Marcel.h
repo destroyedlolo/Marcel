@@ -5,7 +5,7 @@
  * license rules (see LICENSE file)
  *
  * 08/07/2015	- LF - start v2.0 - make source modular
- * 20/03/2016	- LF - add multiple notification handling
+ * 20/03/2016	- LF - add named notification handling
  */
 
 #ifndef MARCEL_H
@@ -106,7 +106,7 @@ union CSection {
 	} Meteo;
 };
 
-struct notification {
+struct notification {	/* Storage for named notification */
 	struct notification *next;
 	char id;
 	char *url;

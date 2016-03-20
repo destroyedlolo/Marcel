@@ -51,8 +51,10 @@ A startup script for OpenRC has been provided in sub-directory ... startup_scrip
 
 #Launch options :#
 Marcel knows the following options :
+* *-h* : online help
 * *-v* : verbose output
 * *-f<file>* : loads <file> as configuration file. The default one is `/usr/local/etc/Marcel.conf`
+* *-t* : test configuration file and exit
 
 Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
 
