@@ -45,6 +45,7 @@
  *	04/02/2016	- LF - 4.4 - Alert can send only a mail
  *	24/02/2016	- LF - 4.5 - Add Notifications
  *	20/03/2016	- LF - 4.6 - Add named notifications
+ *							- Can work without sections (Marcel acts as alerting relay)
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -478,6 +479,10 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		rcv_alert( aid, payload );
 	else if((aid = striKWcmp(topic,"Notification/")))
 		rcv_notification( aid, payload );
+#if 0
+	else if((aid = striKWcmp(topic,"nNotification/")))
+		rcv_nnotification( aid, payload );
+#endif
 	else for(; DPD; DPD = DPD->common.next){
 		if(DPD->common.section_type != MSEC_DEADPUBLISHER)
 			continue;
@@ -628,11 +633,6 @@ int main(int ac, char **av){
 
 	if(configtest){
 		fputs("*W* Testing only the configuration ... leaving.\n", stderr);
-		exit(EXIT_FAILURE);
-	}
-		
-	if(!cfg.sections){
-		fputs("*F* No section defined : giving up ...\n", stderr);
 		exit(EXIT_FAILURE);
 	}
 
