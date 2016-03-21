@@ -479,10 +479,8 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		rcv_alert( aid, payload );
 	else if((aid = striKWcmp(topic,"Notification/")))
 		rcv_notification( aid, payload );
-#if 0
 	else if((aid = striKWcmp(topic,"nNotification/")))
 		rcv_nnotification( aid, payload );
-#endif
 	else for(; DPD; DPD = DPD->common.next){
 		if(DPD->common.section_type != MSEC_DEADPUBLISHER)
 			continue;

@@ -19,18 +19,18 @@
 
 struct DList alerts;
 
-static void sendSMS( const char *msg ){
-	CURL *curl;
-
-	if(!cfg.SMSurl)
+static void psendSMS(const char *url, const char *msg ){
+	if(!url)
 		return;
+
+	CURL *curl;
 
 	if((curl = curl_easy_init())){
 		CURLcode res;
 		char *emsg;
-		char aurl[ strlen(cfg.SMSurl) + strlen( emsg=curl_easy_escape(curl,msg,0) ) ];	/* room for \0 provided by the %s replacement */
+		char aurl[ strlen(url) + strlen( emsg=curl_easy_escape(curl,msg,0) ) ];	/* room for \0 provided by the %s replacement */
 
-		sprintf( aurl, cfg.SMSurl, emsg );
+		sprintf( aurl, url, emsg );
 		curl_free(emsg);
 
 		curl_easy_setopt(curl, CURLOPT_URL, aurl);
@@ -41,6 +41,10 @@ static void sendSMS( const char *msg ){
 
 		curl_easy_cleanup(curl);
 	}
+}
+
+static void sendSMS( const char *msg ){
+	psendSMS( cfg.SMSurl, msg );
 }
 
 void AlertCmd( const char *id, const char *msg ){
@@ -104,16 +108,28 @@ void init_alerting(void){
 		fputs("Can't subscribe to 'Alert/#'", stderr);
 		exit(EXIT_FAILURE);
 	}
+/*
+	if( MQTTClient_subscribe( cfg.client, "nAlert/#", 0) != MQTTCLIENT_SUCCESS ){
+		fputs("Can't subscribe to 'nAlert/#'", stderr);
+		exit(EXIT_FAILURE);
+	}
+*/
 
 	if( MQTTClient_subscribe( cfg.client, "Notification/#", 0) != MQTTCLIENT_SUCCESS ){
 		fputs("Can't subscribe to 'Notification/#'", stderr);
 		exit(EXIT_FAILURE);
 	}
+	if( MQTTClient_subscribe( cfg.client, "nNotification/#", 0) != MQTTCLIENT_SUCCESS ){
+		fputs("Can't subscribe to 'nNotification/#'", stderr);
+		exit(EXIT_FAILURE);
+	}
 
 	if(!cfg.SMSurl && verbose)
-		puts("*W* SMS sending not configured : disabling SMS sending");
+		puts("*W* SMS sending not configured : disabling unamed SMS sending");
 	if(!cfg.AlertCmd && verbose)
-		puts("*W* Alert's command not configured : disabling external alerting");
+		puts("*W* Alert's command not configured : disabling unamed external alerting");
+	if(!cfg.notiflist && verbose)
+		puts("*W* No named notification configured : disabling");
 }
 
 void RiseAlert(const char *id, const char *msg, int withSMS){
@@ -168,5 +184,28 @@ void rcv_notification(const char *id, const char *msg){
 
 	if(verbose)
 		printf("*I* Alert sent : '%s' : '%s'\n", id, msg+1);
+}
+
+void rcv_nnotification(const char *names, const char *msg){
+	char *id = strchr(names, '/');
+
+	if(!id){
+		if(verbose)
+			printf("*W* topic '%s' : No name provided, message ignored\n", names);
+	} else {
+		char c;
+		*id++ = 0;
+		if(verbose)
+			printf("*I* Notifications named : '%s' id: '%s' msg : '%s'\n", names, id, msg);
+		while(( c=*names++ )){
+			for( struct notification *n = cfg.notiflist; n; n = n->next){
+				if(c == n->id){
+					if(n->url)
+						psendSMS( n->url, msg );
+					break;
+				}
+			}
+		}
+	}
 }
 

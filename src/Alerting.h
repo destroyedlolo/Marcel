@@ -27,5 +27,6 @@ extern void AlertCmd( const char *id, const char *msg );
 
 extern void rcv_alert(const char *id, const char *msg);
 extern void rcv_notification(const char *id, const char *msg);
+extern void rcv_nnotification(const char *names, const char *msg);
 
 #endif
