@@ -47,8 +47,8 @@ static void sendSMS( const char *msg ){
 	psendSMS( cfg.SMSurl, msg );
 }
 
-void AlertCmd( const char *id, const char *msg ){
-	const char *p = cfg.AlertCmd;
+void pAlertCmd( const char *cmd, const char *id, const char *msg ){
+	const char *p = cmd;
 	size_t nbre=0;	/* # of %t% in the string */
 
 	if(!p)
@@ -61,7 +61,7 @@ void AlertCmd( const char *id, const char *msg ){
 
 	char tcmd[ strlen(cfg.AlertCmd) + nbre*strlen(id) + 1 ];
 	char *d = tcmd;
-	p = cfg.AlertCmd;
+	p = cmd;
 
 	while(*p){
 		if(*p =='%' && !strncmp(p, "%t%",3)){
@@ -84,6 +84,10 @@ void AlertCmd( const char *id, const char *msg ){
 	}
 	fputs(msg, f);
 	fclose(f);
+}
+
+void AlertCmd( const char *id, const char *msg ){
+	pAlertCmd(cfg.AlertCmd, id, msg);
 }
 
 static struct alert *findalert(const char *id){
@@ -202,6 +206,8 @@ void rcv_nnotification(const char *names, const char *msg){
 				if(c == n->id){
 					if(n->url)
 						psendSMS( n->url, msg );
+					if(n->cmd)
+						pAlertCmd( n->cmd, id, msg );
 					break;
 				}
 			}
