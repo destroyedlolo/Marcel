@@ -5,6 +5,7 @@
  * license rules (see LICENSE file)
  *
  * 16/07/2015	- LF - First version
+ * 27/03/2016	- LF - replace AlertCmd() with SendAlert()
  */
 
 #ifndef ALERTING_H
@@ -23,7 +24,7 @@ extern struct DList alerts;
 extern void init_alerting(void);
 extern void RiseAlert(const char *id, const char *msg, int withSMS);
 extern void AlertIsOver(const char *id);
-extern void AlertCmd( const char *id, const char *msg );
+extern void SendAlert(const char *id, const char *msg, int withSMS);
 
 extern void rcv_alert(const char *id, const char *msg);
 extern void rcv_notification(const char *id, const char *msg);

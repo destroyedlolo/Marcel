@@ -35,10 +35,10 @@ Have a look on provided file which contains comprehensive explanation of known d
 Following methods are exposed to Lua code through **Marcel** object :
 * **Marcel.MQTTPublish(** topic, value **)** : Publish a value to MQTT broker
 
-* **Marcel.RiseAlert(** topic**,** message **)** : Tells Marcel about an alert condition
+* **Marcel.RiseAlert(** topic**,** message **)**, **Marcel.RiseAlertSMS(** topic**,** message **)** : Tells Marcel about an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
 
-* **Marcel.SendMessage(** title **,** Text **)** : send a message using AlertCommand facility. Generally used to send a mail (which is not considered as an alert)
+* **Marcel.SendMessage(** title **,** Text **)** and **Marcel.SendMessageSMS(** title **,** Text **)**: The 1st one sends a message using **AlertCommand facility** which is generally used to send a mail. The 2nd one uses also **SMSUrl** which is generally used to send an SMS.
 
 * **Marcel.Hostname()** : As the name said, host's name
 * **Marcel.ClientID()** : Configured MQTT client id

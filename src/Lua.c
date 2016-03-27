@@ -80,7 +80,20 @@ static int lmSendMsg(lua_State *L){
 
 	const char *topic = luaL_checkstring(L, 1);
 	const char *msg = luaL_checkstring(L, 2);
-	AlertCmd( topic, msg );
+	SendAlert( topic, msg, 0 );
+	
+	return 0;
+}
+
+static int lmSendMsgSMS(lua_State *L){
+	if(lua_gettop(L) != 2){
+		fputs("*E* In your Lua code, SendMessageSMS() requires 2 arguments : title and message\n", stderr);
+		return 0;
+	}
+
+	const char *topic = luaL_checkstring(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	SendAlert( topic, msg, -1 );
 	
 	return 0;
 }
@@ -159,6 +172,7 @@ static int lmVersion(lua_State *L){
 
 static const struct luaL_reg MarcelLib [] = {
 	{"SendMessage", lmSendMsg},
+	{"SendMessageSMS", lmSendMsgSMS},
 	{"RiseAlert", lmRiseAlert},		/* ... and send only a mail */
 	{"RiseAlertSMS", lmRiseAlertSMS},	/* ... and send both a mail and a SMS */
 	{"ClearAlert", lmClearAlert},

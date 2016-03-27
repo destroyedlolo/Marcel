@@ -136,19 +136,22 @@ void init_alerting(void){
 		puts("*W* No named notification configured : disabling");
 }
 
+void SendAlert(const char *id, const char *msg, int withSMS){
+	char smsg[ strlen(id) + strlen(msg) + 4 ];
+	sprintf( smsg, "%s : %s", id, msg );
+	if(withSMS)
+		sendSMS( smsg );
+	AlertCmd( id, msg );
+
+	if(verbose)
+		printf("*I* Alert sent : '%s' : '%s'\n", id, msg);
+}
+
 void RiseAlert(const char *id, const char *msg, int withSMS){
 	struct alert *an = findalert(id);
 
 	if(!an){	/* It's a new alert */
-		char smsg[ strlen(id) + strlen(msg) + 4 ];
-		sprintf( smsg, "%s : %s", id, msg );
-		if(withSMS)
-			sendSMS( smsg );
-		AlertCmd( id, msg );
-
-		if(verbose)
-			printf("*I* Alert sent : '%s' : '%s'\n", id, msg);
-
+		SendAlert(id, msg, withSMS);
 		assert( an = malloc( sizeof(struct alert) ) );
 		assert( an->alert = strdup( id ) );
 		DLAdd( &alerts, (struct DLNode *)an );
