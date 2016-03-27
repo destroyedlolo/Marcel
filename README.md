@@ -39,6 +39,7 @@ Following methods are exposed to Lua code through **Marcel** object :
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
 
 * **Marcel.SendMessage(** title **,** Text **)** and **Marcel.SendMessageSMS(** title **,** Text **)**: The 1st one sends a message using **AlertCommand facility** which is generally used to send a mail. The 2nd one uses also **SMSUrl** which is generally used to send an SMS.
+* **Marcel.SendNamedMessage(** names **,** title **,** Text **)**: Sends a named notification (see bellow).
 
 * **Marcel.Hostname()** : As the name said, host's name
 * **Marcel.ClientID()** : Configured MQTT client id
@@ -69,6 +70,22 @@ Unlike Alerts, Notifications are not checked against duplication : in other word
 
 * **S** : both SMS and Mail will be send
 * **s** : only Mail will be send
+
+#Named notifications#
+Named notifications are declared using `$alert=` configuration directive as
+
+    $alert=N
+    SMSUrl=http://api.pushingbox.com/pushingbox?devid=xxxxxxxxxxx&msg=%s
+    AlertCommand=mail -s "%t%" mail@domain.com
+
+The argument of the section, an single character, is the **name** of the alert. In the example above, it's '**N**'.
+It has to be followed with an **SMSUrl=** or **AlertCommand=** describing the action(s) to do. Have a look on provided *Marcel.conf* to see the syntax use. Notez-bien, both directives can be present and in this case, both action are done.
+
+Named notifications are raised using
+* Lua's **Marcel.SendNamedMessage(** *names* **,** *title* **,** *Text* **)**
+* sending a message to `nNotification/`*names*`/`*title*
+
+*names* is a string on which each and every characters correspond to a name of an alert to raise. As example, if *names*=`ABC` means that alerts **A**, **B** and **C** will be send.
 
 #Side note#
 The name is a tribute to my late rabbit that passed away some days before I did started this project : he stayed at home as keeper. RIP.

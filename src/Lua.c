@@ -72,6 +72,21 @@ void execUserFuncEvery( struct _Every *ctx ){
 	pthread_mutex_unlock( &onefunc );
 }
 
+static int lmSendNMsg(lua_State *L){
+	if(lua_gettop(L) != 3){
+		fputs("*E* In your Lua code, SendNamedMessage() requires 3 arguments : Alerts' names, title and message\n", stderr);
+		return 0;
+	}
+
+	const char *names = luaL_checkstring(L, 1);
+	const char *topic = luaL_checkstring(L, 2);
+	const char *msg = luaL_checkstring(L, 3);
+	pnNotify( names, topic, msg );
+	
+	return 0;
+
+}
+
 static int lmSendMsg(lua_State *L){
 	if(lua_gettop(L) != 2){
 		fputs("*E* In your Lua code, SendMessage() requires 2 arguments : title and message\n", stderr);
@@ -171,6 +186,7 @@ static int lmVersion(lua_State *L){
 }
 
 static const struct luaL_reg MarcelLib [] = {
+	{"SendNamedMessage", lmSendNMsg},
 	{"SendMessage", lmSendMsg},
 	{"SendMessageSMS", lmSendMsgSMS},
 	{"RiseAlert", lmRiseAlert},		/* ... and send only a mail */

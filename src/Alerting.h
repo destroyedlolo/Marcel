@@ -25,6 +25,7 @@ extern void init_alerting(void);
 extern void RiseAlert(const char *id, const char *msg, int withSMS);
 extern void AlertIsOver(const char *id);
 extern void SendAlert(const char *id, const char *msg, int withSMS);
+extern void pnNotify(const char *names, const char *title, const char *msg);
 
 extern void rcv_alert(const char *id, const char *msg);
 extern void rcv_notification(const char *id, const char *msg);

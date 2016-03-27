@@ -193,6 +193,27 @@ void rcv_notification(const char *id, const char *msg){
 		printf("*I* Alert sent : '%s' : '%s'\n", id, msg+1);
 }
 
+void pnNotify(const char *names, const char *title, const char *msg){
+/* names : names to notify to
+ * title : notification's title
+ * msg : messages to send
+ */
+	if(verbose)
+		printf("*I* Named Notifications : '%s' id: '%s' msg : '%s'\n", names, title, msg);
+	char c;
+	while(( c=*names++ )){
+		for( struct notification *n = cfg.notiflist; n; n = n->next){
+			if(c == n->id){
+				if(n->url)
+					psendSMS( n->url, msg );
+				if(n->cmd)
+					pAlertCmd( n->cmd, title, msg );
+				break;
+			}
+		}
+	}
+}
+
 void rcv_nnotification(const char *names, const char *msg){
 	char *id = strchr(names, '/');
 
@@ -200,21 +221,8 @@ void rcv_nnotification(const char *names, const char *msg){
 		if(verbose)
 			printf("*W* topic '%s' : No name provided, message ignored\n", names);
 	} else {
-		char c;
 		*id++ = 0;
-		if(verbose)
-			printf("*I* Notifications named : '%s' id: '%s' msg : '%s'\n", names, id, msg);
-		while(( c=*names++ )){
-			for( struct notification *n = cfg.notiflist; n; n = n->next){
-				if(c == n->id){
-					if(n->url)
-						psendSMS( n->url, msg );
-					if(n->cmd)
-						pAlertCmd( n->cmd, id, msg );
-					break;
-				}
-			}
-		}
+		pnNotify(names, id, msg);
 	}
 }
 
