@@ -160,7 +160,7 @@ static int lmVersion(lua_State *L){
 static const struct luaL_reg MarcelLib [] = {
 	{"SendMessage", lmSendMsg},
 	{"RiseAlert", lmRiseAlert},		/* ... and send only a mail */
-	{"RiseAlert", lmRiseAlertSMS},	/* ... and send both a mail and a SMS */
+	{"RiseAlertSMS", lmRiseAlertSMS},	/* ... and send both a mail and a SMS */
 	{"ClearAlert", lmClearAlert},
 	{"MQTTPublish", lmPublish},
 	{"Hostname", lmHostname},
