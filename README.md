@@ -78,14 +78,14 @@ Named notifications are declared using `$alert=` configuration directive as
     SMSUrl=http://api.pushingbox.com/pushingbox?devid=xxxxxxxxxxx&msg=%s
     AlertCommand=mail -s "%t%" mail@domain.com
 
-The argument of the section, an single character, is the **name** of the alert. In the example above, it's '**N**'.
-It has to be followed with an **SMSUrl=** or **AlertCommand=** describing the action(s) to do. Have a look on provided *Marcel.conf* to see the syntax use. Notez-bien, both directives can be present and in this case, both action are done.
+The argument of the section, a single character, is the **name** of the alert. In the example above, it's '**N**'.
+It has to be followed with an **SMSUrl=** or **AlertCommand=** describing the action(s) to do. Have a look on provided *Marcel.conf* to see the syntax use. Notez-bien, both directives can be present and in this case, both actions are done.
 
 Named notifications are raised using
 * Lua's **Marcel.SendNamedMessage(** *names* **,** *title* **,** *Text* **)**
-* sending a message to `nNotification/`*names*`/`*title*
+* sending a message to `nNotification/`*names*`/`*title* topic.
 
-*names* is a string on which each and every characters correspond to a name of an alert to raise. As example, if *names*=`ABC` means that alerts **A**, **B** and **C** will be send.
+*names* is a string on which each and every characters correspond to the name of an alert to raise. As example, if *names*=`ABC` means that alerts **A**, **B** and **C** will be sent.
 
 #Side note#
 The name is a tribute to my late rabbit that passed away some days before I did started this project : he stayed at home as keeper. RIP.
