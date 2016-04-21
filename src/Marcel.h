@@ -6,6 +6,7 @@
  *
  * 08/07/2015	- LF - start v2.0 - make source modular
  * 20/03/2016	- LF - add named notification handling
+ * 21/04/2016	- LF - add errortopic for DPD
  */
 
 #ifndef MARCEL_H
@@ -16,7 +17,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 
-#define VERSION "4.6"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "4.7"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -79,6 +80,7 @@ union CSection {
 		int sample;			/* Timeout */
 		pthread_t thread;
 		const char *topic;	/* Topic to wait data from */
+		const char *errtopic;	/* Topic to publish error to */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
 		const char *errorid;	/* Error's name */

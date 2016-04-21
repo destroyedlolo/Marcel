@@ -67,22 +67,31 @@ void *process_DPD(void *actx){
 		case 0:	/* timeout */
 			if(verbose)
 				printf("*I* timeout for DPD '%s'\n", ctx->errorid);
-			if( !ctx->inerror ){
-				char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
-				const char *msg_info = "SNo data received after %d seconds";
-				char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
-				int msg_len;
+			if( !ctx->inerror ){	/* Entering in error */
+				if(!ctx->errtopic){		/* No error topic defined : sending an alert */
+					char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
+					const char *msg_info = "SNo data received after %d seconds";
+					char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
 
-				strcpy( topic, "Alert/" );
-				strcat( topic, ctx->errorid );
-
-				msg_len = sprintf( msg, msg_info, ctx->sample );
-
-				if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS ){
-					if(verbose)
-						printf("*I* Alert raises for DPD '%s'\n", ctx->errorid);
+					strcpy( topic, "Alert/" );
+					strcat( topic, ctx->errorid );
+					int msg_len = sprintf( msg, msg_info, ctx->sample );
+					if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
 						ctx->inerror = 1;
-					}
+
+				} else {	/* Error topic defined */
+					char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
+					const char *msg_info = "No data received after %d seconds";
+					char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
+
+					sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
+					int msg_len = sprintf( msg, msg_info, ctx->sample );
+					if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
+						ctx->inerror = 1;
+				}
+
+				if(verbose)
+					printf("*I* Alert raises for DPD '%s'\n", ctx->errorid);
 			}
 			break;
 		default:{	/* Got some data

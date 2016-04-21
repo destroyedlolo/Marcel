@@ -416,6 +416,16 @@ static void read_configuration( const char *fch){
 			assert( last_section->common.topic = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tTopic : '%s'\n", last_section->common.topic);
+		} else if((arg = striKWcmp(l,"ErrorTopic="))){
+			if(!last_section ||
+				last_section->common.section_type != MSEC_DEADPUBLISHER
+			){
+				fputs("*F* Configuration issue : ErrorTopic directive outside DPD section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			assert( last_section->DeadPublisher.errtopic = strdup( removeLF(arg) ));
+			if(verbose)
+				printf("\tError Topic : '%s'\n", last_section->DeadPublisher.errtopic);
 		} else if((arg = striKWcmp(l,"City="))){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_METEO3H &&
