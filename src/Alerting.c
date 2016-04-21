@@ -19,19 +19,61 @@
 
 struct DList alerts;
 
-static void psendSMS(const char *url, const char *msg ){
+static void psendSMS(const char *url, const char *title, const char *msg ){
 	if(!url)
 		return;
 
 	CURL *curl;
 
 	if((curl = curl_easy_init())){
-		CURLcode res;
-		char *emsg;
-		char aurl[ strlen(url) + strlen( emsg=curl_easy_escape(curl,msg,0) ) ];	/* room for \0 provided by the %s replacement */
+			/* Calculate the number of replacement to do */
+		size_t nbrem = 0, nbret = 0;
+		const char *p = url;
+		while((p = strstr(p, "%m%"))){	/* Messages */
+			nbrem++;
+			p += 3;	/* add '%m%' length */
+		}
 
-		sprintf( aurl, url, emsg );
+		p = url;
+		while((p = strstr(p, "%t%"))){	/* Title */
+			nbret++;
+			p += 3;	/* add '%t%' length */
+		}
+
+		CURLcode res;
+		char *emsg, *etitle;
+		char aurl[ strlen(url) + 
+			nbrem * strlen( emsg=curl_easy_escape(curl,msg,0) ) +
+			nbret * strlen( etitle=curl_easy_escape(curl,title,0) ) + 1
+		];
+
+		char *d = aurl;
+		p = url;
+
+		while(*p){
+			const char *what = NULL;
+
+			if(*p =='%'){	/* Is it a token to replace ? */
+				if(!strncmp(p, "%t%",3))
+					what = etitle;
+				else if(!strncmp(p, "%m%",3))
+					what = emsg;
+			}
+
+			if(what){	/* we got a token */
+				for(const char *s = what; *s; s++)
+					if(*s =='"')
+						*d++ = '\'';
+					else
+						*d++ = *s;
+				p += 3;
+			} else	/* not a token ... copying */
+				*d++ = *p++;
+		}
+		*d = 0;
+
 		curl_free(emsg);
+		curl_free(etitle);
 
 		curl_easy_setopt(curl, CURLOPT_URL, aurl);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -43,8 +85,8 @@ static void psendSMS(const char *url, const char *msg ){
 	}
 }
 
-static void sendSMS( const char *msg ){
-	psendSMS( cfg.SMSurl, msg );
+static void sendSMS( const char *title, const char *msg ){
+	psendSMS( cfg.SMSurl, title, msg );
 }
 
 void pAlertCmd( const char *cmd, const char *id, const char *msg ){
@@ -140,7 +182,7 @@ void SendAlert(const char *id, const char *msg, int withSMS){
 	char smsg[ strlen(id) + strlen(msg) + 4 ];
 	sprintf( smsg, "%s : %s", id, msg );
 	if(withSMS)
-		sendSMS( smsg );
+		sendSMS( id, smsg );
 	AlertCmd( id, msg );
 
 	if(verbose)
@@ -164,7 +206,7 @@ void AlertIsOver(const char *id){
 	if(an){	/* The alert exists */
 		char smsg[ strlen(id) + 13];
 		sprintf( smsg, "%s : recovered", id );
-		sendSMS( smsg );
+		sendSMS( id, smsg );
 
 		if(verbose)
 			printf("*I* Alert cleared for '%s'\n", id);
@@ -186,7 +228,7 @@ void rcv_notification(const char *id, const char *msg){
 	char smsg[ strlen(id) + strlen(msg) + 4 ];
 	sprintf( smsg, "%s : %s", id, msg+1);
 	if(*msg == 'S')
-		sendSMS( smsg );
+		sendSMS( id, smsg );
 	AlertCmd( id, msg+1 );
 
 	if(verbose)
@@ -205,7 +247,7 @@ void pnNotify(const char *names, const char *title, const char *msg){
 		for( struct notification *n = cfg.notiflist; n; n = n->next){
 			if(c == n->id){
 				if(n->url)
-					psendSMS( n->url, msg );
+					psendSMS( n->url, title, msg );
 				if(n->cmd)
 					pAlertCmd( n->cmd, title, msg );
 				break;
