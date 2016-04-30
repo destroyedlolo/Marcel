@@ -1,11 +1,11 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.2 (May 30 2015 17:53:45) (c)LFSoft 1997
+# LFMakeMaker 1.3 (Apr 13 2016 21:34:06) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -O2 -DFREEBOX -DUPS -DMETEO -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99
+cc=gcc -Wall -O2 -DRFXTRX -DFREEBOX -DUPS -DMETEO -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99
 
 Alerting.o : Alerting.c Marcel.h Alerting.h DList.h Makefile 
 	$(cc) -c -o Alerting.o Alerting.c 
@@ -27,7 +27,8 @@ Lua.o : Lua.c Marcel.h Alerting.h DList.h MQTT_tools.h Makefile
 	$(cc) -c -o Lua.o Lua.c 
 
 Marcel.o : Marcel.c Marcel.h Freebox.h UPS.h DeadPublisherDetection.h \
-  MQTT_tools.h Alerting.h DList.h Every.h Meteo.h Makefile 
+  MQTT_tools.h Alerting.h DList.h Every.h Meteo.h RFXtrx_marcel.h \
+  Makefile 
 	$(cc) -c -o Marcel.o Marcel.c 
 
 Meteo.o : Meteo.c Meteo.h Marcel.h MQTT_tools.h Makefile 
@@ -36,12 +37,17 @@ Meteo.o : Meteo.c Meteo.h Marcel.h MQTT_tools.h Makefile
 MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c 
 
+RFXtrx_marcel.o : RFXtrx_marcel.c RFXtrx_marcel.h Marcel.h Makefile 
+	$(cc) -c -o RFXtrx_marcel.o RFXtrx_marcel.c 
+
 UPS.o : UPS.c UPS.h Marcel.h MQTT_tools.h Makefile 
 	$(cc) -c -o UPS.o UPS.c 
 
-../Marcel : UPS.o MQTT_tools.o Meteo.o Marcel.o Lua.o Freebox.o \
-  Every.o DList.o DeadPublisherDetection.o Alerting.o Makefile 
-	 $(cc) -o ../Marcel UPS.o MQTT_tools.o Meteo.o Marcel.o Lua.o \
-  Freebox.o Every.o DList.o DeadPublisherDetection.o Alerting.o 
+../Marcel : UPS.o RFXtrx_marcel.o MQTT_tools.o Meteo.o Marcel.o Lua.o \
+  Freebox.o Every.o DList.o DeadPublisherDetection.o Alerting.o \
+  Makefile 
+	 $(cc) -o ../Marcel UPS.o RFXtrx_marcel.o MQTT_tools.o Meteo.o \
+  Marcel.o Lua.o Freebox.o Every.o DList.o DeadPublisherDetection.o \
+  Alerting.o 
 
 all: ../Marcel 

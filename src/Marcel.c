@@ -46,6 +46,7 @@
  *	24/02/2016	- LF - 4.5 - Add Notifications
  *	20/03/2016	- LF - 4.6 - Add named notifications
  *							- Can work without sections (Marcel acts as alerting relay)
+ *	29/04/2016	- LF - 4.7 - Add RFXtrx support
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -55,6 +56,7 @@
 #include "Alerting.h"
 #include "Every.h"
 #include "Meteo.h"
+#include "RFXtrx_marcel.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -157,6 +159,8 @@ static void read_configuration( const char *fch){
 
 	cfg.luascript = NULL;
 
+	cfg.RFXdevice = NULL;
+
 	cfg.SMSurl = NULL;
 	cfg.AlertCmd= NULL;
 	cfg.notiflist=NULL;
@@ -201,11 +205,21 @@ static void read_configuration( const char *fch){
 				if(verbose)
 					printf("Alert Command : '%s'\n", cfg.AlertCmd);
 			}
-#ifdef LUA
+		} else if((arg = striKWcmp(l,"RFXtrx_Port="))){
+#ifdef RFXTRX
+			assert( cfg.RFXdevice = strdup( removeLF(arg) ) );
+			if(verbose)
+				printf("RFXtrx's device : '%s'\n", cfg.RFXdevice);
+#else
+			fputs("*E* RFXtrx_Port defined without RFXtrx support enabled\n", stderr);
+#endif
 		} else if((arg = striKWcmp(l,"UserFuncScript="))){
+#ifdef LUA
 			assert( cfg.luascript = strdup( removeLF(arg) ) );
 			if(verbose)
 				printf("User functions definition script : '%s'\n", cfg.luascript);
+#else
+			fputs("*E* UserFuncScript defined without Lua support enabled\n", stderr);
 #endif
 		} else if((arg = striKWcmp(l,"$alert="))){
 			struct notification *n = malloc( sizeof(struct notification) );
@@ -676,6 +690,9 @@ int main(int ac, char **av){
 	init_alerting();
 #ifdef LUA
 	init_Lua( conf_file );
+#endif
+#ifdef RFXTRX
+	init_RFX();
 #endif
 
 		/* Creating childs */
