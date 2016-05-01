@@ -20,6 +20,8 @@
 #include <unistd.h>	/* read(), write() */
 #include <string.h>	/* memset() */
 #include <assert.h>
+#include <signal.h>
+#include <setjmp.h>
 
 typedef uint8_t BYTE;	/* Compatibility */
 #include "RFXtrx.h"
@@ -85,6 +87,10 @@ int readRFX( int fd ){
  * Note : there is no need to lock the FD as it only used before any other
  * threads are created.
  */
+static jmp_buf env_alarm;
+static void sig_alarm(int signo){
+    longjmp(env_alarm, 1);
+}
 
 void init_RFX(){
 	if(!cfg.RFXdevice)
@@ -122,10 +128,21 @@ void init_RFX(){
 		return;
 	}
 
-	clearbuff( 0x0d );
+	assert( signal(SIGALRM, sig_alarm) != SIG_ERR );
+	if(setjmp(env_alarm) != 0){
+		close(fd);
+		cfg.RFXdevice = NULL;
+		fputs("*E* Timeout during RFXtrx initialisation\n"
+			"*E* RFXtrx disabled.\n", stderr);
+		return;
+	}
+
+	alarm(10);	/* The initialisation has to be done within 10s */
+
+	clearbuff( 0x0d );	/* Sending reset */
 	dumpbuff();
 	if(writeRFX(fd) == -1){
-		perror("RFX write()");
+		perror("RFX reset write()");
 		close(fd);
 		cfg.RFXdevice = NULL;
 		fputs("*E* RFXtrx disabled.\n", stderr);
@@ -135,6 +152,50 @@ void init_RFX(){
 		puts("*I* RFXtrx reset sent");
 	sleep(1);
 	tcflush( fd, TCIFLUSH );	/* Clear input buffer */
+
+	clearbuff( 0x0d );	/* Get Status command */
+	buff.ICMND.packettype = pTypeInterfaceControl;
+	buff.ICMND.subtype = sTypeInterfaceCommand;
+	buff.ICMND.seqnbr = 1;
+	buff.ICMND.cmnd = cmdSTATUS;
+	dumpbuff();
+	if(writeRFX(fd) == -1){
+		perror("RFX GET STATUS write()");
+		close(fd);
+		cfg.RFXdevice = NULL;
+		fputs("*E* RFXtrx disabled.\n", stderr);
+		return;
+	}
+	if(verbose)
+		puts("*I* RFXtrx GET STATUS sent");
+	
+	if(!readRFX(fd)){
+		perror("RFX Reading status");
+		close(fd);
+		cfg.RFXdevice = NULL;
+		fputs("*E* RFXtrx disabled.\n", stderr);
+		return;
+	} else {
+		dumpbuff();
+	}
+
+	clearbuff( 0x0d );	/* Start command */
+	buff.ICMND.packettype = pTypeInterfaceControl;
+	buff.ICMND.subtype = sTypeInterfaceCommand;
+	buff.ICMND.seqnbr = 2;
+	buff.ICMND.cmnd = sTypeRecStarted;
+	dumpbuff();
+	if(writeRFX(fd) == -1){
+		perror("RFX START write()");
+		close(fd);
+		cfg.RFXdevice = NULL;
+		fputs("*E* RFXtrx disabled.\n", stderr);
+		return;
+	}
+	if(verbose)
+		puts("*I* RFXtrx GET STATUS sent");
+
+	alarm(0);	/* Initialisation is over */
 
 	pthread_mutex_init( &oneTRXcmd, NULL );
 }
