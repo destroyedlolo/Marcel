@@ -115,7 +115,7 @@ union CSection {
 		pthread_t thread;	/* Child to handle this section */
 		const char *topic;	/* Topic to wait data from */
 		uint32_t id;		/* ID corresponding to this device */
-	} RTScmd;
+	} RTSCmd;
 };
 
 struct notification {	/* Storage for named notification */

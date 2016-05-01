@@ -333,7 +333,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				puts("Entering section 'Meteo Daily");
+				puts("Entering section 'Meteo Daily'");
 		} else if((arg = striKWcmp(l,"*DPD="))){
 			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
 			assert(n);
@@ -352,6 +352,22 @@ static void read_configuration( const char *fch){
 
 			if(verbose)
 				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.errorid);
+		} else if((arg = striKWcmp(l,"*RTSCmd="))){
+			union CSection *n = malloc( sizeof(struct _RTSCmd) );
+			assert(n);
+			memset(n, 0, sizeof(struct _RTSCmd));
+			n->common.section_type = MSEC_RTSCMD;
+
+			n->RTSCmd.id = strtol(arg, NULL, 0);
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+
+			if(verbose)
+				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.id);
 		} else if(!strcmp(l,"DPDLast\n")){	/* DPD grouped at the end of the configuration file */
 			cfg.DPDlast = 1;
 			if(verbose)
@@ -417,6 +433,10 @@ static void read_configuration( const char *fch){
 		} else if((arg = striKWcmp(l,"Sample="))){
 			if(!last_section){
 				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			if(last_section->common.section_type == MSEC_RTSCMD){
+				fputs("*F* Configuration issue : Sample directive isn't compatible with RTSCmd section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 			last_section->common.sample = atoi( arg );
