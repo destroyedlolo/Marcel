@@ -47,6 +47,7 @@
  *	20/03/2016	- LF - 4.6 - Add named notifications
  *							- Can work without sections (Marcel acts as alerting relay)
  *	29/04/2016	- LF - 4.7 - Add RFXtrx support
+ *	01/05/2016	- LF - DPD* replaced by Sub*
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -153,9 +154,9 @@ static void read_configuration( const char *fch){
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.ClientID = "Marcel";
 	cfg.client = NULL;
-	cfg.DPDlast = 0;
+	cfg.Sublast = 0;
 	cfg.ConLostFatal = 0;
-	cfg.first_DPD = NULL;
+	cfg.first_Sub = NULL;
 
 	cfg.luascript = NULL;
 
@@ -347,8 +348,8 @@ static void read_configuration( const char *fch){
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
-			if(!cfg.first_DPD)
-				cfg.first_DPD = n;
+			if(!cfg.first_Sub)
+				cfg.first_Sub = n;
 
 			if(verbose)
 				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.errorid);
@@ -369,7 +370,7 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.id);
 		} else if(!strcmp(l,"DPDLast\n") || !strcmp(l,"SubLast\n")){	/* Subscriptions are grouped at the end of the configuration file */
-			cfg.DPDlast = 1;
+			cfg.Sublast = 1;
 			if(verbose)
 				puts("Subscriptions (DPD, RTSCmd) sections are grouped at the end of the configuration");
 		} else if(!strcmp(l,"ConnectionLostIsFatal\n")){	/* Crash if the broker connection is lost */
@@ -509,7 +510,7 @@ static void read_configuration( const char *fch){
 	 * Broker related functions
 	 */
 static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
-	union CSection *DPD = cfg.DPDlast ? cfg.first_DPD : cfg.sections;
+	union CSection *Sec = cfg.Sublast ? cfg.first_Sub : cfg.sections;
 	const char *aid;
 	char payload[msg->payloadlen + 1];
 
@@ -525,16 +526,16 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		rcv_notification( aid, payload );
 	else if((aid = striKWcmp(topic,"nNotification/")))
 		rcv_nnotification( aid, payload );
-	else for(; DPD; DPD = DPD->common.next){
-		if(DPD->common.section_type != MSEC_DEADPUBLISHER)
+	else for(; Sec; Sec = Sec->common.next){
+		if(Sec->common.section_type != MSEC_DEADPUBLISHER)
 			continue;
-		if(!mqtttokcmp(DPD->DeadPublisher.topic, topic)){	/* Topic found */
+		if(!mqtttokcmp(Sec->DeadPublisher.topic, topic)){	/* Topic found */
 			uint64_t v = 1;
-			if(write( DPD->DeadPublisher.rcv, &v, sizeof(v) ) == -1)	/* Signal it */
+			if(write( Sec->DeadPublisher.rcv, &v, sizeof(v) ) == -1)	/* Signal it */
 				perror("eventfd to signal message reception");
 
 #ifdef LUA
-			execUserFuncDeadPublisher( &(DPD->DeadPublisher), topic, payload );
+			execUserFuncDeadPublisher( &(Sec->DeadPublisher), topic, payload );
 #endif
 		}
 	}

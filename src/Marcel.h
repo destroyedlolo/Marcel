@@ -8,6 +8,7 @@
  * 20/03/2016	- LF - add named notification handling
  * 21/04/2016	- LF - add errortopic for DPD
  * 29/04/2016	- LF - add support for RFXtrx
+ * 01/05/2016	- LF - Rename all DPD* as Sub*
  */
 
 #ifndef MARCEL_H
@@ -130,9 +131,9 @@ extern struct Config {
 	const char *Broker;		/* Broker's URL */
 	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
 	MQTTClient client;
-	int DPDlast;			/* Dead Publisher Detect are grouped at the end of sections list */
+	int Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
 	int ConLostFatal;		/* Die if broker connection is lost */
-	union CSection *first_DPD;	/* Pointer to the first DPD */
+	union CSection *first_Sub;	/* Pointer to the first subscription */
 	const char *luascript;	/* file containing Lua functions */
 		/* Single alert / notification */
 	const char *SMSurl;		/* Where to send SMS */
