@@ -366,6 +366,8 @@ static void read_configuration( const char *fch){
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
+			if(!cfg.first_Sub)
+				cfg.first_Sub = n;
 
 			if(verbose)
 				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.id);
@@ -527,16 +529,19 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 	else if((aid = striKWcmp(topic,"nNotification/")))
 		rcv_nnotification( aid, payload );
 	else for(; Sec; Sec = Sec->common.next){
-		if(Sec->common.section_type != MSEC_DEADPUBLISHER)
-			continue;
-		if(!mqtttokcmp(Sec->DeadPublisher.topic, topic)){	/* Topic found */
-			uint64_t v = 1;
-			if(write( Sec->DeadPublisher.rcv, &v, sizeof(v) ) == -1)	/* Signal it */
-				perror("eventfd to signal message reception");
+		if(Sec->common.section_type == MSEC_DEADPUBLISHER){
+			if(!mqtttokcmp(Sec->DeadPublisher.topic, topic)){	/* Topic found */
+				uint64_t v = 1;
+				if(write( Sec->DeadPublisher.rcv, &v, sizeof(v) ) == -1)	/* Signal it */
+					perror("eventfd to signal message reception");
 
 #ifdef LUA
-			execUserFuncDeadPublisher( &(Sec->DeadPublisher), topic, payload );
+				execUserFuncDeadPublisher( &(Sec->DeadPublisher), topic, payload );
 #endif
+			}
+		} else if(Sec->common.section_type == MSEC_RTSCMD){
+			if(!mqtttokcmp(Sec->RTSCmd.topic, topic))	/* Topic found */
+				processRTSCmd( &(Sec->RTSCmd), payload );
 		}
 	}
 

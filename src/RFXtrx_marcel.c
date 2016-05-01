@@ -15,7 +15,6 @@
 #include "RFXtrx_marcel.h"
 
 #include <termios.h>
-#include <stdint.h>	/* uint8_t */
 #include <fcntl.h>	/* open() */
 #include <unistd.h>	/* read(), write() */
 #include <string.h>	/* memset() */
@@ -34,7 +33,7 @@ pthread_mutex_t oneTRXcmd;	/* One command can be send at a time */
  */
 
 #ifdef DEBUG
-status void dumpbuff(){
+static void dumpbuff(){
 	int i;
 	printf("buff.ICMND.packetlength = %02x", buff.ICMND.packetlength);
 	printf("\nbuff.ICMND.packettype = %02x\n", buff.ICMND.packettype);
@@ -58,7 +57,7 @@ inline ssize_t writeRFX( int fd ){
 	return write( fd, &buff, buff.ICMND.packetlength +1 );
 }
 
-int readRFX( int fd ){
+static int readRFX( int fd ){
 	BYTE *p = &buff.ICMND.packetlength;
 	ssize_t n2read;	/* Number of bytes to read */
 
@@ -193,11 +192,65 @@ void init_RFX(){
 		return;
 	}
 	if(verbose)
-		puts("*I* RFXtrx GET STATUS sent");
+		puts("*I* RFXtrx START COMMAND sent");
 
+	if(!readRFX(fd)){
+		perror("RFX Reading status");
+		close(fd);
+		cfg.RFXdevice = NULL;
+		fputs("*E* RFXtrx disabled.\n", stderr);
+		return;
+	} else {
+		dumpbuff();
+	}
+
+	close(fd);
 	alarm(0);	/* Initialisation is over */
 
-	pthread_mutex_init( &oneTRXcmd, NULL );
+
+pthread_mutex_init( &oneTRXcmd, NULL );
 }
 
+void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
+	BYTE cmd;
+	int fd;
+
+	if(!strcmp(msg,"Stop") || !strcmp(msg,"My"))
+		cmd = rfy_sStop;
+	else if(!strcmp(msg,"Up"))
+		cmd = rfy_sUp;
+	else if(!strcmp(msg,"Down"))
+		cmd = rfy_sDown;
+	else {
+		fprintf(stderr, "*E* RTS unsupported command : '%s'\n", msg);
+		return;
+	}
+		
+	if((fd = open (cfg.RFXdevice, O_RDWR | O_NOCTTY | O_SYNC)) < 0 ){
+		perror("RFX open()");
+		return;
+	}
+
+	pthread_mutex_lock( &oneTRXcmd );
+	clearbuff( 0x0c );
+	buff.RFY.packettype = pTypeRFY;
+	buff.RFY.subtype = sTypeRFY;
+	buff.RFY.seqnbr = 0;
+	buff.RFY.id1 = ctx->id >> 24;
+	buff.RFY.id2 = (ctx->id >> 16) & 0xff;
+	buff.RFY.id3 = (ctx->id >> 8) & 0xff;
+	buff.RFY.unitcode = ctx->id & 0xff;
+	buff.RFY.cmnd = cmd;
+	dumpbuff();
+	if(writeRFX(fd) == -1)
+		perror("RFX Cmd write()");
+	else if(!readRFX(fd))
+		perror("RFX Reading status");
+
+	pthread_mutex_unlock( &oneTRXcmd );
+	close(fd);
+
+	if(verbose)
+		printf("*I* Sending '%s' (%d) command to %04x\n", msg, cmd, ctx->id);
+}
 #endif

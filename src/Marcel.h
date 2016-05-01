@@ -20,7 +20,7 @@
 #include <MQTTClient.h> /* PAHO library needed */ 
 #include <stdint.h>		/* uint*_t */
 
-#define VERSION "4.8b"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "4.8"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */

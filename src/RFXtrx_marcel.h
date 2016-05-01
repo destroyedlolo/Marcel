@@ -8,13 +8,14 @@
  */
 
 #ifndef RFXTRX_MARCEL_H
-#define RFXTRX_MARCEL_H
+#	define RFXTRX_MARCEL_H
 
-#ifdef RFXTRX
+#	ifdef RFXTRX
 
 #include "Marcel.h"
 
 extern void init_RFX(void);
+extern void processRTSCmd( struct _RTSCmd *, const char *);
 
-#endif
+#	endif
 #endif
