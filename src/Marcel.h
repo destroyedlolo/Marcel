@@ -17,6 +17,7 @@
 
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
+#include <stdint.h>		/* uint*_t */
 
 #define VERSION "4.8b"	/* Need to stay numerique as exposed to Lua */
 
@@ -33,7 +34,8 @@ enum _tp_msec {
 	MSEC_DEADPUBLISHER,	/* alarm on missing MQTT messages */
 	MSEC_EVERY,			/* Launch a function at given interval */
 	MSEC_METEO3H,		/* 3H meteo */
-	MSEC_METEOD			/* Daily meteo */
+	MSEC_METEOD,		/* Daily meteo */
+	MSEC_RTSCMD			/* Somfy RTS commands */
 };
 
 struct var {	/* Storage for var list */
@@ -45,31 +47,31 @@ union CSection {
 	struct {	/* Fields common to all sections */
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;
 		pthread_t thread;	/* Child to handle this section */
 		const char *topic;
+		int sample;
 	} common;
 	struct _FFV {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;			/* delay b/w 2 samples */
 		pthread_t thread;
 		const char *topic;	/* Topic to publish to */
+		int sample;			/* delay b/w 2 samples */
 		const char *file;	/* File containing the data to read */
 	} FFV;
 	struct _FreeBox {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;			/* delay b/w 2 samples */
 		pthread_t thread;	
 		const char *topic;	/* Root of the topics to publish to */
+		int sample;			/* delay b/w 2 samples */
 	} FreeBox;
 	struct _UPS {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;			/* delay b/w 2 samples */
 		pthread_t thread;
 		const char *topic;	/* Root of the topics to publish to */
+		int sample;			/* delay b/w 2 samples */
 		const char *section_name;	/* Name of the UPS as defined in NUT */
 		const char *host;	/* NUT's server */
 		int port;			/* NUT's port */
@@ -78,9 +80,9 @@ union CSection {
 	struct _DeadPublisher {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;			/* Timeout */
 		pthread_t thread;
 		const char *topic;	/* Topic to wait data from */
+		int sample;			/* Timeout */
 		const char *errtopic;	/* Topic to publish error to */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
@@ -91,22 +93,29 @@ union CSection {
 	struct _Every {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;			/* Delay b/w launches */
 		pthread_t thread;
 		const char *name;	/* Name of the section, passed to Lua function */
+		int sample;			/* Delay b/w launches */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 	} Every;
 	struct _Meteo {
 		union CSection *next;
 		enum _tp_msec section_type;
-		int sample;			/* Delay b/w 2 queries */
 		pthread_t thread;	/* Child to handle this section */
 		const char *topic;	/* Root of the topics to publish to */
+		int sample;			/* Delay b/w 2 queries */
 		const char *City;	/* CityName,Country to query */
 		const char *Units;	/* Result's units */
 		const char *Lang;	/* Result's language */
 	} Meteo;
+	struct _RTSCmd {
+		union CSection *next;
+		enum _tp_msec section_type;
+		pthread_t thread;	/* Child to handle this section */
+		const char *topic;	/* Topic to wait data from */
+		uint32_t id;		/* ID corresponding to this device */
+	} RTScmd;
 };
 
 struct notification {	/* Storage for named notification */
