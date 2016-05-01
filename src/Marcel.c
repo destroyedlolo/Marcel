@@ -368,10 +368,10 @@ static void read_configuration( const char *fch){
 
 			if(verbose)
 				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.id);
-		} else if(!strcmp(l,"DPDLast\n")){	/* DPD grouped at the end of the configuration file */
+		} else if(!strcmp(l,"DPDLast\n") || !strcmp(l,"SubLast\n")){	/* Subscriptions are grouped at the end of the configuration file */
 			cfg.DPDlast = 1;
 			if(verbose)
-				puts("Dead Publisher Detect (DPD) sections are grouped at the end of the configuration");
+				puts("Subscriptions (DPD, RTSCmd) sections are grouped at the end of the configuration");
 		} else if(!strcmp(l,"ConnectionLostIsFatal\n")){	/* Crash if the broker connection is lost */
 			cfg.ConLostFatal = 1;
 			if(verbose)
@@ -796,6 +796,17 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}			
+			break;
+#endif
+#ifdef RFXTRX
+		case MSEC_RTSCMD:
+			if(!s->common.topic){
+				fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+			} else if(cfg.RFXdevice){
+				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
+					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
+				}
+			}
 			break;
 #endif
 		default :	/* Ignore unsupported type */
