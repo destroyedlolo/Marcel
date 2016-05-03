@@ -47,7 +47,7 @@
  *	20/03/2016	- LF - 4.6 - Add named notifications
  *							- Can work without sections (Marcel acts as alerting relay)
  *	29/04/2016	- LF - 4.7 - Add RFXtrx support
- *	01/05/2016	- LF - DPD* replaced by Sub*
+ *	01/05/2016	- LF - 		DPD* replaced by Sub*
  */
 #include "Marcel.h"
 #include "Freebox.h"
