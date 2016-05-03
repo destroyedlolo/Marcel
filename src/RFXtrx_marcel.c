@@ -221,6 +221,8 @@ void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 		cmd = rfy_sUp;
 	else if(!strcmp(msg,"Down"))
 		cmd = rfy_sDown;
+	else if(!strcmp(msg,"Program"))
+		cmd = rfy_sProgram;
 	else {
 		fprintf(stderr, "*E* RTS unsupported command : '%s'\n", msg);
 		return;
