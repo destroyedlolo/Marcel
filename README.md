@@ -44,7 +44,7 @@ Following methods are exposed to Lua code through **Marcel** object :
 
 * **Marcel.Hostname()** : As the name said, host's name
 * **Marcel.ClientID()** : Configured MQTT client id
-* **Marcel.Version()** : Marcel's version (*have a look on **scripts/AllVerif.lua** for an usage example*)
+* **Marcel.Version()** : Marcel's version (have a look on **scripts/AllVerif.lua** for an usage example)
 
 **Notez-bien :** Marcel is able run only **one Lua function at once**. Consequently, your functions have to be as fast as possible.
 
