@@ -208,7 +208,7 @@ void init_RFX(){
 	alarm(0);	/* Initialisation is over */
 
 
-pthread_mutex_init( &oneTRXcmd, NULL );
+	pthread_mutex_init( &oneTRXcmd, NULL );
 }
 
 void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
