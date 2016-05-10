@@ -17,6 +17,8 @@
 #include <unistd.h>		/* sleep() */
 #include <json-c/json.h>
 
+static short int doy=-1;	/* Day of the year ... do we switched to another day ? */
+
 	/* Curl's
 	 * Storing downloaded information in memory
 	 * From http://curl.haxx.se/libcurl/c/getinmemory.html example
@@ -224,6 +226,8 @@ static void MeteoD(struct _Meteo *ctx){
 
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEOD) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
+		/* Note : URLMETEOD _has_ to be longer than URLMETEOCUR */
+
 		CURLcode res;
 		struct MemoryStruct chunk;
 
@@ -339,6 +343,50 @@ static void MeteoD(struct _Meteo *ctx){
 			json_object_put(jobj);
 		} else
 			fprintf(stderr, "*E* Querying meteo : %s\n", curl_easy_strerror(res));
+
+			/* Check if we switched to another day */
+		time_t now;
+		struct tm tmt;
+		time(&now);
+		localtime_r(&now, &tmt);
+		if(doy != tmt.tm_yday){
+			doy = tmt.tm_yday;
+
+			if(verbose)
+				puts("*D* Querying current meteo");
+
+			free(chunk.memory);
+			chunk.memory = malloc(1);
+			chunk.size = 0;
+			
+			sprintf(url, URLMETEOCUR, ctx->City, ctx->Units, ctx->Lang);
+			curl_easy_setopt(curl, CURLOPT_URL, url);
+
+			if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
+				json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
+				if(jerr != json_tokener_success)
+					fprintf(stderr, "*E* Querying current meteo : %s\n", json_tokener_error_desc(jerr));
+				else {
+					struct json_object *wsys = json_object_object_get( jobj, "sys");
+					if(wsys){
+						char l[MAXLINE];
+
+						struct json_object *wdt = json_object_object_get(wsys, "sunrise");
+						int lm = sprintf(l, "%s/sunrise", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%u", json_object_get_int(wdt));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+						
+						wdt = json_object_object_get(wsys, "sunset");
+						lm = sprintf(l, "%s/sunrise", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						sprintf( l+lm, "%u", json_object_get_int(wdt));
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+					}
+					json_object_put(jobj);
+				}
+			}
+		}
 
 			/* Cleanup */
 		curl_easy_cleanup(curl);
