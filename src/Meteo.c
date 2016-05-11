@@ -370,17 +370,34 @@ static void MeteoD(struct _Meteo *ctx){
 					struct json_object *wsys = json_object_object_get( jobj, "sys");
 					if(wsys){
 						char l[MAXLINE];
-
 						struct json_object *wdt = json_object_object_get(wsys, "sunrise");
+						now = json_object_get_int(wdt);
+
 						int lm = sprintf(l, "%s/sunrise", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );
-						sprintf( l+lm, "%u", json_object_get_int(wdt));
+						localtime_r(&now, &tmt);
+						sprintf( l+lm, "%02u:%02u", tmt.tm_hour, tmt.tm_min);
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+						
+						lm = sprintf(l, "%s/sunrise/GMT", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						gmtime_r(&now, &tmt);
+						sprintf( l+lm, "%02u:%02u", tmt.tm_hour, tmt.tm_min);
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 						
 						wdt = json_object_object_get(wsys, "sunset");
-						lm = sprintf(l, "%s/sunrise", ctx->topic) + 2;
+						now = json_object_get_int(wdt);
+
+						lm = sprintf(l, "%s/sunset", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );
-						sprintf( l+lm, "%u", json_object_get_int(wdt));
+						localtime_r(&now, &tmt);
+						sprintf( l+lm, "%02u:%02u", tmt.tm_hour, tmt.tm_min);
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
+						
+						lm = sprintf(l, "%s/sunset/GMT", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );
+						gmtime_r(&now, &tmt);
+						sprintf( l+lm, "%02u:%02u", tmt.tm_hour, tmt.tm_min);
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 					}
 					json_object_put(jobj);
