@@ -377,6 +377,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _REST));
 			n->common.section_type = MSEC_REST;
+			n->REST.at = -1;
 
 			assert( n->REST.url = strdup( removeLF(arg) ));
 
@@ -442,9 +443,10 @@ static void read_configuration( const char *fch){
 		} else if((arg = striKWcmp(l,"Func="))){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_DEADPUBLISHER &&
-				last_section->common.section_type != MSEC_EVERY 
+				last_section->common.section_type != MSEC_EVERY &&
+				last_section->common.section_type != MSEC_REST
 			)){
-				fputs("*F* Configuration issue : Func directive outside a DPD or Every section\n", stderr);
+				fputs("*F* Configuration issue : Func directive outside a DPD, Every or REST section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 #ifndef LUA
@@ -454,6 +456,17 @@ static void read_configuration( const char *fch){
 			assert( last_section->DeadPublisher.funcname = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tFunction : '%s'\n", last_section->DeadPublisher.funcname);
+		} else if((arg = striKWcmp(l,"At="))){
+			if(!last_section || (
+				last_section->common.section_type != MSEC_REST
+			)){
+				fputs("*F* Configuration issue : At directive outside a REST section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+
+			last_section->REST.at = atoi( arg );
+			if(verbose)
+				printf("\tAt : '%d'\n", last_section->REST.at);
 		} else if((arg = striKWcmp(l,"Sample="))){
 			if(!last_section){
 				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
