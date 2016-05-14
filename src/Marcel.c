@@ -48,6 +48,7 @@
  *							- Can work without sections (Marcel acts as alerting relay)
  *	29/04/2016	- LF - 4.7 - Add RFXtrx support
  *	01/05/2016	- LF - 		DPD* replaced by Sub*
+ *	14/05/2016	- KF - 4.10 - Add REST section
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -371,6 +372,26 @@ static void read_configuration( const char *fch){
 
 			if(verbose)
 				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.id);
+		} else if((arg = striKWcmp(l,"*REST="))){
+			union CSection *n = malloc( sizeof(struct _REST) );
+			assert(n);
+			memset(n, 0, sizeof(struct _REST));
+			n->common.section_type = MSEC_REST;
+
+			assert( n->REST.url = strdup( removeLF(arg) ));
+
+#ifndef LUA
+			fputs("*F* REST section is only available when compiled with Lua support\n", stderr);
+			exit(EXIT_FAILURE);
+#endif
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(verbose)
+				printf("Entering section 'REST / %s'\n", n->REST.url );
 		} else if(!strcmp(l,"DPDLast\n") || !strcmp(l,"SubLast\n")){	/* Subscriptions are grouped at the end of the configuration file */
 			cfg.Sublast = 1;
 			if(verbose)

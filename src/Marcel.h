@@ -9,6 +9,7 @@
  * 21/04/2016	- LF - add errortopic for DPD
  * 29/04/2016	- LF - add support for RFXtrx
  * 01/05/2016	- LF - Rename all DPD* as Sub*
+ * 14/05/2016	- LF - add REST section
  */
 
 #ifndef MARCEL_H
@@ -20,7 +21,7 @@
 #include <MQTTClient.h> /* PAHO library needed */ 
 #include <stdint.h>		/* uint*_t */
 
-#define VERSION "4.9"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "4.10"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -36,7 +37,8 @@ enum _tp_msec {
 	MSEC_EVERY,			/* Launch a function at given interval */
 	MSEC_METEO3H,		/* 3H meteo */
 	MSEC_METEOD,		/* Daily meteo */
-	MSEC_RTSCMD			/* Somfy RTS commands */
+	MSEC_RTSCMD,		/* Somfy RTS commands */
+	MSEC_REST			/* REST query */
 };
 
 struct var {	/* Storage for var list */
@@ -100,6 +102,16 @@ union CSection {
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 	} Every;
+	struct _REST {
+		union CSection *next;
+		enum _tp_msec section_type;
+		pthread_t thread;	/* Child to handle this section */
+		const char *url;	/* URL to query */
+		int sample;			/* Delay b/w 2 queries */
+		const char *funcname;	/* Function to be called */
+		int funcid;			/* Function id in Lua registry */
+		int at;				/* at which time, the query has to be loved */
+	} REST;
 	struct _Meteo {
 		union CSection *next;
 		enum _tp_msec section_type;
