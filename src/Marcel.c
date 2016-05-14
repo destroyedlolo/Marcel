@@ -59,6 +59,7 @@
 #include "Every.h"
 #include "Meteo.h"
 #include "RFXtrx_marcel.h"
+#include "REST.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -806,7 +807,7 @@ int main(int ac, char **av){
 #endif
 		case MSEC_DEADPUBLISHER:
 			if(!s->common.topic){
-				fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+				fputs("*E* configuration error : no topic specified, ignoring this DPD section\n", stderr);
 			} else if(!*s->DeadPublisher.errorid){
 				fprintf(stderr, "*E* configuration error : no errorid specified for DPD '%s', ignoring this section\n", s->common.topic);
 			} else if(!s->common.sample && !s->DeadPublisher.funcname){
@@ -841,7 +842,7 @@ int main(int ac, char **av){
 #ifdef RFXTRX
 		case MSEC_RTSCMD:
 			if(!s->common.topic){
-				fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+				fputs("*E* configuration error : no topic specified, ignoring this RTSCmd section\n", stderr);
 			} else if(cfg.RFXdevice){
 				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
 					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
@@ -849,6 +850,16 @@ int main(int ac, char **av){
 			}
 			break;
 #endif
+		case MSEC_REST:
+			if(!s->REST.sample && s->REST.at == -1)
+				fputs("*E* REST without sample or \"At\" time is useless : ignoring ...\n", stderr);
+			else if(!s->REST.funcname)
+				fputs("*E* REST without function defined : ignoring ...\n", stderr);
+			else if(pthread_create( &(s->common.thread), &thread_attr, process_REST, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			break;
 		default :	/* Ignore unsupported type */
 			break;
 		}

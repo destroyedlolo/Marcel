@@ -28,7 +28,7 @@ Lua.o : Lua.c Marcel.h Alerting.h DList.h MQTT_tools.h Makefile
 
 Marcel.o : Marcel.c Marcel.h Freebox.h UPS.h DeadPublisherDetection.h \
   MQTT_tools.h Alerting.h DList.h Every.h Meteo.h RFXtrx_marcel.h \
-  Makefile 
+  REST.h Makefile 
 	$(cc) -c -o Marcel.o Marcel.c 
 
 Meteo.o : Meteo.c Meteo.h Marcel.h MQTT_tools.h Makefile 
@@ -37,17 +37,21 @@ Meteo.o : Meteo.c Meteo.h Marcel.h MQTT_tools.h Makefile
 MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c 
 
-RFXtrx_marcel.o : RFXtrx_marcel.c RFXtrx_marcel.h Marcel.h Makefile 
+REST.o : REST.c Every.h Marcel.h Makefile 
+	$(cc) -c -o REST.o REST.c 
+
+RFXtrx_marcel.o : RFXtrx_marcel.c RFXtrx_marcel.h Marcel.h RFXtrx.h \
+  Makefile 
 	$(cc) -c -o RFXtrx_marcel.o RFXtrx_marcel.c 
 
 UPS.o : UPS.c UPS.h Marcel.h MQTT_tools.h Makefile 
 	$(cc) -c -o UPS.o UPS.c 
 
-../Marcel : UPS.o RFXtrx_marcel.o MQTT_tools.o Meteo.o Marcel.o Lua.o \
-  Freebox.o Every.o DList.o DeadPublisherDetection.o Alerting.o \
+../Marcel : UPS.o RFXtrx_marcel.o REST.o MQTT_tools.o Meteo.o Marcel.o \
+  Lua.o Freebox.o Every.o DList.o DeadPublisherDetection.o Alerting.o \
   Makefile 
-	 $(cc) -o ../Marcel UPS.o RFXtrx_marcel.o MQTT_tools.o Meteo.o \
-  Marcel.o Lua.o Freebox.o Every.o DList.o DeadPublisherDetection.o \
-  Alerting.o 
+	 $(cc) -o ../Marcel UPS.o RFXtrx_marcel.o REST.o MQTT_tools.o \
+  Meteo.o Marcel.o Lua.o Freebox.o Every.o DList.o \
+  DeadPublisherDetection.o Alerting.o 
 
 all: ../Marcel 
