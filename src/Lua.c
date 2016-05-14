@@ -32,16 +32,19 @@ static void clean_lua(void){
 }
 
 int findUserFunc( const char *fn ){
+	pthread_mutex_lock( &onefunc );
 	lua_getglobal(L, fn);
 	if( lua_type(L, -1) != LUA_TFUNCTION ){
 		if(verbose && lua_type(L, -1) != LUA_TNIL )
 			fprintf(stderr, "*E* \"%s\" is not a function, a %s.\n", fn, lua_typename(L, lua_type(L, -1)) );
 		lua_pop(L, 1);
+		pthread_mutex_unlock( &onefunc );
 		return LUA_REFNIL;
 	}
 
 	int ref = luaL_ref(L,LUA_REGISTRYINDEX);	/* Get the reference to the function */
 
+	pthread_mutex_unlock( &onefunc );
 	return ref;
 }
 
