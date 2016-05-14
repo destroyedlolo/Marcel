@@ -8,3 +8,4 @@ if tonumber(Marcel.Version()) < 3.3 then
 	print("*F* Marcel 3.3 or newer needed by Lua functions")
 	os.exit( 20 )
 end
+

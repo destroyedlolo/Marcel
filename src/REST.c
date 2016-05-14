@@ -18,12 +18,19 @@
 
 void *process_REST(void *actx){
 	struct _REST *ctx = actx;	/* Only to avoid zillions of cast */
+	int h,m;
 
 	if(ctx->funcname){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
 			fprintf(stderr, "*F* configuration error : user function \"%s\" is not defined\n", ctx->funcname);
 			exit(EXIT_FAILURE);
 		}
+	}
+
+	if(ctx->at != -1){
+		h = ctx->at / 100;
+		m = ctx->at % 100;
+printf("*D* %d:%d\n", h,m);
 	}
 
 	if(verbose)
