@@ -86,9 +86,9 @@ union CSection {
 		pthread_t thread;
 		const char *topic;	/* Topic to wait data from */
 		int sample;			/* Timeout */
-		const char *errtopic;	/* Topic to publish error to */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
+		const char *errtopic;	/* Topic to publish error to */
 		const char *errorid;	/* Error's name */
 		int rcv;			/* Event for data receiving */
 		int inerror;		/* true if this DPD is in error */
@@ -110,7 +110,8 @@ union CSection {
 		int sample;			/* Delay b/w 2 queries */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
-		int at;				/* at which time, the query has to be loved */
+		int at;				/* at which time, the query has to be launched */
+		int runifover;		/* run immediately if the 'At' hour is already passed */
 	} REST;
 	struct _Meteo {
 		union CSection *next;
