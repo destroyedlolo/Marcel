@@ -111,6 +111,7 @@ union CSection {
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 		int at;				/* at which time, the query has to be launched */
+		int min;			/* minutes when at decripted */
 		int runifover;		/* run immediately if the 'At' hour is already passed */
 	} REST;
 	struct _Meteo {
