@@ -75,6 +75,9 @@ void execUserFuncEvery( struct _Every *ctx ){
 	pthread_mutex_unlock( &onefunc );
 }
 
+void execUserFuncREST( struct _REST *ctx){
+}
+
 static int lmSendNMsg(lua_State *L){
 	if(lua_gettop(L) != 3){
 		fputs("*E* In your Lua code, SendNamedMessage() requires 3 arguments : Alerts' names, title and message\n", stderr);

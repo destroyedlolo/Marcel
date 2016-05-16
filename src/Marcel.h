@@ -179,6 +179,8 @@ extern void init_Lua( const char * );
 extern int findUserFunc( const char * );
 extern void execUserFuncDeadPublisher( struct _DeadPublisher *, const char *, const char *);
 extern void execUserFuncEvery( struct _Every * );
+extern void execUserFuncREST( struct _REST *);
 #endif
+
 #endif
 

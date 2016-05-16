@@ -78,6 +78,10 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+#ifdef LUA
+#	include <lauxlib.h>
+#endif
+
 int verbose = 0;
 int configtest = 0;
 struct Config cfg;
@@ -292,6 +296,8 @@ static void read_configuration( const char *fch){
 #ifndef LUA
 			fputs("*F* Every section is only available when compiled with Lua support\n", stderr);
 			exit(EXIT_FAILURE);
+#else
+			n->Every.funcid = LUA_REFNIL;
 #endif
 
 			if(last_section)
@@ -385,6 +391,8 @@ static void read_configuration( const char *fch){
 #ifndef LUA
 			fputs("*F* REST section is only available when compiled with Lua support\n", stderr);
 			exit(EXIT_FAILURE);
+#else
+			n->REST.funcid = LUA_REFNIL;
 #endif
 
 			if(last_section)
