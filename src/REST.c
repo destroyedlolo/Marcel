@@ -16,6 +16,12 @@
 #include <unistd.h>
 #include <lauxlib.h>
 
+static void doRESTquery( struct _REST *ctx ){
+// curl ...
+// pass the result
+		execUserFuncREST( ctx );
+}
+
 static void waitNextQuery(struct _REST *ctx){
 	if(ctx->at == -1){
 		if(ctx->min == -1){	/* It's the 1st run */
@@ -63,7 +69,7 @@ void *process_REST(void *actx){
 	ctx->min = -1;	/* Indicate it's the 1st run */
 	for(;;){
 		waitNextQuery( ctx );
-		execUserFuncREST( ctx );
+		doRESTquery( ctx );
 	}
 }
 
