@@ -9,6 +9,7 @@
 #ifndef METEO_H
 #include "Meteo.h"
 #include "MQTT_tools.h"
+#include "CURL_helpers.h"
 
 #include <curl/curl.h>
 #include <stdlib.h>		/* memory */
@@ -18,33 +19,6 @@
 #include <json-c/json.h>
 
 static short int doy=-1;	/* Day of the year ... do we switched to another day ? */
-
-	/* Curl's
-	 * Storing downloaded information in memory
-	 * From http://curl.haxx.se/libcurl/c/getinmemory.html example
-	 */
-
-struct MemoryStruct {
-	char *memory;
-	size_t size;
-};
-
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp){
-	size_t realsize = size * nmemb;
-	struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-
-	mem->memory = realloc(mem->memory, mem->size + realsize + 1);
-	if(mem->memory == NULL){ /* out of memory! */ 
-		fputs("not enough memory (realloc returned NULL)\n", stderr);
-		return 0;
-	}
-
-	memcpy(&(mem->memory[mem->size]), contents, realsize);
-	mem->size += realsize;
-	mem->memory[mem->size] = 0;
- 
-	return realsize;
-}
 
 	/* Convert weather condition to accurate code */
 static int convWCode( int code, int dayornight ){
