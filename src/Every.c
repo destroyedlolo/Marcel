@@ -18,7 +18,7 @@
 void *process_Every(void *actx){
 	struct _Every *ctx = actx;	/* Only to avoid zillions of cast */
 
-	if(ctx->funcname){
+	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
 			fprintf(stderr, "*F* configuration error : user function \"%s\" is not defined\n", ctx->funcname);
 			exit(EXIT_FAILURE);
