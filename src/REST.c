@@ -11,15 +11,43 @@
 
 #include "Every.h"
 #include "Marcel.h"
+#include "CURL_helpers.h"
 
 #include <stdlib.h>
 #include <unistd.h>
 #include <lauxlib.h>
 
+#include <curl/curl.h>
+
 static void doRESTquery( struct _REST *ctx ){
-// curl ...
-// pass the result
-		execUserFuncREST( ctx );
+	CURL *curl;
+
+	if((curl = curl_easy_init())){
+		CURLcode res;
+		struct MemoryStruct chunk;
+
+		chunk.memory = malloc(1);
+		chunk.size = 0;
+
+#if 1
+		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/jour_tst.json");
+#else
+		curl_easy_setopt(curl, CURLOPT_URL, ctx->url);
+#endif
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+
+		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Reading data */
+			execUserFuncREST( ctx, chunk.memory );
+		} else
+			fprintf(stderr, "*E* Querying REST : %s\n", curl_easy_strerror(res));
+
+			/* Cleanup */
+		curl_easy_cleanup(curl);
+		free(chunk.memory);
+	}
 }
 
 static void waitNextQuery(struct _REST *ctx){

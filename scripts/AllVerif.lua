@@ -1,3 +1,5 @@
+json = require("dkjson")
+
 require "scripts/Photovoltaics"
 require "scripts/UPSBatCharge"
 require "scripts/PublishLoad"

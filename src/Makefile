@@ -41,7 +41,7 @@ Meteo.o : Meteo.c Meteo.h Marcel.h MQTT_tools.h CURL_helpers.h \
 MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c 
 
-REST.o : REST.c Every.h Marcel.h Makefile 
+REST.o : REST.c Every.h Marcel.h CURL_helpers.h Makefile 
 	$(cc) -c -o REST.o REST.c 
 
 RFXtrx_marcel.o : RFXtrx_marcel.c RFXtrx_marcel.h Marcel.h RFXtrx.h \

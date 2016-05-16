@@ -75,7 +75,16 @@ void execUserFuncEvery( struct _Every *ctx ){
 	pthread_mutex_unlock( &onefunc );
 }
 
-void execUserFuncREST( struct _REST *ctx){
+void execUserFuncREST( struct _REST *ctx, char *res){
+	pthread_mutex_lock( &onefunc );
+	lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
+	lua_pushstring( L, res );
+	if(lua_pcall( L, 1, 0, 0)){
+		fprintf(stderr, "RESTquery / %s : %s\n", ctx->url, lua_tostring(L, -1));
+		lua_pop(L, 1);  /* pop error message from the stack */
+		lua_pop(L, 1);  /* pop NIL from the stack */
+	}
+	pthread_mutex_unlock( &onefunc );
 }
 
 static int lmSendNMsg(lua_State *L){
