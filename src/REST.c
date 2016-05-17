@@ -29,7 +29,7 @@ static void doRESTquery( struct _REST *ctx ){
 		chunk.memory = malloc(1);
 		chunk.size = 0;
 
-#if 1
+#if 0
 		curl_easy_setopt(curl, CURLOPT_URL, "file:////home/laurent/Projets/Marcel/jour_tst.json");
 #else
 		curl_easy_setopt(curl, CURLOPT_URL, ctx->url);
