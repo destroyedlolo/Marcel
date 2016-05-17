@@ -5,6 +5,7 @@
  * license rules (see LICENSE file)
  *
  * 07/09/2015	- LF - First version
+ * 17/05/2016	- LF - Add 'Immediate'
  */
 #ifdef LUA	/* Only useful with Lua support */
 
@@ -28,10 +29,12 @@ void *process_Every(void *actx){
 	if(verbose)
 		printf("Launching a processing flow for '%s' Every task\n", ctx->funcname);
 
+	if(ctx->immediate)
+		execUserFuncEvery( ctx );
 
 	for(;;){
-		execUserFuncEvery( ctx );
 		sleep( ctx->sample );
+		execUserFuncEvery( ctx );
 	}
 
 	pthread_exit(0);

@@ -465,6 +465,27 @@ static void read_configuration( const char *fch){
 			assert( last_section->DeadPublisher.funcname = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tFunction : '%s'\n", last_section->DeadPublisher.funcname);
+		} else if(!strcmp(l,"RunIfOver\n")){	/* Crash if the broker connection is lost */
+			if(!last_section || (
+				last_section->common.section_type != MSEC_REST
+			)){
+				fputs("*F* Configuration issue : RunIfOver directive outside a REST section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			last_section->REST.runifover = 1;
+			if(verbose)
+				printf("\tRunIfOver\n");
+		} else if(!strcmp(l,"Immediate\n")){	/* Crash if the broker connection is lost */
+			if(!last_section || (
+				last_section->common.section_type != MSEC_EVERY &&
+				last_section->common.section_type != MSEC_REST
+			)){
+				fputs("*F* Configuration issue : Immediate directive outside a REST section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			last_section->REST.immediate = 1;
+			if(verbose)
+				printf("\tImmediate\n");
 		} else if((arg = striKWcmp(l,"At="))){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_REST

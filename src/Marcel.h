@@ -21,7 +21,7 @@
 #include <MQTTClient.h> /* PAHO library needed */ 
 #include <stdint.h>		/* uint*_t */
 
-#define VERSION "4.10"	/* Need to stay numerique as exposed to Lua */
+#define VERSION "4.11"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -101,6 +101,7 @@ union CSection {
 		int sample;			/* Delay b/w launches */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
+		int immediate;		/* If the function has to run at startup */
 	} Every;
 	struct _REST {
 		union CSection *next;
@@ -110,6 +111,7 @@ union CSection {
 		int sample;			/* Delay b/w 2 queries */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
+		int immediate;		/* If the function has to run at startup */
 		int at;				/* at which time, the query has to be launched */
 		int min;			/* minutes when at decripted */
 		int runifover;		/* run immediately if the 'At' hour is already passed */

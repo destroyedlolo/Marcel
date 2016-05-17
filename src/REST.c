@@ -54,9 +54,10 @@ static void waitNextQuery(struct _REST *ctx){
 	if(ctx->at == -1){
 		if(ctx->min == -1){	/* It's the 1st run */
 			ctx->min = 0;
-			return;
-		} else
-			sleep( ctx->sample );
+			if(ctx->immediate)
+				return;
+		}
+		sleep( ctx->sample );
 	} else {
 		time_t now;
 		struct tm tmt;
@@ -67,7 +68,10 @@ static void waitNextQuery(struct _REST *ctx){
 		if(ctx->min == -1){	/* It's the 1st run */
 			ctx->min = ctx->at % 100;
 			ctx->at /= 100;
-			if(ctx->at*60 + ctx->min < tmt.tm_hour * 60 + tmt.tm_min)	/* Already over */
+
+			if(ctx->immediate)
+				return;
+			else if((ctx->at*60 + ctx->min < tmt.tm_hour * 60 + tmt.tm_min) && ctx->runifover)	/* Already over */
 				return;
 		} 
 
