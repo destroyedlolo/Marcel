@@ -34,7 +34,8 @@ Have a look on provided file which contains comprehensive explanation of known d
 
 #Lua custom methods :#
 Following methods are exposed to Lua code through **Marcel** object :
-* **Marcel.MQTTPublish(** topic, value **)** : Publish a value to MQTT broker
+* **Marcel.MQTTPublish(** topic, value [, retain] **)** : Publish a value to MQTT broker.
+If *retain* = true, the message is kept.
 
 * **Marcel.RiseAlert(** topic**,** message **)**, **Marcel.RiseAlertSMS(** topic**,** message **)** : Tells Marcel about an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition

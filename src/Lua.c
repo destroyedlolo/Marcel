@@ -167,15 +167,17 @@ static int lmClearAlert(lua_State *L){
 }
 
 static int lmPublish(lua_State *L){
-	if(lua_gettop(L) != 2){
-		fputs("*E* In your Lua code, Publish() requires 2 arguments : topic and value.\n", stderr);
+	int retain = 0;
+	if(lua_gettop(L) < 2 || lua_gettop(L) > 3){
+		fputs("*E* In your Lua code, Publish() requires at least 2 arguments : topic, value and optionnaly retain\n", stderr);
 		return 0;
 	}
 
 	const char *topic = luaL_checkstring(L, 1),
 				*val = luaL_checkstring(L, 2);
+	retain =  lua_toboolean(L, 3);
 
-	mqttpublish( cfg.client, topic, strlen(val), (void *)val, 0 );
+	mqttpublish( cfg.client, topic, strlen(val), (void *)val, retain );
 
 	return 0;
 }
