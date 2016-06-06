@@ -51,7 +51,7 @@
  *	14/05/2016	- LF - 4.10 - Add REST section
  *				-------
  *	06/10/2015	- LF - switch to v5.0 - Prepare Alarm handling
- *							FFV, Every, REST's sample can be null. 
+ *							FFV, Every's sample can be null. 
  *							In this case, launched only once.
  */
 #include "Marcel.h"
@@ -703,7 +703,7 @@ static void *process_FFV(void *actx){
 
 		if(!((struct _FFV *)actx)->sample){
 			if(verbose)
-				printf("*I* FFV '%s' has 0 sample delay : dying \n", ((struct _FFV *)actx)->topic);
+				printf("*I* FFV '%s' has 0 sample delay : dying ...\n", ((struct _FFV *)actx)->topic);
 			break;
 		} else 
 			sleep( ((struct _FFV *)actx)->sample );

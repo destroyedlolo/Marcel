@@ -4,7 +4,7 @@
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)
  *
- * 14/05/2016	- LF - First verison
+ * 14/05/2016	- LF - First version
  */
 
 #ifdef LUA	/* Only useful with Lua support */
