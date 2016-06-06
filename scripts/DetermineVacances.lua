@@ -3,16 +3,24 @@
 -- This function determines and then publish if we are holiday or not
 --
 
-require "tostring"
+json = require("dkjson")
 
-function DetermineVacances( info )
+function _DetermineVacances( info, topic )
 	local res = json.decode(info)
-	print( universal_tostring(res) )
 
 	if res.weekend ~= "False" or res.holiday ~= "False" then
-		Marcel.MQTTPublish( "Profile/Mode", "Vacances", true)
+		Marcel.MQTTPublish( topic, "Vacances", true)
 	else
-		Marcel.MQTTPublish( "Profile/Mode", "Travail", true )
+		Marcel.MQTTPublish( topic, "Travail", true )
 	end
 end
+
+function DetermineVacancesAujourdHui( info )
+	_DetermineVacances( info, 'Majordome/Mode/AujourdHui' )
+end
+
+function DetermineVacancesDemain( info )
+	_DetermineVacances( info, 'Majordome/Mode/Demain' )
+end
+
 
