@@ -48,7 +48,11 @@
  *							- Can work without sections (Marcel acts as alerting relay)
  *	29/04/2016	- LF - 4.7 - Add RFXtrx support
  *	01/05/2016	- LF - 		DPD* replaced by Sub*
- *	14/05/2016	- KF - 4.10 - Add REST section
+ *	14/05/2016	- LF - 4.10 - Add REST section
+ *				-------
+ *	06/10/2015	- LF - switch to v5.0 - Prepare Alarm handling
+ *							FFV, Every, REST's sample can be null. 
+ *							In this case, launched only once.
  */
 #include "Marcel.h"
 #include "Freebox.h"
@@ -697,7 +701,12 @@ static void *process_FFV(void *actx){
 				break;
 		}
 
-		sleep( ((struct _FFV *)actx)->sample );
+		if(!((struct _FFV *)actx)->sample){
+			if(verbose)
+				printf("FFV '%s' has 0 sample delay : dying \n", ((struct _FFV *)actx)->topic);
+			break;
+		} else 
+			sleep( ((struct _FFV *)actx)->sample );
 	}
 
 	pthread_exit(0);
@@ -795,11 +804,9 @@ int main(int ac, char **av){
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		switch(s->common.section_type){
 		case MSEC_FFV:
-			if(s->common.sample){	/* Creates only if sample is set */
-				if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
-					fputs("*F* Can't create a processing thread\n", stderr);
-					exit(EXIT_FAILURE);
-				}
+			if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
 			}
 			break;
 #ifdef FREEBOX
