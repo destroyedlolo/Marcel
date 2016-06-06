@@ -703,7 +703,7 @@ static void *process_FFV(void *actx){
 
 		if(!((struct _FFV *)actx)->sample){
 			if(verbose)
-				printf("FFV '%s' has 0 sample delay : dying \n", ((struct _FFV *)actx)->topic);
+				printf("*I* FFV '%s' has 0 sample delay : dying \n", ((struct _FFV *)actx)->topic);
 			break;
 		} else 
 			sleep( ((struct _FFV *)actx)->sample );
@@ -831,9 +831,7 @@ int main(int ac, char **av){
 #endif
 #ifdef LUA
 		case MSEC_EVERY:
-			if(!s->common.sample)
-				fputs("*E* EVERY without sample time is useless : ignoring ...\n", stderr);
-			else if(!s->Every.funcname)
+			if(!s->Every.funcname)
 				fputs("*E* EVERY without function defined : ignoring ...\n", stderr);
 			else if(pthread_create( &(s->common.thread), &thread_attr, process_Every, s) < 0){
 				fputs("*F* Can't create a processing thread\n", stderr);

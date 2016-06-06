@@ -6,6 +6,7 @@
  *
  * 07/09/2015	- LF - First version
  * 17/05/2016	- LF - Add 'Immediate'
+ * 06/06/2016	- LF - If sample is null, stop 
  */
 #ifdef LUA	/* Only useful with Lua support */
 
@@ -33,7 +34,12 @@ void *process_Every(void *actx){
 		execUserFuncEvery( ctx );
 
 	for(;;){
-		sleep( ctx->sample );
+		if(!ctx->sample){
+			if(verbose)
+				printf("*I* Every '%s' has 0 sample delay : dying ...\n", ctx->funcname);
+			break;
+		} else
+			sleep( ctx->sample );
 		execUserFuncEvery( ctx );
 	}
 
