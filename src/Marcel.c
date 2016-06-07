@@ -55,6 +55,7 @@
  *							In this case, launched only once.
  */
 #include "Marcel.h"
+#include "Version.h"
 #include "Freebox.h"
 #include "UPS.h"
 #include "DeadPublisherDetection.h"

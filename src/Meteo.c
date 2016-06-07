@@ -8,6 +8,7 @@
 
 #ifndef METEO_H
 #include "Meteo.h"
+#include "Version.h"
 #include "MQTT_tools.h"
 #include "CURL_helpers.h"
 

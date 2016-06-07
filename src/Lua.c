@@ -9,6 +9,7 @@
  */
 
 #include "Marcel.h"
+#include "Version.h"
 #include "Alerting.h"
 #include "MQTT_tools.h"
 

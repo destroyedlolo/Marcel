@@ -10,6 +10,7 @@
 #ifdef LUA	/* Only useful with Lua support */
 
 #include "Every.h"
+#include "Version.h"
 #include "Marcel.h"
 #include "CURL_helpers.h"
 

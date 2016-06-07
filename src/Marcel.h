@@ -10,6 +10,7 @@
  * 29/04/2016	- LF - add support for RFXtrx
  * 01/05/2016	- LF - Rename all DPD* as Sub*
  * 14/05/2016	- LF - add REST section
+ * 07/06/2016	- LF - externalize version
  */
 
 #ifndef MARCEL_H
@@ -20,8 +21,6 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 #include <stdint.h>		/* uint*_t */
-
-#define VERSION "5.00"	/* Need to stay numerique as exposed to Lua */
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -61,6 +60,7 @@ union CSection {
 		const char *topic;	/* Topic to publish to */
 		int sample;			/* delay b/w 2 samples */
 		const char *file;	/* File containing the data to read */
+		int type;			/* Type for this file */
 	} FFV;
 	struct _FreeBox {
 		union CSection *next;
