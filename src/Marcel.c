@@ -424,6 +424,15 @@ static void read_configuration( const char *fch){
 			assert( last_section->FFV.file = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tFile : '%s'\n", last_section->FFV.file);
+		} else if((arg = striKWcmp(l,"Type="))){
+			if(!last_section || last_section->common.section_type != MSEC_FFV){
+				fputs("*F* Configuration issue : Type directive outside a FFV section\n", stderr);
+					exit(EXIT_FAILURE);
+			}
+			if(!strcasecmp(removeLF(arg), "Latch"))
+				last_section->FFV.type = 'L';
+			if(verbose)
+				printf("\tType : '%c'\n", last_section->FFV.type ? last_section->FFV.type : 'V');
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				fputs("*F* Configuration issue : Host directive outside a UPS section\n", stderr);
@@ -723,10 +732,13 @@ int main(int ac, char **av){
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		switch(s->common.section_type){
 		case MSEC_FFV:
-			if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
-				exit(EXIT_FAILURE);
-			}
+			if(s->common.sample){
+				if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
+					fputs("*F* Can't create a processing thread\n", stderr);
+					exit(EXIT_FAILURE);
+				}
+			} else
+				fprintf(stderr, "*E* Can't launch FFV for '%s' : 0 waiting delay\n", s->FFV.topic);
 			break;
 #ifdef FREEBOX
 		case MSEC_FREEBOX:

@@ -76,6 +76,7 @@ void *process_FFV(void *actx){
 						printf("FFV : %s -> %f\n", ctx->topic, val);
 				}
 				fclose(f);
+
 			}
 
 			if(!(ctx = (struct _FFV *)ctx->next))	/* It was the last entry */
@@ -84,9 +85,9 @@ void *process_FFV(void *actx){
 				break;
 		}
 
-		if(!((struct _FFV *)actx)->sample){
+		if(((struct _FFV *)actx)->sample == -1){
 			if(verbose)
-				printf("*I* FFV '%s' has 0 sample delay : dying ...\n", ((struct _FFV *)actx)->topic);
+				printf("*I* FFV '%s' has -1 sample delay : dying ...\n", ((struct _FFV *)actx)->topic);
 			break;
 		} else 
 			sleep( ((struct _FFV *)actx)->sample );
