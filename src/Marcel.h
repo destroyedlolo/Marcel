@@ -60,7 +60,7 @@ union CSection {
 		const char *topic;	/* Topic to publish to */
 		int sample;			/* delay b/w 2 samples */
 		const char *file;	/* File containing the data to read */
-		int type;			/* Type for this file */
+		const char *latch;			/* Type for this file */
 	} FFV;
 	struct _FreeBox {
 		union CSection *next;

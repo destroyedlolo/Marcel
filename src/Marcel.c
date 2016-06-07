@@ -424,15 +424,14 @@ static void read_configuration( const char *fch){
 			assert( last_section->FFV.file = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tFile : '%s'\n", last_section->FFV.file);
-		} else if((arg = striKWcmp(l,"Type="))){
+		} else if((arg = striKWcmp(l,"Latch="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
-				fputs("*F* Configuration issue : Type directive outside a FFV section\n", stderr);
+				fputs("*F* Configuration issue : Latch directive outside a FFV section\n", stderr);
 					exit(EXIT_FAILURE);
 			}
-			if(!strcasecmp(removeLF(arg), "Latch"))
-				last_section->FFV.type = 'L';
+			assert( last_section->FFV.latch = strdup( removeLF(arg) ));
 			if(verbose)
-				printf("\tType : '%c'\n", last_section->FFV.type ? last_section->FFV.type : 'V');
+				printf("\tLatch file : '%s'\n", last_section->FFV.latch);
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				fputs("*F* Configuration issue : Host directive outside a UPS section\n", stderr);

@@ -77,6 +77,39 @@ void *process_FFV(void *actx){
 				}
 				fclose(f);
 
+				if(ctx->latch){
+					if(!(f = fopen( ctx->latch, "w" ))){
+						if(verbose)
+							perror( ctx->latch );
+						if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
+							int msg;
+							char *emsg;
+							strcpy(l, "Alarm/");
+							strcat(l, ctx->topic);
+							msg = strlen(l) + 2;
+
+							if(strlen(ctx->file) + strlen(emsg = strerror(errno)) + 5 < MAXLINE - msg){ /* S + " : " + 0 */
+								*(l + msg) = 'S';
+								strcpy(l + msg + 1, ctx->file);
+								strcat(l + msg, " : ");
+								strcat(l + msg, emsg);
+
+								mqttpublish(cfg.client, l, strlen(l + msg), l + msg, 0);
+							} else if( strlen(emsg) + 2 < MAXLINE - msg ){	/* S + error message */
+								*(l + msg) = 'S';
+								strcpy(l + msg + 1, emsg);
+
+								mqttpublish(cfg.client, l, strlen(l + msg), l + msg, 0);
+							} else {
+								char *msg = "Can't open file (and not enough space for the error)";
+								mqttpublish(cfg.client, l, strlen(msg), msg, 0);
+							}
+						}
+					} else {	/* Reset the latch */
+						fprintf(f, "1\n");
+						fclose(f);
+					}
+				}
 			}
 
 			if(!(ctx = (struct _FFV *)ctx->next))	/* It was the last entry */
