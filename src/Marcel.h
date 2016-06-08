@@ -151,6 +151,8 @@ extern struct Config {
 	int ConLostFatal;		/* Die if broker connection is lost */
 	union CSection *first_Sub;	/* Pointer to the first subscription */
 	const char *luascript;	/* file containing Lua functions */
+	const char *OwAlarm;	/* Path to 1-wire alarm directory */
+	int OwAlarmSample;		/* Delay b/w 2 sample on alarm directory */
 		/* Single alert / notification */
 	const char *SMSurl;		/* Where to send SMS */
 	const char *AlertCmd;	/* External command to send alerts */

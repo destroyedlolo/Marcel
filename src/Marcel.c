@@ -178,6 +178,9 @@ static void read_configuration( const char *fch){
 	cfg.AlertCmd= NULL;
 	cfg.notiflist=NULL;
 
+	cfg.OwAlarm=NULL;
+	cfg.OwAlarmSample=0;
+
 	if(verbose)
 		printf("Reading configuration file '%s'\n", fch);
 
@@ -226,6 +229,14 @@ static void read_configuration( const char *fch){
 #else
 			fputs("*E* RFXtrx_Port defined without RFXtrx support enabled\n", stderr);
 #endif
+		} else if((arg = striKWcmp(l,"1wire-Alarm="))){
+			assert( cfg.OwAlarm = strdup( removeLF(arg) ) );
+			if(verbose)
+				printf("1 wire Alarm directory : '%s'\n", cfg.OwAlarm);
+		} else if((arg = striKWcmp(l,"1wire-Alarm-sample="))){
+			cfg.OwAlarmSample = atoi( arg );
+			if(verbose)
+				printf("1 wire Alarm sample delay : '%d'\n", cfg.OwAlarmSample);
 		} else if((arg = striKWcmp(l,"UserFuncScript="))){
 #ifdef LUA
 			assert( cfg.luascript = strdup( removeLF(arg) ) );
