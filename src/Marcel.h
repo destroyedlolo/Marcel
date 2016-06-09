@@ -153,6 +153,7 @@ extern struct Config {
 	const char *luascript;	/* file containing Lua functions */
 	const char *OwAlarm;	/* Path to 1-wire alarm directory */
 	int OwAlarmSample;		/* Delay b/w 2 sample on alarm directory */
+	pthread_t OwAlarmThread;	/* Thread to handle 1-wire alarming */
 		/* Single alert / notification */
 	const char *SMSurl;		/* Where to send SMS */
 	const char *AlertCmd;	/* External command to send alerts */

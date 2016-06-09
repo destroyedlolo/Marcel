@@ -11,7 +11,7 @@
 #define MARCEL_VERSION_H
 
 
-#define VERSION "5.0003"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "5.0004"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

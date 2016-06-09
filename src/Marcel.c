@@ -50,9 +50,10 @@
  *	01/05/2016	- LF - 		DPD* replaced by Sub*
  *	14/05/2016	- LF - 4.10 - Add REST section
  *				-------
- *	06/10/2015	- LF - switch to v5.0 - Prepare Alarm handling
- *							FFV, Every's sample can be null. 
+ *	06/06/2016	- LF - switch to v5.0 - Prepare Alarm handling
+ *							FFV, Every's sample can be -1. 
  *							In this case, launched only once.
+ *	08/06/2016	- LF - 5.1 - 1-wire Alarm handled
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -78,6 +79,7 @@
 #include <signal.h>
 #include <sys/utsname.h>	/* uname */
 #include <curl/curl.h>
+#include <stdbool.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -739,6 +741,22 @@ int main(int ac, char **av){
 
 	assert(!pthread_attr_init (&thread_attr));
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+
+#if 0	/* Not yet */
+	if( cfg.OwAlarm ){
+		if( !cfg.OwAlarmSample )
+			fputs("*E* Can't launch 1-wire Alarm monitoring : 0 waiting delay", stderr);
+		else {
+			if(pthread_create( &cfg.OwAlarmThread, &thread_attr, process_1wAlrm, NULL) < 0){
+				fputs("*F* Can't create a processing thread\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+		}
+	}
+#endif
+
+	bool firstFFV=true;
+
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		switch(s->common.section_type){
 		case MSEC_FFV:
@@ -747,8 +765,10 @@ int main(int ac, char **av){
 					fputs("*F* Can't create a processing thread\n", stderr);
 					exit(EXIT_FAILURE);
 				}
+				firstFFV=false;
 			} else
-				fprintf(stderr, "*E* Can't launch FFV for '%s' : 0 waiting delay\n", s->FFV.topic);
+				if(firstFFV)
+					fprintf(stderr, "*E* Can't launch FFV for '%s' : 0 waiting delay\n", s->FFV.topic);
 			break;
 #ifdef FREEBOX
 		case MSEC_FREEBOX:
@@ -758,6 +778,7 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}
+			firstFFV=true;
 			break;
 #endif
 #ifdef UPS
@@ -768,6 +789,7 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}			
+			firstFFV=true;
 			break;
 #endif
 #ifdef LUA
@@ -778,6 +800,7 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}
+			firstFFV=true;
 			break;
 #endif
 		case MSEC_DEADPUBLISHER:
@@ -795,6 +818,7 @@ int main(int ac, char **av){
 					exit(EXIT_FAILURE);
 				}
 			}
+			firstFFV=true;
 			break;
 #ifdef METEO
 		case MSEC_METEO3H:
@@ -804,6 +828,7 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}			
+			firstFFV=true;
 			break;
 		case MSEC_METEOD:
 			if(!s->common.sample){ /* we won't METEO */
@@ -812,6 +837,7 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}			
+			firstFFV=true;
 			break;
 #endif
 #ifdef RFXTRX
@@ -823,6 +849,7 @@ int main(int ac, char **av){
 					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
 				}
 			}
+			firstFFV=true;
 			break;
 #endif
 		case MSEC_REST:
@@ -834,6 +861,7 @@ int main(int ac, char **av){
 				fputs("*F* Can't create a processing thread\n", stderr);
 				exit(EXIT_FAILURE);
 			}
+			firstFFV=true;
 			break;
 		default :	/* Ignore unsupported type */
 			break;
