@@ -153,16 +153,16 @@ void *process_1wAlrm(void *actx){
 					printf("*I* %s : in alert\n", de->d_name);
 				for(union CSection *s = cfg.sections; s; s = s->common.next){
 					if( strstr(s->FFV.file, de->d_name) && s->common.section_type == MSEC_FFV ){
-						if(s->FFV.sample == -1){
-							puts("Found");
-						} else if( verbose )	/* Ignored as its sample is not -1 */
+						if(s->FFV.sample == -1)
+							handle_FFV( &s->FFV );
+						else if( verbose )	/* Ignored as its sample is not -1 */
 							fprintf(stderr, "*W* '%s' has alarm, is found but its sample time is not -1 : ignored\n", s->FFV.file);
 					}
 				}
 			}
 		}
 		closedir(d);
-		break;
+		sleep( cfg.OwAlarmSample );
 	}
 	pthread_exit(0);
 }

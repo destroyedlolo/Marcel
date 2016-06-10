@@ -11,4 +11,5 @@
 #define FFV_H
 
 extern void *process_FFV(void *);
+extern void *process_1wAlrm(void *);
 #endif

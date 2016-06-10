@@ -742,7 +742,6 @@ int main(int ac, char **av){
 	assert(!pthread_attr_init (&thread_attr));
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 
-#if 0	/* Not yet */
 	if( cfg.OwAlarm ){
 		if( !cfg.OwAlarmSample )
 			fputs("*E* Can't launch 1-wire Alarm monitoring : 0 waiting delay", stderr);
@@ -753,7 +752,6 @@ int main(int ac, char **av){
 			}
 		}
 	}
-#endif
 
 	bool firstFFV=true;
 

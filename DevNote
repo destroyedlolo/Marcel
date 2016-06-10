@@ -1,6 +1,6 @@
 This file contains internal notes for the development or before addition in the main documentation.
 
-Alerting
+Alarming
 ========
 
 Topic : Alarm/<subject>
@@ -19,3 +19,15 @@ I had 2 options :
 2/ to use an unique context and lock it's access.
 
 I choose the 2nd way which is more "natural" for users, but as a consequence, only one callback can run at a time. It means callbacks must be as fast as possible to avoid dead locks.
+
+1-wire alarms
+=============
+
+basement door :
+---------------
+Probe : /var/lib/owfs/mnt/12.16CCCC000000/
+Be notified when a PIO changes 
+	echo 311 >  /var/lib/owfs/mnt/12.16CCCC000000/set_alarm
+		3: Both ports
+		1: latches
+		1: high
