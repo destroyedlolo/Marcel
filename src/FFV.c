@@ -151,8 +151,9 @@ void *process_1wAlrm(void *actx){
 			if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
 				if( verbose )
 					printf("*I* %s : in alert\n", de->d_name);
+
 				for(union CSection *s = cfg.sections; s; s = s->common.next){
-					if( strstr(s->FFV.file, de->d_name) && s->common.section_type == MSEC_FFV ){
+					if( s->common.section_type == MSEC_FFV && strstr(s->FFV.file, de->d_name)){
 						if(s->FFV.sample == -1)
 							handle_FFV( &s->FFV );
 						else if( verbose )	/* Ignored as its sample is not -1 */
