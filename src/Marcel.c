@@ -53,7 +53,8 @@
  *	06/06/2016	- LF - switch to v5.0 - Prepare Alarm handling
  *							FFV, Every's sample can be -1. 
  *							In this case, launched only once.
- *	08/06/2016	- LF - 5.1 - 1-wire Alarm handled
+ *	08/06/2016	- LF - 5.01 - 1-wire Alarm handled
+ *	24/07/2016	- LF - 5.02 - Handle offset for FFV
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -445,6 +446,14 @@ static void read_configuration( const char *fch){
 			assert( last_section->FFV.latch = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tLatch file : '%s'\n", last_section->FFV.latch);
+		} else if((arg = striKWcmp(l,"Offset="))){
+			if(!last_section || last_section->common.section_type != MSEC_FFV){
+				fputs("*F* Configuration issue : Offset directive outside a FFV section\n", stderr);
+					exit(EXIT_FAILURE);
+			}
+			last_section->FFV.offset = atof(arg);
+			if(verbose)
+				printf("\tOffset : %f\n", last_section->FFV.offset);
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				fputs("*F* Configuration issue : Host directive outside a UPS section\n", stderr);

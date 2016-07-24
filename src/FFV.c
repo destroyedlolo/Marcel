@@ -54,6 +54,7 @@ static void handle_FFV(struct _FFV *ctx){
 			if(verbose)
 				printf("FFV : %s -> Unable to read a float value.\n", ctx->topic);
 		} else {	/* Only to normalize the response */
+			val += ctx->offset;
 			sprintf(l,"%.1f", val);
 
 			mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );

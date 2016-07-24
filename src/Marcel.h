@@ -61,6 +61,7 @@ union CSection {
 		int sample;			/* delay b/w 2 samples */
 		const char *file;	/* File containing the data to read */
 		const char *latch;			/* Type for this file */
+		float offset;		/* Offset to apply to the raw value */
 	} FFV;
 	struct _FreeBox {
 		union CSection *next;
