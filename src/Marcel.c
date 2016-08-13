@@ -276,7 +276,20 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				printf("Entering section '%s'\n", removeLF(arg));
+				printf("Entering FFV section '%s'\n", removeLF(arg));
+		} else if((arg = striKWcmp(l,"*Out="))){
+			union CSection *n = malloc( sizeof(struct _OutFile) );
+			assert(n);
+			memset(n, 0, sizeof(struct _OutFile));
+			n->common.section_type = MSEC_OUTFILE;
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(verbose)
+				printf("Entering OutFile section '%s'\n", removeLF(arg));
 		} else if((arg = striKWcmp(l,"*Freebox"))){
 			union CSection *n = malloc( sizeof(struct _FreeBox) );
 			assert(n);
@@ -431,8 +444,11 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				puts("Crash if the broker connection is lost");
 		} else if((arg = striKWcmp(l,"File="))){
-			if(!last_section || last_section->common.section_type != MSEC_FFV){
-				fputs("*F* Configuration issue : File directive outside a FFV section\n", stderr);
+			if(!last_section || (
+				last_section->common.section_type != MSEC_FFV &&
+				last_section->common.section_type != MSEC_OUTFILE
+			) ){
+				fputs("*F* Configuration issue : File directive outside FFV or OutFile section\n", stderr);
 					exit(EXIT_FAILURE);
 			}
 			assert( last_section->FFV.file = strdup( removeLF(arg) ));

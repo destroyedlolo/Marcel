@@ -30,6 +30,7 @@
 enum _tp_msec {
 	MSEC_INVALID =0,	/* Ignored */
 	MSEC_FFV,			/* File String Value */
+	MSEC_OUTFILE,		/* Output file */
 	MSEC_FREEBOX,		/* FreeBox */
 	MSEC_UPS,			/* UPS */
 	MSEC_DEADPUBLISHER,	/* alarm on missing MQTT messages */
@@ -63,6 +64,14 @@ union CSection {
 		const char *latch;			/* Type for this file */
 		float offset;		/* Offset to apply to the raw value */
 	} FFV;
+	struct _OutFile {
+		union CSection *next;
+		enum _tp_msec section_type;
+		pthread_t thread;
+		const char *topic;	/* Topic to subscribe to */
+		int padding;		/* Not used */
+		const char *file;	/* File to write to */
+	} OutFile;
 	struct _FreeBox {
 		union CSection *next;
 		enum _tp_msec section_type;
