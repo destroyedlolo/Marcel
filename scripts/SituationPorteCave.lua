@@ -13,6 +13,10 @@ function SituationPorteCave( topic, val )
 		res = 'Fermee'
 	end
 
-	Marcel.MQTTPublish( topic:sub(1, -6), res, true )
-	Marcel.SendNamedMessage('i', "Porte de la cave", res)
+	if ans_PorteCave ~= res then
+		ans_PorteCave = res
+
+		Marcel.MQTTPublish( topic:sub(1, -6), res, true )
+		Marcel.SendNamedMessage('i', "Porte de la cave", res)
+	end
 end
