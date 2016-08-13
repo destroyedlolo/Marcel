@@ -277,7 +277,7 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				printf("Entering FFV section '%s'\n", removeLF(arg));
-		} else if((arg = striKWcmp(l,"*Out="))){
+		} else if((arg = striKWcmp(l,"*OutFile="))){
 			union CSection *n = malloc( sizeof(struct _OutFile) );
 			assert(n);
 			memset(n, 0, sizeof(struct _OutFile));
@@ -840,6 +840,14 @@ int main(int ac, char **av){
 					fputs("*F* Can't create a processing thread\n", stderr);
 					exit(EXIT_FAILURE);
 				}
+			}
+			firstFFV=true;
+			break;
+		case MSEC_OUTFILE:
+			if(!s->OutFile.topic || !s->OutFile.file){
+				fputs("*E* configuration error : no topic or file specified, ignoring this OutFile section\n", stderr);
+			} else if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
+				fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
 			}
 			firstFFV=true;
 			break;
