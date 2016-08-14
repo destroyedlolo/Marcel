@@ -35,7 +35,7 @@ Lua.o : Lua.c Marcel.h Version.h Alerting.h DList.h MQTT_tools.h \
 
 Marcel.o : Marcel.c Marcel.h Version.h FFV.h Freebox.h UPS.h \
   DeadPublisherDetection.h MQTT_tools.h Alerting.h DList.h Every.h \
-  Meteo.h RFXtrx_marcel.h REST.h Makefile 
+  Meteo.h RFXtrx_marcel.h REST.h OutFile.h Makefile 
 	$(cc) -c -o Marcel.o Marcel.c 
 
 Meteo.o : Meteo.c Meteo.h Marcel.h Version.h MQTT_tools.h \
@@ -44,6 +44,9 @@ Meteo.o : Meteo.c Meteo.h Marcel.h Version.h MQTT_tools.h \
 
 MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c 
+
+OutFile.o : OutFile.c OutFile.h Marcel.h Makefile 
+	$(cc) -c -o OutFile.o OutFile.c 
 
 REST.o : REST.c Every.h Version.h Marcel.h CURL_helpers.h Makefile 
 	$(cc) -c -o REST.o REST.c 
@@ -55,11 +58,11 @@ RFXtrx_marcel.o : RFXtrx_marcel.c RFXtrx_marcel.h Marcel.h RFXtrx.h \
 UPS.o : UPS.c UPS.h Marcel.h MQTT_tools.h Makefile 
 	$(cc) -c -o UPS.o UPS.c 
 
-../Marcel : UPS.o RFXtrx_marcel.o REST.o MQTT_tools.o Meteo.o Marcel.o \
-  Lua.o Freebox.o FFV.o Every.o DList.o DeadPublisherDetection.o \
-  CURL_helpers.o Alerting.o Makefile 
-	 $(cc) -o ../Marcel UPS.o RFXtrx_marcel.o REST.o MQTT_tools.o \
+../Marcel : UPS.o RFXtrx_marcel.o REST.o OutFile.o MQTT_tools.o \
   Meteo.o Marcel.o Lua.o Freebox.o FFV.o Every.o DList.o \
+  DeadPublisherDetection.o CURL_helpers.o Alerting.o Makefile 
+	 $(cc) -o ../Marcel UPS.o RFXtrx_marcel.o REST.o OutFile.o \
+  MQTT_tools.o Meteo.o Marcel.o Lua.o Freebox.o FFV.o Every.o DList.o \
   DeadPublisherDetection.o CURL_helpers.o Alerting.o 
 
 all: ../Marcel 

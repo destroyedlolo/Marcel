@@ -55,6 +55,7 @@
  *							In this case, launched only once.
  *	08/06/2016	- LF - 5.01 - 1-wire Alarm handled
  *	24/07/2016	- LF - 5.02 - Handle offset for FFV
+ *	14/08/2016	- LF - 5.03 - Handle Outfile
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -68,6 +69,7 @@
 #include "Meteo.h"
 #include "RFXtrx_marcel.h"
 #include "REST.h"
+#include "OutFile.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -658,6 +660,9 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		} else if(Sec->common.section_type == MSEC_RTSCMD){
 			if(!mqtttokcmp(Sec->RTSCmd.topic, topic))	/* Topic found */
 				processRTSCmd( &(Sec->RTSCmd), payload );
+		} else if(Sec->common.section_type == MSEC_OUTFILE){
+			if(!mqtttokcmp(Sec->OutFile.topic, topic))	/* Topic found */
+				processOutFile( &(Sec->OutFile), payload );
 		}
 	}
 
