@@ -290,6 +290,9 @@ static void read_configuration( const char *fch){
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
+			if(!cfg.first_Sub)
+				cfg.first_Sub = n;
+	
 			if(verbose)
 				printf("Entering OutFile section '%s'\n", removeLF(arg));
 		} else if((arg = striKWcmp(l,"*Freebox"))){
@@ -556,8 +559,9 @@ static void read_configuration( const char *fch){
 				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			if(last_section->common.section_type == MSEC_RTSCMD){
-				fputs("*F* Configuration issue : Sample directive isn't compatible with RTSCmd section\n", stderr);
+			if( last_section->common.section_type == MSEC_RTSCMD ||
+				last_section->common.section_type == MSEC_OUTFILE){
+				fputs("*F* Configuration issue : Sample directive isn't compatible with RTSCmd or Outfile sections\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 			last_section->common.sample = atoi( arg );
