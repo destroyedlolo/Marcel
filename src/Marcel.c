@@ -529,7 +529,7 @@ static void read_configuration( const char *fch){
 				fputs("*F* Configuration issue : RunIfOver directive outside a REST section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			last_section->REST.runifover = 1;
+			last_section->REST.runifover = true;
 			if(verbose)
 				printf("\tRunIfOver\n");
 		} else if(!strcmp(l,"Immediate\n")){	/* Crash if the broker connection is lost */
@@ -540,7 +540,7 @@ static void read_configuration( const char *fch){
 				fputs("*F* Configuration issue : Immediate directive outside a REST section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
-			last_section->REST.immediate = 1;
+			last_section->REST.immediate = true;
 			if(verbose)
 				printf("\tImmediate\n");
 		} else if((arg = striKWcmp(l,"At="))){

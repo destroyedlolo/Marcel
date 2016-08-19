@@ -119,7 +119,7 @@ union CSection {
 		int sample;			/* Delay b/w launches */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
-		int immediate;		/* If the function has to run at startup */
+		bool immediate;		/* If the function has to run at startup */
 	} Every;
 	struct _REST {
 		union CSection *next;
@@ -130,10 +130,10 @@ union CSection {
 		int sample;			/* Delay b/w 2 queries */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
-		int immediate;		/* If the function has to run at startup */
+		bool immediate;		/* If the function has to run at startup */
 		int at;				/* at which time, the query has to be launched */
 		int min;			/* minutes when at decripted */
-		int runifover;		/* run immediately if the 'At' hour is already passed */
+		bool runifover;		/* run immediately if the 'At' hour is already passed */
 	} REST;
 	struct _Meteo {
 		union CSection *next;
