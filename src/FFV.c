@@ -18,6 +18,12 @@
 #include <dirent.h>
 
 static void handle_FFV(struct _FFV *ctx){
+	if(ctx->disabled){
+		if(verbose)
+			printf("*I* Reading FFV '%s' is disabled\n", ctx->topic);
+		return;
+	}
+
 	FILE *f;
 	char l[MAXLINE];
 

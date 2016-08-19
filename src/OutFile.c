@@ -5,6 +5,7 @@
  * license rules (see LICENSE file)
  *
  * 14/08/2016	- LF - creation
+ * 20/08/2016	- LF - handles Disabled
  */
 
 #include "OutFile.h"
@@ -14,6 +15,12 @@
 #include <string.h>
 
 void processOutFile( struct _OutFile *ctx, const char *msg){
+	if(ctx->disabled){
+		if(verbose)
+			printf("*I* Writing to OutFile '%s' is disabled\n", ctx->file);
+		return;
+	}
+
 	FILE *f=fopen( ctx->file, "w" );
 	if(!f){
 		fprintf(stderr, "*E* '%s' : %s\n", ctx->file, strerror(errno));

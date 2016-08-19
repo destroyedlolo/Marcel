@@ -8,6 +8,7 @@
  * may only be used for RFXCOM equipment.
  *
  * 30/04/2016 - LF - First version
+ * 20/08/2016	- LF - handles Disabled
  */
 
 #ifdef RFXTRX
@@ -212,6 +213,12 @@ void init_RFX(){
 }
 
 void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
+	if(ctx->disabled){
+		if(verbose)
+			printf("*I* Writing to RTSCmd %04x is disabled\n", ctx->id);
+		return;
+	}
+
 	BYTE cmd;
 	int fd;
 

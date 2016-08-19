@@ -52,41 +52,45 @@ void *process_UPS(void *actx){
 		printf("Launching a processing flow for UPS/%s\n", ctx->section_name);
 
 	for(;;){	/* Infinite loop to process data */
-		int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-		if(sockfd < 0){
-			fprintf(stderr, "*E* Can't create socket : %s\n", strerror( errno ));
-			fputs("*E* Stopping this thread\n", stderr);
-			pthread_exit(0);
-		}
-		if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
-/*AF : Send error topic */
-			perror("*E* Connecting");
+		if(ctx->disabled){
+			if(verbose)
+				printf("*I* Reading Freebox '%s' is disabled\n", ctx->topic);
 		} else {
-			for(struct var *v = ctx->var_list; v; v = v->next){
-				sprintf(l, "GET VAR %s %s\n", ctx->section_name, v->name);
-				if( send(sockfd, l , strlen(l), 0) == -1 ){
+			int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+			if(sockfd < 0){
+				fprintf(stderr, "*E* Can't create socket : %s\n", strerror( errno ));
+				fputs("*E* Stopping this thread\n", stderr);
+				pthread_exit(0);
+			}
+			if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
 /*AF : Send error topic */
-					perror("*E* Sending");
-				} else {
-					char *ps, *pe;
-					socketreadline(sockfd, l, sizeof(l));
-					if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') )){
-						if(verbose)
-							printf("*E* %s/%s : unexpected result '%s'\n", ctx->section_name, v->name, l);
+				perror("*E* Connecting");
+			} else {
+				for(struct var *v = ctx->var_list; v; v = v->next){
+					sprintf(l, "GET VAR %s %s\n", ctx->section_name, v->name);
+					if( send(sockfd, l , strlen(l), 0) == -1 ){
+/*AF : Send error topic */
+						perror("*E* Sending");
 					} else {
-						ps++; *pe++ = 0;	/* Extract only the result */
-						assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
-						sprintf( pe, "%s/%s", ctx->topic, v->name );
-						mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
-						if(verbose)
-							printf("UPS : %s -> '%s'\n", pe, ps);
+						char *ps, *pe;
+						socketreadline(sockfd, l, sizeof(l));
+						if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') )){
+							if(verbose)
+								printf("*E* %s/%s : unexpected result '%s'\n", ctx->section_name, v->name, l);
+						} else {
+							ps++; *pe++ = 0;	/* Extract only the result */
+							assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
+							sprintf( pe, "%s/%s", ctx->topic, v->name );
+							mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
+							if(verbose)
+								printf("UPS : %s -> '%s'\n", pe, ps);
+						}
 					}
 				}
+				close(sockfd);
 			}
-			close(sockfd);
-			sleep( ctx->sample );
 		}
+		sleep( ctx->sample );
 	}
 	pthread_exit(0);
 }
