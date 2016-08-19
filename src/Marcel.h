@@ -53,7 +53,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
 		const char *topic;
-		bool disabled;
+		bool disabled;		/* this section is currently disabled */
 		int sample;
 	} common;
 	struct _FFV {

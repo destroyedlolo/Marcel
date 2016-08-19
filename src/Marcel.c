@@ -567,6 +567,14 @@ static void read_configuration( const char *fch){
 			last_section->common.sample = atoi( arg );
 			if(verbose)
 				printf("\tDelay between samples : %ds\n", last_section->common.sample);
+		} else if(!strcmp(l,"Disabled\n")){		/* This section is currently disabled */
+			if(!last_section){
+				fputs("*F* Configuration issue : Disabled directive outside a section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			last_section->common.disabled = true;
+			if(verbose)
+				puts("\tDisabled");
 		} else if((arg = striKWcmp(l,"Topic="))){
 			if(!last_section){
 				fputs("*F* Configuration issue : Topic directive outside a section\n", stderr);
