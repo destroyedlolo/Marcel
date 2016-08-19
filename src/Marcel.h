@@ -21,6 +21,7 @@
 #include <pthread.h>
 #include <MQTTClient.h> /* PAHO library needed */ 
 #include <stdint.h>		/* uint*_t */
+#include <stdbool.h>
 
 #define DEFAULT_CONFIGURATION_FILE "/usr/local/etc/Marcel.conf"
 #define MAXLINE 1024	/* Maximum length of a line to be read */
@@ -52,6 +53,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
 		const char *topic;
+		bool disabled;
 		int sample;
 	} common;
 	struct _FFV {
@@ -59,6 +61,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;
 		const char *topic;	/* Topic to publish to */
+		bool disabled;
 		int sample;			/* delay b/w 2 samples */
 		const char *file;	/* File containing the data to read */
 		const char *latch;			/* Type for this file */
@@ -69,6 +72,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;
 		const char *topic;	/* Topic to subscribe to */
+		bool disabled;
 		int padding;		/* Not used */
 		const char *file;	/* File to write to */
 	} OutFile;
@@ -77,6 +81,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;	
 		const char *topic;	/* Root of the topics to publish to */
+		bool disabled;
 		int sample;			/* delay b/w 2 samples */
 	} FreeBox;
 	struct _UPS {
@@ -84,6 +89,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;
 		const char *topic;	/* Root of the topics to publish to */
+		bool disabled;
 		int sample;			/* delay b/w 2 samples */
 		const char *section_name;	/* Name of the UPS as defined in NUT */
 		const char *host;	/* NUT's server */
@@ -95,19 +101,21 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;
 		const char *topic;	/* Topic to wait data from */
+		bool disabled;
 		int sample;			/* Timeout */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
 		const char *errtopic;	/* Topic to publish error to */
 		const char *errorid;	/* Error's name */
 		int rcv;			/* Event for data receiving */
-		int inerror;		/* true if this DPD is in error */
+		bool inerror;		/* true if this DPD is in error */
 	} DeadPublisher;
 	struct _Every {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
 		const char *name;	/* Name of the section, passed to Lua function */
+		bool disabled;
 		int sample;			/* Delay b/w launches */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
@@ -118,6 +126,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
 		const char *url;	/* URL to query */
+		bool disabled;
 		int sample;			/* Delay b/w 2 queries */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
@@ -131,6 +140,7 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
 		const char *topic;	/* Root of the topics to publish to */
+		bool disabled;
 		int sample;			/* Delay b/w 2 queries */
 		const char *City;	/* CityName,Country to query */
 		const char *Units;	/* Result's units */
@@ -141,6 +151,8 @@ union CSection {
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
 		const char *topic;	/* Topic to wait data from */
+		bool disabled;
+		int padding;		/* not used */
 		uint32_t id;		/* ID corresponding to this device */
 	} RTSCmd;
 };

@@ -77,7 +77,7 @@ void *process_DPD(void *actx){
 					strcat( topic, ctx->errorid );
 					int msg_len = sprintf( msg, msg_info, ctx->sample );
 					if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
-						ctx->inerror = 1;
+						ctx->inerror = true;
 				} else {	/* Error topic defined */
 					char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
 					const char *msg_info = "No data received after %d seconds";
@@ -86,7 +86,7 @@ void *process_DPD(void *actx){
 					sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
 					int msg_len = sprintf( msg, msg_info, ctx->sample );
 					if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
-						ctx->inerror = 1;
+						ctx->inerror = true;
 				}
 
 				if(verbose)
@@ -107,7 +107,7 @@ void *process_DPD(void *actx){
 						strcpy( topic, "Alert/" );
 						strcat( topic, ctx->errorid );
 						if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS )
-							ctx->inerror = 0;
+							ctx->inerror = false;
 					} else {	/* Error topic defined */
 						char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
 							/* I duno if it's really needed to have a writable payload,
@@ -120,7 +120,7 @@ void *process_DPD(void *actx){
 						
 						sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
 						if( mqttpublish( cfg.client, topic, msglen, tmsg, 0 ) == MQTTCLIENT_SUCCESS )
-							ctx->inerror = 0;
+							ctx->inerror = false;
 					}
 
 					if(verbose)
