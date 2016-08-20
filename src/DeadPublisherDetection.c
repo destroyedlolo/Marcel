@@ -6,6 +6,8 @@
  *
  * 09/07/2015	- LF - First version
  * 28/07/2015	- LF - Add user function
+ * 20/08/2016	- LF - Prevent a nasty bug making system to crash if 
+ * 		user function lookup is failling
  */
 
 #include "DeadPublisherDetection.h"
@@ -31,8 +33,8 @@ void *process_DPD(void *actx){
 #ifdef LUA
 	if(ctx->funcname){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
-			fprintf(stderr, "*F* configuration error : user function \"%s\" is not defined\n", ctx->funcname);
-			exit(EXIT_FAILURE);
+			fprintf(stderr, "*E* configuration error : user function \"%s\" is not defined\n*E*This thread is dying.\n", ctx->funcname);
+			pthread_exit(NULL);
 		}
 	}
 #endif

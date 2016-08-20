@@ -7,6 +7,8 @@
  * 07/09/2015	- LF - First version
  * 17/05/2016	- LF - Add 'Immediate'
  * 06/06/2016	- LF - If sample is null, stop 
+ * 20/08/2016	- LF - Prevent a nasty bug making system to crash if 
+ * 		user function lookup is failling
  */
 #ifdef LUA	/* Only useful with Lua support */
 
@@ -22,8 +24,8 @@ void *process_Every(void *actx){
 
 	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
-			fprintf(stderr, "*F* configuration error : user function \"%s\" is not defined\n", ctx->funcname);
-			exit(EXIT_FAILURE);
+			fprintf(stderr, "*E* configuration error : user function \"%s\" is not defined\n*E*This thread is dying.\n", ctx->funcname);
+			pthread_exit(NULL);
 		}
 	}
 
