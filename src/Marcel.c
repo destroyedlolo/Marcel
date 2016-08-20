@@ -666,7 +666,8 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 					perror("eventfd to signal message reception");
 
 #ifdef LUA
-				execUserFuncDeadPublisher( &(Sec->DeadPublisher), topic, payload );
+				if( !Sec->DeadPublisher.disabled )
+					execUserFuncDeadPublisher( &(Sec->DeadPublisher), topic, payload );
 #endif
 			}
 		} else if(Sec->common.section_type == MSEC_RTSCMD){

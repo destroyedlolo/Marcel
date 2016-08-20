@@ -65,32 +65,37 @@ void *process_DPD(void *actx){
 			perror("pselect()");
 			pthread_exit(0);
 		case 0:	/* timeout */
-			if(verbose)
-				printf("*I* timeout for DPD '%s'\n", ctx->errorid);
-			if( !ctx->inerror ){	/* Entering in error */
-				if(!ctx->errtopic){		/* No error topic defined : sending an alert */
-					char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
-					const char *msg_info = "SNo data received after %d seconds";
-					char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
-
-					strcpy( topic, "Alert/" );
-					strcat( topic, ctx->errorid );
-					int msg_len = sprintf( msg, msg_info, ctx->sample );
-					if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
-						ctx->inerror = true;
-				} else {	/* Error topic defined */
-					char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
-					const char *msg_info = "No data received after %d seconds";
-					char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
-
-					sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
-					int msg_len = sprintf( msg, msg_info, ctx->sample );
-					if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
-						ctx->inerror = true;
-				}
-
+			if( ctx->disabled ){
 				if(verbose)
-					printf("*I* Alert raises for DPD '%s'\n", ctx->errorid);
+					printf("*I* Alerting for DPD '%s' is disabled\n", ctx->errorid);
+			} else {
+				if(verbose)
+					printf("*I* timeout for DPD '%s'\n", ctx->errorid);
+				if( !ctx->inerror ){	/* Entering in error */
+					if(!ctx->errtopic){		/* No error topic defined : sending an alert */
+						char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
+						const char *msg_info = "SNo data received after %d seconds";
+						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
+
+						strcpy( topic, "Alert/" );
+						strcat( topic, ctx->errorid );
+						int msg_len = sprintf( msg, msg_info, ctx->sample );
+						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
+							ctx->inerror = true;
+					} else {	/* Error topic defined */
+						char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
+						const char *msg_info = "No data received after %d seconds";
+						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
+
+						sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
+						int msg_len = sprintf( msg, msg_info, ctx->sample );
+						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
+							ctx->inerror = true;
+					}
+
+					if(verbose)
+						printf("*I* Alert raises for DPD '%s'\n", ctx->errorid);
+				}
 			}
 			break;
 		default:{	/* Got some data
@@ -101,30 +106,36 @@ void *process_DPD(void *actx){
 				uint64_t v;
 				if(read(ctx->rcv, &v, sizeof( uint64_t )) == -1)
 					perror("eventfd - reading notification");
-				if( ctx->inerror ){	/* Existing error condition */
-					if(!ctx->errtopic){		/* No error topic defined : sending an alert */
-						char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
-						strcpy( topic, "Alert/" );
-						strcat( topic, ctx->errorid );
-						if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS )
-							ctx->inerror = false;
-					} else {	/* Error topic defined */
-						char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
-							/* I duno if it's really needed to have a writable payload,
-							 * but anyway, it's safer as per API provided
-							 */
-						const char *msg_info = "Data received : issue corrected";
-						size_t msglen = strlen(msg_info);
-						char tmsg[ msglen+1 ];
-						strcpy( tmsg, msg_info );
-						
-						sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
-						if( mqttpublish( cfg.client, topic, msglen, tmsg, 0 ) == MQTTCLIENT_SUCCESS )
-							ctx->inerror = false;
-					}
-
+	
+				if( ctx->disabled ){
 					if(verbose)
-						printf("*I* Alert corrected for DPD '%s'\n", ctx->errorid);
+						printf("*I* Alerting for DPD '%s' is disabled\n", ctx->errorid);
+				} else {
+					if( ctx->inerror ){	/* Existing error condition */
+						if(!ctx->errtopic){		/* No error topic defined : sending an alert */
+							char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
+							strcpy( topic, "Alert/" );
+							strcat( topic, ctx->errorid );
+							if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS )
+								ctx->inerror = false;
+						} else {	/* Error topic defined */
+							char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
+								/* I duno if it's really needed to have a writable payload,
+								 * but anyway, it's safer as per API provided
+								 */
+							const char *msg_info = "Data received : issue corrected";
+							size_t msglen = strlen(msg_info);
+							char tmsg[ msglen+1 ];
+							strcpy( tmsg, msg_info );
+						
+							sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
+							if( mqttpublish( cfg.client, topic, msglen, tmsg, 0 ) == MQTTCLIENT_SUCCESS )
+								ctx->inerror = false;
+						}
+
+						if(verbose)
+							printf("*I* Alert corrected for DPD '%s'\n", ctx->errorid);
+					}
 				}
 			}
 			break;
