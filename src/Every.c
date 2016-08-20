@@ -30,7 +30,7 @@ void *process_Every(void *actx){
 	if(verbose)
 		printf("Launching a processing flow for '%s' Every task\n", ctx->funcname);
 
-	if(ctx->immediate)
+	if(ctx->immediate && !ctx->disabled)
 		execUserFuncEvery( ctx );
 
 	for(;;){
@@ -40,7 +40,11 @@ void *process_Every(void *actx){
 			break;
 		} else
 			sleep( ctx->sample );
-		execUserFuncEvery( ctx );
+		if( ctx->disabled ){
+			if(verbose)
+				printf("*I* Every is disabled for function '%s'\n", ctx->funcname);
+		} else 
+			execUserFuncEvery( ctx );
 	}
 
 	pthread_exit(0);
