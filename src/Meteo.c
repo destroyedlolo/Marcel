@@ -185,7 +185,11 @@ void *process_Meteo3H(void *actx){
 		printf("Launching a processing flow for Meteo 3H\n");
 
 	for(;;){
-		Meteo3H(actx);
+		if(((struct _Meteo *)actx)->disabled){
+			if(verbose)
+				printf("*I* Meteo3H is disabled for '%s'\n", ((struct _Meteo *)actx)->topic);
+		} else
+			Meteo3H(actx);
 		sleep( ((struct _Meteo *)actx)->sample);
 	}
 
@@ -392,11 +396,14 @@ void *process_MeteoD(void *actx){
 		printf("Launching a processing flow for Meteo Daily\n");
 
 	for(;;){
-		MeteoD(actx);
+		if(((struct _Meteo *)actx)->disabled){
+			if(verbose)
+				printf("*I* MeteoD is disabled for '%s'\n", ((struct _Meteo *)actx)->topic);
+		} else
+			MeteoD(actx);
 		sleep( ((struct _Meteo *)actx)->sample);
 	}
 
 	pthread_exit(0);
 }
-
 #endif
