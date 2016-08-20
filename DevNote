@@ -31,3 +31,20 @@ Be notified when a PIO changes
 		3: Both ports
 		1: latches
 		1: high
+
+Section activation
+==================
+
+control topic : <id_Marcel>/OnOff/<type section>/...
+with as ... argument :
+	FFV : topic
+	Freebox : topic
+	UPS : topic
+	Meteo3H : topic
+	MeteoD : topic
+	DPD : topic
+	RTS : topic
+	OutFile : topic
+	Every : section's name
+	REST : url
+
