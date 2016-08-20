@@ -56,6 +56,8 @@
  *	08/06/2016	- LF - 5.01 - 1-wire Alarm handled
  *	24/07/2016	- LF - 5.02 - Handle offset for FFV
  *	14/08/2016	- LF - 5.03 - Handle Outfile
+ *				-------
+ *	19/08/2016	- LF - switch to v6.0 - prepare controls
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -93,8 +95,8 @@
 #	include <lauxlib.h>
 #endif
 
-int verbose = 0;
-int configtest = 0;
+bool verbose = false;
+bool configtest = false;
 struct Config cfg;
 
 	/*
@@ -187,7 +189,7 @@ static void read_configuration( const char *fch){
 	cfg.OwAlarmSample=0;
 
 	if(verbose)
-		printf("Reading configuration file '%s'\n", fch);
+		printf("\nReading configuration file '%s'\n---------------------------\n", fch);
 
 	if(!(f=fopen(fch, "r"))){
 		perror(fch);
@@ -439,7 +441,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				printf("Entering section 'REST / %s'\n", n->REST.url );
+				printf("Entering section REST '%s'\n", n->REST.url );
 		} else if(!strcmp(l,"DPDLast\n") || !strcmp(l,"SubLast\n")){	/* Subscriptions are grouped at the end of the configuration file */
 			cfg.Sublast = 1;
 			if(verbose)
@@ -473,8 +475,11 @@ static void read_configuration( const char *fch){
 					exit(EXIT_FAILURE);
 			}
 			last_section->FFV.offset = atof(arg);
-			if(verbose)
+			if(verbose){
 				printf("\tOffset : %f\n", last_section->FFV.offset);
+				if(!last_section->FFV.offset)
+					puts("*W*\tIs it normal it's a NULL offset ?");
+			}
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				fputs("*F* Configuration issue : Host directive outside a UPS section\n", stderr);
@@ -720,11 +725,13 @@ int main(int ac, char **av){
 		exit(EXIT_FAILURE);
 		break;
 	case 't':
-		configtest = 1;
+		configtest = true;
 	case 'v':
-		verbose = 1;
-		puts("Marcel (c) L.Faillie 2015-2016");
-		printf("%s v%s starting ...\n", basename(av[0]), VERSION);
+		if(!verbose){
+			puts("Marcel (c) L.Faillie 2015-2016");
+			printf("%s v%s starting ...\n", basename(av[0]), VERSION);
+		}
+		verbose = true;
 		break;
 	case 'f':
 		conf_file = optarg;

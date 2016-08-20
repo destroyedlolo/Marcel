@@ -185,7 +185,7 @@ extern struct Config {
 } cfg;
 
 	/* Helper functions */
-extern int verbose;
+extern bool verbose;
 
 extern char *removeLF(char *);
 extern char *striKWcmp( char *, const char * );
