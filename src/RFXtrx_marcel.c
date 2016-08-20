@@ -215,7 +215,7 @@ void init_RFX(){
 void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	if(ctx->disabled){
 		if(verbose)
-			printf("*I* Writing to RTSCmd %04x is disabled\n", ctx->id);
+			printf("*I* Commanding RTSCmd %04x is disabled\n", ctx->id);
 		return;
 	}
 
