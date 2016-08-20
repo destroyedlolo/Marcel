@@ -102,7 +102,11 @@ void *process_REST(void *actx){
 	ctx->min = -1;	/* Indicate it's the 1st run */
 	for(;;){
 		waitNextQuery( ctx );
-		doRESTquery( ctx );
+		if(ctx->disabled){
+			if(verbose)
+				printf("*I* REST task for '%s' is currently disabled.\n", ctx->funcname);
+		} else
+			doRESTquery( ctx );
 	}
 }
 
