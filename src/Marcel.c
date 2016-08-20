@@ -173,8 +173,8 @@ static void read_configuration( const char *fch){
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.ClientID = "Marcel";
 	cfg.client = NULL;
-	cfg.Sublast = 0;
-	cfg.ConLostFatal = 0;
+	cfg.Sublast = false;
+	cfg.ConLostFatal = false;
 	cfg.first_Sub = NULL;
 
 	cfg.luascript = NULL;
@@ -443,11 +443,11 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering section REST '%s'\n", n->REST.url );
 		} else if(!strcmp(l,"DPDLast\n") || !strcmp(l,"SubLast\n")){	/* Subscriptions are grouped at the end of the configuration file */
-			cfg.Sublast = 1;
+			cfg.Sublast = true;
 			if(verbose)
 				puts("Subscriptions (DPD, RTSCmd) sections are grouped at the end of the configuration");
 		} else if(!strcmp(l,"ConnectionLostIsFatal\n")){	/* Crash if the broker connection is lost */
-			cfg.ConLostFatal = 1;
+			cfg.ConLostFatal = true;
 			if(verbose)
 				puts("Crash if the broker connection is lost");
 		} else if((arg = striKWcmp(l,"File="))){

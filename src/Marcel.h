@@ -169,8 +169,8 @@ extern struct Config {
 	const char *Broker;		/* Broker's URL */
 	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
 	MQTTClient client;
-	int Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
-	int ConLostFatal;		/* Die if broker connection is lost */
+	bool Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
+	bool ConLostFatal;		/* Die if broker connection is lost */
 	union CSection *first_Sub;	/* Pointer to the first subscription */
 	const char *luascript;	/* file containing Lua functions */
 	const char *OwAlarm;	/* Path to 1-wire alarm directory */
