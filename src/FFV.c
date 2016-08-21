@@ -20,7 +20,7 @@
 static void handle_FFV(struct _FFV *ctx){
 	if(ctx->disabled){
 		if(verbose)
-			printf("*I* Reading FFV '%s' is disabled\n", ctx->topic);
+			printf("*I* [%s] Reading FFV '%s' is disabled\n", ctx->uid, ctx->topic);
 		return;
 	}
 
@@ -58,14 +58,14 @@ static void handle_FFV(struct _FFV *ctx){
 		float val;
 		if(!fscanf(f, "%f", &val)){
 			if(verbose)
-				printf("FFV : %s -> Unable to read a float value.\n", ctx->topic);
+				printf("FFV '%s' : %s -> Unable to read a float value.\n", ctx->uid, ctx->topic);
 		} else {	/* Only to normalize the response */
 			val += ctx->offset;
 			sprintf(l,"%.1f", val);
 
 			mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
 			if(verbose)
-				printf("FFV : %s -> %f\n", ctx->topic, val);
+				printf("FFV '%s' : %s -> %f\n", ctx->uid, ctx->topic, val);
 		}
 		fclose(f);
 
