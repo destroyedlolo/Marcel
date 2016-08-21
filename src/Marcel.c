@@ -684,6 +684,11 @@ static void read_configuration( const char *fch){
 	}
 
 	fclose(f);
+
+	assert( cfg.OnOffTopic = malloc( strlen(cfg.ClientID) + 9) );	/* "/OnOff/#" + \0 */
+	sprintf( cfg.OnOffTopic, "%s/OnOff/", cfg.ClientID );
+	if(verbose)
+		printf("OnOff topic : %s\n", cfg.OnOffTopic);
 }
 
 	/*
@@ -990,9 +995,18 @@ int main(int ac, char **av){
 		}
 	}
 
+		/* Marcel's own topic */
+	int i = strlen(cfg.OnOffTopic);
+	assert( i > 1 );
+	cfg.OnOffTopic[i] = '#';
+	cfg.OnOffTopic[i+1] = 0;
+	if(MQTTClient_subscribe( cfg.client, cfg.OnOffTopic, 0 ) != MQTTCLIENT_SUCCESS ){
+		fprintf(stderr, "Can't subscribe to '%s'\n", cfg.OnOffTopic );
+	}
+	cfg.OnOffTopic[i] = 0;
+
 	signal(SIGINT, handleInt);
 	pause();
 
 	exit(EXIT_SUCCESS);
 }
-

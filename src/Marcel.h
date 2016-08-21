@@ -187,7 +187,7 @@ extern struct Config {
 	union CSection *sections;	/* Sections' list */
 	const char *Broker;		/* Broker's URL */
 	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
-	const char *OnOffTopic;	/* topic to enable/disable sections */
+	char *OnOffTopic;	/* topic to enable/disable sections */
 	MQTTClient client;
 	bool Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
 	bool ConLostFatal;		/* Die if broker connection is lost */
