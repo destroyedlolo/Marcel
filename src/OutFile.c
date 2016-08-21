@@ -17,7 +17,7 @@
 void processOutFile( struct _OutFile *ctx, const char *msg){
 	if(ctx->disabled){
 		if(verbose)
-			printf("*I* Writing to OutFile '%s' is disabled\n", ctx->file);
+			printf("*I* Writing to OutFile '%s' is disabled\n", ctx->uid);
 		return;
 	}
 
@@ -30,7 +30,7 @@ void processOutFile( struct _OutFile *ctx, const char *msg){
 	if(ferror(f))
 		fprintf(stderr, "*E* '%s' : %s\n", ctx->file, strerror(errno));
 	else if(verbose)
-		printf("*I* '%s' written in '%s'\n", msg, ctx->file);
+		printf("*I* [%s] '%s' written in '%s'\n", ctx->uid, msg, ctx->file);
 	fclose(f);
 	return;
 }

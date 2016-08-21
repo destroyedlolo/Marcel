@@ -312,6 +312,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _OutFile));
 			n->common.section_type = MSEC_OUTFILE;
+			setUID( n, removeLF(arg) );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -322,7 +323,7 @@ static void read_configuration( const char *fch){
 				cfg.first_Sub = n;
 	
 			if(verbose)
-				printf("Entering OutFile section '%s'\n", removeLF(arg));
+				printf("Entering OutFile section '%s'\n", n->common.uid);
 		} else if((arg = striKWcmp(l,"*Freebox"))){
 			union CSection *n = malloc( sizeof(struct _FreeBox) );
 			assert(n);
@@ -425,7 +426,7 @@ static void read_configuration( const char *fch){
 				cfg.first_Sub = n;
 
 			if(verbose)
-				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.uid);
+				printf("Entering section 'DeadPublisher/%s'\n", n->common.uid);
 		} else if((arg = striKWcmp(l,"*RTSCmd="))){
 			union CSection *n = malloc( sizeof(struct _RTSCmd) );
 			assert(n);
@@ -899,12 +900,18 @@ int main(int ac, char **av){
 			firstFFV=true;
 			break;
 		case MSEC_OUTFILE:
-			if(!s->OutFile.topic || !s->OutFile.file){
-				fputs("*E* configuration error : no topic or file specified, ignoring this OutFile section\n", stderr);
-			} else if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
-				fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
+			if(!s->OutFile.file){
+				fprintf(stderr, "*E* configuration error : no file specified, ignoring OutFile '%s' section\n", s->common.uid);
+			} else {
+				if( !s->common.topic ){
+					s->common.topic = s->common.uid;
+					if(verbose)
+						printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+				}
+				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS )
+					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
+				firstFFV=true;
 			}
-			firstFFV=true;
 			break;
 #ifdef METEO
 		case MSEC_METEO3H:
