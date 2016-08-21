@@ -9,13 +9,14 @@
  * 24/07/2016	- LF - v5.02 - Handle offset for FFV
  * 13/08/2016	- LF - v5.03 - Add Out file
  * 19/08/2016	- LF - v6.00 - handle disable
+ * 21/08/2016	- LF - v6.02 - starting this version all section MUST have an uniq ID
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.0101"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "6.0200"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

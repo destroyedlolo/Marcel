@@ -215,7 +215,7 @@ void init_RFX(){
 void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	if(ctx->disabled){
 		if(verbose)
-			printf("*I* Commanding RTSCmd %04x is disabled\n", ctx->id);
+			printf("*I* Commanding RTSCmd %04x is disabled\n", ctx->did);
 		return;
 	}
 
@@ -245,10 +245,10 @@ void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	buff.RFY.packettype = pTypeRFY;
 	buff.RFY.subtype = sTypeRFY;
 	buff.RFY.seqnbr = 0;
-	buff.RFY.id1 = ctx->id >> 24;
-	buff.RFY.id2 = (ctx->id >> 16) & 0xff;
-	buff.RFY.id3 = (ctx->id >> 8) & 0xff;
-	buff.RFY.unitcode = ctx->id & 0xff;
+	buff.RFY.id1 = ctx->did >> 24;
+	buff.RFY.id2 = (ctx->did >> 16) & 0xff;
+	buff.RFY.id3 = (ctx->did >> 8) & 0xff;
+	buff.RFY.unitcode = ctx->did & 0xff;
 	buff.RFY.cmnd = cmd;
 	dumpbuff();
 	if(writeRFX(fd) == -1)
@@ -260,6 +260,6 @@ void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	close(fd);
 
 	if(verbose)
-		printf("*I* Sending '%s' (%d) command to %04x\n", msg, cmd, ctx->id);
+		printf("*I* Sending '%s' (%d) command to %04x\n", msg, cmd, ctx->did);
 }
 #endif

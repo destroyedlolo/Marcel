@@ -407,7 +407,7 @@ static void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct _RTSCmd));
 			n->common.section_type = MSEC_RTSCMD;
 
-			n->RTSCmd.id = strtol(arg, NULL, 0);
+			n->RTSCmd.did = strtol(arg, NULL, 0);
 
 			if(last_section)
 				last_section->common.next = n;
@@ -418,7 +418,7 @@ static void read_configuration( const char *fch){
 				cfg.first_Sub = n;
 
 			if(verbose)
-				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.id);
+				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.did);
 		} else if((arg = striKWcmp(l,"*REST="))){
 			union CSection *n = malloc( sizeof(struct _REST) );
 			assert(n);

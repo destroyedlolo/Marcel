@@ -11,6 +11,7 @@
  * 01/05/2016	- LF - Rename all DPD* as Sub*
  * 14/05/2016	- LF - add REST section
  * 07/06/2016	- LF - externalize version
+ * 21/08/2016	- LF - starting v6.02, each section MUST have an ID
  */
 
 #ifndef MARCEL_H
@@ -52,6 +53,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;
 		bool disabled;		/* this section is currently disabled */
 		int sample;
@@ -60,6 +63,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to publish to */
 		bool disabled;
 		int sample;			/* delay b/w 2 samples */
@@ -71,6 +76,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to subscribe to */
 		bool disabled;
 		int padding;		/* Not used */
@@ -80,6 +87,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
 		int sample;			/* delay b/w 2 samples */
@@ -88,6 +97,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
 		int sample;			/* delay b/w 2 samples */
@@ -100,6 +111,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
 		int sample;			/* Timeout */
@@ -114,6 +127,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *name;	/* Name of the section, passed to Lua function */
 		bool disabled;
 		int sample;			/* Delay b/w launches */
@@ -125,6 +140,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *url;	/* URL to query */
 		bool disabled;
 		int sample;			/* Delay b/w 2 queries */
@@ -139,6 +156,8 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
 		int sample;			/* Delay b/w 2 queries */
@@ -150,10 +169,12 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
+		const char *id;		/* Uniq identifier */
+		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
 		int padding;		/* not used */
-		uint32_t id;		/* ID corresponding to this device */
+		uint32_t did;		/* ID corresponding to this device */
 	} RTSCmd;
 };
 
