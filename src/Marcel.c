@@ -711,7 +711,22 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		rcv_notification( aid, payload );
 	else if((aid = striKWcmp(topic,"nNotification/")))
 		rcv_nnotification( aid, payload );
-	else for(; Sec; Sec = Sec->common.next){
+	else if((aid = striKWcmp(topic, cfg.OnOffTopic))){
+		int h = chksum( aid );
+		for(Sec = cfg.sections; Sec; Sec = Sec->common.next){
+			if( Sec->common.h == h && !strcmp( Sec->common.uid, aid ) )	/* Target found */
+				break;
+		}
+		if( Sec ){
+			bool disable = false;
+			if( !strcmp(payload,"0") || !strcasecmp(payload,"off") || !strcasecmp(payload,"disable") )
+				disable = true;
+			Sec->common.disabled = disable;
+			if(verbose)
+				printf("*I* %s '%s'\n", disable ? "Disabling":"Enabling", aid);
+		} else if(verbose)
+			printf("*I* No section matching '%s'\n", aid);
+	} else for(; Sec; Sec = Sec->common.next){
 		if(Sec->common.section_type == MSEC_DEADPUBLISHER){
 			if(!mqtttokcmp(Sec->DeadPublisher.topic, topic)){	/* Topic found */
 				uint64_t v = 1;
