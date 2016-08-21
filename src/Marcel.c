@@ -299,6 +299,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _FFV));
 			n->common.section_type = MSEC_FFV;
+			setUID( n, removeLF(arg) );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -306,7 +307,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				printf("Entering FFV section '%s'\n", removeLF(arg));
+				printf("Entering FFV section '%s'\n", n->common.uid);
 		} else if((arg = striKWcmp(l,"*OutFile="))){
 			union CSection *n = malloc( sizeof(struct _OutFile) );
 			assert(n);
@@ -842,9 +843,14 @@ int main(int ac, char **av){
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		switch(s->common.section_type){
 		case MSEC_FFV:
+			if( !s->common.topic ){
+				s->common.topic = s->common.uid;
+				if(verbose)
+					printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+			}
 			if(s->common.sample){
 				if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
-					fputs("*F* Can't create a processing thread\n", stderr);
+					fprintf(stderr, "*F* [%s] Can't create a processing thread\n", s->common.uid);
 					exit(EXIT_FAILURE);
 				}
 				firstFFV=false;

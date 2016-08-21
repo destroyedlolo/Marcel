@@ -109,17 +109,13 @@ void *process_FFV(void *actx){
 	struct _FFV *ctx = actx;	/* Only to avoid zillions of cast */
 
 		/* Sanity checks */
-	if(!ctx->topic){
-		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
-		pthread_exit(0);
-	}
 	if(!ctx->file){
-		fprintf(stderr, "*E* configuration error : no file specified for '%s', ignoring this section\n", ctx->topic);
+		fprintf(stderr, "*E* [%s] configuration error : no file specified, ignoring this section\n", ctx->uid);
 		pthread_exit(0);
 	}
 
 	if(verbose)
-		printf("Launching a processing flow for FFV '%s'\n", ctx->topic);
+		printf("Launching a processing flow for FFV '%s'\n", ctx->uid);
 
 	for(;;){	/* Infinite loop to process messages */
 		ctx = actx;	/* Back to the 1st one */
@@ -134,7 +130,7 @@ void *process_FFV(void *actx){
 
 		if(((struct _FFV *)actx)->sample == -1){
 			if(verbose)
-				printf("*I* FFV '%s' has -1 sample delay : dying ...\n", ((struct _FFV *)actx)->topic);
+				printf("*I* FFV '%s' has -1 sample delay : dying ...\n", ((struct _FFV *)actx)->uid);
 			break;
 		} else 
 			sleep( ((struct _FFV *)actx)->sample );
