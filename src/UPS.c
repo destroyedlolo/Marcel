@@ -28,12 +28,8 @@ void *process_UPS(void *actx){
 	struct sockaddr_in serv_addr;
 
 		/* Sanity checks */
-	if(!ctx->topic || !ctx->section_name){
-		fputs("*E* configuration error : section name or topic specified, ignoring this section\n", stderr);
-		pthread_exit(0);
-	}
 	if(!ctx->host || !ctx->port){
-		fputs("*E* configuration error : Don't know how to reach NUT\n", stderr);
+		fprintf(stderr, "*E* [%s] configuration error : Don't know how to reach NUT\n", ctx->uid);
 		pthread_exit(0);
 	}
 
@@ -49,7 +45,7 @@ void *process_UPS(void *actx){
 	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
 
 	if(verbose)
-		printf("Launching a processing flow for UPS/%s\n", ctx->section_name);
+		printf("Launching a processing flow for UPS/%s\n", ctx->uid);
 
 	for(;;){	/* Infinite loop to process data */
 		if(ctx->disabled){
@@ -67,7 +63,7 @@ void *process_UPS(void *actx){
 				perror("*E* Connecting");
 			} else {
 				for(struct var *v = ctx->var_list; v; v = v->next){
-					sprintf(l, "GET VAR %s %s\n", ctx->section_name, v->name);
+					sprintf(l, "GET VAR %s %s\n", ctx->uid, v->name);
 					if( send(sockfd, l , strlen(l), 0) == -1 ){
 /*AF : Send error topic */
 						perror("*E* Sending");
@@ -76,7 +72,7 @@ void *process_UPS(void *actx){
 						socketreadline(sockfd, l, sizeof(l));
 						if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') )){
 							if(verbose)
-								printf("*E* %s/%s : unexpected result '%s'\n", ctx->section_name, v->name, l);
+								printf("*E* %s/%s : unexpected result '%s'\n", ctx->uid, v->name, l);
 						} else {
 							ps++; *pe++ = 0;	/* Extract only the result */
 							assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */

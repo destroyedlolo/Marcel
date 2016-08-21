@@ -30,7 +30,7 @@ void *process_Every(void *actx){
 	}
 
 	if(verbose)
-		printf("Launching a processing flow for '%s' Every task\n", ctx->funcname);
+		printf("Launching a processing flow for '%s' Every task\n", ctx->uid);
 
 	if(ctx->immediate && !ctx->disabled)
 		execUserFuncEvery( ctx );
@@ -38,13 +38,13 @@ void *process_Every(void *actx){
 	for(;;){
 		if(!ctx->sample){
 			if(verbose)
-				printf("*I* Every '%s' has 0 sample delay : dying ...\n", ctx->funcname);
+				printf("*I* Every '%s' has 0 sample delay : dying ...\n", ctx->uid);
 			break;
 		} else
 			sleep( ctx->sample );
 		if( ctx->disabled ){
 			if(verbose)
-				printf("*I* Every is disabled for function '%s'\n", ctx->funcname);
+				printf("*I* Every '%s' is disabled.\n", ctx->uid);
 		} else 
 			execUserFuncEvery( ctx );
 	}

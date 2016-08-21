@@ -344,8 +344,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _UPS));
 			n->common.section_type = MSEC_UPS;
-
-			assert( n->Ups.section_name = strdup( removeLF(arg) ) );
+			setUID( n, removeLF(arg) );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -353,14 +352,13 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				printf("Entering section 'UPS/%s'\n", n->Ups.section_name);
+				printf("Entering section 'UPS/%s'\n", n->Ups.uid);
 		} else if((arg = striKWcmp(l,"*Every="))){
 			union CSection *n = malloc( sizeof(struct _Every) );
 			assert(n);
 			memset(n, 0, sizeof(struct _Every));
 			n->common.section_type = MSEC_EVERY;
-
-			assert( n->Every.name = strdup( removeLF(arg) ));
+			setUID( n, removeLF(arg) );
 
 #ifndef LUA
 			fputs("*F* Every section is only available when compiled with Lua support\n", stderr);
@@ -375,7 +373,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				printf("Entering section 'Every/%s'\n", n->Every.name );
+				printf("Entering section 'Every/%s'\n", n->Every.uid );
 		} else if((arg = striKWcmp(l,"*Meteo3H"))){
 			union CSection *n = malloc( sizeof(struct _Meteo) );
 			assert(n);
@@ -879,11 +877,18 @@ int main(int ac, char **av){
 #ifdef UPS
 		case MSEC_UPS:
 			if(!s->common.sample){ /* we won't group UPS to prevent too many DNS lookup */
-				fputs("*E* UPS section without sample time : ignoring ...\n", stderr);
-			} else if(pthread_create( &(s->common.thread), &thread_attr, process_UPS, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
-				exit(EXIT_FAILURE);
-			}			
+				fprintf(stderr, "*E* [%s] UPS section without sample time : ignoring ...\n", s->common.uid);
+			} else {
+				if( !s->common.topic ){
+					s->common.topic = s->common.uid;
+					if(verbose)
+						printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+				}
+				if(pthread_create( &(s->common.thread), &thread_attr, process_UPS, s) < 0){
+					fputs("*F* Can't create a processing thread\n", stderr);
+					exit(EXIT_FAILURE);
+				}
+			}
 			firstFFV=true;
 			break;
 #endif
