@@ -31,12 +31,12 @@ void *process_Freebox(void *actx){
 
 		/* Sanity checks */
 	if(!ctx->topic){
-		fputs("*E* configuration error : no topic specified, ignoring this section\n", stderr);
+		fputs("*E* [Freebox] configuration error : no topic specified, ignoring this section\n", stderr);
 		pthread_exit(0);
 	}
 	if(!(server = gethostbyname( FBX_HOST ))){
 		perror( FBX_HOST );
-		fputs("*E* Stopping this thread\n", stderr);
+		fputs("*E* [Freebox] Stopping this thread\n", stderr);
 		pthread_exit(0);
 	}
 

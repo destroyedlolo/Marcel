@@ -329,6 +329,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _FreeBox));
 			n->common.section_type = MSEC_FREEBOX;
+			setUID( n, "Freebox" );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -855,9 +856,16 @@ int main(int ac, char **av){
 		case MSEC_FREEBOX:
 			if(!s->common.sample){
 				fputs("*E* Freebox section without sample time : ignoring ...\n", stderr);
-			} else if(pthread_create( &(s->common.thread), &thread_attr, process_Freebox, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
-				exit(EXIT_FAILURE);
+			} else {
+				if( !s->common.topic ){
+					s->common.topic = s->common.uid;
+					if(verbose)
+						printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+				}
+				if(pthread_create( &(s->common.thread), &thread_attr, process_Freebox, s) < 0){
+					fputs("*F* [Freebox] Can't create a processing thread\n", stderr);
+					exit(EXIT_FAILURE);
+				}
 			}
 			firstFFV=true;
 			break;
@@ -910,8 +918,8 @@ int main(int ac, char **av){
 				}
 				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS )
 					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
-				firstFFV=true;
 			}
+			firstFFV=true;
 			break;
 #ifdef METEO
 		case MSEC_METEO3H:
