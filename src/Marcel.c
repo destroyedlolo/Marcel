@@ -163,6 +163,27 @@ size_t socketreadline( int fd, char *l, size_t sz){
 	/*
 	 * Configuration
 	 */
+static int chksum(const char *s){
+	int h = 0;
+	while(*s)
+		h += *s++;
+	return h;
+}
+
+static void setUID( union CSection *sec, const char *uid ){
+	int h = chksum(uid);
+
+	for(union CSection *s = cfg.sections; s; s = s->common.next){
+		if( s->common.h == h && !strcmp(s->common.uid, uid) ){
+			fprintf(stderr, "*F* '%s' uid is used more than once.\n", uid);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	assert( sec->common.uid = strdup( uid ) );
+	sec->common.h = h;
+}
+
 static void read_configuration( const char *fch){
 	FILE *f;
 	char l[MAXLINE];
@@ -406,8 +427,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _RTSCmd));
 			n->common.section_type = MSEC_RTSCMD;
-
-			n->RTSCmd.did = strtol(arg, NULL, 0);
+			setUID( n, removeLF(arg) );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -418,7 +438,7 @@ static void read_configuration( const char *fch){
 				cfg.first_Sub = n;
 
 			if(verbose)
-				printf("Entering section 'RTS Command' for device %08x\n", n->RTSCmd.did);
+				printf("Entering section 'RTS Command' for '%s'\n", n->RTSCmd.uid);
 		} else if((arg = striKWcmp(l,"*REST="))){
 			union CSection *n = malloc( sizeof(struct _REST) );
 			assert(n);
@@ -494,11 +514,19 @@ static void read_configuration( const char *fch){
 				exit(EXIT_FAILURE);
 			}
 			if(!(last_section->Ups.port = atoi(arg))){
-				fputs("*F* Configurstruct _DeadPublisher *ation issue : Port is null (or is not a number)\n", stderr);
+				fputs("*F* Configuration issue : Port is null (or is not a number)\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 			if(verbose)
 				printf("\tPort : %d\n", last_section->Ups.port);
+		} else if((arg = striKWcmp(l,"ID="))){
+			if(!last_section || last_section->common.section_type != MSEC_RTSCMD){
+				fputs("*F* Configuration issue : ID directive outside a RTSCom section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			last_section->RTSCmd.did = strtol(arg, NULL, 0);
+			if(verbose)
+				printf("\tID : %04x\n", last_section->RTSCmd.did);
 		} else if((arg = striKWcmp(l,"Var="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				fputs("*F* Configuration issue : Var directive outside a UPS section\n", stderr);

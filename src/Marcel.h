@@ -53,7 +53,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;
 		bool disabled;		/* this section is currently disabled */
@@ -63,20 +63,20 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to publish to */
 		bool disabled;
 		int sample;			/* delay b/w 2 samples */
 		const char *file;	/* File containing the data to read */
-		const char *latch;			/* Type for this file */
+		const char *latch;	/* Related latch file (optional) */
 		float offset;		/* Offset to apply to the raw value */
 	} FFV;
 	struct _OutFile {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to subscribe to */
 		bool disabled;
@@ -87,7 +87,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
@@ -97,7 +97,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
@@ -111,7 +111,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
@@ -127,7 +127,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *name;	/* Name of the section, passed to Lua function */
 		bool disabled;
@@ -140,7 +140,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *url;	/* URL to query */
 		bool disabled;
@@ -156,7 +156,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
@@ -169,7 +169,7 @@ union CSection {
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */
-		const char *id;		/* Uniq identifier */
+		const char *uid;	/* Uniq identifier */
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;

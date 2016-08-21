@@ -215,7 +215,7 @@ void init_RFX(){
 void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	if(ctx->disabled){
 		if(verbose)
-			printf("*I* Commanding RTSCmd %04x is disabled\n", ctx->did);
+			printf("*I* Commanding RTSCmd '%s' is disabled\n", ctx->uid);
 		return;
 	}
 
@@ -260,6 +260,6 @@ void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	close(fd);
 
 	if(verbose)
-		printf("*I* Sending '%s' (%d) command to %04x\n", msg, cmd, ctx->did);
+		printf("*I* Sending '%s' (%d) command to '%s' (%04x)\n", msg, cmd, ctx->uid, ctx->did);
 }
 #endif
