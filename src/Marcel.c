@@ -171,6 +171,11 @@ static int chksum(const char *s){
 }
 
 static void setUID( union CSection *sec, const char *uid ){
+	if(!*uid){
+		fputs("*F* Empty uid provided.\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+
 	int h = chksum(uid);
 
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
@@ -409,8 +414,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _DeadPublisher));
 			n->common.section_type = MSEC_DEADPUBLISHER;
-
-			assert( n->DeadPublisher.errorid = strdup( removeLF(arg) ) );
+			setUID( n, removeLF(arg) );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -421,7 +425,7 @@ static void read_configuration( const char *fch){
 				cfg.first_Sub = n;
 
 			if(verbose)
-				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.errorid);
+				printf("Entering section 'DeadPublisher/%s'\n", n->DeadPublisher.uid);
 		} else if((arg = striKWcmp(l,"*RTSCmd="))){
 			union CSection *n = malloc( sizeof(struct _RTSCmd) );
 			assert(n);
@@ -521,7 +525,7 @@ static void read_configuration( const char *fch){
 				printf("\tPort : %d\n", last_section->Ups.port);
 		} else if((arg = striKWcmp(l,"ID="))){
 			if(!last_section || last_section->common.section_type != MSEC_RTSCMD){
-				fputs("*F* Configuration issue : ID directive outside a RTSCom section\n", stderr);
+				fputs("*F* Configuration issue : ID directive outside a RTSCmd section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 			last_section->RTSCmd.did = strtol(arg, NULL, 0);
@@ -881,9 +885,7 @@ int main(int ac, char **av){
 #endif
 		case MSEC_DEADPUBLISHER:
 			if(!s->common.topic){
-				fputs("*E* configuration error : no topic specified, ignoring this DPD section\n", stderr);
-			} else if(!*s->DeadPublisher.errorid){
-				fprintf(stderr, "*E* configuration error : no errorid specified for DPD '%s', ignoring this section\n", s->common.topic);
+				fprintf(stderr, "*E* configuration error : no topic specified, ignoring DPD '%s' section\n", s->common.uid );
 			} else if(!s->common.sample && !s->DeadPublisher.funcname){
 				fputs("*E* DeadPublisher section without sample time or user function defined : ignoring ...\n", stderr);
 			} else {
@@ -926,8 +928,8 @@ int main(int ac, char **av){
 #endif
 #ifdef RFXTRX
 		case MSEC_RTSCMD:
-			if(!s->common.topic){
-				fputs("*E* configuration error : no topic specified, ignoring this RTSCmd section\n", stderr);
+			if(!s->common.topic || !s->RTSCmd.did ){
+				fputs("*E* configuration error : no topic or device ID specified, ignoring this RTSCmd section\n", stderr);
 			} else if(cfg.RFXdevice){
 				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
 					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );

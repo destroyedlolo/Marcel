@@ -119,7 +119,6 @@ union CSection {
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
 		const char *errtopic;	/* Topic to publish error to */
-		const char *errorid;	/* Error's name */
 		int rcv;			/* Event for data receiving */
 		bool inerror;		/* true if this DPD is in error */
 	} DeadPublisher;

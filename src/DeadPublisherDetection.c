@@ -8,6 +8,7 @@
  * 28/07/2015	- LF - Add user function
  * 20/08/2016	- LF - Prevent a nasty bug making system to crash if 
  * 		user function lookup is failling
+ * 21/08/2016	- LF - Replace errorid by uid
  */
 
 #include "DeadPublisherDetection.h"
@@ -39,7 +40,7 @@ void *process_DPD(void *actx){
 	}
 #endif
 	if(verbose)
-		printf("Launching a processing flow for DeadPublisherDetect (DPD) '%s'\n", ctx->topic);
+		printf("Launching a processing flow for DeadPublisherDetect (DPD) '%s'\n", ctx->uid);
 
 		/* Creating the fd for the notification */
 	if(( ctx->rcv = eventfd( 0, 0 )) == -1 ){
@@ -69,34 +70,34 @@ void *process_DPD(void *actx){
 		case 0:	/* timeout */
 			if( ctx->disabled ){
 				if(verbose)
-					printf("*I* Alerting for DPD '%s' is disabled\n", ctx->errorid);
+					printf("*I* Alerting for DPD '%s' is disabled\n", ctx->uid);
 			} else {
 				if(verbose)
-					printf("*I* timeout for DPD '%s'\n", ctx->errorid);
+					printf("*I* timeout for DPD '%s'\n", ctx->uid);
 				if( !ctx->inerror ){	/* Entering in error */
 					if(!ctx->errtopic){		/* No error topic defined : sending an alert */
-						char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
+						char topic[strlen(ctx->uid) + 7]; /* "Alert/" + 1 */
 						const char *msg_info = "SNo data received after %d seconds";
 						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
 
 						strcpy( topic, "Alert/" );
-						strcat( topic, ctx->errorid );
+						strcat( topic, ctx->uid );
 						int msg_len = sprintf( msg, msg_info, ctx->sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
 							ctx->inerror = true;
 					} else {	/* Error topic defined */
-						char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
+						char topic[ strlen(ctx->errtopic) + strlen(ctx->uid) + 2];	/* + '/' + 0 */
 						const char *msg_info = "No data received after %d seconds";
 						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
 
-						sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
+						sprintf( topic, "%s/%s", ctx->errtopic, ctx->uid );
 						int msg_len = sprintf( msg, msg_info, ctx->sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
 							ctx->inerror = true;
 					}
 
 					if(verbose)
-						printf("*I* Alert raises for DPD '%s'\n", ctx->errorid);
+						printf("*I* Alert raises for DPD '%s'\n", ctx->uid);
 				}
 			}
 			break;
@@ -111,17 +112,17 @@ void *process_DPD(void *actx){
 	
 				if( ctx->disabled ){
 					if(verbose)
-						printf("*I* Alerting for DPD '%s' is disabled\n", ctx->errorid);
+						printf("*I* Alerting for DPD '%s' is disabled\n", ctx->uid);
 				} else {
 					if( ctx->inerror ){	/* Existing error condition */
 						if(!ctx->errtopic){		/* No error topic defined : sending an alert */
-							char topic[strlen(ctx->errorid) + 7]; /* "Alert/" + 1 */
+							char topic[strlen(ctx->uid) + 7]; /* "Alert/" + 1 */
 							strcpy( topic, "Alert/" );
-							strcat( topic, ctx->errorid );
+							strcat( topic, ctx->uid );
 							if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS )
 								ctx->inerror = false;
 						} else {	/* Error topic defined */
-							char topic[ strlen(ctx->errtopic) + strlen(ctx->errorid) + 2];	/* + '/' + 0 */
+							char topic[ strlen(ctx->errtopic) + strlen(ctx->uid) + 2];	/* + '/' + 0 */
 								/* I duno if it's really needed to have a writable payload,
 								 * but anyway, it's safer as per API provided
 								 */
@@ -130,13 +131,13 @@ void *process_DPD(void *actx){
 							char tmsg[ msglen+1 ];
 							strcpy( tmsg, msg_info );
 						
-							sprintf( topic, "%s/%s", ctx->errtopic, ctx->errorid );
+							sprintf( topic, "%s/%s", ctx->errtopic, ctx->uid );
 							if( mqttpublish( cfg.client, topic, msglen, tmsg, 0 ) == MQTTCLIENT_SUCCESS )
 								ctx->inerror = false;
 						}
 
 						if(verbose)
-							printf("*I* Alert corrected for DPD '%s'\n", ctx->errorid);
+							printf("*I* Alert corrected for DPD '%s'\n", ctx->uid);
 					}
 				}
 			}
