@@ -64,7 +64,7 @@ static void Meteo3H(struct _Meteo *ctx){
 	enum json_tokener_error jerr = json_tokener_success;
 
 	if(verbose)
-		puts("*D* Querying Meteo 3H");
+		printf("*D* Querying Meteo 3H '%s'\n", ctx->uid);
 
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEO3H) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
@@ -89,7 +89,7 @@ static void Meteo3H(struct _Meteo *ctx){
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
 			json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
 			if(jerr != json_tokener_success)
-				fprintf(stderr, "*E* Querying meteo : %s\n", json_tokener_error_desc(jerr));
+				fprintf(stderr, "*E* [%s] Querying meteo : %s\n", ctx->uid, json_tokener_error_desc(jerr));
 			else {
 				struct json_object *wlist = json_object_object_get( jobj, "list");
 				if(wlist){
@@ -172,7 +172,7 @@ static void Meteo3H(struct _Meteo *ctx){
 			}
 			json_object_put(jobj);
 		} else
-			fprintf(stderr, "*E* Querying meteo : %s\n", curl_easy_strerror(res));
+			fprintf(stderr, "*E* [%s] Querying meteo : %s\n", ctx->uid, curl_easy_strerror(res));
 
 			/* Cleanup */
 		curl_easy_cleanup(curl);
@@ -182,12 +182,12 @@ static void Meteo3H(struct _Meteo *ctx){
 
 void *process_Meteo3H(void *actx){
 	if(verbose)
-		printf("Launching a processing flow for Meteo 3H\n");
+		printf("Launching a processing flow for Meteo 3H '%s'\n", ((struct _Meteo *)actx)->uid);
 
 	for(;;){
 		if(((struct _Meteo *)actx)->disabled){
 			if(verbose)
-				printf("*I* Meteo3H is disabled for '%s'\n", ((struct _Meteo *)actx)->topic);
+				printf("*I* Meteo3H is disabled for '%s'\n", ((struct _Meteo *)actx)->uid);
 		} else
 			Meteo3H(actx);
 		sleep( ((struct _Meteo *)actx)->sample);
@@ -201,7 +201,7 @@ static void MeteoD(struct _Meteo *ctx){
 	enum json_tokener_error jerr = json_tokener_success;
 
 	if(verbose)
-		puts("*D* Querying Meteo daily");
+		printf("*D* Querying Meteo Daily '%s'\n", ctx->uid);
 
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEOD) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
@@ -223,7 +223,7 @@ static void MeteoD(struct _Meteo *ctx){
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
 			json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
 			if(jerr != json_tokener_success)
-				fprintf(stderr, "*E* Querying meteo daily : %s\n", json_tokener_error_desc(jerr));
+				fprintf(stderr, "*E* [%s] Querying meteo daily: %s\n", ctx->uid, json_tokener_error_desc(jerr));
 			else {
 				struct json_object *wlist = json_object_object_get( jobj, "list");
 				if(wlist){
@@ -321,7 +321,7 @@ static void MeteoD(struct _Meteo *ctx){
 			}
 			json_object_put(jobj);
 		} else
-			fprintf(stderr, "*E* Querying meteo : %s\n", curl_easy_strerror(res));
+			fprintf(stderr, "*E* [%s] Querying meteo : %s\n", ctx->uid, curl_easy_strerror(res));
 
 			/* Check if we switched to another day */
 		time_t now;
@@ -393,12 +393,12 @@ static void MeteoD(struct _Meteo *ctx){
 
 void *process_MeteoD(void *actx){
 	if(verbose)
-		printf("Launching a processing flow for Meteo Daily\n");
+		printf("Launching a processing flow for Meteo Daily '%s'\n", ((struct _Meteo *)actx)->uid);
 
 	for(;;){
 		if(((struct _Meteo *)actx)->disabled){
 			if(verbose)
-				printf("*I* MeteoD is disabled for '%s'\n", ((struct _Meteo *)actx)->topic);
+				printf("*I* MeteoD is disabled for '%s'\n", ((struct _Meteo *)actx)->uid);
 		} else
 			MeteoD(actx);
 		sleep( ((struct _Meteo *)actx)->sample);
