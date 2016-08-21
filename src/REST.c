@@ -99,14 +99,14 @@ void *process_REST(void *actx){
 	}
 
 	if(verbose)
-		printf("Launching a processing flow for '%s' REST task\n", ctx->funcname);
+		printf("Launching a processing flow for '%s' REST task\n", ctx->uid);
 
 	ctx->min = -1;	/* Indicate it's the 1st run */
 	for(;;){
 		waitNextQuery( ctx );
 		if(ctx->disabled){
 			if(verbose)
-				printf("*I* REST task for '%s' is currently disabled.\n", ctx->funcname);
+				printf("*I* REST '%s' is currently disabled.\n", ctx->uid);
 		} else
 			doRESTquery( ctx );
 	}

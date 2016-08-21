@@ -449,9 +449,9 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _REST));
 			n->common.section_type = MSEC_REST;
+			setUID( n, removeLF(arg) );			
 			n->REST.at = -1;
-
-			assert( n->REST.url = strdup( removeLF(arg) ));
+//			assert( n->REST.url = strdup( removeLF(arg) ));
 
 #ifndef LUA
 			fputs("*F* REST section is only available when compiled with Lua support\n", stderr);
@@ -466,7 +466,7 @@ static void read_configuration( const char *fch){
 				cfg.sections = n;
 			last_section = n;
 			if(verbose)
-				printf("Entering section REST '%s'\n", n->REST.url );
+				printf("Entering section REST '%s'\n", n->REST.uid );
 		} else if(!strcmp(l,"DPDLast\n") || !strcmp(l,"SubLast\n")){	/* Subscriptions are grouped at the end of the configuration file */
 			cfg.Sublast = true;
 			if(verbose)
@@ -524,6 +524,15 @@ static void read_configuration( const char *fch){
 			}
 			if(verbose)
 				printf("\tPort : %d\n", last_section->Ups.port);
+		} else if((arg = striKWcmp(l,"Url="))){
+			if(!last_section || last_section->common.section_type != MSEC_REST){
+				fputs("*F* Configuration issue : Url directive outside a REST section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+
+			assert( last_section->REST.url = strdup( removeLF(arg) ));
+			if(verbose)
+				printf("\tUrl : %s\n", last_section->REST.url);
 		} else if((arg = striKWcmp(l,"ID="))){
 			if(!last_section || last_section->common.section_type != MSEC_RTSCMD){
 				fputs("*F* Configuration issue : ID directive outside a RTSCmd section\n", stderr);
