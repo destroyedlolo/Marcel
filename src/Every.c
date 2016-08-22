@@ -24,7 +24,7 @@ void *process_Every(void *actx){
 
 	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
-			fprintf(stderr, "*E* configuration error : user function \"%s\" is not defined\n*E*This thread is dying.\n", ctx->funcname);
+			fprintf(stderr, "*E* [%s] configuration error : user function \"%s\" is not defined\n*E*This thread is dying.\n", ctx->uid, ctx->funcname);
 			pthread_exit(NULL);
 		}
 	}
