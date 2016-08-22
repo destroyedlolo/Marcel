@@ -314,6 +314,7 @@ static void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct _OutFile));
 			n->common.section_type = MSEC_OUTFILE;
 			setUID( n, removeLF(arg) );
+			n->OutFile.funcid = LUA_REFNIL;
 
 			if(last_section)
 				last_section->common.next = n;
@@ -477,16 +478,25 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				puts("Crash if the broker connection is lost");
 		} else if((arg = striKWcmp(l,"File="))){
-			if(!last_section || (
-				last_section->common.section_type != MSEC_FFV &&
-				last_section->common.section_type != MSEC_OUTFILE
-			) ){
-				fputs("*F* Configuration issue : File directive outside FFV or OutFile section\n", stderr);
+			if(!last_section){
+				fputs("*F* Configuration issue : File directive outside section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			switch( last_section->common.section_type ){
+			case MSEC_FFV :
+				assert( last_section->FFV.file = strdup( removeLF(arg) ));
+				if(verbose)
+					printf("\tFile : '%s'\n", last_section->FFV.file);
+				break;
+			case MSEC_OUTFILE :
+				assert( last_section->OutFile.file = strdup( removeLF(arg) ));
+				if(verbose)
+					printf("\tFile : '%s'\n", last_section->OutFile.file);
+				break;
+			default :
+				fprintf(stderr, "*F* [%s] Configuration issue : File directive outside FFV or OutFile section\n", last_section->common.uid);
 					exit(EXIT_FAILURE);
 			}
-			assert( last_section->FFV.file = strdup( removeLF(arg) ));
-			if(verbose)
-				printf("\tFile : '%s'\n", last_section->FFV.file);
 		} else if((arg = striKWcmp(l,"Latch="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				fputs("*F* Configuration issue : Latch directive outside a FFV section\n", stderr);
@@ -558,9 +568,10 @@ static void read_configuration( const char *fch){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_DEADPUBLISHER &&
 				last_section->common.section_type != MSEC_EVERY &&
-				last_section->common.section_type != MSEC_REST
+				last_section->common.section_type != MSEC_REST &&
+				last_section->common.section_type != MSEC_OUTFILE
 			)){
-				fputs("*F* Configuration issue : Func directive outside a DPD, Every or REST section\n", stderr);
+				fputs("*F* Configuration issue : Func directive outside a DPD, Every, REST or OutFile section\n", stderr);
 				exit(EXIT_FAILURE);
 			}
 #ifndef LUA

@@ -81,6 +81,8 @@ union CSection {
 		const char *topic;	/* Topic to subscribe to */
 		bool disabled;
 		int padding;		/* Not used */
+		const char *funcname;	/* User function to call on data arrival */
+		int funcid;			/* Function id in Lua registry */
 		const char *file;	/* File to write to */
 	} OutFile;
 	struct _FreeBox {
@@ -227,6 +229,7 @@ extern int findUserFunc( const char * );
 extern void execUserFuncDeadPublisher( struct _DeadPublisher *, const char *, const char *);
 extern void execUserFuncEvery( struct _Every * );
 extern void execUserFuncREST( struct _REST *, char *);
+extern void execUserFuncOutFile( struct _OutFile *, const char * );
 #endif
 
 #endif

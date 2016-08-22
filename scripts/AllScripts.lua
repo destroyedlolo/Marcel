@@ -9,6 +9,7 @@ require "scripts/PublishLoad"
 require "scripts/Congelo"
 require "scripts/DetermineVacances"
 require "scripts/SituationPorteCave"
+require "scripts/TopicPluie"
 
 if tonumber(Marcel.Version()) < 3.3 then
 	print("*F* Marcel 3.3 or newer needed by Lua functions")
