@@ -12,6 +12,7 @@
  * 14/05/2016	- LF - add REST section
  * 07/06/2016	- LF - externalize version
  * 21/08/2016	- LF - starting v6.02, each section MUST have an ID
+ * 31/08/2016	- LF * Add "keep" option"
  */
 
 #ifndef MARCEL_H
@@ -57,6 +58,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;
 		bool disabled;		/* this section is currently disabled */
+		bool keep;			/* Stay alive in cas of failure */
 		int sample;
 	} common;
 	struct _FFV {
@@ -67,6 +69,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to publish to */
 		bool disabled;
+		bool keep;
 		int sample;			/* delay b/w 2 samples */
 		const char *file;	/* File containing the data to read */
 		const char *latch;	/* Related latch file (optional) */
@@ -80,6 +83,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to subscribe to */
 		bool disabled;
+		bool keep;
 		int padding;		/* Not used */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
@@ -93,6 +97,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
+		bool keep;
 		int sample;			/* delay b/w 2 samples */
 	} FreeBox;
 	struct _UPS {
@@ -103,6 +108,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
+		bool keep;
 		int sample;			/* delay b/w 2 samples */
 		const char *host;	/* NUT's server */
 		int port;			/* NUT's port */
@@ -116,6 +122,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
+		bool keep;
 		int sample;			/* Timeout */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
@@ -131,6 +138,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *padding;	/* not used */
 		bool disabled;
+		bool keep;
 		int sample;			/* Delay b/w launches */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
@@ -144,6 +152,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *url;	/* URL to query */
 		bool disabled;
+		bool keep;
 		int sample;			/* Delay b/w 2 queries */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
@@ -160,6 +169,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
+		bool keep;
 		int sample;			/* Delay b/w 2 queries */
 		const char *City;	/* CityName,Country to query */
 		const char *Units;	/* Result's units */
@@ -173,6 +183,7 @@ union CSection {
 		int h;				/* hash code for this id */
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
+		bool keep;
 		int padding;		/* not used */
 		uint32_t did;		/* ID corresponding to this device */
 	} RTSCmd;

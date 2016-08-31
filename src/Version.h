@@ -12,13 +12,14 @@
  * 21/08/2016	- LF - v6.02 - starting this version all section MUST have an uniq ID
  * 					 - v6.03 - OnOff working
  * 22/08/2016	- LF - v6.04 - Add Lua function on OutFile
+ * 31/08/2016	- LF - v6.05 - Add Keep
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.0400"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "6.0500"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

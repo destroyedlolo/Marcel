@@ -634,6 +634,14 @@ static void read_configuration( const char *fch){
 			last_section->common.disabled = true;
 			if(verbose)
 				puts("\tDisabled");
+		} else if(!strcmp(l,"Keep\n")){		/* Staying alive */
+			if(!last_section){
+				fputs("*F* Configuration issue : Keep directive outside a section\n", stderr);
+				exit(EXIT_FAILURE);
+			}
+			last_section->common.keep = true;
+			if(verbose)
+				puts("\tKeep");
 		} else if((arg = striKWcmp(l,"Topic="))){
 			if(!last_section){
 				fputs("*F* Configuration issue : Topic directive outside a section\n", stderr);
