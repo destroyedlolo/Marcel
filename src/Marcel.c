@@ -106,10 +106,10 @@ void publishLog( char l, const char *msg, ...){
 	va_list args;
 	va_start(args, msg);
 
-	if(verbose){
+	if(verbose || l=='E' || l=='F'){
 		char t[ strlen(msg) + 7 ];
 		sprintf(t, "*%c* %s\n", l, msg);
-		vprintf(t, args);
+		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
 	}
 
 	va_end(args);
