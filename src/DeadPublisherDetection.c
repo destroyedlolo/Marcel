@@ -35,7 +35,7 @@ void *process_DPD(void *actx){
 #ifdef LUA
 	if(ctx->funcname){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
-			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined\n*E*This thread is dying.", ctx->uid, ctx->funcname);
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", ctx->uid, ctx->funcname);
 			pthread_exit(NULL);
 		}
 	}

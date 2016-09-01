@@ -24,27 +24,24 @@ void *process_Every(void *actx){
 
 	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
-			fprintf(stderr, "*E* [%s] configuration error : user function \"%s\" is not defined\n*E*This thread is dying.\n", ctx->uid, ctx->funcname);
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", ctx->uid, ctx->funcname);
 			pthread_exit(NULL);
 		}
 	}
 
-	if(verbose)
-		printf("Launching a processing flow for '%s' Every task\n", ctx->uid);
+	publishLog('I', "Launching a processing flow for '%s' Every task", ctx->uid);
 
 	if(ctx->immediate && !ctx->disabled)
 		execUserFuncEvery( ctx );
 
 	for(;;){
 		if(!ctx->sample){
-			if(verbose)
-				printf("*I* Every '%s' has 0 sample delay : dying ...\n", ctx->uid);
+			publishLog('I', "Every '%s' has 0 sample delay : dying ...\n", ctx->uid);
 			break;
 		} else
 			sleep( ctx->sample );
 		if( ctx->disabled ){
-			if(verbose)
-				printf("*I* Every '%s' is disabled.\n", ctx->uid);
+			publishLog('I', "Every '%s' is disabled.\n", ctx->uid);
 		} else 
 			execUserFuncEvery( ctx );
 	}
