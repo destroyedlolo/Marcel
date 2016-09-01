@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #ifdef LUA
 #include <lauxlib.h>
@@ -34,17 +35,16 @@ void *process_DPD(void *actx){
 #ifdef LUA
 	if(ctx->funcname){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
-			fprintf(stderr, "*E* [%s] configuration error : user function \"%s\" is not defined\n*E*This thread is dying.\n", ctx->uid, ctx->funcname);
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined\n*E*This thread is dying.", ctx->uid, ctx->funcname);
 			pthread_exit(NULL);
 		}
 	}
 #endif
-	if(verbose)
-		printf("Launching a processing flow for DeadPublisherDetect (DPD) '%s'\n", ctx->uid);
+	publishLog('I', "Launching a processing flow for DeadPublisherDetect (DPD) '%s'", ctx->uid);
 
 		/* Creating the fd for the notification */
 	if(( ctx->rcv = eventfd( 0, 0 )) == -1 ){
-		perror("eventfd()");
+		publishLog('E', "[%s] eventfd() : %s", ctx->uid, strerror(errno));
 		pthread_exit(0);
 	}
 
@@ -65,15 +65,13 @@ void *process_DPD(void *actx){
 		case -1:	/* Error */
 			close( ctx->rcv );
 			ctx->rcv = 1;
-			perror("pselect()");
+			publishLog('E', "[%s] pselect() : %s", ctx->uid, strerror(errno));
 			pthread_exit(0);
 		case 0:	/* timeout */
-			if( ctx->disabled ){
-				if(verbose)
-					printf("*I* Alerting for DPD '%s' is disabled\n", ctx->uid);
-			} else {
-				if(verbose)
-					printf("*I* timeout for DPD '%s'\n", ctx->uid);
+			if( ctx->disabled )
+				publishLog('I', "Alerting for DPD '%s' is disabled", ctx->uid);
+			else {
+				publishLog('I', "timeout for DPD '%s'", ctx->uid);
 				if( !ctx->inerror ){	/* Entering in error */
 					if(!ctx->errtopic){		/* No error topic defined : sending an alert */
 						char topic[strlen(ctx->uid) + 7]; /* "Alert/" + 1 */
@@ -96,8 +94,7 @@ void *process_DPD(void *actx){
 							ctx->inerror = true;
 					}
 
-					if(verbose)
-						printf("*I* Alert raises for DPD '%s'\n", ctx->uid);
+					publishLog('I', "Alert raises for DPD '%s'", ctx->uid);
 				}
 			}
 			break;
@@ -108,12 +105,11 @@ void *process_DPD(void *actx){
 					 */
 				uint64_t v;
 				if(read(ctx->rcv, &v, sizeof( uint64_t )) == -1)
-					perror("eventfd - reading notification");
+					publishLog('E', "[%s] eventfd() : %s - reading notification", ctx->uid, strerror(errno));
 	
-				if( ctx->disabled ){
-					if(verbose)
-						printf("*I* Alerting for DPD '%s' is disabled\n", ctx->uid);
-				} else {
+				if( ctx->disabled )
+					publishLog('I', "Alerting for DPD '%s' is disabled", ctx->uid);
+				else {
 					if( ctx->inerror ){	/* Existing error condition */
 						if(!ctx->errtopic){		/* No error topic defined : sending an alert */
 							char topic[strlen(ctx->uid) + 7]; /* "Alert/" + 1 */
@@ -136,8 +132,7 @@ void *process_DPD(void *actx){
 								ctx->inerror = false;
 						}
 
-						if(verbose)
-							printf("*I* Alert corrected for DPD '%s'\n", ctx->uid);
+						publishLog('I', "Alert corrected for DPD '%s'", ctx->uid);
 					}
 				}
 			}
