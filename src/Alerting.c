@@ -170,12 +170,12 @@ void init_alerting(void){
 		exit(EXIT_FAILURE);
 	}
 
-	if(!cfg.SMSurl && verbose)
-		puts("*W* SMS sending not configured : disabling unamed SMS sending");
-	if(!cfg.AlertCmd && verbose)
-		puts("*W* Alert's command not configured : disabling unamed external alerting");
-	if(!cfg.notiflist && verbose)
-		puts("*W* No named notification configured : disabling");
+	if(!cfg.SMSurl)
+		publishLog('W', "SMS sending not configured : disabling unamed SMS sending");
+	if(!cfg.AlertCmd)
+		publishLog('W', "Alert's command not configured : disabling unamed external alerting");
+	if(!cfg.notiflist)
+		publishLog('W', "No named notification configured : disabling");
 }
 
 void SendAlert(const char *id, const char *msg, int withSMS){
@@ -185,8 +185,7 @@ void SendAlert(const char *id, const char *msg, int withSMS){
 		sendSMS( id, smsg );
 	AlertCmd( id, msg );
 
-	if(verbose)
-		printf("*I* Alert sent : '%s' : '%s'\n", id, msg);
+	publishLog('I', "Alert sent : '%s' : '%s'\n", id, msg);
 }
 
 void RiseAlert(const char *id, const char *msg, int withSMS){
@@ -208,8 +207,7 @@ void AlertIsOver(const char *id){
 		sprintf( smsg, "%s : recovered", id );
 		sendSMS( id, smsg );
 
-		if(verbose)
-			printf("*I* Alert cleared for '%s'\n", id);
+		publishLog('I', "Alert cleared for '%s'\n", id);
 
 		DLRemove( &alerts, (struct DLNode *)an );
 		free( (void *)an->alert );
@@ -231,8 +229,7 @@ void rcv_notification(const char *id, const char *msg){
 		sendSMS( id, smsg );
 	AlertCmd( id, msg+1 );
 
-	if(verbose)
-		printf("*I* Alert sent : '%s' : '%s'\n", id, msg+1);
+	publishLog('I', "Alert sent : '%s' : '%s'\n", id, msg+1);
 }
 
 void pnNotify(const char *names, const char *title, const char *msg){
@@ -240,8 +237,7 @@ void pnNotify(const char *names, const char *title, const char *msg){
  * title : notification's title
  * msg : messages to send
  */
-	if(verbose)
-		printf("*I* Named Notifications : '%s' id: '%s' msg : '%s'\n", names, title, msg);
+	publishLog('I', "Named Notifications : '%s' id: '%s' msg : '%s'\n", names, title, msg);
 	char c;
 	while(( c=*names++ )){
 		for( struct notification *n = cfg.notiflist; n; n = n->next){
@@ -260,8 +256,7 @@ void rcv_nnotification(const char *names, const char *msg){
 	char *id = strchr(names, '/');
 
 	if(!id){
-		if(verbose)
-			printf("*W* topic '%s' : No name provided, message ignored\n", names);
+		publishLog('W', "topic '%s' : No name provided, message ignored\n", names);
 	} else {
 		*id++ = 0;
 		pnNotify(names, id, msg);

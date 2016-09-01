@@ -58,6 +58,7 @@
  *	14/08/2016	- LF - 5.03 - Handle Outfile
  *				-------
  *	19/08/2016	- LF - switch to v6.0 - prepare controls
+ *	01/09/2016	- LF - Add publishLog() function
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -85,6 +86,7 @@
 #include <sys/utsname.h>	/* uname */
 #include <curl/curl.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -98,6 +100,20 @@
 bool verbose = false;
 bool configtest = false;
 struct Config cfg;
+
+	/* Logging */
+void publishLog( char l, const char *msg, ...){
+	va_list args;
+	va_start(args, msg);
+
+	if(verbose){
+		char t[ strlen(msg) + 7 ];
+		sprintf(t, "*%c* %s\n", l, msg);
+		vprintf(t, args);
+	}
+
+	va_end(args);
+}
 
 	/*
 	 * Helpers
@@ -1028,6 +1044,7 @@ int main(int ac, char **av){
 			break;
 		}
 	}
+
 
 		/* Marcel's own topic */
 	int i = strlen(cfg.OnOffTopic);

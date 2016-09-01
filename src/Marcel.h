@@ -12,7 +12,8 @@
  * 14/05/2016	- LF - add REST section
  * 07/06/2016	- LF - externalize version
  * 21/08/2016	- LF - starting v6.02, each section MUST have an ID
- * 31/08/2016	- LF * Add "keep" option"
+ * 31/08/2016	- LF - Add "keep" option"
+ * 01/09/2016	- LF - Add publishLog() function
  */
 
 #ifndef MARCEL_H
@@ -204,6 +205,7 @@ extern struct Config {
 	MQTTClient client;
 	bool Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
 	bool ConLostFatal;		/* Die if broker connection is lost */
+	bool publishlog;		/* Publish logs */
 	union CSection *first_Sub;	/* Pointer to the first subscription */
 	const char *luascript;	/* file containing Lua functions */
 	const char *OwAlarm;	/* Path to 1-wire alarm directory */
@@ -227,8 +229,8 @@ extern char *mystrdup(const char *);
 
 extern size_t socketreadline( int, char *, size_t);
 
-	/* Broker related */
-extern int papub( const char *, int, void *, int);
+	/* Logging */
+extern void publishLog( char, const char *, ...);
 
 	/* Lua related */
 #ifdef LUA
