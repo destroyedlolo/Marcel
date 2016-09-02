@@ -99,7 +99,7 @@ void *process_REST(void *actx){
 		}
 	}
 
-	publishLog('I', "Launching a processing flow for '%s' REST task\n", ctx->uid);
+	publishLog('I', "Launching a processing flow for '%s' REST task", ctx->uid);
 
 	ctx->min = -1;	/* Indicate it's the 1st run */
 	for(;;){

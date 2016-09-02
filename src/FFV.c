@@ -19,8 +19,7 @@
 
 static void handle_FFV(struct _FFV *ctx){
 	if(ctx->disabled){
-		if(verbose)
-			printf("*I* [%s] Reading FFV '%s' is disabled\n", ctx->uid, ctx->topic);
+		publishLog('I', "[%s] Reading FFV '%s' is disabled\n", ctx->uid, ctx->topic);
 		return;
 	}
 
@@ -28,16 +27,15 @@ static void handle_FFV(struct _FFV *ctx){
 	char l[MAXLINE];
 
 	if(!(f = fopen( ctx->file, "r" ))){
-		if(verbose)
-			perror( ctx->file );
+		char *emsg = strerror(errno);
+		publishLog('E', "[%s] %s : %s", ctx->uid, ctx->file, emsg);
 		if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
 			int msg;
-			char *emsg;
 			strcpy(l, "Alarm/");
 			strcat(l, ctx->topic);
 			msg = strlen(l) + 2;
 
-			if(strlen(ctx->file) + strlen(emsg = strerror(errno)) + 5 < MAXLINE - msg){ /* S + " : " + 0 */
+			if(strlen(ctx->file) + strlen(emsg) + 5 < MAXLINE - msg){ /* S + " : " + 0 */
 				*(l + msg) = 'S';
 				strcpy(l + msg + 1, ctx->file);
 				strcat(l + msg, " : ");
@@ -56,31 +54,28 @@ static void handle_FFV(struct _FFV *ctx){
 		}
 	} else {
 		float val;
-		if(!fscanf(f, "%f", &val)){
-			if(verbose)
-				printf("FFV '%s' : %s -> Unable to read a float value.\n", ctx->uid, ctx->topic);
-		} else {	/* Only to normalize the response */
+		if(!fscanf(f, "%f", &val))
+			publishLog('E', "[%s] : %s -> Unable to read a float value.", ctx->uid, ctx->topic);
+		else {	/* Only to normalize the response */
 			val += ctx->offset;
 			sprintf(l,"%.1f", val);
 
 			mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
-			if(verbose)
-				printf("FFV '%s' : %s -> %f\n", ctx->uid, ctx->topic, val);
+			publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, val);
 		}
 		fclose(f);
 
 		if(ctx->latch){
 			if(!(f = fopen( ctx->latch, "w" ))){
-				if(verbose)
-					perror( ctx->latch );
+				char *emsg = strerror(errno);
+				publishLog('E', "[%s] %s : %s", ctx->uid, ctx->latch, emsg);
 				if(strlen(ctx->topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
 					int msg;
-					char *emsg;
 					strcpy(l, "Alarm/");
 					strcat(l, ctx->topic);
 					msg = strlen(l) + 2;
 
-					if(strlen(ctx->latch) + strlen(emsg = strerror(errno)) + 5 < MAXLINE - msg){ /* S + " : " + 0 */
+					if(strlen(ctx->latch) + strlen(emsg) + 5 < MAXLINE - msg){ /* S + " : " + 0 */
 						*(l + msg) = 'S';
 						strcpy(l + msg + 1, ctx->latch);
 						strcat(l + msg, " : ");
@@ -110,13 +105,12 @@ void *process_FFV(void *actx){
 
 		/* Sanity checks */
 	if(!ctx->file){
-		fprintf(stderr, "*E* [%s] configuration error : no file specified, ignoring this section\n", ctx->uid);
+		publishLog('F', "[%s] configuration error : no file specified, ignoring this section", ctx->uid);
 		pthread_exit(0);
 	}
 
 
-	if(verbose)
-		printf("Launching a processing flow for FFV '%s'\n", ctx->uid);
+	publishLog('I', "Launching a processing flow for FFV '%s'", ctx->uid);
 
 	for(;;){	/* Infinite loop to process messages */
 		ctx = actx;	/* Back to the 1st one */
@@ -130,8 +124,7 @@ void *process_FFV(void *actx){
 		}
 
 		if(((struct _FFV *)actx)->sample == -1){
-			if(verbose)
-				printf("*I* FFV '%s' has -1 sample delay : dying ...\n", ((struct _FFV *)actx)->uid);
+			publishLog('I', "FFV '%s' has -1 sample delay : dying ...", ((struct _FFV *)actx)->uid);
 			break;
 		} else 
 			sleep( ((struct _FFV *)actx)->sample );
@@ -153,15 +146,14 @@ void *process_1wAlrm(void *actx){
 
 		while(( de = readdir(d) )){
 			if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
-				if( verbose )
-					printf("*I* %s : in alert\n", de->d_name);
+				publishLog('I', "%s : in alert", de->d_name);
 
 				for(union CSection *s = cfg.sections; s; s = s->common.next){
 					if( s->common.section_type == MSEC_FFV && strstr(s->FFV.file, de->d_name)){
 						if(s->FFV.sample == -1)
 							handle_FFV( &s->FFV );
-						else if( verbose )	/* Ignored as its sample is not -1 */
-							fprintf(stderr, "*W* '%s' has alarm, is found but its sample time is not -1 : ignored\n", s->FFV.file);
+						else /* Ignored as its sample is not -1 */
+							publishLog('W', "'%s' has alarm, is found but its sample time is not -1 : ignored", s->FFV.file);
 					}
 				}
 			}

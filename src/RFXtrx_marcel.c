@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <signal.h>
 #include <setjmp.h>
+#include <errno.h>
 
 typedef uint8_t BYTE;	/* Compatibility */
 #include "RFXtrx.h"
@@ -84,7 +85,7 @@ static int readRFX( int fd ){
 /*
  * Initialise RFXtrx
  *
- * Note : there is no need to lock the FD as it only used before any other
+ * Note : there is no need to lock the FD as it is only used before any other
  * threads are created.
  */
 static jmp_buf env_alarm;
@@ -98,9 +99,9 @@ void init_RFX(){
 
 	int fd;
 	if((fd = open (cfg.RFXdevice, O_RDWR | O_NOCTTY | O_SYNC)) < 0 ){	/* Open the port */
-		perror("RFX open()");
+		publishLog('E', "RFX open() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	}
 
@@ -108,10 +109,10 @@ void init_RFX(){
 	struct termios tty;
 	memset (&tty, 0, sizeof tty);
 	if(tcgetattr (fd, &tty)){
-		perror("RFX tcgetattr()");
+		publishLog('E', "RFX tcgetattr() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	}
 	cfsetospeed(&tty, B38400);
@@ -121,19 +122,19 @@ void init_RFX(){
 	tty.c_lflag = 0;
 	tty.c_oflag = 0;
 	if(tcsetattr(fd, TCSANOW, &tty)){
-		perror("RFX tcsetattr()");
+		publishLog('E', "RFX tcsetattr() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	}
 
 	assert( signal(SIGALRM, sig_alarm) != SIG_ERR );
 	if(setjmp(env_alarm) != 0){
+		publishLog('E', "Timeout during RFXtrx initialisation");
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* Timeout during RFXtrx initialisation\n"
-			"*E* RFXtrx disabled.\n", stderr);
 		return;
 	}
 
@@ -142,14 +143,13 @@ void init_RFX(){
 	clearbuff( 0x0d );	/* Sending reset */
 	dumpbuff();
 	if(writeRFX(fd) == -1){
-		perror("RFX reset write()");
+		publishLog('E', "RFX reset write() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	}
-	if(verbose)
-		puts("*I* RFXtrx reset sent");
+	publishLog('I', "RFXtrx reset sent");
 	sleep(1);
 	tcflush( fd, TCIFLUSH );	/* Clear input buffer */
 
@@ -160,20 +160,19 @@ void init_RFX(){
 	buff.ICMND.cmnd = cmdSTATUS;
 	dumpbuff();
 	if(writeRFX(fd) == -1){
-		perror("RFX GET STATUS write()");
+		publishLog('E', "RFX GET STATUS write() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	}
-	if(verbose)
-		puts("*I* RFXtrx GET STATUS sent");
+	publishLog('I', "RFXtrx GET STATUS sent");
 	
 	if(!readRFX(fd)){
-		perror("RFX Reading status");
+		publishLog('E', "RFX Reading status : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	} else {
 		dumpbuff();
@@ -186,20 +185,19 @@ void init_RFX(){
 	buff.ICMND.cmnd = sTypeRecStarted;
 	dumpbuff();
 	if(writeRFX(fd) == -1){
-		perror("RFX START write()");
+		publishLog('E', "RFX START write() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	}
-	if(verbose)
-		puts("*I* RFXtrx START COMMAND sent");
+	publishLog('I', "RFXtrx START COMMAND sent");
 
 	if(!readRFX(fd)){
-		perror("RFX Reading status");
+		publishLog('E', "RFX Reading status : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
 		close(fd);
 		cfg.RFXdevice = NULL;
-		fputs("*E* RFXtrx disabled.\n", stderr);
 		return;
 	} else {
 		dumpbuff();
@@ -214,8 +212,7 @@ void init_RFX(){
 
 void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	if(ctx->disabled){
-		if(verbose)
-			printf("*I* Commanding RTSCmd '%s' is disabled\n", ctx->uid);
+		publishLog('I', "Commanding RTSCmd '%s' is disabled", ctx->uid);
 		return;
 	}
 
@@ -231,12 +228,12 @@ void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	else if(!strcmp(msg,"Program"))
 		cmd = rfy_sProgram;
 	else {
-		fprintf(stderr, "*E* RTS unsupported command : '%s'\n", msg);
+		publishLog('E', "[%s] RTS unsupported command : '%s'", ctx->uid, msg);
 		return;
 	}
 		
 	if((fd = open (cfg.RFXdevice, O_RDWR | O_NOCTTY | O_SYNC)) < 0 ){
-		perror("RFX open()");
+		publishLog('E', "RFX open() : %s", strerror(errno));
 		return;
 	}
 
@@ -252,14 +249,13 @@ void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	buff.RFY.cmnd = cmd;
 	dumpbuff();
 	if(writeRFX(fd) == -1)
-		perror("RFX Cmd write()");
+		publishLog('E', "RFX Cmd write() : %s", strerror(errno));
 	else if(!readRFX(fd))
-		perror("RFX Reading status");
+		publishLog('E', "RFX Reading status : %s", strerror(errno));
 
 	pthread_mutex_unlock( &oneTRXcmd );
 	close(fd);
 
-	if(verbose)
-		printf("*I* Sending '%s' (%d) command to '%s' (%04x)\n", msg, cmd, ctx->uid, ctx->did);
+	publishLog('I', "Sending '%s' (%d) command to '%s' (%04x)\n", msg, cmd, ctx->uid, ctx->did);
 }
 #endif
