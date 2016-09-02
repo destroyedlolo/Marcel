@@ -29,13 +29,12 @@ void *process_UPS(void *actx){
 
 		/* Sanity checks */
 	if(!ctx->host || !ctx->port){
-		fprintf(stderr, "*E* [%s] configuration error : Don't know how to reach NUT\n", ctx->uid);
+		publishLog('E', "[%s] configuration error : Don't know how to reach NUT", ctx->uid);
 		pthread_exit(0);
 	}
 
 	if(!(server = gethostbyname( ctx->host ))){
-		perror( ctx->host );
-		fputs("*E* Stopping this thread\n", stderr);
+		publishLog('E', "[%s] %s : Don't know how to reach NUT. Dying", ctx->uid, strerror(errno));
 		pthread_exit(0);
 	}
 
@@ -44,42 +43,39 @@ void *process_UPS(void *actx){
 	serv_addr.sin_port = htons( ctx->port );
 	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
 
-	if(verbose)
-		printf("Launching a processing flow for UPS/%s\n", ctx->uid);
+	publishLog('I', "Launching a processing flow for UPS/%s", ctx->uid);
 
 	for(;;){	/* Infinite loop to process data */
 		if(ctx->disabled){
-			if(verbose)
-				printf("*I* Reading Freebox '%s' is disabled\n", ctx->topic);
+			publishLog('I', "Reading Freebox '%s' is disabled", ctx->topic);
 		} else {
 			int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 			if(sockfd < 0){
-				fprintf(stderr, "*E* Can't create socket : %s\n", strerror( errno ));
-				fputs("*E* Stopping this thread\n", stderr);
-				pthread_exit(0);
-			}
-			if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
-/*AF : Send error topic */
-				perror("*E* Connecting");
+				publishLog('E', "[%s] Can't create socket : %s", ctx->topic, strerror( errno ));
+				if(!ctx->keep){
+					publishLog('F', "[%s] Dying", ctx->topic);
+					pthread_exit(0);
+				}
 			} else {
-				for(struct var *v = ctx->var_list; v; v = v->next){
-					sprintf(l, "GET VAR %s %s\n", ctx->uid, v->name);
-					if( send(sockfd, l , strlen(l), 0) == -1 ){
-/*AF : Send error topic */
-						perror("*E* Sending");
-					} else {
-						char *ps, *pe;
-						socketreadline(sockfd, l, sizeof(l));
-						if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') )){
-							if(verbose)
-								printf("*E* %s/%s : unexpected result '%s'\n", ctx->uid, v->name, l);
+				if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
+					publishLog('E', "[%s] Connecting : %s", ctx->topic, strerror( errno ));
+				else {
+					for(struct var *v = ctx->var_list; v; v = v->next){
+						sprintf(l, "GET VAR %s %s\n", ctx->uid, v->name);
+						if( send(sockfd, l , strlen(l), 0) == -1 ){
+							publishLog('E', "[%s] Sending : %s", ctx->topic, strerror( errno ));
 						} else {
-							ps++; *pe++ = 0;	/* Extract only the result */
-							assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
-							sprintf( pe, "%s/%s", ctx->topic, v->name );
-							mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
-							if(verbose)
-								printf("UPS : %s -> '%s'\n", pe, ps);
+							char *ps, *pe;
+							socketreadline(sockfd, l, sizeof(l));
+							if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') ))
+								publishLog('W', "[%s] %s : unexpected result '%s'", ctx->uid, v->name, l);
+							else {
+								ps++; *pe++ = 0;	/* Extract only the result */
+								assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
+								sprintf( pe, "%s/%s", ctx->topic, v->name );
+								mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
+								publishLog('W', "[%s] UPS : %s -> '%s'", ctx->uid, pe, ps);
+							}
 						}
 					}
 				}
