@@ -45,7 +45,7 @@ static void doRESTquery( struct _REST *ctx ){
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Reading data */
 			execUserFuncREST( ctx, chunk.memory );
 		} else
-			fprintf(stderr, "*E* Querying REST : %s\n", curl_easy_strerror(res));
+			publishLog('E', "[%s] Querying REST : %s\n", ctx->uid, curl_easy_strerror(res));
 
 			/* Cleanup */
 		curl_easy_cleanup(curl);
@@ -93,20 +93,19 @@ void *process_REST(void *actx){
 
 	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
-			fprintf(stderr, "*E* [%s] configuration error : user function \"%s\" is not defined\n*E*This thread is dying.\n", ctx->uid, ctx->funcname);
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined", ctx->uid, ctx->funcname);
+			publishLog('F', "[%s] Dying", ctx->uid);
 			pthread_exit(NULL);
 		}
 	}
 
-	if(verbose)
-		printf("Launching a processing flow for '%s' REST task\n", ctx->uid);
+	publishLog('I', "Launching a processing flow for '%s' REST task\n", ctx->uid);
 
 	ctx->min = -1;	/* Indicate it's the 1st run */
 	for(;;){
 		waitNextQuery( ctx );
 		if(ctx->disabled){
-			if(verbose)
-				printf("*I* REST '%s' is currently disabled.\n", ctx->uid);
+			publishLog('I', "REST '%s' is currently disabled.\n", ctx->uid);
 		} else
 			doRESTquery( ctx );
 	}
