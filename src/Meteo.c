@@ -180,7 +180,7 @@ static void Meteo3H(struct _Meteo *ctx){
 }
 
 void *process_Meteo3H(void *actx){
-		publishLog('I', "Launching a processing flow for Meteo 3H '%s'", ((struct _Meteo *)actx)->uid);
+	publishLog('I', "Launching a processing flow for Meteo 3H '%s'", ((struct _Meteo *)actx)->uid);
 
 	for(;;){
 		if(((struct _Meteo *)actx)->disabled)
