@@ -65,8 +65,12 @@ void *process_DPD(void *actx){
 		case -1:	/* Error */
 			close( ctx->rcv );
 			ctx->rcv = 1;
-			publishLog('E', "[%s] pselect() : %s", ctx->uid, strerror(errno));
-			pthread_exit(0);
+			publishLog(ctx->keep ? 'E' : 'F', "[%s] pselect() : %s", ctx->uid, strerror(errno));
+			if(ctx->keep){
+				sleep(1);
+				continue;
+			} else
+				pthread_exit(0);
 		case 0:	/* timeout */
 			if( ctx->disabled )
 				publishLog('I', "Alerting for DPD '%s' is disabled", ctx->uid);

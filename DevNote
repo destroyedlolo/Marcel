@@ -32,19 +32,18 @@ Be notified when a PIO changes
 		1: latches
 		1: high
 
-Section activation
-==================
+Keep
+====
 
-control topic : <id_Marcel>/OnOff/<type section>/...
-with as ... argument :
-	FFV : topic
-	Freebox : topic
-	UPS : topic
-	Meteo3H : topic
-	MeteoD : topic
-	DPD : topic
-	RTS : topic
-	OutFile : topic
-	Every : section's name
-	REST : url
+Working for :
+Freebox
+UPS
+DSP 
 
+Useless for :
+FFV
+EVERY
+REST
+METEO
+RTSCmd
+OutFile
