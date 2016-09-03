@@ -234,6 +234,7 @@ static void read_configuration( const char *fch){
 	char *arg;
 	union CSection *last_section=NULL;
 
+		/* Default config value */
 	cfg.sections = NULL;
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.ClientID = "Marcel";
@@ -252,6 +253,7 @@ static void read_configuration( const char *fch){
 
 	cfg.OwAlarm=NULL;
 	cfg.OwAlarmSample=0;
+	cfg.OwAlarmKeep=false;
 
 	if(verbose)
 		printf("\nReading configuration file '%s'\n---------------------------\n", fch);
@@ -309,6 +311,10 @@ static void read_configuration( const char *fch){
 			cfg.OwAlarmSample = atoi( arg );
 			if(verbose)
 				printf("1 wire Alarm sample delay : '%d'\n", cfg.OwAlarmSample);
+		} else if(!strcmp(l,"1wire-Alarm-keep\n")){	/* Crash if the broker connection is lost */
+			cfg.OwAlarmKeep = true;
+			if(verbose)
+				puts("Keep 1-wire alarm detection");
 		} else if((arg = striKWcmp(l,"UserFuncScript="))){
 #ifdef LUA
 			assert( cfg.luascript = strdup( removeLF(arg) ) );

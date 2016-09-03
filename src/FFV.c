@@ -140,25 +140,26 @@ void *process_1wAlrm(void *actx){
 		struct dirent *de;
 		DIR *d = opendir( cfg.OwAlarm );
 		if( !d ){
-			perror( cfg.OwAlarm );
-			pthread_exit(0);
-		}
+			publishLog(cfg.OwAlarmKeep ? 'E' : 'F', "[1-wire Alarm] : %s", strerror(errno));
+			if(!cfg.OwAlarmKeep)
+				pthread_exit(0);
+		} else {
+			while(( de = readdir(d) )){
+				if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
+					publishLog('I', "%s : in alert", de->d_name);
 
-		while(( de = readdir(d) )){
-			if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
-				publishLog('I', "%s : in alert", de->d_name);
-
-				for(union CSection *s = cfg.sections; s; s = s->common.next){
-					if( s->common.section_type == MSEC_FFV && strstr(s->FFV.file, de->d_name)){
-						if(s->FFV.sample == -1)
-							handle_FFV( &s->FFV );
-						else /* Ignored as its sample is not -1 */
-							publishLog('W', "'%s' has alarm, is found but its sample time is not -1 : ignored", s->FFV.file);
+					for(union CSection *s = cfg.sections; s; s = s->common.next){
+						if( s->common.section_type == MSEC_FFV && strstr(s->FFV.file, de->d_name)){
+							if(s->FFV.sample == -1)
+								handle_FFV( &s->FFV );
+							else /* Ignored as its sample is not -1 */
+								publishLog('W', "'%s' has alarm, is found but its sample time is not -1 : ignored", s->FFV.file);
+						}
 					}
 				}
 			}
+			closedir(d);
 		}
-		closedir(d);
 		sleep( cfg.OwAlarmSample );
 	}
 	pthread_exit(0);
