@@ -824,10 +824,10 @@ int main(int ac, char **av){
 		configtest = true;
 	case 'v':
 		if(!verbose){
+			verbose = true;
 			publishLog('I', "Marcel (c) L.Faillie 2015-2016");
 			publishLog('I', "%s v%s starting ...", basename(av[0]), VERSION);
 		}
-		verbose = true;
 		break;
 	case 'f':
 		conf_file = optarg;
