@@ -188,7 +188,7 @@ static int chksum(const char *s){
 
 static void setUID( union CSection *sec, const char *uid ){
 	if(!*uid){
-		fputs("*F* Empty uid provided.\n", stderr);
+		publishLog('F', "Empty uid provided.");
 		exit(EXIT_FAILURE);
 	}
 
@@ -196,7 +196,7 @@ static void setUID( union CSection *sec, const char *uid ){
 
 	for(union CSection *s = cfg.sections; s; s = s->common.next){
 		if( s->common.h == h && !strcmp(s->common.uid, uid) ){
-			fprintf(stderr, "*F* '%s' uid is used more than once.\n", uid);
+			publishLog('F', "'%s' uid is used more than once.", uid);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -234,7 +234,7 @@ static void read_configuration( const char *fch){
 		printf("\nReading configuration file '%s'\n---------------------------\n", fch);
 
 	if(!(f=fopen(fch, "r"))){
-		perror(fch);
+		publishLog('F', "%s : %s", fch, strerror( errno ));
 		exit(EXIT_FAILURE);
 	}
 
@@ -378,7 +378,7 @@ static void read_configuration( const char *fch){
 			setUID( n, removeLF(arg) );
 
 #ifndef LUA
-			fputs("*F* Every section is only available when compiled with Lua support\n", stderr);
+			publishLog('F', "Every section is only available when compiled with Lua support");
 			exit(EXIT_FAILURE);
 #else
 			n->Every.funcid = LUA_REFNIL;
@@ -398,7 +398,7 @@ static void read_configuration( const char *fch){
 			n->common.section_type = MSEC_METEO3H;
 			setUID( n, removeLF(arg) );
 #ifndef METEO
-			fputs("*F* Meteo3H section is only available when compiled with METEO support\n", stderr);
+			publishLog('F', "Meteo3H section is only available when compiled with METEO support");
 			exit(EXIT_FAILURE);
 #endif
 
@@ -417,7 +417,7 @@ static void read_configuration( const char *fch){
 			setUID( n, removeLF(arg) );
 
 #ifndef METEO
-			fputs("*F* MeteoDaily section is only available when compiled with METEO support\n", stderr);
+			publishLog('F', "MeteoDaily section is only available when compiled with METEO support");
 			exit(EXIT_FAILURE);
 #endif
 
@@ -472,7 +472,7 @@ static void read_configuration( const char *fch){
 //			assert( n->REST.url = strdup( removeLF(arg) ));
 
 #ifndef LUA
-			fputs("*F* REST section is only available when compiled with Lua support\n", stderr);
+			publishLog('F', "REST section is only available when compiled with Lua support");
 			exit(EXIT_FAILURE);
 #else
 			n->REST.funcid = LUA_REFNIL;
@@ -495,7 +495,7 @@ static void read_configuration( const char *fch){
 				puts("Crash if the broker connection is lost");
 		} else if((arg = striKWcmp(l,"File="))){
 			if(!last_section){
-				fputs("*F* Configuration issue : File directive outside section\n", stderr);
+				publishLog('F', "Configuration issue : File directive outside section");
 				exit(EXIT_FAILURE);
 			}
 			switch( last_section->common.section_type ){
@@ -510,12 +510,12 @@ static void read_configuration( const char *fch){
 					printf("\tFile : '%s'\n", last_section->OutFile.file);
 				break;
 			default :
-				fprintf(stderr, "*F* [%s] Configuration issue : File directive outside FFV or OutFile section\n", last_section->common.uid);
+				publishLog('F', "[%s] Configuration issue : File directive outside FFV or OutFile section", last_section->common.uid);
 					exit(EXIT_FAILURE);
 			}
 		} else if((arg = striKWcmp(l,"Latch="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
-				fputs("*F* Configuration issue : Latch directive outside a FFV section\n", stderr);
+				publishLog('F', "Configuration issue : Latch directive outside a FFV section");
 					exit(EXIT_FAILURE);
 			}
 			assert( last_section->FFV.latch = strdup( removeLF(arg) ));
@@ -523,8 +523,8 @@ static void read_configuration( const char *fch){
 				printf("\tLatch file : '%s'\n", last_section->FFV.latch);
 		} else if((arg = striKWcmp(l,"Offset="))){
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
-				fputs("*F* Configuration issue : Offset directive outside a FFV section\n", stderr);
-					exit(EXIT_FAILURE);
+				publishLog('F', "Configuration issue : Offset directive outside a FFV section");
+				exit(EXIT_FAILURE);
 			}
 			last_section->FFV.offset = atof(arg);
 			if(verbose){
@@ -534,26 +534,26 @@ static void read_configuration( const char *fch){
 			}
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
-				fputs("*F* Configuration issue : Host directive outside a UPS section\n", stderr);
-					exit(EXIT_FAILURE);
+				publishLog('F', "Configuration issue : Host directive outside a UPS section", stderr);
+				exit(EXIT_FAILURE);
 			}
 			assert( last_section->Ups.host = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tHost : '%s'\n", last_section->Ups.host);
 		} else if((arg = striKWcmp(l,"Port="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
-				fputs("*F* Configuration issue : Port directive outside a UPS section\n", stderr);
+				publishLog('F', "Configuration issue : Port directive outside a UPS section");
 				exit(EXIT_FAILURE);
 			}
 			if(!(last_section->Ups.port = atoi(arg))){
-				fputs("*F* Configuration issue : Port is null (or is not a number)\n", stderr);
+				publishLog('F', "Configuration issue : Port is null (or is not a number)");
 				exit(EXIT_FAILURE);
 			}
 			if(verbose)
 				printf("\tPort : %d\n", last_section->Ups.port);
 		} else if((arg = striKWcmp(l,"Url="))){
 			if(!last_section || last_section->common.section_type != MSEC_REST){
-				fputs("*F* Configuration issue : Url directive outside a REST section\n", stderr);
+				publishLog('F', "Configuration issue : Url directive outside a REST section");
 				exit(EXIT_FAILURE);
 			}
 
@@ -562,7 +562,7 @@ static void read_configuration( const char *fch){
 				printf("\tUrl : %s\n", last_section->REST.url);
 		} else if((arg = striKWcmp(l,"ID="))){
 			if(!last_section || last_section->common.section_type != MSEC_RTSCMD){
-				fputs("*F* Configuration issue : ID directive outside a RTSCmd section\n", stderr);
+				publishLog('F', "Configuration issue : ID directive outside a RTSCmd section");
 				exit(EXIT_FAILURE);
 			}
 			last_section->RTSCmd.did = strtol(arg, NULL, 0);
@@ -570,7 +570,7 @@ static void read_configuration( const char *fch){
 				printf("\tID : %04x\n", last_section->RTSCmd.did);
 		} else if((arg = striKWcmp(l,"Var="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
-				fputs("*F* Configuration issue : Var directive outside a UPS section\n", stderr);
+				publishLog('F', "Configuration issue : Var directive outside a UPS section");
 				exit(EXIT_FAILURE);
 			}
 			struct var *v = malloc(sizeof(struct var));
@@ -587,11 +587,11 @@ static void read_configuration( const char *fch){
 				last_section->common.section_type != MSEC_REST &&
 				last_section->common.section_type != MSEC_OUTFILE
 			)){
-				fputs("*F* Configuration issue : Func directive outside a DPD, Every, REST or OutFile section\n", stderr);
+				publishLog('F', "Configuration issue : Func directive outside a DPD, Every, REST or OutFile section");
 				exit(EXIT_FAILURE);
 			}
 #ifndef LUA
-			fputs("*F* User functions can only be used when compiled with Lua support\n", stderr);
+			publishLog('F', "User functions can only be used when compiled with Lua support");
 			exit(EXIT_FAILURE);
 #endif
 			assert( last_section->DeadPublisher.funcname = strdup( removeLF(arg) ));
@@ -601,7 +601,7 @@ static void read_configuration( const char *fch){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_REST
 			)){
-				fputs("*F* Configuration issue : RunIfOver directive outside a REST section\n", stderr);
+				publishLog('F', "Configuration issue : RunIfOver directive outside a REST section");
 				exit(EXIT_FAILURE);
 			}
 			last_section->REST.runifover = true;
@@ -612,7 +612,7 @@ static void read_configuration( const char *fch){
 				last_section->common.section_type != MSEC_EVERY &&
 				last_section->common.section_type != MSEC_REST
 			)){
-				fputs("*F* Configuration issue : Immediate directive outside a REST section\n", stderr);
+				publishLog('F', "Configuration issue : Immediate directive outside a REST section");
 				exit(EXIT_FAILURE);
 			}
 			last_section->REST.immediate = true;
@@ -622,7 +622,7 @@ static void read_configuration( const char *fch){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_REST
 			)){
-				fputs("*F* Configuration issue : At directive outside a REST section\n", stderr);
+				publishLog('F', "Configuration issue : At directive outside a REST section");
 				exit(EXIT_FAILURE);
 			}
 
@@ -631,12 +631,12 @@ static void read_configuration( const char *fch){
 				printf("\tAt : '%d'\n", last_section->REST.at);
 		} else if((arg = striKWcmp(l,"Sample="))){
 			if(!last_section){
-				fputs("*F* Configuration issue : Sample directive outside a section\n", stderr);
+				publishLog('F', "Configuration issue : Sample directive outside a section");
 				exit(EXIT_FAILURE);
 			}
 			if( last_section->common.section_type == MSEC_RTSCMD ||
 				last_section->common.section_type == MSEC_OUTFILE){
-				fputs("*F* Configuration issue : Sample directive isn't compatible with RTSCmd or Outfile sections\n", stderr);
+				publishLog('F', "Configuration issue : Sample directive isn't compatible with RTSCmd or Outfile sections");
 				exit(EXIT_FAILURE);
 			}
 			last_section->common.sample = atoi( arg );
@@ -644,7 +644,7 @@ static void read_configuration( const char *fch){
 				printf("\tDelay between samples : %ds\n", last_section->common.sample);
 		} else if(!strcmp(l,"Disabled\n")){		/* This section is currently disabled */
 			if(!last_section){
-				fputs("*F* Configuration issue : Disabled directive outside a section\n", stderr);
+				publishLog('F', "Configuration issue : Disabled directive outside a section");
 				exit(EXIT_FAILURE);
 			}
 			last_section->common.disabled = true;
@@ -652,7 +652,7 @@ static void read_configuration( const char *fch){
 				puts("\tDisabled");
 		} else if(!strcmp(l,"Keep\n")){		/* Staying alive */
 			if(!last_section){
-				fputs("*F* Configuration issue : Keep directive outside a section\n", stderr);
+				publishLog('F', "Configuration issue : Keep directive outside a section");
 				exit(EXIT_FAILURE);
 			}
 			last_section->common.keep = true;
@@ -660,7 +660,7 @@ static void read_configuration( const char *fch){
 				puts("\tKeep");
 		} else if((arg = striKWcmp(l,"Topic="))){
 			if(!last_section){
-				fputs("*F* Configuration issue : Topic directive outside a section\n", stderr);
+				publishLog('F', "Configuration issue : Topic directive outside a section");
 				exit(EXIT_FAILURE);
 			}
 			assert( last_section->common.topic = strdup( removeLF(arg) ));
@@ -670,7 +670,7 @@ static void read_configuration( const char *fch){
 			if(!last_section ||
 				last_section->common.section_type != MSEC_DEADPUBLISHER
 			){
-				fputs("*F* Configuration issue : ErrorTopic directive outside DPD section\n", stderr);
+				publishLog('F', "Configuration issue : ErrorTopic directive outside DPD section");
 				exit(EXIT_FAILURE);
 			}
 			assert( last_section->DeadPublisher.errtopic = strdup( removeLF(arg) ));
@@ -681,7 +681,7 @@ static void read_configuration( const char *fch){
 				last_section->common.section_type != MSEC_METEO3H &&
 				last_section->common.section_type != MSEC_METEOD
 			)){
-				fputs("*F* Configuration issue : City directive outside a Meteo* section\n", stderr);
+				publishLog('F', "Configuration issue : City directive outside a Meteo* section");
 				exit(EXIT_FAILURE);
 			}
 			assert( last_section->Meteo.City = strdup( removeLF(arg) ));
@@ -692,14 +692,14 @@ static void read_configuration( const char *fch){
 				last_section->common.section_type != MSEC_METEO3H &&
 				last_section->common.section_type != MSEC_METEOD
 			)){
-				fputs("*F* Configuration issue : Units directive outside a Meteo* section\n", stderr);
+				publishLog('F', "Configuration issue : Units directive outside a Meteo* section");
 				exit(EXIT_FAILURE);
 			}
 			assert( last_section->Meteo.Units = strdup( removeLF(arg) ));
 			if( strcmp( last_section->Meteo.Units, "metric" ) &&
 				strcmp( last_section->Meteo.Units, "imperial" ) &&
 				strcmp( last_section->Meteo.Units, "Standard" ) ){
-				fputs("*F* Configuration issue : Units can only be only \"metric\" or \"imperial\" or \"Standard\"\n", stderr);
+				publishLog('F', "Configuration issue : Units can only be only \"metric\" or \"imperial\" or \"Standard\"");
 				exit(EXIT_FAILURE);
 			}
 			if(verbose)
@@ -709,7 +709,7 @@ static void read_configuration( const char *fch){
 				last_section->common.section_type != MSEC_METEO3H &&
 				last_section->common.section_type != MSEC_METEOD
 			)){
-				fputs("*F* Configuration issue : Lang directive outside a Meteo* section\n", stderr);
+				publishLog('F', "Configuration issue : Lang directive outside a Meteo* section");
 				exit(EXIT_FAILURE);
 			}
 			assert( last_section->Meteo.Lang = strdup( removeLF(arg) ));
@@ -737,8 +737,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 	memcpy(payload, msg->payload, msg->payloadlen);
 	payload[msg->payloadlen] = 0;
 
-	if(verbose)
-		printf("*I* message arrival (topic : '%s', msg : '%s')\n", topic, payload);
+	publishLog('I', "message arrival (topic : '%s', msg : '%s')", topic, payload);
 
 	if((aid = striKWcmp(topic,"Alert/")))
 		rcv_alert( aid, payload );
@@ -757,16 +756,15 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 			if( !strcmp(payload,"0") || !strcasecmp(payload,"off") || !strcasecmp(payload,"disable") )
 				disable = true;
 			Sec->common.disabled = disable;
-			if(verbose)
-				printf("*I* %s '%s'\n", disable ? "Disabling":"Enabling", aid);
-		} else if(verbose)
-			printf("*I* No section matching '%s'\n", aid);
+			publishLog('I', "%s '%s'", disable ? "Disabling":"Enabling", aid);
+		} else
+			publishLog('I', "No section matching '%s'", aid);
 	} else for(; Sec; Sec = Sec->common.next){
 		if(Sec->common.section_type == MSEC_DEADPUBLISHER){
 			if(!mqtttokcmp(Sec->DeadPublisher.topic, topic)){	/* Topic found */
 				uint64_t v = 1;
 				if(write( Sec->DeadPublisher.rcv, &v, sizeof(v) ) == -1)	/* Signal it */
-					perror("eventfd to signal message reception");
+					publishLog('E', "eventfd to signal message reception : %s", strerror( errno ));
 
 #ifdef LUA
 				if( !Sec->DeadPublisher.disabled )
@@ -788,7 +786,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 }
 
 static void connlost(void *ctx, char *cause){
-	printf("*W* Broker connection lost due to %s\n", cause);
+	publishLog('W', "Broker connection lost due to %s", cause);
 	if(cfg.ConLostFatal)
 		exit(EXIT_FAILURE);
 }
@@ -826,8 +824,8 @@ int main(int ac, char **av){
 		configtest = true;
 	case 'v':
 		if(!verbose){
-			puts("Marcel (c) L.Faillie 2015-2016");
-			printf("%s v%s starting ...\n", basename(av[0]), VERSION);
+			publishLog('I', "Marcel (c) L.Faillie 2015-2016");
+			publishLog('I', "%s v%s starting ...", basename(av[0]), VERSION);
 		}
 		verbose = true;
 		break;
@@ -835,13 +833,13 @@ int main(int ac, char **av){
 		conf_file = optarg;
 		break;
 	default:
-		fprintf(stderr, "Unknown option '%c'\n%s -h\n\tfor some help\n", c, av[0]);
+		publishLog('F', "Unknown option '%c'\n%s -h\n\tfor some help\n", c, av[0]);
 		exit(EXIT_FAILURE);
 	}
 	read_configuration( conf_file );
 
 	if(configtest){
-		fputs("*W* Testing only the configuration ... leaving.\n", stderr);
+		publishLog('W', "Testing only the configuration ... leaving.");
 		exit(EXIT_FAILURE);
 	}
 
@@ -853,18 +851,18 @@ int main(int ac, char **av){
 	switch( MQTTClient_connect( cfg.client, &conn_opts) ){
 	case MQTTCLIENT_SUCCESS : 
 		break;
-	case 1 : fputs("Unable to connect : Unacceptable protocol version\n", stderr);
+	case 1 : publishLog('F', "Unable to connect : Unacceptable protocol version");
 		exit(EXIT_FAILURE);
-	case 2 : fputs("Unable to connect : Identifier rejected\n", stderr);
+	case 2 : publishLog('F', "Unable to connect : Identifier rejected");
 		exit(EXIT_FAILURE);
-	case 3 : fputs("Unable to connect : Server unavailable\n", stderr);
+	case 3 : publishLog('F', "Unable to connect : Server unavailable");
 		exit(EXIT_FAILURE);
-	case 4 : fputs("Unable to connect : Bad user name or password\n", stderr);
+	case 4 : publishLog('F', "Unable to connect : Bad user name or password");
 		exit(EXIT_FAILURE);
-	case 5 : fputs("Unable to connect : Not authorized\n", stderr);
+	case 5 : publishLog('F', "Unable to connect : Not authorized");
 		exit(EXIT_FAILURE);
 	default :
-		fputs("Unable to connect\n", stderr);
+		publishLog('F', "Unable to connect");
 		exit(EXIT_FAILURE);
 	}
 	atexit(brkcleaning);
@@ -892,10 +890,10 @@ int main(int ac, char **av){
 
 	if( cfg.OwAlarm ){
 		if( !cfg.OwAlarmSample )
-			fputs("*E* Can't launch 1-wire Alarm monitoring : 0 waiting delay", stderr);
+			publishLog('E', "Can't launch 1-wire Alarm monitoring : 0 waiting delay");
 		else {
 			if(pthread_create( &cfg.OwAlarmThread, &thread_attr, process_1wAlrm, NULL) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
+				publishLog('F', "Can't create a processing thread");
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -908,31 +906,29 @@ int main(int ac, char **av){
 		case MSEC_FFV:
 			if( !s->common.topic ){
 				s->common.topic = s->common.uid;
-				if(verbose)
-					printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+				publishLog('W', "[%s] no topic specified, using the uid.", s->common.uid);
 			}
 			if(s->common.sample){
 				if(pthread_create( &(s->common.thread), &thread_attr, process_FFV, s) < 0){
-					fprintf(stderr, "*F* [%s] Can't create a processing thread\n", s->common.uid);
+					publishLog('F', "[%s] Can't create a processing thread", s->common.uid);
 					exit(EXIT_FAILURE);
 				}
 				firstFFV=false;
 			} else
 				if(firstFFV)
-					fprintf(stderr, "*E* Can't launch FFV for '%s' : 0 waiting delay\n", s->FFV.topic);
+					publishLog('E', "Can't launch FFV for '%s' : 0 waiting delay", s->FFV.topic);
 			break;
 #ifdef FREEBOX
 		case MSEC_FREEBOX:
 			if(!s->common.sample){
-				fputs("*E* Freebox section without sample time : ignoring ...\n", stderr);
+				publishLog('E', "Freebox section without sample time : ignoring ...");
 			} else {
 				if( !s->common.topic ){
 					s->common.topic = s->common.uid;
-					if(verbose)
-						printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+					publishLog('W', "[%s] no topic specified, using the uid.", s->common.uid);
 				}
 				if(pthread_create( &(s->common.thread), &thread_attr, process_Freebox, s) < 0){
-					fputs("*F* [Freebox] Can't create a processing thread\n", stderr);
+					publishLog('F', "[Freebox] Can't create a processing thread");
 					exit(EXIT_FAILURE);
 				}
 			}
@@ -946,11 +942,10 @@ int main(int ac, char **av){
 			} else {
 				if( !s->common.topic ){
 					s->common.topic = s->common.uid;
-					if(verbose)
-						printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+					publishLog('W', "[%s] no topic specified, using the uid.", s->common.uid);
 				}
 				if(pthread_create( &(s->common.thread), &thread_attr, process_UPS, s) < 0){
-					fputs("*F* Can't create a processing thread\n", stderr);
+					publishLog('F', "Can't create a processing thread");
 					exit(EXIT_FAILURE);
 				}
 			}
@@ -960,9 +955,9 @@ int main(int ac, char **av){
 #ifdef LUA
 		case MSEC_EVERY:
 			if(!s->Every.funcname)
-				fputs("*E* EVERY without function defined : ignoring ...\n", stderr);
+				publishLog('E', "EVERY without function defined : ignoring ...", stderr);
 			else if(pthread_create( &(s->common.thread), &thread_attr, process_Every, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
+				publishLog('F', "Can't create a processing thread");
 				exit(EXIT_FAILURE);
 			}
 			firstFFV=true;
@@ -970,14 +965,14 @@ int main(int ac, char **av){
 #endif
 		case MSEC_DEADPUBLISHER:
 			if(!s->common.topic){
-				fprintf(stderr, "*E* configuration error : no topic specified, ignoring DPD '%s' section\n", s->common.uid );
+				publishLog('E', "configuration error : no topic specified, ignoring DPD '%s' section", s->common.uid );
 			} else if(!s->common.sample && !s->DeadPublisher.funcname){
-				fputs("*E* DeadPublisher section without sample time or user function defined : ignoring ...\n", stderr);
+				publishLog('E', "DeadPublisher section without sample time or user function defined : ignoring ...", stderr);
 			} else {
 				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
-					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
+					publishLog('E', "Can't subscribe to '%s'", s->common.topic );
 				} else if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
-					fputs("*F* Can't create a processing thread\n", stderr);
+					publishLog('F', "Can't create a processing thread");
 					exit(EXIT_FAILURE);
 				}
 			}
@@ -989,29 +984,28 @@ int main(int ac, char **av){
 			} else {
 				if( !s->common.topic ){
 					s->common.topic = s->common.uid;
-					if(verbose)
-						printf("*W* [%s] no topic specified, using the uid.\n", s->common.uid);
+					publishLog('W', "[%s] no topic specified, using the uid.", s->common.uid);
 				}
 				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS )
-					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
+					publishLog('E', "Can't subscribe to '%s'", s->common.topic );
 			}
 			firstFFV=true;
 			break;
 #ifdef METEO
 		case MSEC_METEO3H:
 			if(!s->common.sample){
-				fprintf(stderr, "*E* Meteo3H '%s' section without sample time : ignoring ...\n", s->common.uid);
+				publishLog('E', "Meteo3H '%s' section without sample time : ignoring ...", s->common.uid);
 			} else if(pthread_create( &(s->common.thread), &thread_attr, process_Meteo3H, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
+				publishLog('F', "Can't create a processing thread");
 				exit(EXIT_FAILURE);
 			}			
 			firstFFV=true;
 			break;
 		case MSEC_METEOD:
 			if(!s->common.sample){
-				fprintf(stderr, "*E* Meteo Daily '%s' section without sample time : ignoring ...\n", s->common.uid);
+				publishLog('E', "Meteo Daily '%s' section without sample time : ignoring ...", s->common.uid);
 			} else if(pthread_create( &(s->common.thread), &thread_attr, process_MeteoD, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
+				publishLog('F', "Can't create a processing thread");
 				exit(EXIT_FAILURE);
 			}			
 			firstFFV=true;
@@ -1020,10 +1014,10 @@ int main(int ac, char **av){
 #ifdef RFXTRX
 		case MSEC_RTSCMD:
 			if(!s->common.topic || !s->RTSCmd.did ){
-				fputs("*E* configuration error : no topic or device ID specified, ignoring this RTSCmd section\n", stderr);
+				publishLog('E', "configuration error : no topic or device ID specified, ignoring this RTSCmd section");
 			} else if(cfg.RFXdevice){
 				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
-					fprintf(stderr, "Can't subscribe to '%s'\n", s->common.topic );
+					publishLog('E', "Can't subscribe to '%s'", s->common.topic );
 				}
 			}
 			firstFFV=true;
@@ -1031,11 +1025,11 @@ int main(int ac, char **av){
 #endif
 		case MSEC_REST:
 			if(!s->REST.sample && s->REST.at == -1)
-				fputs("*E* REST without sample or \"At\" time is useless : ignoring ...\n", stderr);
+				publishLog('E', "REST without sample or \"At\" time is useless : ignoring ...");
 			else if(!s->REST.funcname)
-				fputs("*E* REST without function defined : ignoring ...\n", stderr);
+				publishLog('E', "REST without function defined : ignoring ...");
 			else if(pthread_create( &(s->common.thread), &thread_attr, process_REST, s) < 0){
-				fputs("*F* Can't create a processing thread\n", stderr);
+				publishLog('F', "Can't create a processing thread");
 				exit(EXIT_FAILURE);
 			}
 			firstFFV=true;
@@ -1052,7 +1046,7 @@ int main(int ac, char **av){
 	cfg.OnOffTopic[i] = '#';
 	cfg.OnOffTopic[i+1] = 0;
 	if(MQTTClient_subscribe( cfg.client, cfg.OnOffTopic, 0 ) != MQTTCLIENT_SUCCESS ){
-		fprintf(stderr, "Can't subscribe to '%s'\n", cfg.OnOffTopic );
+		publishLog('E', "Can't subscribe to '%s'", cfg.OnOffTopic );
 	}
 	cfg.OnOffTopic[i] = 0;
 

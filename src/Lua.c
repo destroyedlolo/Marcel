@@ -19,6 +19,7 @@
 #include <assert.h>
 #include <libgen.h>		/* dirname ... */
 #include <unistd.h>		/* chdir ... */
+#include <errno.h>
 
 #ifdef LUA
 
@@ -36,8 +37,8 @@ int findUserFunc( const char *fn ){
 	pthread_mutex_lock( &onefunc );
 	lua_getglobal(L, fn);
 	if( lua_type(L, -1) != LUA_TFUNCTION ){
-		if(verbose && lua_type(L, -1) != LUA_TNIL )
-			fprintf(stderr, "*E* \"%s\" is not a function, a %s.\n", fn, lua_typename(L, lua_type(L, -1)) );
+		if(lua_type(L, -1) != LUA_TNIL )
+		publishLog('E', "\"%s\" is not a function, a %s", fn, lua_typename(L, lua_type(L, -1)) );
 		lua_pop(L, 1);
 		pthread_mutex_unlock( &onefunc );
 		return LUA_REFNIL;
@@ -56,7 +57,7 @@ void execUserFuncDeadPublisher( struct _DeadPublisher *ctx, const char *topic, c
 		lua_pushstring( L, topic);
 		lua_pushstring( L, msg);
 		if(lua_pcall( L, 2, 0, 0)){
-			fprintf(stderr, "DPD / '%s' : %s\n", topic, lua_tostring(L, -1));
+			publishLog('E', "[%s] DPD / '%s' : %s", ctx->uid, topic, lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 			lua_pop(L, 1);  /* pop NIL from the stack */
 		}
@@ -69,7 +70,7 @@ void execUserFuncEvery( struct _Every *ctx ){
 	lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
 	lua_pushstring( L, ctx->uid );
 	if(lua_pcall( L, 1, 0, 0)){
-		fprintf(stderr, "Every / %s : %s\n", ctx->uid, lua_tostring(L, -1));
+		publishLog('E', "[%s] Every : %s", ctx->uid, lua_tostring(L, -1));
 		lua_pop(L, 1);  /* pop error message from the stack */
 		lua_pop(L, 1);  /* pop NIL from the stack */
 	}
@@ -81,7 +82,7 @@ void execUserFuncREST( struct _REST *ctx, char *res ){
 	lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
 	lua_pushstring( L, res );
 	if(lua_pcall( L, 1, 0, 0)){
-		fprintf(stderr, "RESTquery / %s : %s\n", ctx->url, lua_tostring(L, -1));
+		publishLog('E', "[%s] RESTquery / %s : %s", ctx->uid, ctx->url, lua_tostring(L, -1));
 		lua_pop(L, 1);  /* pop error message from the stack */
 		lua_pop(L, 1);  /* pop NIL from the stack */
 	}
@@ -95,7 +96,7 @@ void execUserFuncOutFile( struct _OutFile *ctx, const char *msg ){
 		lua_pushstring( L, ctx->uid );
 		lua_pushstring( L, msg);
 		if(lua_pcall( L, 2, 0, 0)){
-			fprintf(stderr, "OutFile / %s : %s\n", ctx->uid, lua_tostring(L, -1));
+			publishLog('E', "[%s] OutFile : %s", ctx->uid, lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 			lua_pop(L, 1);  /* pop NIL from the stack */
 		}
@@ -105,7 +106,7 @@ void execUserFuncOutFile( struct _OutFile *ctx, const char *msg ){
 
 static int lmSendNMsg(lua_State *L){
 	if(lua_gettop(L) != 3){
-		fputs("*E* In your Lua code, SendNamedMessage() requires 3 arguments : Alerts' names, title and message\n", stderr);
+		publishLog('E', "In your Lua code, SendNamedMessage() requires 3 arguments : Alerts' names, title and message");
 		return 0;
 	}
 
@@ -120,7 +121,7 @@ static int lmSendNMsg(lua_State *L){
 
 static int lmSendMsg(lua_State *L){
 	if(lua_gettop(L) != 2){
-		fputs("*E* In your Lua code, SendMessage() requires 2 arguments : title and message\n", stderr);
+		publishLog('E', "In your Lua code, SendMessage() requires 2 arguments : title and message");
 		return 0;
 	}
 
@@ -133,7 +134,7 @@ static int lmSendMsg(lua_State *L){
 
 static int lmSendMsgSMS(lua_State *L){
 	if(lua_gettop(L) != 2){
-		fputs("*E* In your Lua code, SendMessageSMS() requires 2 arguments : title and message\n", stderr);
+		publishLog('E', "In your Lua code, SendMessageSMS() requires 2 arguments : title and message");
 		return 0;
 	}
 
@@ -146,7 +147,7 @@ static int lmSendMsgSMS(lua_State *L){
 
 static int lmRiseAlert(lua_State *L){
 	if(lua_gettop(L) != 2){
-		fputs("*E* In your Lua code, RiseAlert() requires 2 arguments : topic, message\n", stderr);
+		publishLog('E', "In your Lua code, RiseAlert() requires 2 arguments : topic, message");
 		return 0;
 	}
 
@@ -159,7 +160,7 @@ static int lmRiseAlert(lua_State *L){
 
 static int lmRiseAlertSMS(lua_State *L){
 	if(lua_gettop(L) != 2){
-		fputs("*E* In your Lua code, RiseAlert() requires 2 arguments : topic, message\n", stderr);
+		publishLog('E', "In your Lua code, RiseAlertSMS() requires 2 arguments : topic, message");
 		return 0;
 	}
 
@@ -172,7 +173,7 @@ static int lmRiseAlertSMS(lua_State *L){
 
 static int lmClearAlert(lua_State *L){
 	if(lua_gettop(L) != 1){
-		fputs("*E* In your Lua code, ClearAlert() requires 1 argument : topic\n", stderr);
+		publishLog('E', "In your Lua code, ClearAlert() requires 1 argument : topic");
 		return 0;
 	}
 
@@ -185,7 +186,7 @@ static int lmClearAlert(lua_State *L){
 static int lmPublish(lua_State *L){
 	int retain = 0;
 	if(lua_gettop(L) < 2 || lua_gettop(L) > 3){
-		fputs("*E* In your Lua code, Publish() requires at least 2 arguments : topic, value and optionnaly retain\n", stderr);
+		publishLog('E', "In your Lua code, Publish() requires at least 2 arguments : topic, value and optionnaly retain");
 		return 0;
 	}
 
@@ -238,7 +239,7 @@ void init_Lua( const char *conffile ){
 
 		assert( copy_cf = strdup(conffile) );
 		if(chdir( dirname( copy_cf )) == -1){
-			perror("chdir() : ");
+			publishLog('F', "chdir() : %s", strerror( errno ));
 			exit(EXIT_FAILURE);
 		}
 		free( copy_cf );
@@ -255,12 +256,12 @@ void init_Lua( const char *conffile ){
 
 		int err = luaL_loadfile(L, cfg.luascript) || lua_pcall(L, 0, 0, 0);
 		if(err){
-			fprintf(stderr, "*F* '%s' : %s\n", cfg.luascript, lua_tostring(L, -1));
+			publishLog('F', "'%s' : %s", cfg.luascript, lua_tostring(L, -1));
 			exit(EXIT_FAILURE);
 		}
 
 		pthread_mutex_init( &onefunc, NULL);
-	} else if(verbose)
-		puts("*W* No FuncScript defined, Lua disabled");
+	} else 
+		publishLog('W', "No FuncScript defined, Lua disabled");
 }
 #endif
