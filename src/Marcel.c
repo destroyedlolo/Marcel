@@ -112,6 +112,29 @@ void publishLog( char l, const char *msg, ...){
 		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
 	}
 
+	if(cfg.client){
+		char *sub;
+		switch(l){
+		case 'F':
+			sub = "/Log/Fatal";
+			break;
+		case 'E':
+			sub = "/Log/Erreur";
+			break;
+		case 'W':
+			sub = "/Log/Warning";
+			break;
+		default :
+			sub = "/Log/Information";
+		}
+
+		char tmsg[160];	/* No simple way here to know the message size */
+		char ttopic[ strlen(cfg.ClientID) + strlen(sub) + 1 ];
+		sprintf(ttopic, "%s%s", cfg.ClientID, sub);
+		vsnprintf(tmsg, sizeof(tmsg), msg, args);
+
+		mqttpublish( cfg.client, ttopic, strlen(tmsg), tmsg, 0);
+	}
 	va_end(args);
 }
 
