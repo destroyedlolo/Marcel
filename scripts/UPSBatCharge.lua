@@ -3,6 +3,7 @@
 -- Rise an alert if my UPS run out of battery
 
 function UPSBatCharge( topic, val )
+	val = tonumber(val)
 	if val < 20 then
 		Marcel.RiseAlert("Battery charge is critical", val)
 	elseif val < 50 then

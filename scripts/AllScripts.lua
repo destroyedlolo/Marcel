@@ -9,6 +9,8 @@ require "scripts/PublishLoad"
 require "scripts/Congelo"
 require "scripts/DetermineVacances"
 require "scripts/SituationPorteCave"
+require "scripts/SituationPorteGarage"
+require "scripts/SituationPorteGrenierSud"
 require "scripts/TopicPluie"
 
 if tonumber(Marcel.Version()) < 3.3 then
