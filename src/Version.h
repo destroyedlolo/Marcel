@@ -13,13 +13,14 @@
  * 					 - v6.03 - OnOff working
  * 22/08/2016	- LF - v6.04 - Add Lua function on OutFile
  * 31/08/2016	- LF - v6.05 - Add Keep
+ * 15/10/2016	- LF - v6.06 - Add MARCEL_SCRIPT_DIR Lua variable
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.0502"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "6.0600"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

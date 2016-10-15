@@ -3,15 +3,17 @@
 
 json = require("dkjson")
 
-require "scripts/Photovoltaics"
-require "scripts/UPSBatCharge"
-require "scripts/PublishLoad"
-require "scripts/Congelo"
-require "scripts/DetermineVacances"
-require "scripts/SituationPorteCave"
-require "scripts/SituationPorteGarage"
-require "scripts/SituationPorteGrenierSud"
-require "scripts/TopicPluie"
+-- Note : the global variable MARCEL_SCRIPT_DIR
+-- contains the directory of this script.
+require ( MARCEL_SCRIPT_DIR .. "/Photovoltaics" )
+require ( MARCEL_SCRIPT_DIR .. "/UPSBatCharge" )
+require ( MARCEL_SCRIPT_DIR .. "/PublishLoad" )
+require ( MARCEL_SCRIPT_DIR .. "/Congelo" )
+require ( MARCEL_SCRIPT_DIR .. "/DetermineVacances" )
+require ( MARCEL_SCRIPT_DIR .. "/SituationPorteCave" )
+require ( MARCEL_SCRIPT_DIR .. "/SituationPorteGarage" )
+require ( MARCEL_SCRIPT_DIR .. "/SituationPorteGrenierSud" )
+require ( MARCEL_SCRIPT_DIR .. "/TopicPluie" )
 
 if tonumber(Marcel.Version()) < 3.3 then
 	print("*F* Marcel 3.3 or newer needed by Lua functions")

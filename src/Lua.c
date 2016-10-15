@@ -254,6 +254,11 @@ void init_Lua( const char *conffile ){
 		lua_settable(L, -3);	/* metatable.__index = metatable */
 		luaL_register(L,"Marcel", MarcelLib);
 
+		assert( copy_cf = strdup(cfg.luascript) );
+		lua_pushstring(L, dirname(copy_cf) );
+		lua_setglobal(L, "MARCEL_SCRIPT_DIR");
+		free( copy_cf );
+		
 		int err = luaL_loadfile(L, cfg.luascript) || lua_pcall(L, 0, 0, 0);
 		if(err){
 			publishLog('F', "'%s' : %s", cfg.luascript, lua_tostring(L, -1));
