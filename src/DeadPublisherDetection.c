@@ -33,7 +33,7 @@ void *process_DPD(void *actx){
 
 		/* Sanity checks */
 #ifdef LUA
-	if(ctx->funcname){
+	if(ctx->funcname && cfg.luascript){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
 			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", ctx->uid, ctx->funcname);
 			pthread_exit(NULL);
@@ -47,7 +47,6 @@ void *process_DPD(void *actx){
 		publishLog('E', "[%s] eventfd() : %s", ctx->uid, strerror(errno));
 		pthread_exit(0);
 	}
-
 	if(ctx->sample){
 		ts.tv_sec = (time_t)ctx->sample;
 		ts.tv_nsec = 0;
@@ -55,6 +54,13 @@ void *process_DPD(void *actx){
 		uts = &ts;
 	} else
 		uts = NULL;
+
+		/* Subscribe */
+		if(MQTTClient_subscribe( cfg.client, ctx->topic, 0 ) != MQTTCLIENT_SUCCESS ){
+			publishLog('E', "[%s] Can't subscribe to '%s'", ctx->uid, ctx->topic );
+			pthread_exit(NULL);
+		}
+
 
 	for(;;){
 		fd_set rfds;

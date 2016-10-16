@@ -59,6 +59,7 @@
  *				-------
  *	19/08/2016	- LF - switch to v6.0 - prepare controls
  *	01/09/2016	- LF - Add publishLog() function
+ *	16/10/2016	- LF - 6.06.01 - Intitialise funcid for DPD to avoid a crash
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -463,6 +464,7 @@ static void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct _DeadPublisher));
 			n->common.section_type = MSEC_DEADPUBLISHER;
 			setUID( n, removeLF(arg) );
+			n->DeadPublisher.funcid = LUA_REFNIL;
 
 			if(last_section)
 				last_section->common.next = n;
@@ -998,9 +1000,7 @@ int main(int ac, char **av){
 			} else if(!s->common.sample && !s->DeadPublisher.funcname){
 				publishLog('E', "DeadPublisher section without sample time or user function defined : ignoring ...", stderr);
 			} else {
-				if(MQTTClient_subscribe( cfg.client, s->common.topic, 0 ) != MQTTCLIENT_SUCCESS ){
-					publishLog('E', "Can't subscribe to '%s'", s->common.topic );
-				} else if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
+				if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
 					publishLog('F', "Can't create a processing thread");
 					exit(EXIT_FAILURE);
 				}

@@ -51,7 +51,7 @@ int findUserFunc( const char *fn ){
 }
 
 void execUserFuncDeadPublisher( struct _DeadPublisher *ctx, const char *topic, const char *msg){
-	if(ctx->funcid != LUA_TNIL){	/* A function is defined */
+	if(ctx->funcid != LUA_REFNIL){	/* A function is defined */
 		pthread_mutex_lock( &onefunc );
 		lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
 		lua_pushstring( L, topic);
@@ -254,10 +254,14 @@ void init_Lua( const char *conffile ){
 		lua_settable(L, -3);	/* metatable.__index = metatable */
 		luaL_register(L,"Marcel", MarcelLib);
 
-		assert( copy_cf = strdup(cfg.luascript) );
-		lua_pushstring(L, dirname(copy_cf) );
-		lua_setglobal(L, "MARCEL_SCRIPT_DIR");
-		free( copy_cf );
+		char rp[ PATH_MAX ];
+		if( realpath( cfg.luascript, rp ) ){
+			lua_pushstring(L, dirname(rp) );
+			lua_setglobal(L, "MARCEL_SCRIPT_DIR");
+		} else {
+			publishLog('F', "realpath() : %s", strerror( errno ));
+			exit(EXIT_FAILURE);
+		}
 		
 		int err = luaL_loadfile(L, cfg.luascript) || lua_pcall(L, 0, 0, 0);
 		if(err){

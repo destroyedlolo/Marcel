@@ -92,6 +92,11 @@ void *process_REST(void *actx){
 	struct _REST *ctx = actx;	/* Only to avoid zillions of cast */
 
 	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
+		if(!cfg.luascript){
+			publishLog('E', "[%s] configuration error : No Lua script defined whereas a function is used. This thread is dying.", ctx->uid, ctx->funcname);
+			pthread_exit(NULL);
+		}
+
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
 			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined", ctx->uid, ctx->funcname);
 			publishLog('F', "[%s] Dying", ctx->uid);

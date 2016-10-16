@@ -22,6 +22,11 @@
 void *process_Every(void *actx){
 	struct _Every *ctx = actx;	/* Only to avoid zillions of cast */
 
+	if(!cfg.luascript){
+			publishLog('E', "[%s] configuration error : No Lua script defined. This thread is dying.", ctx->uid, ctx->funcname);
+			pthread_exit(NULL);
+	}
+
 	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
 		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
 			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", ctx->uid, ctx->funcname);

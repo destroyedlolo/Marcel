@@ -3,20 +3,28 @@
 
 json = require("dkjson")
 
--- Note : the global variable MARCEL_SCRIPT_DIR
--- contains the directory of this script.
-require ( MARCEL_SCRIPT_DIR .. "/Photovoltaics" )
-require ( MARCEL_SCRIPT_DIR .. "/UPSBatCharge" )
-require ( MARCEL_SCRIPT_DIR .. "/PublishLoad" )
-require ( MARCEL_SCRIPT_DIR .. "/Congelo" )
-require ( MARCEL_SCRIPT_DIR .. "/DetermineVacances" )
-require ( MARCEL_SCRIPT_DIR .. "/SituationPorteCave" )
-require ( MARCEL_SCRIPT_DIR .. "/SituationPorteGarage" )
-require ( MARCEL_SCRIPT_DIR .. "/SituationPorteGrenierSud" )
-require ( MARCEL_SCRIPT_DIR .. "/TopicPluie" )
-
 if tonumber(Marcel.Version()) < 3.3 then
 	print("*F* Marcel 3.3 or newer needed by Lua functions")
 	os.exit( 20 )
 end
+
+-- Note : the global variable MARCEL_SCRIPT_DIR
+-- contains the directory of this script.
+-- In order to load modules, we need to modify Lua seach path, but unlike
+-- modifying the system wide LUA_PATH (which is a security hole), we modify
+-- our local setting.
+package.path = MARCEL_SCRIPT_DIR .. "/?.lua;" .. package.path
+
+
+require ( "Photovoltaics" )
+require ( "UPSBatCharge" )
+require ( "PublishLoad" )
+require ( "Congelo" )
+require ( "DetermineVacances" )
+require ( "SituationPorteCave" )
+require ( "SituationPorteGarage" )
+require ( "SituationPorteGrenierSud" )
+require ( "TopicPluie" )
+
+ActiveTopicPluie( 'Blabla', '1')
 
