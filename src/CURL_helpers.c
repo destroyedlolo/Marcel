@@ -6,6 +6,7 @@
  */
 
 #include "CURL_helpers.h"
+#include "Marcel.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,7 +23,7 @@ size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *user
 
 	mem->memory = realloc(mem->memory, mem->size + realsize + 1);
 	if(mem->memory == NULL){ /* out of memory! */ 
-		fputs("not enough memory (realloc returned NULL)\n", stderr);
+		publishLog('E', "not enough memory (realloc returned NULL)");
 		return 0;
 	}
 

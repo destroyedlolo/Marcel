@@ -10,7 +10,7 @@ cc=gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -lcurl -lpthread -lpa
 Alerting.o : Alerting.c Marcel.h Alerting.h DList.h Makefile 
 	$(cc) -c -o Alerting.o Alerting.c 
 
-CURL_helpers.o : CURL_helpers.c CURL_helpers.h Makefile 
+CURL_helpers.o : CURL_helpers.c CURL_helpers.h Marcel.h Makefile 
 	$(cc) -c -o CURL_helpers.o CURL_helpers.c 
 
 DeadPublisherDetection.o : DeadPublisherDetection.c \

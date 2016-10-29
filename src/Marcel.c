@@ -302,7 +302,7 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("RFXtrx's device : '%s'\n", cfg.RFXdevice);
 #else
-			fputs("*E* RFXtrx_Port defined without RFXtrx support enabled\n", stderr);
+			publishLog('E', "RFXtrx_Port defined without RFXtrx support enabled");
 #endif
 		} else if((arg = striKWcmp(l,"1wire-Alarm="))){
 			assert( cfg.OwAlarm = strdup( removeLF(arg) ) );
@@ -322,7 +322,7 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("User functions definition script : '%s'\n", cfg.luascript);
 #else
-			fputs("*E* UserFuncScript defined without Lua support enabled\n", stderr);
+			publishLog('E', "UserFuncScript defined without Lua support enabled");
 #endif
 		} else if((arg = striKWcmp(l,"$alert="))){
 			struct notification *n = malloc( sizeof(struct notification) );
@@ -330,7 +330,7 @@ static void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct notification));
 
 			if(!*arg || *arg == '\n'){
-				fputs("*F* Unamed $alert section, giving up !\n", stderr);
+				publishLog('F', "Unamed $alert section, giving up !");
 				exit(EXIT_FAILURE);
 			}
 
@@ -565,7 +565,7 @@ static void read_configuration( const char *fch){
 			}
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
-				publishLog('F', "Configuration issue : Host directive outside a UPS section", stderr);
+				publishLog('F', "Configuration issue : Host directive outside a UPS section");
 				exit(EXIT_FAILURE);
 			}
 			assert( last_section->Ups.host = strdup( removeLF(arg) ));
@@ -969,7 +969,7 @@ int main(int ac, char **av){
 #ifdef UPS
 		case MSEC_UPS:
 			if(!s->common.sample){ /* we won't group UPS to prevent too many DNS lookup */
-				fprintf(stderr, "*E* [%s] UPS section without sample time : ignoring ...\n", s->common.uid);
+				publishLog('E', "[%s] UPS section without sample time : ignoring ...", s->common.uid);
 			} else {
 				if( !s->common.topic ){
 					s->common.topic = s->common.uid;
@@ -986,7 +986,7 @@ int main(int ac, char **av){
 #ifdef LUA
 		case MSEC_EVERY:
 			if(!s->Every.funcname)
-				publishLog('E', "EVERY without function defined : ignoring ...", stderr);
+				publishLog('E', "EVERY without function defined : ignoring ...");
 			else if(pthread_create( &(s->common.thread), &thread_attr, process_Every, s) < 0){
 				publishLog('F', "Can't create a processing thread");
 				exit(EXIT_FAILURE);
@@ -998,7 +998,7 @@ int main(int ac, char **av){
 			if(!s->common.topic){
 				publishLog('E', "configuration error : no topic specified, ignoring DPD '%s' section", s->common.uid );
 			} else if(!s->common.sample && !s->DeadPublisher.funcname){
-				publishLog('E', "DeadPublisher section without sample time or user function defined : ignoring ...", stderr);
+				publishLog('E', "DeadPublisher section without sample time or user function defined : ignoring ...");
 			} else {
 				if(pthread_create( &(s->common.thread), &thread_attr, process_DPD, s) < 0){
 					publishLog('F', "Can't create a processing thread");
@@ -1009,7 +1009,7 @@ int main(int ac, char **av){
 			break;
 		case MSEC_OUTFILE:
 			if(!s->OutFile.file){
-				fprintf(stderr, "*E* configuration error : no file specified, ignoring OutFile '%s' section\n", s->common.uid);
+				publishLog('E', "configuration error : no file specified, ignoring OutFile '%s' section", s->common.uid);
 			} else {
 				if( !s->common.topic ){
 					s->common.topic = s->common.uid;

@@ -79,7 +79,7 @@ static void psendSMS(const char *url, const char *title, const char *msg ){
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
 		if((res = curl_easy_perform(curl)) != CURLE_OK)
-			fprintf(stderr, "*E* Sending SMS : %s\n", curl_easy_strerror(res));
+			publishLog('E', "Sending SMS : %s", curl_easy_strerror(res));
 
 		curl_easy_cleanup(curl);
 	}
@@ -151,22 +151,22 @@ void init_alerting(void){
 	DLListInit( &alerts );
 
 	if( MQTTClient_subscribe( cfg.client, "Alert/#", 0) != MQTTCLIENT_SUCCESS ){
-		fputs("Can't subscribe to 'Alert/#'", stderr);
+		publishLog('F', "Can't subscribe to 'Alert/#'");
 		exit(EXIT_FAILURE);
 	}
 /*
 	if( MQTTClient_subscribe( cfg.client, "nAlert/#", 0) != MQTTCLIENT_SUCCESS ){
-		fputs("Can't subscribe to 'nAlert/#'", stderr);
+		publishLog('F', "Can't subscribe to 'nAlert/#'");
 		exit(EXIT_FAILURE);
 	}
 */
 
 	if( MQTTClient_subscribe( cfg.client, "Notification/#", 0) != MQTTCLIENT_SUCCESS ){
-		fputs("Can't subscribe to 'Notification/#'", stderr);
+		publishLog('F', "Can't subscribe to 'Notification/#'");
 		exit(EXIT_FAILURE);
 	}
 	if( MQTTClient_subscribe( cfg.client, "nNotification/#", 0) != MQTTCLIENT_SUCCESS ){
-		fputs("Can't subscribe to 'nNotification/#'", stderr);
+		publishLog('F', "Can't subscribe to 'nNotification/#'");
 		exit(EXIT_FAILURE);
 	}
 
