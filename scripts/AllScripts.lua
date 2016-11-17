@@ -26,5 +26,3 @@ require ( "SituationPorteGarage" )
 require ( "SituationPorteGrenierSud" )
 require ( "TopicPluie" )
 
-ActiveTopicPluie( 'Blabla', '1')
-
