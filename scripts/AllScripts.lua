@@ -26,3 +26,4 @@ require ( "SituationPorteGarage" )
 require ( "SituationPorteGrenierSud" )
 require ( "TopicPluie" )
 
+require ( "CorrectTempJoris" )

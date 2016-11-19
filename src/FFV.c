@@ -17,11 +17,30 @@
 #include <errno.h>
 #include <dirent.h>
 
+#ifdef LUA
+#include <lauxlib.h>
+#endif
+
 static void handle_FFV(struct _FFV *ctx){
 	if(ctx->disabled){
 		publishLog('I', "[%s] Reading FFV '%s' is disabled\n", ctx->uid, ctx->topic);
 		return;
 	}
+
+#ifdef LUA
+	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
+		if(!cfg.luascript){
+			publishLog('E', "[%s] configuration error : No Lua script defined whereas a function is used. This thread is dying.", ctx->uid, ctx->funcname);
+			pthread_exit(NULL);
+		}
+		
+		if( (ctx->funcid = findUserFunc( ctx->funcname )) == LUA_REFNIL ){
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined", ctx->uid, ctx->funcname);
+			publishLog('F', "[%s] Dying", ctx->uid);
+			pthread_exit(NULL);
+		}
+	}
+#endif
 
 	FILE *f;
 	char l[MAXLINE];
@@ -57,11 +76,18 @@ static void handle_FFV(struct _FFV *ctx){
 		if(!fscanf(f, "%f", &val))
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", ctx->uid, ctx->topic);
 		else {	/* Only to normalize the response */
+			bool publish = true;
 			val += ctx->offset;
-			sprintf(l,"%.1f", val);
-
-			mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
 			publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, val);
+
+#ifdef LUA
+			if( ctx->funcid != LUA_REFNIL )
+				publish = execUserFuncFFV(ctx, val);
+#endif
+			if(publish){
+				sprintf(l,"%.1f", val);
+				mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
+			}
 		}
 		fclose(f);
 

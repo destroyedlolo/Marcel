@@ -346,6 +346,7 @@ static void read_configuration( const char *fch){
 			memset(n, 0, sizeof(struct _FFV));
 			n->common.section_type = MSEC_FFV;
 			setUID( n, removeLF(arg) );
+			n->FFV.funcid = LUA_REFNIL;
 
 			if(last_section)
 				last_section->common.next = n;
@@ -613,6 +614,7 @@ static void read_configuration( const char *fch){
 				printf("\tVar : '%s'\n", v->name);
 		} else if((arg = striKWcmp(l,"Func="))){
 			if(!last_section || (
+				last_section->common.section_type != MSEC_FFV &&
 				last_section->common.section_type != MSEC_DEADPUBLISHER &&
 				last_section->common.section_type != MSEC_EVERY &&
 				last_section->common.section_type != MSEC_REST &&

@@ -72,6 +72,8 @@ union CSection {
 		bool disabled;
 		bool keep;
 		int sample;			/* delay b/w 2 samples */
+		const char *funcname;	/* User function to call on data arrival */
+		int funcid;			/* Function id in Lua registry */
 		const char *file;	/* File containing the data to read */
 		const char *latch;	/* Related latch file (optional) */
 		float offset;		/* Offset to apply to the raw value */
@@ -244,6 +246,7 @@ extern void execUserFuncDeadPublisher( struct _DeadPublisher *, const char *, co
 extern void execUserFuncEvery( struct _Every * );
 extern void execUserFuncREST( struct _REST *, char *);
 extern void execUserFuncOutFile( struct _OutFile *, const char * );
+extern bool execUserFuncFFV( struct _FFV *, float);
 #endif
 
 #endif

@@ -104,6 +104,27 @@ void execUserFuncOutFile( struct _OutFile *ctx, const char *msg ){
 	}
 }
 
+bool execUserFuncFFV( struct _FFV *ctx, float val){
+	bool ret=true;
+
+	if(ctx->funcid != LUA_TNIL){	/* A function is defined */
+		pthread_mutex_lock( &onefunc );
+		lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
+		lua_pushstring( L, ctx->uid );
+		lua_pushstring( L, ctx->topic );
+		lua_pushnumber( L, val);
+		if(lua_pcall( L, 3, 1, 0)){
+			publishLog('E', "[%s] FFV : %s", ctx->uid, lua_tostring(L, -1));
+			lua_pop(L, 1);  /* pop error message from the stack */
+			lua_pop(L, 1);  /* pop NIL from the stack */
+		} else if(!lua_toboolean(L, -1))
+			ret = false;
+		pthread_mutex_unlock( &onefunc );
+	}
+
+	return ret;
+}
+
 static int lmSendNMsg(lua_State *L){
 	if(lua_gettop(L) != 3){
 		publishLog('E', "In your Lua code, SendNamedMessage() requires 3 arguments : Alerts' names, title and message");
