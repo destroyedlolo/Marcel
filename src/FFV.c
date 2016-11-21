@@ -78,16 +78,17 @@ static void handle_FFV(struct _FFV *ctx){
 		else {	/* Only to normalize the response */
 			bool publish = true;
 			val += ctx->offset;
-			publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, val);
 
 #ifdef LUA
 			if( ctx->funcid != LUA_REFNIL )
 				publish = execUserFuncFFV(ctx, val);
 #endif
 			if(publish){
+				publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, val);
 				sprintf(l,"%.1f", val);
 				mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
-			}
+			} else
+				publishLog('I', "[%s] UserFunction requested not to publish", ctx->uid);
 		}
 		fclose(f);
 

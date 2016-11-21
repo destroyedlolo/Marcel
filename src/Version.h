@@ -14,14 +14,15 @@
  * 22/08/2016	- LF - v6.04 - Add Lua function on OutFile
  * 31/08/2016	- LF - v6.05 - Add Keep
  * 15/10/2016	- LF - v6.06 - Add MARCEL_SCRIPT_DIR Lua variable
- * 17/11/2016	- LF - v6.06 - Add user function to FFV
+ * 17/11/2016	- LF - v6.07 - Add user function to FFV
+ * 21/11/2016	- LF - v6.08 - Add MinVersion directive
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.0700"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "6.0800"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

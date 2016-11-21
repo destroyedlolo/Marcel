@@ -276,6 +276,13 @@ static void read_configuration( const char *fch){
 			assert( cfg.ClientID = strdup( removeLF(arg) ) );
 			if(verbose)
 				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
+		} else if((arg = striKWcmp(l,"MinVersion="))){
+			float v = atof(arg);
+			if( v > atof(VERSION)){
+				publishLog('F', "Expected Marcel version : %.04f, got " VERSION, v);
+				exit(EXIT_FAILURE);
+			} else if(verbose)
+				printf("Minimal Marcel version : %.04f\n", v);
 		} else if((arg = striKWcmp(l,"SMSUrl="))){
 			if(cfg.notiflist){
 				assert( cfg.notiflist->url = strdup( removeLF(arg) ) );
