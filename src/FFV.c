@@ -77,13 +77,13 @@ static void handle_FFV(struct _FFV *ctx){
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", ctx->uid, ctx->topic);
 		else {	/* Only to normalize the response */
 			bool publish = true;
-			val += ctx->offset;
 
 #ifdef LUA
 			if( ctx->funcid != LUA_REFNIL )
 				publish = execUserFuncFFV(ctx, val);
 #endif
 			if(publish){
+				val += ctx->offset;
 				publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, val);
 				sprintf(l,"%.1f", val);
 				mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
