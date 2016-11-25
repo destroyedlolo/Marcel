@@ -1,6 +1,6 @@
 -- Correct Chamber against attic temperature
-function MemoriseTempGrNord( id, topic, val )
-	GrN = val;
+function MemoriseTempGrNord( id, topic, val, compensated )
+	GrN = compensated;
 	return true
 end
 
