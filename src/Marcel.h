@@ -246,7 +246,7 @@ extern void execUserFuncDeadPublisher( struct _DeadPublisher *, const char *, co
 extern void execUserFuncEvery( struct _Every * );
 extern void execUserFuncREST( struct _REST *, char *);
 extern void execUserFuncOutFile( struct _OutFile *, const char * );
-extern bool execUserFuncFFV( struct _FFV *, float);
+extern bool execUserFuncFFV( struct _FFV *, float, float);
 #endif
 
 #endif

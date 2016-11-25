@@ -104,7 +104,10 @@ void execUserFuncOutFile( struct _OutFile *ctx, const char *msg ){
 	}
 }
 
-bool execUserFuncFFV( struct _FFV *ctx, float val){
+bool execUserFuncFFV( struct _FFV *ctx, float val, float compensated){
+/* <- val : raw value
+ * <- corrected : temperature with offset applied
+ */
 	bool ret=true;
 
 	if(ctx->funcid != LUA_TNIL){	/* A function is defined */
@@ -113,7 +116,8 @@ bool execUserFuncFFV( struct _FFV *ctx, float val){
 		lua_pushstring( L, ctx->uid );
 		lua_pushstring( L, ctx->topic );
 		lua_pushnumber( L, val);
-		if(lua_pcall( L, 3, 1, 0)){
+		lua_pushnumber( L, compensated);
+		if(lua_pcall( L, 4, 1, 0)){
 			publishLog('E', "[%s] FFV : %s", ctx->uid, lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 			lua_pop(L, 1);  /* pop NIL from the stack */

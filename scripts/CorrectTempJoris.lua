@@ -4,8 +4,8 @@ function MemoriseTempGrNord( id, topic, val )
 	return true
 end
 
-function CorrectTempJoris( id, topic, val )
--- Origin : -1.0064188535 (already compensated by the offset)
+function CorrectTempJoris( id, topic, val, compensated )
+-- Origin : -1.0064188535
 -- gradient : 0.1306052176
 -- result : Probe - (( GrN - probe ) * gradient + org )
 -- 			Probe -( GrN - probe ) * gradient - org
