@@ -278,8 +278,8 @@ static void read_configuration( const char *fch){
 				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
 		} else if((arg = striKWcmp(l,"MinVersion="))){
 			float v = atof(arg);
-			if( v > atof(VERSION)){
-				publishLog('F', "Expected Marcel version : %.04f, got " VERSION, v);
+			if( v > (float)atof(VERSION)){
+				publishLog('F', "Expected Marcel version : %.04f, got %.04f", v, atof(VERSION));
 				exit(EXIT_FAILURE);
 			} else if(verbose)
 				printf("Minimal Marcel version : %.04f\n", v);
