@@ -20,7 +20,9 @@ function CorrectChOceane(id, topic, val, compensated )
 		return true
 	else
 		local v = val - (TGSud - val)*0.1138899491 + 0.668338296
+--		local v2 = val - (TGSud - val)*0.02474392 + 1.05575974
 		Marcel.MQTTPublish( topic, v )
-		print(TGSud - val, v-TRef, compensated-TRef)
+--		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef ..',' .. v2-TRef )
+		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef )
 	end
 end

@@ -12,9 +12,15 @@ This sample directory contains a test I made to compensate the raw temperature m
 
 
 ----------
-**Output :**
+**Result :**
 
-    Grenier- Chambre    function - Ref     Average - Ref
-    -0.5625             0.21154644241758   0.211181640625
+The result is published in a topic <topic>/cmp in CSV format as following
+
+    Grenier- Chambre , function - Ref , Average - Ref
+    -0.5625 , 0.21154644241758 ,  0.211181640625
+
+As example, it can be retrieved using 
+
+    mosquitto_sub -t 'maison/Temperature/Chambre Oceane/cmp'
 
 > Written with [StackEdit](https://stackedit.io/).
