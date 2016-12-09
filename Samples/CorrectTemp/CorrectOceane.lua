@@ -11,16 +11,19 @@ function MemoriseTempGSud(id, topic, val, compensated )
 end
 
 function CorrectChOceane(id, topic, val, compensated )
--- Origin : -0.668338296
--- gradient : 0.1138899491
 -- result : Probe - (( GrN - probe ) * gradient + org )
 -- 			Probe -( GrN - probe ) * gradient - org
+	GRADIAN = 0.1011153652
+	ORDONNE = -0.6457722383
 
 	if not TGSud or not TRef then
 		return true
 	else
-		local v = val - (TGSud - val)*0.1138899491 + 0.668338296
---		local v2 = val - (TGSud - val)*0.02474392 + 1.05575974
+		if TGSud > 80 or TRef > 80 or val > 80 then	-- a probe sent bulshit
+			return false
+		end
+
+		local v = val - (TGSud - val)*GRADIAN - ORDONNE
 		Marcel.MQTTPublish( topic, v )
 --		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef ..',' .. v2-TRef )
 		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef )
