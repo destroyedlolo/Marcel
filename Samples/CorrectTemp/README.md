@@ -16,8 +16,8 @@ This sample directory contains a test I made to compensate the raw temperature m
 
 The result is published in a topic <topic>/cmp in CSV format as following
 
-    Grenier- Chambre , function - Ref , Average - Ref
-    -0.5625 , 0.21154644241758 ,  0.211181640625
+    Grenier- Chambre , function - Ref , Average - Ref, Chambre
+    -0.5625 , 0.21154644241758 ,  0.211181640625, 16.25
 
 As example, it can be retrieved using 
 

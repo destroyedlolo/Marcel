@@ -13,8 +13,8 @@ end
 function CorrectChOceane(id, topic, val, compensated )
 -- result : Probe - (( GrN - probe ) * gradient + org )
 -- 			Probe -( GrN - probe ) * gradient - org
-	GRADIAN = 0.1011153652
-	ORDONNE = -0.6457722383
+	GRADIAN = 0.368026227935636
+	ORDONNE = -0.769769903514341
 
 	if not TGSud or not TRef then
 		return true
@@ -26,6 +26,6 @@ function CorrectChOceane(id, topic, val, compensated )
 		local v = val - (TGSud - val)*GRADIAN - ORDONNE
 		Marcel.MQTTPublish( topic, v )
 --		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef ..',' .. v2-TRef )
-		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef )
+		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef ..',' .. val )
 	end
 end
