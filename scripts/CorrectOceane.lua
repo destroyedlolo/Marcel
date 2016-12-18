@@ -16,10 +16,10 @@ function CorrectChOceane(id, topic, val, compensated )
 	GRADIAN = 0.368026227935636
 	ORDONNE = -0.521081761772103
 
-	if not TGSud or not TRef then
+	if not TGSud then
 		return true
 	else
-		if TGSud > 80 or TRef > 80 or val > 80 then	-- a probe sent bulshit
+		if TGSud > 80 or val > 80 then	-- a probe sent bulshit
 			return false
 		end
 
@@ -27,5 +27,7 @@ function CorrectChOceane(id, topic, val, compensated )
 		Marcel.MQTTPublish( topic, v )
 --		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef ..',' .. v2-TRef )
 		Marcel.MQTTPublish( topic..'/cmp', TGSud-val ..',' .. v-TRef ..',' .. compensated-TRef ..',' .. val )
+
+		return false
 	end
 end
