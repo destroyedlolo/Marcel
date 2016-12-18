@@ -4,19 +4,17 @@
 -- Notify as well
 
 function SituationPorteCave( topic, val )
-	local res = 'Verrouillee'
-	val = tonumber( val )
+    local res = 'Ouverte'
+    val = tonumber( val )
 
-	if val==3 then
-		res = 'Ouverte'
-	elseif val==1 then
-		res = 'Fermee'
-	end
+    if val==0 then
+        res = 'Fermee'
+    end
 
-	if ans_PorteCave ~= res then
-		ans_PorteCave = res
+    if ans_PorteCave ~= res then
+        ans_PorteCave = res
 
-		Marcel.MQTTPublish( topic:sub(1, -6), res, true )
-		Marcel.SendNamedMessage('i', "Porte de la cave", res)
-	end
+        Marcel.MQTTPublish( topic:sub(1, -7), res, true )
+        Marcel.SendNamedMessage('i', "Porte de la cave", res)
+    end
 end

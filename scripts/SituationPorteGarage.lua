@@ -16,7 +16,7 @@ function SituationPorteGarage( topic, val )
 	if ans_PorteGarage ~= res then
 		ans_PorteGarage = res
 
-		Marcel.MQTTPublish( topic:sub(1, -6), res, true )
+		Marcel.MQTTPublish( topic:sub(1, -7), res, true )
 		Marcel.SendNamedMessage('i', "Porte du garage", res)
 	end
 end
