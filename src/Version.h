@@ -25,6 +25,6 @@
 #define VERSION "6.0803"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
-							 * 	SS - SubVersion
+						4 * 	SS - SubVersion
 							 */
 #endif

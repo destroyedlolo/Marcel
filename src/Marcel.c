@@ -120,7 +120,7 @@ void publishLog( char l, const char *msg, ...){
 			sub = "/Log/Fatal";
 			break;
 		case 'E':
-			sub = "/Log/Erreur";
+			sub = "/Log/Error";
 			break;
 		case 'W':
 			sub = "/Log/Warning";
