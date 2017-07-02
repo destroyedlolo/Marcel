@@ -863,11 +863,7 @@ int main(int ac, char **av){
 	case 't':
 		configtest = true;
 	case 'v':
-		if(!verbose){
-			verbose = true;
-			publishLog('I', "Marcel (c) L.Faillie 2015-2016");
-			publishLog('I', "%s v%s starting ...", basename(av[0]), VERSION);
-		}
+		verbose = true;
 		break;
 	case 'f':
 		conf_file = optarg;
@@ -910,6 +906,10 @@ int main(int ac, char **av){
 		/* Curl related */
 	curl_global_init(CURL_GLOBAL_ALL);
 	atexit( curl_global_cleanup );
+
+		/* Display / publish copyright */
+	publishLog('W', "Marcel (c) L.Faillie 2015-2017");
+	publishLog('W', "%s v%s starting ...", basename(av[0]), VERSION);
 
 		/* Sections related */
 	init_alerting();
