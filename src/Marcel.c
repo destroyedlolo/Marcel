@@ -862,6 +862,7 @@ int main(int ac, char **av){
 		break;
 	case 't':
 		configtest = true;
+		printf("%s v%s\n", basename(av[0]), VERSION);
 	case 'v':
 		verbose = true;
 		break;
