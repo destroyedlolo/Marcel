@@ -102,7 +102,7 @@
 
 #ifdef INOTIFY
 #	include <sys/inotify.h>
-#	define INOTIFY_BUF_LEN     ( 1024 * ( sizeof (struct inotify_event) + 16 ) )
+#	define INOTIFY_BUF_LEN     (10 * (sizeof(struct inotify_event) + NAME_MAX + 1))
 #endif
 
 bool verbose = false;
@@ -676,6 +676,10 @@ static void read_configuration( const char *fch){
 					last_section->Look4Changes.flags |=  IN_DELETE | IN_MOVED_FROM;
 					if(verbose)
 						printf(" remove");
+				} else if(!strcasecmp( t, "modify" )){
+					last_section->Look4Changes.flags |=  IN_ATTRIB | IN_CLOSE_WRITE;
+					if(verbose)
+						printf(" modify");
 				}
 			}
 			if(verbose)
