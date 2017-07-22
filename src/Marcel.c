@@ -658,6 +658,28 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("\tOn : '%s'\n", last_section->Look4Changes.dir);
 
+		} else if((arg = striKWcmp(l,"For="))){
+			if(!last_section || last_section->common.section_type != MSEC_LOOK4CHANGES){
+				publishLog('F', "Configuration issue : 'For=' directive outside a LookForChanges section");
+				exit(EXIT_FAILURE);
+			}
+
+			if(verbose)
+				printf("\tFor :");
+
+			for( char *t = strtok( removeLF(arg), " \t" ); t; t = strtok( NULL, " \t" ) ){
+				if(!strcasecmp( t, "create" )){
+					last_section->Look4Changes.flags |=  IN_CREATE | IN_MOVED_TO;
+					if(verbose)
+						printf(" create");
+				} else if(!strcasecmp( t, "remove" )){
+					last_section->Look4Changes.flags |=  IN_DELETE | IN_MOVED_FROM;
+					if(verbose)
+						printf(" remove");
+				}
+			}
+			if(verbose)
+				puts("");
 #endif
 		} else if((arg = striKWcmp(l,"Func="))){
 			if(!last_section || (
