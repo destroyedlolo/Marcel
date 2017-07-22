@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99
+cc=gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -DINOTIFY -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99
 
 Alerting.o : Alerting.c Marcel.h Alerting.h DList.h Makefile 
 	$(cc) -c -o Alerting.o Alerting.c 

@@ -8,6 +8,7 @@
  *	-DUPS : enable UPS statistics (NUT needed)
  *	-DLUA : enable Lua user functions
  *	-DMETEO : enable meteo forcast publishing
+ *	-DINOTIFY : add inotify support (needed by *LookForChanges)
  *
  *	Copyright 2015-2016 Laurent Faillie
  *
@@ -60,6 +61,7 @@
  *	19/08/2016	- LF - switch to v6.0 - prepare controls
  *	01/09/2016	- LF - Add publishLog() function
  *	16/10/2016	- LF - 6.06.01 - Intitialise funcid for DPD to avoid a crash
+ *	22/07/2017	- LF - 6.09	- Add *LookForChanges
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -96,6 +98,11 @@
 
 #ifdef LUA
 #	include <lauxlib.h>
+#endif
+
+#ifdef INOTIFY
+#	include <sys/inotify.h>
+#	define INOTIFY_BUF_LEN     ( 1024 * ( sizeof (struct inotify_event) + 16 ) )
 #endif
 
 bool verbose = false;
@@ -429,6 +436,27 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				printf("Entering section 'Every/%s'\n", n->common.uid );
+		} else if((arg = striKWcmp(l,"*LookForChanges="))){
+#ifndef INOTIFY
+			publishLog('F', "LookForChanges section is only available when compiled with inotify support");
+			exit(EXIT_FAILURE);
+#else
+			union CSection *n = malloc( sizeof(struct _Look4Changes) );
+			assert(n);
+			memset(n, 0, sizeof(struct _Look4Changes));
+			n->common.section_type = MSEC_LOOK4CHANGES;
+			setUID( n, removeLF(arg) );
+
+			n->Look4Changes.funcid = LUA_REFNIL;
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(verbose)
+				printf("Entering section 'LookForChanges/%s'\n", n->common.uid );
+#endif
 		} else if((arg = striKWcmp(l,"*Meteo3H="))){
 			union CSection *n = malloc( sizeof(struct _Meteo) );
 			assert(n);
@@ -619,6 +647,18 @@ static void read_configuration( const char *fch){
 			last_section->Ups.var_list = v;
 			if(verbose)
 				printf("\tVar : '%s'\n", v->name);
+#ifdef INOTIFY
+		} else if((arg = striKWcmp(l,"On="))){
+			if(!last_section || last_section->common.section_type != MSEC_LOOK4CHANGES){
+				publishLog('F', "Configuration issue : 'On=' directive outside a LookForChanges section");
+				exit(EXIT_FAILURE);
+			}
+
+			assert( last_section->Look4Changes.dir = strdup( removeLF(arg) ));
+			if(verbose)
+				printf("\tOn : '%s'\n", last_section->Look4Changes.dir);
+
+#endif
 		} else if((arg = striKWcmp(l,"Func="))){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_FFV &&

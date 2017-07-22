@@ -16,15 +16,16 @@
  * 15/10/2016	- LF - v6.06 - Add MARCEL_SCRIPT_DIR Lua variable
  * 17/11/2016	- LF - v6.07 - Add user function to FFV
  * 21/11/2016	- LF - v6.08 - Add MinVersion directive
+ * 22/07/2017	- LF - v6.09 - Add LookForChange section
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.0804"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "6.0900"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
-						4 * 	SS - SubVersion
+							 * 	SS - SubVersion
 							 */
 #endif

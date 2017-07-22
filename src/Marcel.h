@@ -39,6 +39,7 @@ enum _tp_msec {
 	MSEC_UPS,			/* UPS */
 	MSEC_DEADPUBLISHER,	/* alarm on missing MQTT messages */
 	MSEC_EVERY,			/* Launch a function at given interval */
+	MSEC_LOOK4CHANGES,	/* Notify when a directory content changed */
 	MSEC_METEO3H,		/* 3H meteo */
 	MSEC_METEOD,		/* Daily meteo */
 	MSEC_RTSCMD,		/* Somfy RTS commands */
@@ -147,6 +148,23 @@ union CSection {
 		int funcid;			/* Function id in Lua registry */
 		bool immediate;		/* If the function has to run at startup */
 	} Every;
+#ifdef INOTIFY
+	struct _Look4Changes {
+		union CSection *next;
+		enum _tp_msec section_type;
+		pthread_t thread;	/* Unused */
+		const char *uid;	/* Unique identifier */
+		int h;				/* hash code for this id */
+		const char *topic;	/* Topic to wait data from */
+		bool disabled;
+		bool keep;			/* Unimplemented yet : should be used to re-watch if the dir belongs to an unmountable FS */
+		int padding;
+		const char *funcname;	/* Function to be called */
+		int funcid;			/* Function id in Lua registry */
+		const char *dir;	/* In fact, can be used on file as well */
+		uint32_t flags;		/* What to survey */
+	} Look4Changes;
+#endif
 	struct _REST {
 		union CSection *next;
 		enum _tp_msec section_type;
