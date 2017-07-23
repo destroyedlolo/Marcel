@@ -163,6 +163,7 @@ union CSection {
 		int funcid;			/* Function id in Lua registry */
 		const char *dir;	/* In fact, can be used on file as well */
 		uint32_t flags;		/* What to survey */
+		int wd;				/* watch discriptor */
 	} Look4Changes;
 #endif
 	struct _REST {
@@ -226,7 +227,7 @@ extern struct Config {
 	bool Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
 	union CSection *first_Sub;	/* Pointer to the first subscription */
 	bool L4Cgrouped;		/* Look4Changes are all grouped */
-	union CSection *first_L4C;	/* Pointer to the first subscription */
+	struct _Look4Changes *first_L4C;	/* Pointer to the first subscription */
 	bool ConLostFatal;		/* Die if broker connection is lost */
 	bool publishlog;		/* Publish logs */
 	const char *luascript;	/* file containing Lua functions */

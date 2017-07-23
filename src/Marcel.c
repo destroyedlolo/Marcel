@@ -461,7 +461,7 @@ static void read_configuration( const char *fch){
 			last_section = n;
 
 			if(!cfg.first_L4C)
-				cfg.first_L4C = n;
+				cfg.first_L4C = (struct _Look4Changes *)n;
 
 			if(verbose)
 				printf("Entering section 'LookForChanges/%s'\n", n->common.uid );
@@ -1167,7 +1167,7 @@ int main(int ac, char **av){
 			else if(!s->Look4Changes.topic)
 				publishLog('E', "LookForChanges without a topic is useless : ignoring ...");
 			else {
-				if(inotify_add_watch(infd, s->Look4Changes.dir, s->Look4Changes.flags) < 0){
+				if((s->Look4Changes.wd = inotify_add_watch(infd, s->Look4Changes.dir, s->Look4Changes.flags)) < 0){
 					const char *emsg = strerror(errno);
 					publishLog('E', "[%s] %s : %s", s->Look4Changes.uid, s->Look4Changes.dir, emsg);
 				}
@@ -1226,8 +1226,16 @@ int main(int ac, char **av){
 
 				for(char *ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len){
 					event = (const struct inotify_event *) ptr;
-					printf("ev : %x\n", event->mask);
-					
+					for( struct _Look4Changes *s = cfg.first_L4C; s; s = (struct _Look4Changes *)s->next ){
+						if( s->section_type != MSEC_LOOK4CHANGES ){
+							if( cfg.L4Cgrouped )
+								break;	/* L4C list over */
+							else
+								continue;	/* skip this one */
+						}
+						if( event->wd == s->wd )
+							printf("ev %s : %x (%s)\n", s->uid, event->mask, event->len ? event->name : "");
+					}
 				}
 			}
 		}
