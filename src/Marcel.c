@@ -179,6 +179,24 @@ char *mystrdup(const char *as){
 	return s;
 }
 
+char *stradd(char *p, const char *s, bool addspace){
+	/* Enlarge string pointed by p to add s
+	 * if !p, start a new string
+	 *
+	 * if addspace == true, the 1st char is
+	 * skipped if !p
+	 */
+	if(!p)
+		return(mystrdup(s + (addspace ? 1:0)));
+
+	size_t asz = strlen(p);
+	char *np = realloc(p, strlen(p) + strlen(s) +1);
+	assert(np);
+	strcpy( np+asz, s );
+
+	return(np);
+}
+
 size_t socketreadline( int fd, char *l, size_t sz){
 /* read a line :
  * -> 	fd : file descriptor to read
@@ -1233,8 +1251,44 @@ int main(int ac, char **av){
 							else
 								continue;	/* skip this one */
 						}
-						if( event->wd == s->wd )
-							printf("ev %s : %x (%s)\n", s->uid, event->mask, event->len ? event->name : "");
+						if( event->wd == s->wd ){
+							char *amsg=NULL;
+							if(event->mask & IN_ACCESS)
+								amsg = stradd( amsg, ",ACCESS", true);
+							if(event->mask & IN_ATTRIB)
+								amsg = stradd( amsg, ",ATTRIB", true);
+							if(event->mask & IN_CLOSE_NOWRITE)
+								amsg = stradd( amsg, ",CLOSE_NOWRITE", true);
+							if(event->mask & IN_CLOSE_WRITE)
+								amsg = stradd( amsg, ",CLOSE_WRITE", true);
+							if(event->mask & IN_CREATE)
+								amsg = stradd( amsg, ",CREATE", true);
+							if(event->mask & IN_DELETE)
+								amsg = stradd( amsg, ",DELETE", true);
+							if(event->mask & IN_DELETE_SELF)
+								amsg = stradd( amsg, ",DELETE_SELF", true);
+							if(event->mask & IN_IGNORED)
+								amsg = stradd( amsg, ",IGNORED", true);
+							if(event->mask & IN_ISDIR)
+								amsg = stradd( amsg, ",ISDIR", true);
+							if(event->mask & IN_MODIFY)
+								amsg = stradd( amsg, ",MODIFY", true);
+							if(event->mask & IN_MOVE_SELF)
+								amsg = stradd( amsg, ",MOVE_SELF", true);
+							if(event->mask & IN_MOVED_FROM)
+								amsg = stradd( amsg, ",MOVED_FROM", true);
+							if(event->mask & IN_MOVED_TO)
+								amsg = stradd( amsg, ",MOVED_TO", true);
+							if(event->mask & IN_OPEN)
+								amsg = stradd( amsg, ",OPEN", true);
+							if(event->mask & IN_Q_OVERFLOW)
+								amsg = stradd( amsg, ",Q_OVERFLOW", true);
+							if(event->mask & IN_UNMOUNT)
+								amsg = stradd( amsg, ",UNMOUNT", true);
+								
+							printf("ev %s : %x (%s) %s\n", s->uid, event->mask, amsg ? amsg:"rien", event->len ? event->name : "");
+
+						}
 					}
 				}
 			}
