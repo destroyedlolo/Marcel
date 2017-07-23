@@ -1211,6 +1211,25 @@ int main(int ac, char **av){
 		}
 			/* Enumerate here all FDs (only one up to now) */
 		if( fds[0].revents & POLLIN){
+			char buf[ INOTIFY_BUF_LEN ];
+
+			for(;;){	/* Read events */
+				ssize_t len = read(infd, buf, INOTIFY_BUF_LEN);
+				const struct inotify_event *event;
+
+				if(len == -1){
+					if(errno == EAGAIN)	/* Nothing to read */
+						break;
+					publishLog('F', "read() : %s", strerror(errno));
+					exit(EXIT_FAILURE);
+				}
+
+				for(char *ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len){
+					event = (const struct inotify_event *) ptr;
+					printf("ev : %x\n", event->mask);
+					
+				}
+			}
 		}
 	}
 #else
