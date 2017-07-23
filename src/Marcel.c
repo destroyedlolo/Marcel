@@ -101,6 +101,7 @@
 #endif
 
 #ifdef INOTIFY
+#	include <poll.h>	/* Only used for Look4Changes up to now */
 #	include <sys/inotify.h>
 #	define INOTIFY_BUF_LEN     (10 * (sizeof(struct inotify_event) + NAME_MAX + 1))
 #endif
@@ -136,7 +137,7 @@ void publishLog( char l, const char *msg, ...){
 			sub = "/Log/Information";
 		}
 
-		char tmsg[160];	/* No simple way here to know the message size */
+		char tmsg[1024];	/* No simple way here to know the message size */
 		char ttopic[ strlen(cfg.ClientID) + strlen(sub) + 1 ];
 		sprintf(ttopic, "%s%s", cfg.ClientID, sub);
 		vsnprintf(tmsg, sizeof(tmsg), msg, args);
@@ -247,9 +248,13 @@ static void read_configuration( const char *fch){
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.ClientID = "Marcel";
 	cfg.client = NULL;
-	cfg.Sublast = false;
 	cfg.ConLostFatal = false;
+
+	cfg.Sublast = false;
 	cfg.first_Sub = NULL;
+
+	cfg.L4Cgrouped = false;
+	cfg.first_L4C = NULL;
 
 	cfg.luascript = NULL;
 
@@ -454,6 +459,10 @@ static void read_configuration( const char *fch){
 			else	/* First section */
 				cfg.sections = n;
 			last_section = n;
+
+			if(!cfg.first_L4C)
+				cfg.first_L4C = n;
+
 			if(verbose)
 				printf("Entering section 'LookForChanges/%s'\n", n->common.uid );
 #endif
@@ -556,6 +565,10 @@ static void read_configuration( const char *fch){
 			cfg.Sublast = true;
 			if(verbose)
 				puts("Subscriptions (DPD, RTSCmd) sections are grouped at the end of the configuration");
+		} else if(!strcmp(l,"LookForChangesGrouped\n")){	/* LookForChanges are grouped */
+			cfg.L4Cgrouped = true;
+			if(verbose)
+				puts("LookForChanges are grouped");
 		} else if(!strcmp(l,"ConnectionLostIsFatal\n")){	/* Crash if the broker connection is lost */
 			cfg.ConLostFatal = true;
 			if(verbose)
@@ -1156,10 +1169,7 @@ int main(int ac, char **av){
 			else {
 				if(inotify_add_watch(infd, s->Look4Changes.dir, s->Look4Changes.flags) < 0){
 					const char *emsg = strerror(errno);
-					char msg[strlen(s->Look4Changes.uid) + strlen(s->Look4Changes.dir) + strlen(emsg) + 7];
-					
-					sprintf(msg, "[%s] %s : %s", s->Look4Changes.uid, s->Look4Changes.dir, emsg);
-					publishLog('E', msg);
+					publishLog('E', "[%s] %s : %s", s->Look4Changes.uid, s->Look4Changes.dir, emsg);
 				}
 			}
 			break;
@@ -1183,6 +1193,26 @@ int main(int ac, char **av){
 	signal(SIGINT, handleInt);
 
 #ifdef INOTIFY
+	/* We may use a simple read() here, but poll() solution opens for other
+	 * even handling ... */
+	struct pollfd fds[1];
+	fds[0].fd = infd;
+	fds[0].events = POLLIN;
+	
+	publishLog('I', "Waiting for notification to come");
+	
+	for(;;){
+		int r=poll(fds, sizeof(fds)/sizeof(fds[0]), -1);
+
+		if(r < 0){
+			if( errno == EINTR)	/* Signal received */
+				continue;
+			publishLog('E', "poll() : %s", strerror(errno));
+		}
+			/* Enumerate here all FDs (only one up to now) */
+		if( fds[0].revents & POLLIN){
+		}
+	}
 #else
 	pause();
 #endif

@@ -224,9 +224,11 @@ extern struct Config {
 	char *OnOffTopic;	/* topic to enable/disable sections */
 	MQTTClient client;
 	bool Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
+	union CSection *first_Sub;	/* Pointer to the first subscription */
+	bool L4Cgrouped;		/* Look4Changes are all grouped */
+	union CSection *first_L4C;	/* Pointer to the first subscription */
 	bool ConLostFatal;		/* Die if broker connection is lost */
 	bool publishlog;		/* Publish logs */
-	union CSection *first_Sub;	/* Pointer to the first subscription */
 	const char *luascript;	/* file containing Lua functions */
 	const char *OwAlarm;	/* Path to 1-wire alarm directory */
 	int OwAlarmSample;		/* Delay b/w 2 sample on alarm directory */
