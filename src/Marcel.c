@@ -987,6 +987,14 @@ int main(int ac, char **av){
 	init_RFX();
 #endif
 
+#ifdef INOTIFY
+	int infd = inotify_init();
+	if( infd < 0 ){
+		perror("inotify_init()");
+		exit(EXIT_FAILURE);
+	}
+#endif
+
 		/* Creating childs */
 	if(verbose)
 		puts("\nCreating childs processes\n"
@@ -1139,6 +1147,23 @@ int main(int ac, char **av){
 			}
 			firstFFV=true;
 			break;
+#ifdef INOTIFY
+		case MSEC_LOOK4CHANGES:
+			if(!s->Look4Changes.dir || !s->Look4Changes.flags)
+				publishLog('E', "LookForChanges without anything to look for is useless : ignoring ...");
+			else if(!s->Look4Changes.topic)
+				publishLog('E', "LookForChanges without a topic is useless : ignoring ...");
+			else {
+				if(inotify_add_watch(infd, s->Look4Changes.dir, s->Look4Changes.flags) < 0){
+					const char *emsg = strerror(errno);
+					char msg[strlen(s->Look4Changes.uid) + strlen(s->Look4Changes.dir) + strlen(emsg) + 7];
+					
+					sprintf(msg, "[%s] %s : %s", s->Look4Changes.uid, s->Look4Changes.dir, emsg);
+					publishLog('E', msg);
+				}
+			}
+			break;
+#endif
 		default :	/* Ignore unsupported type */
 			break;
 		}
@@ -1156,7 +1181,11 @@ int main(int ac, char **av){
 	cfg.OnOffTopic[i] = 0;
 
 	signal(SIGINT, handleInt);
+
+#ifdef INOTIFY
+#else
 	pause();
+#endif
 
 	exit(EXIT_SUCCESS);
 }
