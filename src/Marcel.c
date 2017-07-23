@@ -1285,9 +1285,12 @@ int main(int ac, char **av){
 								amsg = stradd( amsg, ",Q_OVERFLOW", true);
 							if(event->mask & IN_UNMOUNT)
 								amsg = stradd( amsg, ",UNMOUNT", true);
-								
-							printf("ev %s : %x (%s) %s\n", s->uid, event->mask, amsg ? amsg:"rien", event->len ? event->name : "");
-
+							
+							size_t sz = event->len + strlen(amsg) + 2;
+							char msg[sz+1];
+							sprintf(msg, "%s:%s", event->len ? event->name : "", amsg);
+							free(amsg);
+							mqttpublish(cfg.client, s->topic, sz, msg,0);
 						}
 					}
 				}
