@@ -98,6 +98,60 @@ void *process_Freebox(void *actx){
 						sprintf( l+lm, "%.2f", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
 						publishLog('I', "Freebox : %s -> %s", l, l+lm);
+					} else if(striKWcmp(l, "  FEC")){
+						unsigned long u, d;
+						int lm;
+
+						if(sscanf(l+25,"%lu", &d) != 1) d = -1;
+						if(sscanf(l+44,"%lu", &u) != 1) u = -1;
+
+						lm = sprintf(l, "%s/DownloadFEC", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+						sprintf( l+lm, "%lu", d );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						publishLog('I', "Freebox : %s -> %s", l, l+lm);
+
+						lm = sprintf(l, "%s/UploadFEC", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+						sprintf( l+lm, "%lu", u );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						publishLog('I', "Freebox : %s -> %s", l, l+lm);
+					} else if(striKWcmp(l, "  CRC")){
+						unsigned long u, d;
+						int lm;
+
+						if(sscanf(l+25,"%lu", &d) != 1) d = -1;
+						if(sscanf(l+44,"%lu", &u) != 1) u = -1;
+
+						lm = sprintf(l, "%s/DownloadCRC", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+						sprintf( l+lm, "%lu", d );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						publishLog('I', "Freebox : %s -> %s", l, l+lm);
+
+						lm = sprintf(l, "%s/UploadCRC", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+						sprintf( l+lm, "%lu", u );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						publishLog('I', "Freebox : %s -> %s", l, l+lm);
+					} else if(striKWcmp(l, "  HEC")){
+						unsigned long u, d;
+						int lm;
+
+						if(sscanf(l+25,"%lu", &d) != 1) d = -1;
+						if(sscanf(l+44,"%lu", &u) != 1) u = -1;
+
+						lm = sprintf(l, "%s/DownloadHEC", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+						sprintf( l+lm, "%lu", d );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						publishLog('I', "Freebox : %s -> %s", l, l+lm);
+
+						lm = sprintf(l, "%s/UploadHEC", ctx->topic) + 2;
+						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
+						sprintf( l+lm, "%lu", u );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						publishLog('I', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  WAN")){
 						int u, d, lm;
 
