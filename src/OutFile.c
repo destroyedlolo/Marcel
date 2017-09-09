@@ -54,7 +54,8 @@ void processOutFile( struct _OutFile *ctx, const char *msg){
 	fclose(f);
 
 #ifdef LUA
-	execUserFuncOutFile( ctx, msg );
+	if( ctx->funcid != LUA_REFNIL )
+		execUserFuncOutFile( ctx, msg );
 #endif
 
 	return;
