@@ -73,8 +73,8 @@ Marcel knows the following options :
 Have a look on provided configuration file to guess the syntax used (I'm busy, a full documentation will come later).
 
 #Alerts vs Notifications
-* Alerts respond to '**Alert/...**'
-* Notifications respond to '**Notification/...**'
+* Alerts respond to '**Alert/...**' topics
+* Notifications respond to '**Notification/...**' topics
 
 If the first character of the payload is an '**S**' or '**s**' it's meaning an alert is raising and a communication will be send only if it's not an already *open* alert.
 A payload not starting with  '**S**' or '**s**' means the alert is closing.
