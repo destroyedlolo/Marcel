@@ -18,13 +18,14 @@
  * 21/11/2016	- LF - v6.08 - Add MinVersion directive
  * 22/07/2017	- LF - v6.09 - Add LookForChange section
  * 23/08/2017	- LF - v6.10 - Add CRC, HEC and FEC for the Freebox
+ * 28/02/2017	- LF - v6.11 - Replace $alert by $notification
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.1002"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "6.1100"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

@@ -62,6 +62,7 @@
  *	01/09/2016	- LF - Add publishLog() function
  *	16/10/2016	- LF - 6.06.01 - Intitialise funcid for DPD to avoid a crash
  *	22/07/2017	- LF - 6.09	- Add *LookForChanges
+ *	28/02/2017	- LF - v6.11 - Replace $alert by $notification
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -361,13 +362,13 @@ static void read_configuration( const char *fch){
 #else
 			publishLog('E', "UserFuncScript defined without Lua support enabled");
 #endif
-		} else if((arg = striKWcmp(l,"$alert="))){
+		} else if((arg = striKWcmp(l,"$alert=")) || (arg = striKWcmp(l,"$notification="))){
 			struct notification *n = malloc( sizeof(struct notification) );
 			assert(n);
 			memset(n, 0, sizeof(struct notification));
 
 			if(!*arg || *arg == '\n'){
-				publishLog('F', "Unamed $alert section, giving up !");
+				publishLog('F', "Unamed $notification section, giving up !");
 				exit(EXIT_FAILURE);
 			}
 
@@ -376,7 +377,7 @@ static void read_configuration( const char *fch){
 			cfg.notiflist = n;
 
 			if(verbose)
-				printf("Entering alert definition '%c'\n", n->id);
+				printf("Entering notification definition '%c'\n", n->id);
 		} else if((arg = striKWcmp(l,"*FFV="))){
 			union CSection *n = malloc( sizeof(struct _FFV) );
 			assert(n);
