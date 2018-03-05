@@ -314,15 +314,15 @@ static void read_configuration( const char *fch){
 				exit(EXIT_FAILURE);
 			} else if(verbose)
 				printf("Minimal Marcel version : %.04f\n", v);
-		} else if((arg = striKWcmp(l,"SMSUrl="))){
+		} else if((arg = striKWcmp(l,"SMSUrl=")) || (arg = striKWcmp(l,"RESTUrl="))){
 			if(cfg.notiflist){
 				assert( cfg.notiflist->url = strdup( removeLF(arg) ) );
 				if(verbose)
-					printf("\tSMS Url : '%s'\n", cfg.notiflist->url);
+					printf("\tREST Url : '%s'\n", cfg.notiflist->url);
 			} else {
 				assert( cfg.SMSurl = strdup( removeLF(arg) ) );
 				if(verbose)
-					printf("SMS Url : '%s'\n", cfg.SMSurl);
+					printf("REST Url : '%s'\n", cfg.SMSurl);
 			}
 		} else if((arg = striKWcmp(l,"AlertCommand="))){
 			if(cfg.notiflist){
