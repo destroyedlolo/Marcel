@@ -10,7 +10,7 @@
  *	-DMETEO : enable meteo forcast publishing
  *	-DINOTIFY : add inotify support (needed by *LookForChanges)
  *
- *	Copyright 2015-2016 Laurent Faillie
+ *	Copyright 2015-2018 Laurent Faillie
  *
  *		Marcel is covered by
  *		Creative Commons Attribution-NonCommercial 3.0 License
@@ -62,7 +62,7 @@
  *	01/09/2016	- LF - Add publishLog() function
  *	16/10/2016	- LF - 6.06.01 - Intitialise funcid for DPD to avoid a crash
  *	22/07/2017	- LF - 6.09	- Add *LookForChanges
- *	28/02/2017	- LF - v6.11 - Replace $alert by $notification
+ *	28/02/2018	- LF - v6.11 - Replace $alert by $notification
  */
 #include "Marcel.h"
 #include "Version.h"
