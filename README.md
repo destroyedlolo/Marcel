@@ -8,6 +8,7 @@
 #Requirements :#
 * MQTT broker (I personally use [Mosquitto](http://mosquitto.org/) )
 * [Paho](http://eclipse.org/paho/) as MQTT communication layer.
+* [json-c](https://github.com/json-c/json-c/wiki) library
 
 #Compilation :#
 * Get **Marcel** latest tarball for *stable* version or clone its repository for *development* version
