@@ -80,7 +80,11 @@ void execUserFuncEvery( struct _Every *ctx ){
 void execUserFuncREST( struct _REST *ctx, char *res ){
 	pthread_mutex_lock( &onefunc );
 	lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->funcid);	/* retrieves the function */
-	lua_pushstring( L, res );
+	if(res)
+		lua_pushstring( L, res );
+	else
+		lua_pushnil(L);
+
 	if(lua_pcall( L, 1, 0, 0)){
 		publishLog('E', "[%s] RESTquery / %s : %s", ctx->uid, ctx->url, lua_tostring(L, -1));
 		lua_pop(L, 1);  /* pop error message from the stack */

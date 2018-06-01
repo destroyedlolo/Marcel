@@ -20,13 +20,14 @@
  * 23/08/2017	- LF - v6.10 - Add CRC, HEC and FEC for the Freebox
  * 28/02/2018	- LF - v6.11 - Replace $alert by $notification
  * 05/03/2018	- LF 		 - Replace SMSUrl by RESTUrl
+ *	01/06/2018	- LF - v6.12 - REST user func may be called with NIL
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.1101"	/* Need to stay numerique as exposed to Lua 
+#define VERSION "6.1200"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

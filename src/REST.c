@@ -44,9 +44,11 @@ static void doRESTquery( struct _REST *ctx ){
 
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Reading data */
 			execUserFuncREST( ctx, chunk.memory );
-		} else
+		} else {
 			publishLog('E', "[%s] Querying REST : %s\n", ctx->uid, curl_easy_strerror(res));
-
+			execUserFuncREST( ctx, NULL );
+		}
+	
 			/* Cleanup */
 		curl_easy_cleanup(curl);
 		free(chunk.memory);
