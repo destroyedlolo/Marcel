@@ -1007,7 +1007,7 @@ int main(int ac, char **av){
 	atexit( curl_global_cleanup );
 
 		/* Display / publish copyright */
-	publishLog('W', "Marcel (c) L.Faillie 2015-2017");
+	publishLog('W', "Marcel (c) L.Faillie 2015-2018");
 	publishLog('W', "%s v%s starting ...", basename(av[0]), VERSION);
 
 		/* Sections related */
