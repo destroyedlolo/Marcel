@@ -11,23 +11,28 @@ function _DetermineVacances( info, topic, offset )
 -- offset : offset in day to apply to current date in case
 -- 		we have to determine weekday (if info is NIL)
 
-	if info then
+	local r = "Vacances"
+
+	if info then	-- Get from the webservice
 		local res = json.decode(info)
 
-		if res.weekend ~= "False" or res.holiday ~= "False" then
-			Marcel.MQTTPublish( topic, "Vacances", true)
-		else
-			Marcel.MQTTPublish( topic, "Travail", true )
+		if res.weekend == "False" or res.holiday == "False" then
+			r = "Travail"
 		end
 	else
-		local t = os.time() + offset * 86400 -- 24 * 60 * 60
-		t = os.date('*t', t)['wday']
-		if t == 1 or t == 7 then
-			Marcel.MQTTPublish( topic, "Vacances", true)
-		else
-			Marcel.MQTTPublish( topic, "Travail", true )
-		end
+		r = "Travail"
 	end
+
+		-- check if it wasn't bulshit
+	local t = os.time() + offset * 86400 -- 24 * 60 * 60
+	t = os.date('*t', t)['wday']
+	if t == 1 or t == 7 then
+		r = "Vacances"
+	else
+		r = "Travail"
+	end
+
+	Marcel.MQTTPublish( topic, r, true )
 end
 
 function DetermineVacancesAujourdHui( info )
