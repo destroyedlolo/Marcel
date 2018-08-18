@@ -56,11 +56,10 @@ void *process_DPD(void *actx){
 		uts = NULL;
 
 		/* Subscribe */
-		if(MQTTClient_subscribe( cfg.client, ctx->topic, 0 ) != MQTTCLIENT_SUCCESS ){
-			publishLog('E', "[%s] Can't subscribe to '%s'", ctx->uid, ctx->topic );
-			pthread_exit(NULL);
-		}
-
+	if(MQTTClient_subscribe( cfg.client, ctx->topic, 0 ) != MQTTCLIENT_SUCCESS ){
+		publishLog('E', "[%s] Can't subscribe to '%s'", ctx->uid, ctx->topic );
+		pthread_exit(NULL);
+	}
 
 	for(;;){
 		fd_set rfds;
