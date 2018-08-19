@@ -444,6 +444,7 @@ static void read_configuration( const char *fch){
 			assert(n);
 			memset(n, 0, sizeof(struct _Every));
 			n->common.section_type = MSEC_EVERY;
+			n->Every.at = -1;
 			setUID( n, removeLF(arg) );
 
 #ifndef LUA
@@ -737,9 +738,10 @@ static void read_configuration( const char *fch){
 				printf("\tFunction : '%s'\n", last_section->DeadPublisher.funcname);
 		} else if(!strcmp(l,"RunIfOver\n")){	/* Crash if the broker connection is lost */
 			if(!last_section || (
-				last_section->common.section_type != MSEC_REST
+				last_section->common.section_type != MSEC_REST &&
+				last_section->common.section_type != MSEC_EVERY
 			)){
-				publishLog('F', "Configuration issue : RunIfOver directive outside a REST section");
+				publishLog('F', "Configuration issue : RunIfOver directive outside a REST or Every section");
 				exit(EXIT_FAILURE);
 			}
 			last_section->REST.runifover = true;
@@ -750,7 +752,7 @@ static void read_configuration( const char *fch){
 				last_section->common.section_type != MSEC_EVERY &&
 				last_section->common.section_type != MSEC_REST
 			)){
-				publishLog('F', "Configuration issue : Immediate directive outside a REST section");
+				publishLog('F', "Configuration issue : Immediate directive outside a REST or Every section");
 				exit(EXIT_FAILURE);
 			}
 			last_section->REST.immediate = true;
@@ -758,9 +760,10 @@ static void read_configuration( const char *fch){
 				printf("\tImmediate\n");
 		} else if((arg = striKWcmp(l,"At="))){
 			if(!last_section || (
-				last_section->common.section_type != MSEC_REST
+				last_section->common.section_type != MSEC_REST &&
+				last_section->common.section_type != MSEC_EVERY
 			)){
-				publishLog('F', "Configuration issue : At directive outside a REST section");
+				publishLog('F', "Configuration issue : At directive outside a REST or Every section");
 				exit(EXIT_FAILURE);
 			}
 

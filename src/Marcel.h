@@ -14,6 +14,7 @@
  * 21/08/2016	- LF - starting v6.02, each section MUST have an ID
  * 31/08/2016	- LF - Add "keep" option"
  * 01/09/2016	- LF - Add publishLog() function
+ * 18/08/2018	- LF - Add absolute time to Every
  */
 
 #ifndef MARCEL_H
@@ -134,7 +135,7 @@ union CSection {
 		int rcv;			/* Event for data receiving */
 		bool inerror;		/* true if this DPD is in error */
 	} DeadPublisher;
-	struct _Every {
+	struct _Every {	/* Must be aligned with _REST */
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;
@@ -147,6 +148,9 @@ union CSection {
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 		bool immediate;		/* If the function has to run at startup */
+		int at;				/* at which time, the query has to be launched */
+		int min;			/* minutes when at decripted */
+		bool runifover;		/* run immediately if the 'At' hour is already passed */
 	} Every;
 #ifdef INOTIFY
 	struct _Look4Changes {
@@ -166,7 +170,7 @@ union CSection {
 		int wd;				/* watch discriptor */
 	} Look4Changes;
 #endif
-	struct _REST {
+	struct _REST {	/* Must be aligned with _Every */
 		union CSection *next;
 		enum _tp_msec section_type;
 		pthread_t thread;	/* Child to handle this section */

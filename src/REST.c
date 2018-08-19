@@ -11,7 +11,7 @@
 
 #ifdef LUA	/* Only useful with Lua support */
 
-#include "Every.h"
+#include "REST.h"
 #include "Version.h"
 #include "Marcel.h"
 #include "CURL_helpers.h"
@@ -55,7 +55,7 @@ static void doRESTquery( struct _REST *ctx ){
 	}
 }
 
-static void waitNextQuery(struct _REST *ctx){
+void waitNextQuery(struct _REST *ctx){
 	if(ctx->at == -1){
 		if(ctx->min == -1){	/* It's the 1st run */
 			ctx->min = 0;

@@ -8,11 +8,12 @@
  * 17/05/2016	- LF - Add 'Immediate'
  * 06/06/2016	- LF - If sample is null, stop 
  * 20/08/2016	- LF - Prevent a nasty bug making system to crash if 
- * 		user function lookup is failling
+ * 		user function lookup is failing
  */
 #ifdef LUA	/* Only useful with Lua support */
 
 #include "Every.h"
+#include "REST.h" /* for waitNextQuery */
 #include "Marcel.h"
 
 #include <stdlib.h>
@@ -35,21 +36,15 @@ void *process_Every(void *actx){
 	}
 
 	publishLog('I', "Launching a processing flow for '%s' Every task", ctx->uid);
-
-	if(ctx->immediate && !ctx->disabled)
-		execUserFuncEvery( ctx );
+	ctx->min = -1;	/* Indicate it's the 1st run */
 
 	for(;;){
-		if(!ctx->sample){
-			publishLog('I', "Every '%s' has 0 sample delay : dying ...\n", ctx->uid);
-			break;
+		waitNextQuery( (struct _REST *)ctx );
+		if(ctx->disabled){
+			publishLog('I', "Every '%s' is currently disabled.\n", ctx->uid);
 		} else
-			sleep( ctx->sample );
-		if( ctx->disabled ){
-			publishLog('I', "Every '%s' is disabled.\n", ctx->uid);
-		} else 
 			execUserFuncEvery( ctx );
-	}
+	}	
 
 	pthread_exit(0);
 }

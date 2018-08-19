@@ -9,7 +9,9 @@
 
 #ifndef REST_H
 #define REST_H
+#include "Marcel.h"	/* for struct _REST */
 
 extern void *process_REST(void *);
+extern void waitNextQuery(struct _REST *ctx);
 
 #endif
