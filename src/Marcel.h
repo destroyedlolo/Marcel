@@ -15,6 +15,7 @@
  * 31/08/2016	- LF - Add "keep" option"
  * 01/09/2016	- LF - Add publishLog() function
  * 18/08/2018	- LF - Add absolute time to Every
+ * 25/11/2018	- LF - Add safe85 to FFV
  */
 
 #ifndef MARCEL_H
@@ -79,6 +80,7 @@ union CSection {
 		const char *file;	/* File containing the data to read */
 		const char *latch;	/* Related latch file (optional) */
 		float offset;		/* Offset to apply to the raw value */
+		bool safe85;		/* Ignores underpowered temperature probes */
 	} FFV;
 	struct _OutFile {
 		union CSection *next;

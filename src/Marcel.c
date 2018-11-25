@@ -385,6 +385,7 @@ static void read_configuration( const char *fch){
 			n->common.section_type = MSEC_FFV;
 			setUID( n, removeLF(arg) );
 			n->FFV.funcid = LUA_REFNIL;
+			n->FFV.safe85 = false;
 
 			if(last_section)
 				last_section->common.next = n;
@@ -632,6 +633,14 @@ static void read_configuration( const char *fch){
 				if(!last_section->FFV.offset)
 					puts("*W*\tIs it normal it's a NULL offset ?");
 			}
+		} else if(!strcmp(l,"safe85\n")){		/* This section is currently disabled */
+			if(!last_section || last_section->common.section_type != MSEC_FFV){
+				publishLog('F', "Configuration issue : safe85 directive outside a FFV section");
+					exit(EXIT_FAILURE);
+			}
+			last_section->FFV.safe85 = true;
+			if(verbose)
+				puts("\tsafe85");
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				publishLog('F', "Configuration issue : Host directive outside a UPS section");

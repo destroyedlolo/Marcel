@@ -79,16 +79,20 @@ static void handle_FFV(struct _FFV *ctx){
 			bool publish = true;
 			float compensated = val + ctx->offset;
 
+			if( ctx->safe85 && val == 85.0 )
+				publishLog('E', "[%s] : %s -> The probe replied 85° implying powering issue.", ctx->uid, ctx->topic);
+			else {
 #ifdef LUA
-			if( ctx->funcid != LUA_REFNIL )
-				publish = execUserFuncFFV(ctx, val, compensated);
+				if( ctx->funcid != LUA_REFNIL )
+					publish = execUserFuncFFV(ctx, val, compensated);
 #endif
-			if(publish){
-				publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, compensated);
-				sprintf(l,"%.1f", compensated);
-				mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
-			} else
-				publishLog('I', "[%s] UserFunction requested not to publish", ctx->uid);
+				if(publish){
+					publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, compensated);
+					sprintf(l,"%.1f", compensated);
+					mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
+				} else
+					publishLog('I', "[%s] UserFunction requested not to publish", ctx->uid);
+			}
 		}
 		fclose(f);
 
