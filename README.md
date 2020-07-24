@@ -41,7 +41,7 @@ Following methods are exposed to Lua code through **Marcel** object :
 * **Marcel.MQTTPublish(** topic, value [, retain] **)** : Publish a value to MQTT broker.
 If *retain* = true, the message is kept.
 
-* **Marcel.RiseAlert(** topic**,** message **)**, **Marcel.RiseAlertSMS(** topic**,** message **)** : Tells Marcel about an alert condition
+* **Marcel.RiseAlert(** topic **,** message **)**, **Marcel.RiseAlertSMS(** topic **,** message **)** : Tells Marcel about an alert condition
 * **Marcel.ClearAlert(** topic **)** : Clear an alert condition
 
 * **Marcel.SendMessage(** title **,** Text **)** and **Marcel.SendMessageSMS(** title **,** Text **)**: The 1st one sends a message using **AlertCommand facility** which is generally used to send a mail. The 2nd one uses also **SMSUrl** which is generally used to send an SMS.
