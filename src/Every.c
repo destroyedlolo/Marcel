@@ -41,7 +41,7 @@ void *process_Every(void *actx){
 	for(;;){
 		waitNextQuery( (struct _REST *)ctx );
 		if(ctx->disabled){
-			publishLog('I', "Every '%s' is currently disabled.\n", ctx->uid);
+			publishLog('T', "Every '%s' is currently disabled.\n", ctx->uid);
 		} else
 			execUserFuncEvery( ctx );
 	}	

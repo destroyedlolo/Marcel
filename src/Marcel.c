@@ -51,18 +51,6 @@
  *	01/05/2016	- LF - 		DPD* replaced by Sub*
  *	14/05/2016	- LF - 4.10 - Add REST section
  *				-------
- *	06/06/2016	- LF - switch to v5.0 - Prepare Alarm handling
- *							FFV, Every's sample can be -1. 
- *							In this case, launched only once.
- *	08/06/2016	- LF - 5.01 - 1-wire Alarm handled
- *	24/07/2016	- LF - 5.02 - Handle offset for FFV
- *	14/08/2016	- LF - 5.03 - Handle Outfile
- *				-------
- *	19/08/2016	- LF - switch to v6.0 - prepare controls
- *	01/09/2016	- LF - Add publishLog() function
- *	16/10/2016	- LF - 6.06.01 - Intitialise funcid for DPD to avoid a crash
- *	22/07/2017	- LF - 6.09	- Add *LookForChanges
- *	28/02/2018	- LF - v6.11 - Replace $alert by $notification
  */
 #include "Marcel.h"
 #include "Version.h"
@@ -134,8 +122,11 @@ void publishLog( char l, const char *msg, ...){
 		case 'W':
 			sub = "/Log/Warning";
 			break;
-		default :
+		case 'I':
 			sub = "/Log/Information";
+			break;
+		default :	/* Trace */
+			sub = "/Log";
 		}
 
 		char tmsg[1024];	/* No simple way here to know the message size */
@@ -887,7 +878,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 	memcpy(payload, msg->payload, msg->payloadlen);
 	payload[msg->payloadlen] = 0;
 
-	publishLog('I', "message arrival (topic : '%s', msg : '%s')", topic, payload);
+	publishLog('T', "message arrival (topic : '%s', msg : '%s')", topic, payload);
 
 	if((aid = striKWcmp(topic,"Alert/")))
 		rcv_alert( aid, payload );
@@ -906,9 +897,9 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 			if( !strcmp(payload,"0") || !strcasecmp(payload,"off") || !strcasecmp(payload,"disable") )
 				disable = true;
 			Sec->common.disabled = disable;
-			publishLog('I', "%s '%s'", disable ? "Disabling":"Enabling", aid);
+			publishLog('T', "%s '%s'", disable ? "Disabling":"Enabling", aid);
 		} else
-			publishLog('I', "No section matching '%s'", aid);
+			publishLog('T', "No section matching '%s'", aid);
 	} else for(; Sec; Sec = Sec->common.next){
 		if(Sec->common.section_type == MSEC_DEADPUBLISHER){
 			if(!mqtttokcmp(Sec->DeadPublisher.topic, topic)){	/* Topic found */

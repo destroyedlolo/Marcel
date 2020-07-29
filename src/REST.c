@@ -112,7 +112,7 @@ void *process_REST(void *actx){
 	for(;;){
 		waitNextQuery( ctx );
 		if(ctx->disabled){
-			publishLog('I', "REST '%s' is currently disabled.\n", ctx->uid);
+			publishLog('T', "REST '%s' is currently disabled.\n", ctx->uid);
 		} else
 			doRESTquery( ctx );
 	}

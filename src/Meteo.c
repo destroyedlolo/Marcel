@@ -63,7 +63,7 @@ static void Meteo3H(struct _Meteo *ctx){
 	CURL *curl;
 	enum json_tokener_error jerr = json_tokener_success;
 
-	publishLog('I', "Querying Meteo 3H '%s'", ctx->uid);
+	publishLog('T', "Querying Meteo 3H '%s'", ctx->uid);
 
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEO3H) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
@@ -203,7 +203,7 @@ static void Meteo3H(struct _Meteo *ctx){
 				} else 
 					publishLog('E', "[%s] Querying meteo : Bad response from server (no list object)", ctx->uid);
 			}
-			publishLog('I', "[%s] meteo published", ctx->uid);
+			publishLog('T', "[%s] meteo published", ctx->uid);
 			json_object_put(jobj);
 		} else
 			publishLog('E', "[%s] Querying meteo : %s", ctx->uid, curl_easy_strerror(res));
@@ -219,7 +219,7 @@ void *process_Meteo3H(void *actx){
 
 	for(;;){
 		if(((struct _Meteo *)actx)->disabled)
-			publishLog('I', "Meteo3H is disabled for '%s'\n", ((struct _Meteo *)actx)->uid);
+			publishLog('T', "Meteo3H is disabled for '%s'\n", ((struct _Meteo *)actx)->uid);
 		else
 			Meteo3H(actx);
 		sleep( ((struct _Meteo *)actx)->sample);
@@ -232,7 +232,7 @@ static void MeteoD(struct _Meteo *ctx){
 	CURL *curl;
 	enum json_tokener_error jerr = json_tokener_success;
 
-	publishLog('I', "Querying Meteo Daily '%s'", ctx->uid);
+	publishLog('T', "Querying Meteo Daily '%s'", ctx->uid);
 
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEOD) + strlen(ctx->City) + strlen(ctx->Units) + strlen(ctx->Lang)];	/* Thanks to %s, Some room left for \0 */
@@ -401,7 +401,7 @@ static void MeteoD(struct _Meteo *ctx){
 		if(doy != tmt.tm_yday){
 			doy = tmt.tm_yday;
 
-			publishLog('I', "[%s] Querying current meteo", ctx->uid);
+			publishLog('T', "[%s] Querying current meteo", ctx->uid);
 
 			free(chunk.memory);
 			chunk.memory = malloc(1);
@@ -434,7 +434,7 @@ static void MeteoD(struct _Meteo *ctx){
 							gmtime_r(&now, &tmt);
 							sprintf( l+lm, "%02u:%02u", tmt.tm_hour, tmt.tm_min);
 							mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
-							publishLog('I', "[%s] sunrise published", ctx->uid);
+							publishLog('T', "[%s] sunrise published", ctx->uid);
 						} else
 							publishLog('E', "[%s] Querying meteo : no sunrise", ctx->uid);
 						
@@ -452,13 +452,13 @@ static void MeteoD(struct _Meteo *ctx){
 							gmtime_r(&now, &tmt);
 							sprintf( l+lm, "%02u:%02u", tmt.tm_hour, tmt.tm_min);
 							mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
-							publishLog('I', "[%s] sunset published", ctx->uid);
+							publishLog('T', "[%s] sunset published", ctx->uid);
 						} else
 							publishLog('E', "[%s] Querying meteo : no sunset", ctx->uid);
 					} else
 						publishLog('E', "[%s] Querying meteo : Bad response from server (no sys object)", ctx->uid);
 				}
-				publishLog('I', "[%s] current meteo published", ctx->uid);
+				publishLog('T', "[%s] current meteo published", ctx->uid);
 				json_object_put(jobj);
 			} else
 				publishLog('E', "[%s] Querying meteo : %s", ctx->uid, curl_easy_strerror(res));
@@ -476,7 +476,7 @@ void *process_MeteoD(void *actx){
 
 	for(;;){
 		if(((struct _Meteo *)actx)->disabled)
-			publishLog('I', "MeteoD is disabled for '%s'\n", ((struct _Meteo *)actx)->uid);
+			publishLog('T', "MeteoD is disabled for '%s'\n", ((struct _Meteo *)actx)->uid);
 		else
 			MeteoD(actx);
 		sleep( ((struct _Meteo *)actx)->sample);

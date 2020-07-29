@@ -185,7 +185,7 @@ void SendAlert(const char *id, const char *msg, int withSMS){
 		sendSMS( id, smsg );
 	AlertCmd( id, msg );
 
-	publishLog('I', "Alert sent : '%s' : '%s'", id, msg);
+	publishLog('T', "Alert sent : '%s' : '%s'", id, msg);
 }
 
 void RiseAlert(const char *id, const char *msg, int withSMS){
@@ -207,7 +207,7 @@ void AlertIsOver(const char *id){
 		sprintf( smsg, "%s : recovered", id );
 		sendSMS( id, smsg );
 
-		publishLog('I', "Alert cleared for '%s'", id);
+		publishLog('T', "Alert cleared for '%s'", id);
 
 		DLRemove( &alerts, (struct DLNode *)an );
 		free( (void *)an->alert );
@@ -229,7 +229,7 @@ void rcv_notification(const char *id, const char *msg){
 		sendSMS( id, smsg );
 	AlertCmd( id, msg+1 );
 
-	publishLog('I', "Alert sent : '%s' : '%s'", id, msg+1);
+	publishLog('T', "Alert sent : '%s' : '%s'", id, msg+1);
 }
 
 void pnNotify(const char *names, const char *title, const char *msg){
@@ -237,7 +237,7 @@ void pnNotify(const char *names, const char *title, const char *msg){
  * title : notification's title
  * msg : messages to send
  */
-	publishLog('I', "Named Notifications : '%s' id: '%s' msg : '%s'", names, title, msg);
+	publishLog('T', "Named Notifications : '%s' id: '%s' msg : '%s'", names, title, msg);
 	char c;
 	while(( c=*names++ )){
 		for( struct notification *n = cfg.notiflist; n; n = n->next){

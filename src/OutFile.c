@@ -20,7 +20,7 @@
 
 void processOutFile( struct _OutFile *ctx, const char *msg){
 	if(ctx->disabled){
-		publishLog('I', "Writing to OutFile '%s' is disabled\n", ctx->uid);
+		publishLog('T', "Writing to OutFile '%s' is disabled\n", ctx->uid);
 		return;
 	}
 
@@ -50,7 +50,7 @@ void processOutFile( struct _OutFile *ctx, const char *msg){
 		fclose(f);
 		return;
 	} 
-	publishLog('I', "[%s] '%s' written in '%s'\n", ctx->uid, msg, ctx->file);
+	publishLog('T', "[%s] '%s' written in '%s'\n", ctx->uid, msg, ctx->file);
 	fclose(f);
 
 #ifdef LUA

@@ -47,7 +47,7 @@ void *process_UPS(void *actx){
 
 	for(;;){	/* Infinite loop to process data */
 		if(ctx->disabled){
-			publishLog('I', "Reading Freebox '%s' is disabled", ctx->topic);
+			publishLog('T', "Reading Freebox '%s' is disabled", ctx->topic);
 		} else {
 			int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 			if(sockfd < 0){
@@ -74,7 +74,7 @@ void *process_UPS(void *actx){
 								assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
 								sprintf( pe, "%s/%s", ctx->topic, v->name );
 								mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
-								publishLog('I', "[%s] UPS : %s -> '%s'", ctx->uid, pe, ps);
+								publishLog('T', "[%s] UPS : %s -> '%s'", ctx->uid, pe, ps);
 							}
 						}
 					}

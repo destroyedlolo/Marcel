@@ -4,16 +4,23 @@
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)
  *
+ *	06/06/2016	- LF - switch to v5.0 - Prepare Alarm handling
+ *							FFV, Every's sample can be -1. 
+ *							In this case, launched only once.
  * 07/06/2016	- LF - externalize version and switch to VV.SSMM schem.
- * 10/06/2016	- LF - v5.01 - Handle 1w alarm
+ * 08/06/2016	- LF - v5.01 - 1-wire Alarm handled
+ * 10/06/2016 				Handle 1w alarm
  * 24/07/2016	- LF - v5.02 - Handle offset for FFV
  * 13/08/2016	- LF - v5.03 - Add Out file
+ * 			-----------
  * 19/08/2016	- LF - v6.00 - handle disable
  * 21/08/2016	- LF - v6.02 - starting this version all section MUST have an uniq ID
  * 					 - v6.03 - OnOff working
  * 22/08/2016	- LF - v6.04 - Add Lua function on OutFile
  * 31/08/2016	- LF - v6.05 - Add Keep
+ * 01/09/2016				Add publishLog() function
  * 15/10/2016	- LF - v6.06 - Add MARCEL_SCRIPT_DIR Lua variable
+ * 16/10/2016	- LF - 6.06.01 - Intitialise funcid for DPD to avoid a crash
  * 17/11/2016	- LF - v6.07 - Add user function to FFV
  * 21/11/2016	- LF - v6.08 - Add MinVersion directive
  * 22/07/2017	- LF - v6.09 - Add LookForChange section
@@ -24,13 +31,14 @@
  * 18/08/2018	- LF - v6.13 - Add absolute time to Every
  * 25/11/2018	- LF - v6.14 - Add safe85 to FFV
  * 27/07/2020	- LF - v6.15 - Add Copyright to Lua
+ * 09/07/2020	- LF - v7.00 - Create "Trace" log level
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define MARCEL_VERSION "6.1400"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "7.0000"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

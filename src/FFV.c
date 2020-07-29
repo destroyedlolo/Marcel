@@ -23,7 +23,7 @@
 
 static void handle_FFV(struct _FFV *ctx){
 	if(ctx->disabled){
-		publishLog('I', "[%s] Reading FFV '%s' is disabled\n", ctx->uid, ctx->topic);
+		publishLog('T', "[%s] Reading FFV '%s' is disabled\n", ctx->uid, ctx->topic);
 		return;
 	}
 
@@ -87,11 +87,11 @@ static void handle_FFV(struct _FFV *ctx){
 					publish = execUserFuncFFV(ctx, val, compensated);
 #endif
 				if(publish){
-					publishLog('I', "[%s] : %s -> %f", ctx->uid, ctx->topic, compensated);
+					publishLog('T', "[%s] : %s -> %f", ctx->uid, ctx->topic, compensated);
 					sprintf(l,"%.1f", compensated);
 					mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
 				} else
-					publishLog('I', "[%s] UserFunction requested not to publish", ctx->uid);
+					publishLog('T', "[%s] UserFunction requested not to publish", ctx->uid);
 			}
 		}
 		fclose(f);
@@ -155,7 +155,7 @@ void *process_FFV(void *actx){
 		}
 
 		if(((struct _FFV *)actx)->sample == -1){
-			publishLog('I', "FFV '%s' has -1 sample delay : dying ...", ((struct _FFV *)actx)->uid);
+			publishLog('T', "FFV '%s' has -1 sample delay : dying ...", ((struct _FFV *)actx)->uid);
 			break;
 		} else 
 			sleep( ((struct _FFV *)actx)->sample );
@@ -177,7 +177,7 @@ void *process_1wAlrm(void *actx){
 		} else {
 			while(( de = readdir(d) )){
 				if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
-					publishLog('I', "%s : in alert", de->d_name);
+					publishLog('T', "%s : in alert", de->d_name);
 
 					for(union CSection *s = cfg.sections; s; s = s->common.next){
 						if( s->common.section_type == MSEC_FFV && strstr(s->FFV.file, de->d_name)){

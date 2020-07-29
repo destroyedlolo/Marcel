@@ -149,7 +149,7 @@ void init_RFX(){
 		cfg.RFXdevice = NULL;
 		return;
 	}
-	publishLog('I', "RFXtrx reset sent");
+	publishLog('T', "RFXtrx reset sent");
 	sleep(1);
 	tcflush( fd, TCIFLUSH );	/* Clear input buffer */
 
@@ -166,7 +166,7 @@ void init_RFX(){
 		cfg.RFXdevice = NULL;
 		return;
 	}
-	publishLog('I', "RFXtrx GET STATUS sent");
+	publishLog('T', "RFXtrx GET STATUS sent");
 	
 	if(!readRFX(fd)){
 		publishLog('E', "RFX Reading status : %s", strerror(errno));
@@ -191,7 +191,7 @@ void init_RFX(){
 		cfg.RFXdevice = NULL;
 		return;
 	}
-	publishLog('I', "RFXtrx START COMMAND sent");
+	publishLog('T', "RFXtrx START COMMAND sent");
 
 	if(!readRFX(fd)){
 		publishLog('E', "RFX Reading status : %s", strerror(errno));
@@ -212,7 +212,7 @@ void init_RFX(){
 
 void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	if(ctx->disabled){
-		publishLog('I', "Commanding RTSCmd '%s' is disabled", ctx->uid);
+		publishLog('T', "Commanding RTSCmd '%s' is disabled", ctx->uid);
 		return;
 	}
 
@@ -256,6 +256,6 @@ void processRTSCmd( struct _RTSCmd *ctx, const char *msg ){
 	pthread_mutex_unlock( &oneTRXcmd );
 	close(fd);
 
-	publishLog('I', "Sending '%s' (%d) command to '%s' (%04x)\n", msg, cmd, ctx->uid, ctx->did);
+	publishLog('T', "Sending '%s' (%d) command to '%s' (%04x)\n", msg, cmd, ctx->uid, ctx->did);
 }
 #endif

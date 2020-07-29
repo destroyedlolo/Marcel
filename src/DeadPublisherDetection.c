@@ -78,9 +78,9 @@ void *process_DPD(void *actx){
 				pthread_exit(0);
 		case 0:	/* timeout */
 			if( ctx->disabled )
-				publishLog('I', "Alerting for DPD '%s' is disabled", ctx->uid);
+				publishLog('T', "Alerting for DPD '%s' is disabled", ctx->uid);
 			else {
-				publishLog('I', "timeout for DPD '%s'", ctx->uid);
+				publishLog('T', "timeout for DPD '%s'", ctx->uid);
 				if( !ctx->inerror ){	/* Entering in error */
 					if(!ctx->errtopic){		/* No error topic defined : sending an alert */
 						char topic[strlen(ctx->uid) + 7]; /* "Alert/" + 1 */
@@ -103,7 +103,7 @@ void *process_DPD(void *actx){
 							ctx->inerror = true;
 					}
 
-					publishLog('I', "Alert raises for DPD '%s'", ctx->uid);
+					publishLog('T', "Alert raises for DPD '%s'", ctx->uid);
 				}
 			}
 			break;
@@ -117,7 +117,7 @@ void *process_DPD(void *actx){
 					publishLog('E', "[%s] eventfd() : %s - reading notification", ctx->uid, strerror(errno));
 	
 				if( ctx->disabled )
-					publishLog('I', "Alerting for DPD '%s' is disabled", ctx->uid);
+					publishLog('T', "Alerting for DPD '%s' is disabled", ctx->uid);
 				else {
 					if( ctx->inerror ){	/* Existing error condition */
 						if(!ctx->errtopic){		/* No error topic defined : sending an alert */
@@ -141,7 +141,7 @@ void *process_DPD(void *actx){
 								ctx->inerror = false;
 						}
 
-						publishLog('I', "Alert corrected for DPD '%s'", ctx->uid);
+						publishLog('T', "Alert corrected for DPD '%s'", ctx->uid);
 					}
 				}
 			}
