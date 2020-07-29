@@ -22,16 +22,20 @@
  * 05/03/2018	- LF 		 - Replace SMSUrl by RESTUrl
  * 01/06/2018	- LF - v6.12 - REST user func may be called with NIL
  * 18/08/2018	- LF - v6.13 - Add absolute time to Every
- * 25/11/2018	- LF - Add safe85 to FFV
+ * 25/11/2018	- LF - v6.14 - Add safe85 to FFV
+ * 27/07/2020	- LF - v6.15 - Add Copyright to Lua
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define VERSION "6.1400"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "6.1400"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
 							 */
+
+#define MARCEL_COPYRIGHT "Marcel (c) L.Faillie 2015-2020"
+
 #endif

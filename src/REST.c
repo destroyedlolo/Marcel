@@ -37,7 +37,7 @@ static void doRESTquery( struct _REST *ctx ){
 #else
 		curl_easy_setopt(curl, CURLOPT_URL, ctx->url);
 #endif
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" MARCEL_VERSION);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);

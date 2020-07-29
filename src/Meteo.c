@@ -79,7 +79,7 @@ static void Meteo3H(struct _Meteo *ctx){
 #else
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 #endif
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" MARCEL_VERSION);
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
@@ -246,7 +246,7 @@ static void MeteoD(struct _Meteo *ctx){
 
 		sprintf(url, URLMETEOD, ctx->City, ctx->Units, ctx->Lang);
 		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" VERSION);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" MARCEL_VERSION);
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);

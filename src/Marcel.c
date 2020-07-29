@@ -309,8 +309,8 @@ static void read_configuration( const char *fch){
 				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
 		} else if((arg = striKWcmp(l,"MinVersion="))){
 			float v = atof(arg);
-			if( v > (float)atof(VERSION)){
-				publishLog('F', "Expected Marcel version : %.04f, got %.04f", v, atof(VERSION));
+			if( v > (float)atof(MARCEL_VERSION)){
+				publishLog('F', "Expected Marcel version : %.04f, got %.04f", v, atof(MARCEL_VERSION));
 				exit(EXIT_FAILURE);
 			} else if(verbose)
 				printf("Minimal Marcel version : %.04f\n", v);
@@ -966,13 +966,13 @@ int main(int ac, char **av){
 			"\t-f<file> : read <file> for configuration\n"
 			"\t\t(default is '%s')\n"
 			"\t-t : test configuration file and exit\n",
-			basename(av[0]), VERSION, DEFAULT_CONFIGURATION_FILE
+			basename(av[0]), MARCEL_VERSION, DEFAULT_CONFIGURATION_FILE
 		);
 		exit(EXIT_FAILURE);
 		break;
 	case 't':
 		configtest = true;
-		printf("%s v%s\n", basename(av[0]), VERSION);
+		printf("%s v%s\n", basename(av[0]), MARCEL_VERSION);
 	case 'v':
 		verbose = true;
 		break;
@@ -1019,8 +1019,8 @@ int main(int ac, char **av){
 	atexit( curl_global_cleanup );
 
 		/* Display / publish copyright */
-	publishLog('W', "Marcel (c) L.Faillie 2015-2018");
-	publishLog('W', "%s v%s starting ...", basename(av[0]), VERSION);
+	publishLog('W', MARCEL_COPYRIGHT);
+	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
 
 		/* Sections related */
 	init_alerting();

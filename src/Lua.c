@@ -243,7 +243,13 @@ static int lmClientID(lua_State *L){
 }
 
 static int lmVersion(lua_State *L){
-	lua_pushstring(L, VERSION);
+	lua_pushstring(L, MARCEL_VERSION);
+
+	return 1;
+}
+
+static int lmCopyright(lua_State *L){
+	lua_pushstring(L, MARCEL_COPYRIGHT);
 
 	return 1;
 }
@@ -259,6 +265,7 @@ static const struct luaL_reg MarcelLib [] = {
 	{"Hostname", lmHostname},
 	{"ClientID", lmClientID},
 	{"Version", lmVersion},
+	{"Copyright", lmCopyright},
 	{NULL, NULL}
 };
 
