@@ -3,12 +3,13 @@ This file contains internal notes for the development or before addition in the 
 Alarming
 ========
 
-Topic : Alarm/<subject>
-	- <subject> to identify the alert 
+Topic : **Alarm/< *subject* >**
+	- < *subject* > to identify the alert 
+
 Payload : [S|E]error message
-	- S : start of the alert
-	- E : End of the alert
-	- error message : information to be send.
+* **S** : start of the alert
+* **E** : End of the alert
+* error message : information to be send.
 
 Lua user function
 =================
@@ -26,42 +27,38 @@ I choose the 2nd way which is more "natural" for users, but as a consequence, on
 basement door :
 ---------------
 
-`Probe : /var/lib/owfs/mnt/12.16CCCC000000/`
+Probe : `/var/lib/owfs/mnt/12.16CCCC000000/`
+
 Be notified when a PIO changes 
 
 ```
 	echo 311 >  /var/lib/owfs/mnt/12.16CCCC000000/set_alarm
+```
 		3: Both ports
 		1: latches
 		1: high
-```
 
 Keep
 ====
 
 Working for :
+
 **Freebox**
+
 **UPS**
+
 **DPD**
 
 Useless for :
+
 **FFV**
+
 **EVERY**
+
 **REST**
+
 **METEO**
+
 **RTSCmd**
+
 **OutFile**
-
-MQTT logging :
-==============
-
-Marcel publish several informations on following topics
-
-Report :
-========
-
-* **< *client_id* >/Log/Fatal** : Failures causing Marcel to stop
-* **< *client_id* >/Log/Error** : Major errors but Marcel continues to run
-* **< *client_id* >/Log/Warning** : Minor errors and warnings 
-* **< *client_id* >/Log/Information** : Startup steps and running informations
-* **< *client_id* >/Log** : Trace information (incoming messages, decisions, etc ..)
