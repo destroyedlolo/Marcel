@@ -32,6 +32,7 @@
  * 25/11/2018	- LF - v6.14 - Add safe85 to FFV
  * 27/07/2020	- LF - v6.15 - Add Copyright to Lua
  * 09/07/2020	- LF - v7.00 - Create "Trace" log level
+ * 01/08/2020	- LF - v7.01 - Add Log()
  */
 
 #ifndef MARCEL_VERSION_H

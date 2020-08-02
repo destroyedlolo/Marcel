@@ -228,6 +228,20 @@ static int lmPublish(lua_State *L){
 	return 0;
 }
 
+static int lmLog(lua_State *L){
+	if(lua_gettop(L) != 2){
+		publishLog('E', "In your Lua code, Log() requires 2 arguments : severity and message");
+		return 0;
+	}
+
+	const char *sev = luaL_checkstring(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+
+	publishLog( *sev, msg );
+
+	return 0;
+}
+
 static int lmHostname(lua_State *L){
 	char n[HOST_NAME_MAX];
 	gethostname(n, HOST_NAME_MAX);
@@ -266,6 +280,7 @@ static const struct luaL_reg MarcelLib [] = {
 	{"ClientID", lmClientID},
 	{"Version", lmVersion},
 	{"Copyright", lmCopyright},
+	{"Log", lmLog},
 	{NULL, NULL}
 };
 

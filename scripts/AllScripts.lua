@@ -25,6 +25,7 @@ require ( "SituationPorteCave" )
 require ( "SituationPorteGarage" )
 require ( "SituationPorteGrenierSud" )
 require ( "TopicPluie" )
+require ( "PublishMarcelInfo" )
 
 require ( "CorrectTempJoris" )
 require ( "CorrectOceane" )
