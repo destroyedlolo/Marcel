@@ -189,6 +189,33 @@ char *stradd(char *p, const char *s, bool addspace){
 	return(np);
 }
 
+char *replaceVar(char *arg){
+/* Replace "variables" in given string.
+ * Known variable :
+ * 	%ClientID% = Marcel's ClientID
+ */
+	removeLF(arg);
+	size_t idx, idxd, 			/* source and destination indexes */
+		sz, max=strlen(arg);	/* size of allocated area and max index */
+	char *s = malloc( sz=max+1 );
+
+	assert(s);
+
+	for(idx = idxd = 0; idx<max; idx++){
+		if(arg[idx] == '%' && !strncmp(arg+idx, "%ClientID%",10) ){
+			sz += strlen(cfg.ClientID)-10;
+			s = realloc(s, sz);
+			assert(s);
+			strcpy(s+idxd, cfg.ClientID);
+			idxd += strlen(cfg.ClientID);	/* Skip ClientID */
+			idx += 9;	/* Skip %ClientID% */
+		} else
+			s[idxd++] = arg[idx];
+	}
+	s[idxd] = 0;
+	return s;
+}
+
 size_t socketreadline( int fd, char *l, size_t sz){
 /* read a line :
  * -> 	fd : file descriptor to read
@@ -804,7 +831,7 @@ static void read_configuration( const char *fch){
 				publishLog('F', "Configuration issue : Topic directive outside a section");
 				exit(EXIT_FAILURE);
 			}
-			assert( last_section->common.topic = strdup( removeLF(arg) ));
+			last_section->common.topic = replaceVar( arg );
 			if(verbose)
 				printf("\tTopic : '%s'\n", last_section->common.topic);
 		} else if((arg = striKWcmp(l,"ErrorTopic="))){

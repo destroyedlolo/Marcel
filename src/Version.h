@@ -33,13 +33,14 @@
  * 27/07/2020	- LF - v6.15 - Add Copyright to Lua
  * 09/07/2020	- LF - v7.00 - Create "Trace" log level
  * 01/08/2020	- LF - v7.01 - Add Log()
+ * 02/08/2020	- LF - v7.02 - Directives can have variables (replaceVar())
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define MARCEL_VERSION "7.0100"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "7.0200"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
