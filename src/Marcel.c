@@ -287,6 +287,8 @@ static void read_configuration( const char *fch){
 	cfg.client = NULL;
 	cfg.ConLostFatal = false;
 
+	cfg.Randomize = false;
+
 	cfg.Sublast = false;
 	cfg.first_Sub = NULL;
 
@@ -600,6 +602,10 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				printf("Entering section REST '%s'\n", n->REST.uid );
+		} else if(!strcmp(l,"Randomize\n")){	/* Randomize FFV starting */
+			cfg.Randomize = true;
+			if(verbose)
+				puts("Randomize FFV starting");
 		} else if(!strcmp(l,"DPDLast\n") || !strcmp(l,"SubLast\n")){	/* Subscriptions are grouped at the end of the configuration file */
 			cfg.Sublast = true;
 			if(verbose)

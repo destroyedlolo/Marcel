@@ -230,6 +230,7 @@ extern struct Config {
 	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
 	char *OnOffTopic;	/* topic to enable/disable sections */
 	MQTTClient client;
+	bool Randomize;			/* add randome delay before FFV */
 	bool Sublast;			/* Dead Publisher Detect are grouped at the end of sections list */
 	union CSection *first_Sub;	/* Pointer to the first subscription */
 	bool L4Cgrouped;		/* Look4Changes are all grouped */

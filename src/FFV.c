@@ -140,7 +140,12 @@ void *process_FFV(void *actx){
 		pthread_exit(0);
 	}
 
-
+	if(cfg.Randomize){
+		uint16_t t = (uint16_t)pthread_self();
+		publishLog('I', "Dailying FFV '%s' by %d", ctx->uid, t % ((struct _FFV *)actx)->sample);
+		sleep( t % ((struct _FFV *)actx)->sample );
+	}
+		
 	publishLog('I', "Launching a processing flow for FFV '%s'", ctx->uid);
 
 	for(;;){	/* Infinite loop to process messages */
