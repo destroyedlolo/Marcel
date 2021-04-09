@@ -16,6 +16,7 @@
  * 01/09/2016	- LF - Add publishLog() function
  * 18/08/2018	- LF - Add absolute time to Every
  * 25/11/2018	- LF - Add safe85 to FFV
+ * 09/04/2021	- LF - Add Retained
  */
 
 #ifndef MARCEL_H
@@ -63,6 +64,7 @@ union CSection {
 		const char *topic;
 		bool disabled;		/* this section is currently disabled */
 		bool keep;			/* Stay alive in cas of failure */
+		bool retained;		/* send MQTT retained message */
 		int sample;
 	} common;
 	struct _FFV {
@@ -74,6 +76,7 @@ union CSection {
 		const char *topic;	/* Topic to publish to */
 		bool disabled;
 		bool keep;
+		bool retained;		/* send MQTT retained message */
 		int sample;			/* delay b/w 2 samples */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
@@ -91,6 +94,7 @@ union CSection {
 		const char *topic;	/* Topic to subscribe to */
 		bool disabled;
 		bool keep;
+		bool padding_retaining;
 		int padding;		/* Not used */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
@@ -105,6 +109,7 @@ union CSection {
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
 		bool keep;
+		bool retained;		/* send MQTT retained message */
 		int sample;			/* delay b/w 2 samples */
 	} FreeBox;
 	struct _UPS {
@@ -116,6 +121,7 @@ union CSection {
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
 		bool keep;
+		bool retained;		/* send MQTT retained message */
 		int sample;			/* delay b/w 2 samples */
 		const char *host;	/* NUT's server */
 		int port;			/* NUT's port */
@@ -130,6 +136,7 @@ union CSection {
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
 		bool keep;
+		bool padding_retaining;
 		int sample;			/* Timeout */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
@@ -146,6 +153,7 @@ union CSection {
 		const char *padding;	/* not used */
 		bool disabled;
 		bool keep;
+		bool padding_retaining;
 		int sample;			/* Delay b/w launches */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
@@ -164,6 +172,7 @@ union CSection {
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
 		bool keep;			/* Unimplemented yet : should be used to re-watch if the dir belongs to an unmountable FS */
+		bool padding_retaining;
 		int padding;
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
@@ -181,6 +190,7 @@ union CSection {
 		const char *url;	/* URL to query */
 		bool disabled;
 		bool keep;
+		bool padding_retaining;
 		int sample;			/* Delay b/w 2 queries */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
@@ -198,6 +208,7 @@ union CSection {
 		const char *topic;	/* Root of the topics to publish to */
 		bool disabled;
 		bool keep;
+		bool padding_retaining;
 		int sample;			/* Delay b/w 2 queries */
 		const char *City;	/* CityName,Country to query */
 		const char *Units;	/* Result's units */
@@ -212,6 +223,7 @@ union CSection {
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
 		bool keep;
+		bool padding_retaining;
 		int padding;		/* not used */
 		uint32_t did;		/* ID corresponding to this device */
 	} RTSCmd;

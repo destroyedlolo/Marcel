@@ -832,6 +832,14 @@ static void read_configuration( const char *fch){
 			last_section->common.keep = true;
 			if(verbose)
 				puts("\tKeep");
+		} else if(!strcmp(l,"Retained\n")){		/* Staying alive */
+			if(!last_section){
+				publishLog('F', "Configuration issue : Retained directive outside a section");
+				exit(EXIT_FAILURE);
+			}
+			last_section->common.retained = true;
+			if(verbose)
+				puts("\tRetained");
 		} else if((arg = striKWcmp(l,"Topic="))){
 			if(!last_section){
 				publishLog('F', "Configuration issue : Topic directive outside a section");
