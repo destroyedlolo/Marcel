@@ -89,7 +89,7 @@ static void handle_FFV(struct _FFV *ctx){
 				if(publish){
 					publishLog('T', "[%s] : %s -> %f", ctx->uid, ctx->topic, compensated);
 					sprintf(l,"%.1f", compensated);
-					mqttpublish(cfg.client, ctx->topic, strlen(l), l, 0 );
+					mqttpublish(cfg.client, ctx->topic, strlen(l), l, ctx->retained );
 				} else
 					publishLog('T', "[%s] UserFunction requested not to publish", ctx->uid);
 			}
