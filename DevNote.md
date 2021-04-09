@@ -77,8 +77,11 @@ Applicable to :
 
 **Freebox**
 
-**Meteo3H**
+**Meteo3H** (ignored, always on)
 
-**MeteoDaily**
+**MeteoDaily** (ignored, always on)
 
 **UPS**
+
+
+This directive is ignored for other categories.
