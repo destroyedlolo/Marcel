@@ -19,7 +19,9 @@ I had 2 options :
 1. to create a dedicated context per section (implemented as thread), but in this case, each and every callback lives its own life and can't share code or information with others
 1. to use an unique context and lock it's access.
 
-I choose the 2nd way which is more "natural" for users, but as a consequence, only one callback can run at a time. It means callbacks must be as fast as possible to avoid dead locks.
+I choose for Marcel the 2nd way which is more "natural" for users, especially because these scripts are only made for fast data validation and not for full automation (have a look on [Majordome]( https://github.com/destroyedlolo/Majordome) for that). 
+
+As a consequence, only one callback can run at a time. It means callbacks must be as fast as possible to avoid dead locks.
 
 1-wire alarms
 =============
@@ -62,3 +64,24 @@ Useless for :
 **RTSCmd**
 
 **OutFile**
+
+
+Retained
+========
+
+Applicable to :
+
+**FFV**
+
+**LookForChanges**
+
+**Freebox**
+
+**Meteo3H** (ignored, always on)
+
+**MeteoDaily** (ignored, always on)
+
+**UPS**
+
+
+This directive is ignored for other categories.
