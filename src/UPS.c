@@ -73,7 +73,7 @@ void *process_UPS(void *actx){
 								ps++; *pe++ = 0;	/* Extract only the result */
 								assert(pe - l + strlen(ctx->topic) + strlen(v->name) + 2 < MAXLINE ); /* ensure there is enough place for the topic name */
 								sprintf( pe, "%s/%s", ctx->topic, v->name );
-								mqttpublish( cfg.client, pe, strlen(ps), ps, 0 );
+								mqttpublish( cfg.client, pe, strlen(ps), ps, ctx->retained );
 								publishLog('T', "[%s] UPS : %s -> '%s'", ctx->uid, pe, ps);
 							}
 						}
