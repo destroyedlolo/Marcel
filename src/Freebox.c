@@ -72,13 +72,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadATM", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadATM", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  Marge de bruit")){
 						float u, d; 
@@ -90,13 +90,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadMarge", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%.2f", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadMarge", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%.2f", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  FEC")){
 						unsigned long u, d;
@@ -108,13 +108,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadFEC", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadFEC", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  CRC")){
 						unsigned long u, d;
@@ -126,13 +126,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadCRC", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadCRC", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  HEC")){
 						unsigned long u, d;
@@ -144,13 +144,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadHEC", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('R', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadHEC", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  WAN")){
 						int u, d, lm;
@@ -161,13 +161,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadWAN", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadWAN", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  Ethernet")){
 						int u, d, lm;
@@ -178,13 +178,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadTV", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadTV", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  USB")){
 						int u, d, lm;
@@ -195,13 +195,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadUSB", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadUSB", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  Switch")){
 						int u, d, lm;
@@ -212,13 +212,13 @@ void *process_Freebox(void *actx){
 						lm = sprintf(l, "%s/DownloadLan", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadLan", ctx->topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
-						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 0 );
+						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->retained );
 						publishLog('T', "Freebox : %s -> %s", l, l+lm);
 					}
 				}
