@@ -1335,7 +1335,7 @@ int main(int ac, char **av){
 							char msg[sz+1];
 							sprintf(msg, "%s:%s", event->len ? event->name : "", amsg);
 							free(amsg);
-							mqttpublish(cfg.client, s->topic, sz, msg,0);
+							mqttpublish(cfg.client, s->topic, sz, msg, s->retained);
 						}
 					}
 				}

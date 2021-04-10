@@ -172,7 +172,7 @@ union CSection {
 		const char *topic;	/* Topic to wait data from */
 		bool disabled;
 		bool keep;			/* Unimplemented yet : should be used to re-watch if the dir belongs to an unmountable FS */
-		bool padding_retaining;
+		bool retained;
 		int padding;
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
