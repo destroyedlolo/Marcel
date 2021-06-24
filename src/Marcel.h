@@ -95,7 +95,7 @@ union CSection {
 		bool disabled;
 		bool keep;
 		bool padding_retaining;
-		int padding;		/* Not used */
+		int padding_sample;	/* not used */
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
 		const char *file;	/* File to write to */
@@ -173,7 +173,7 @@ union CSection {
 		bool disabled;
 		bool keep;			/* Unimplemented yet : should be used to re-watch if the dir belongs to an unmountable FS */
 		bool retained;
-		int padding;
+		int padding_sample;	/* not used */
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 		const char *dir;	/* In fact, can be used on file as well */
@@ -224,7 +224,7 @@ union CSection {
 		bool disabled;
 		bool keep;
 		bool padding_retaining;
-		int padding;		/* not used */
+		int padding_sample;	/* not used */
 		uint32_t did;		/* ID corresponding to this device */
 	} RTSCmd;
 };
