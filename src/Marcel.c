@@ -751,6 +751,20 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				puts("");
 #endif
+		} else if((arg = striKWcmp(l,"FailFunc="))){
+			if(!last_section || (
+				last_section->common.section_type != MSEC_FFV
+			)){
+				publishLog('F', "Configuration issue : FailFunc directive outside an FFV section");
+				exit(EXIT_FAILURE);
+			}
+#ifndef LUA
+			publishLog('F', "Fail functions can only be used when compiled with Lua support");
+			exit(EXIT_FAILURE);
+#endif
+			assert( last_section->common.failfunc = strdup( removeLF(arg) ));
+			if(verbose)
+				printf("\tFail Function : '%s'\n", last_section->common.failfunc);
 		} else if((arg = striKWcmp(l,"Func="))){
 			if(!last_section || (
 				last_section->common.section_type != MSEC_FFV &&

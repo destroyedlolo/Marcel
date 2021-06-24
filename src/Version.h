@@ -36,6 +36,7 @@
  * 02/08/2020	- LF - v7.02 - Directives can have variables (replaceVar())
  * 27/09/2020	- LF - v7.03 - Add Randomize
  * 09/04/2021	- LF - v7.04 - Add Retained directive
+ * 25/06/2021	- LF - v7.05 - Introduce FailFunc
  */
 
 #ifndef MARCEL_VERSION_H

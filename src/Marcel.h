@@ -66,6 +66,8 @@ union CSection {
 		bool keep;			/* Stay alive in cas of failure */
 		bool retained;		/* send MQTT retained message */
 		int sample;
+		const char *failfunc;	/* Lua function to be called in case of failure */
+		int failfuncid;
 	} common;
 	struct _FFV {
 		union CSection *next;
@@ -78,6 +80,8 @@ union CSection {
 		bool keep;
 		bool retained;		/* send MQTT retained message */
 		int sample;			/* delay b/w 2 samples */
+		const char *failfunc;
+		int failfuncid;
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
 		const char *file;	/* File containing the data to read */
@@ -96,6 +100,8 @@ union CSection {
 		bool keep;
 		bool padding_retaining;
 		int padding_sample;	/* not used */
+		const char *failfunc;
+		int failfuncid;
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
 		const char *file;	/* File to write to */
@@ -111,6 +117,8 @@ union CSection {
 		bool keep;
 		bool retained;		/* send MQTT retained message */
 		int sample;			/* delay b/w 2 samples */
+		const char *failfunc;
+		int failfuncid;
 	} FreeBox;
 	struct _UPS {
 		union CSection *next;
@@ -123,6 +131,8 @@ union CSection {
 		bool keep;
 		bool retained;		/* send MQTT retained message */
 		int sample;			/* delay b/w 2 samples */
+		const char *failfunc;
+		int failfuncid;
 		const char *host;	/* NUT's server */
 		int port;			/* NUT's port */
 		struct var *var_list;	/* List of variables to read */
@@ -138,6 +148,8 @@ union CSection {
 		bool keep;
 		bool padding_retaining;
 		int sample;			/* Timeout */
+		const char *failfunc;
+		int failfuncid;
 		const char *funcname;	/* User function to call on data arrival */
 		int funcid;			/* Function id in Lua registry */
 		const char *errtopic;	/* Topic to publish error to */
@@ -155,6 +167,8 @@ union CSection {
 		bool keep;
 		bool padding_retaining;
 		int sample;			/* Delay b/w launches */
+		const char *failfunc;
+		int failfuncid;
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 		bool immediate;		/* If the function has to run at startup */
@@ -174,6 +188,8 @@ union CSection {
 		bool keep;			/* Unimplemented yet : should be used to re-watch if the dir belongs to an unmountable FS */
 		bool retained;
 		int padding_sample;	/* not used */
+		const char *failfunc;
+		int failfuncid;
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 		const char *dir;	/* In fact, can be used on file as well */
@@ -192,6 +208,8 @@ union CSection {
 		bool keep;
 		bool padding_retaining;
 		int sample;			/* Delay b/w 2 queries */
+		const char *failfunc;
+		int failfuncid;
 		const char *funcname;	/* Function to be called */
 		int funcid;			/* Function id in Lua registry */
 		bool immediate;		/* If the function has to run at startup */
@@ -210,6 +228,8 @@ union CSection {
 		bool keep;
 		bool padding_retaining;
 		int sample;			/* Delay b/w 2 queries */
+		const char *failfunc;
+		int failfuncid;
 		const char *City;	/* CityName,Country to query */
 		const char *Units;	/* Result's units */
 		const char *Lang;	/* Result's language */
@@ -225,6 +245,8 @@ union CSection {
 		bool keep;
 		bool padding_retaining;
 		int padding_sample;	/* not used */
+		const char *failfunc;
+		int failfuncid;
 		uint32_t did;		/* ID corresponding to this device */
 	} RTSCmd;
 };
