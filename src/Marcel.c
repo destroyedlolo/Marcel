@@ -274,6 +274,19 @@ static void setUID( union CSection *sec, const char *uid ){
 	sec->common.h = h;
 }
 
+	/* Initialize an empty CSection */
+static union CSection *createCSection( size_t s, char *id ){
+	union CSection *n = malloc( s );
+	assert(n);
+	memset(n, 0, s);
+
+	setUID( n, removeLF(id) );
+
+	n->common.failfuncid = LUA_REFNIL;
+
+	return(n);
+}
+
 static void read_configuration( const char *fch){
 	FILE *f;
 	char l[MAXLINE];
@@ -399,11 +412,8 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering notification definition '%c'\n", n->id);
 		} else if((arg = striKWcmp(l,"*FFV="))){
-			union CSection *n = malloc( sizeof(struct _FFV) );
-			assert(n);
-			memset(n, 0, sizeof(struct _FFV));
+			union CSection *n = createCSection( sizeof(struct _FFV), arg );
 			n->common.section_type = MSEC_FFV;
-			setUID( n, removeLF(arg) );
 			n->FFV.funcid = LUA_REFNIL;
 			n->FFV.safe85 = false;
 
@@ -415,11 +425,8 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering FFV section '%s'\n", n->common.uid);
 		} else if((arg = striKWcmp(l,"*OutFile="))){
-			union CSection *n = malloc( sizeof(struct _OutFile) );
-			assert(n);
-			memset(n, 0, sizeof(struct _OutFile));
+			union CSection *n = createCSection( sizeof(struct _OutFile), arg );
 			n->common.section_type = MSEC_OUTFILE;
-			setUID( n, removeLF(arg) );
 			n->OutFile.funcid = LUA_REFNIL;
 
 			if(last_section)
@@ -433,11 +440,8 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering OutFile section '%s'\n", n->common.uid);
 		} else if((arg = striKWcmp(l,"*Freebox"))){
-			union CSection *n = malloc( sizeof(struct _FreeBox) );
-			assert(n);
-			memset(n, 0, sizeof(struct _FreeBox));
+			union CSection *n = createCSection( sizeof(struct _FreeBox), "Freebox" );
 			n->common.section_type = MSEC_FREEBOX;
-			setUID( n, "Freebox" );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -447,11 +451,8 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				puts("Entering section 'Freebox'");
 		} else if((arg = striKWcmp(l,"*UPS="))){
-			union CSection *n = malloc( sizeof(struct _UPS) );
-			assert(n);
-			memset(n, 0, sizeof(struct _UPS));
+			union CSection *n = createCSection( sizeof(struct _UPS), arg );
 			n->common.section_type = MSEC_UPS;
-			setUID( n, removeLF(arg) );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -461,12 +462,9 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering section 'UPS/%s'\n", n->Ups.uid);
 		} else if((arg = striKWcmp(l,"*Every="))){
-			union CSection *n = malloc( sizeof(struct _Every) );
-			assert(n);
-			memset(n, 0, sizeof(struct _Every));
+			union CSection *n = createCSection( sizeof(struct _Every), arg );
 			n->common.section_type = MSEC_EVERY;
 			n->Every.at = -1;
-			setUID( n, removeLF(arg) );
 
 #ifndef LUA
 			publishLog('F', "Every section is only available when compiled with Lua support");
@@ -487,11 +485,8 @@ static void read_configuration( const char *fch){
 			publishLog('F', "LookForChanges section is only available when compiled with inotify support");
 			exit(EXIT_FAILURE);
 #else
-			union CSection *n = malloc( sizeof(struct _Look4Changes) );
-			assert(n);
-			memset(n, 0, sizeof(struct _Look4Changes));
+			union CSection *n = createCSection( sizeof(struct _Look4Changes), arg );
 			n->common.section_type = MSEC_LOOK4CHANGES;
-			setUID( n, removeLF(arg) );
 
 			n->Look4Changes.funcid = LUA_REFNIL;
 
@@ -508,11 +503,8 @@ static void read_configuration( const char *fch){
 				printf("Entering section 'LookForChanges/%s'\n", n->common.uid );
 #endif
 		} else if((arg = striKWcmp(l,"*Meteo3H="))){
-			union CSection *n = malloc( sizeof(struct _Meteo) );
-			assert(n);
-			memset(n, 0, sizeof(struct _Meteo));
+			union CSection *n = createCSection( sizeof(struct _Meteo), arg );
 			n->common.section_type = MSEC_METEO3H;
-			setUID( n, removeLF(arg) );
 #ifndef METEO
 			publishLog('F', "Meteo3H section is only available when compiled with METEO support");
 			exit(EXIT_FAILURE);
@@ -526,11 +518,8 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering section 'Meteo 3H/%s'\n", n->common.uid);
 		} else if((arg = striKWcmp(l,"*MeteoDaily="))){
-			union CSection *n = malloc( sizeof(struct _Meteo) );
-			assert(n);
-			memset(n, 0, sizeof(struct _Meteo));
+			union CSection *n = createCSection( sizeof(struct _Meteo), arg );
 			n->common.section_type = MSEC_METEOD;
-			setUID( n, removeLF(arg) );
 
 #ifndef METEO
 			publishLog('F', "MeteoDaily section is only available when compiled with METEO support");
@@ -545,11 +534,9 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering section 'Meteo Daily/%s'\n",n->common.uid );
 		} else if((arg = striKWcmp(l,"*DPD="))){
-			union CSection *n = malloc( sizeof(struct _DeadPublisher) );
-			assert(n);
-			memset(n, 0, sizeof(struct _DeadPublisher));
+			union CSection *n = createCSection( sizeof(struct _DeadPublisher), arg );
 			n->common.section_type = MSEC_DEADPUBLISHER;
-			setUID( n, removeLF(arg) );
+
 			n->DeadPublisher.funcid = LUA_REFNIL;
 
 			if(last_section)
@@ -563,11 +550,8 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering section 'DeadPublisher/%s'\n", n->common.uid);
 		} else if((arg = striKWcmp(l,"*RTSCmd="))){
-			union CSection *n = malloc( sizeof(struct _RTSCmd) );
-			assert(n);
-			memset(n, 0, sizeof(struct _RTSCmd));
+			union CSection *n = createCSection( sizeof(struct _RTSCmd), arg );
 			n->common.section_type = MSEC_RTSCMD;
-			setUID( n, removeLF(arg) );
 
 			if(last_section)
 				last_section->common.next = n;
@@ -580,11 +564,9 @@ static void read_configuration( const char *fch){
 			if(verbose)
 				printf("Entering section 'RTS Command' for '%s'\n", n->RTSCmd.uid);
 		} else if((arg = striKWcmp(l,"*REST="))){
-			union CSection *n = malloc( sizeof(struct _REST) );
-			assert(n);
-			memset(n, 0, sizeof(struct _REST));
+			union CSection *n = createCSection( sizeof(struct _REST), arg );
 			n->common.section_type = MSEC_REST;
-			setUID( n, removeLF(arg) );			
+
 			n->REST.at = -1;
 //			assert( n->REST.url = strdup( removeLF(arg) ));
 
