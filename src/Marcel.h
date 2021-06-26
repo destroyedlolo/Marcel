@@ -309,6 +309,8 @@ extern void execUserFuncEvery( struct _Every * );
 extern void execUserFuncREST( struct _REST *, char *);
 extern void execUserFuncOutFile( struct _OutFile *, const char * );
 extern bool execUserFuncFFV( struct _FFV *, float, float);
+
+extern void executeFailFunc( union CSection *, const char * );
 #endif
 
 #endif

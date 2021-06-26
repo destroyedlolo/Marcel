@@ -133,6 +133,25 @@ bool execUserFuncFFV( struct _FFV *ctx, float val, float compensated){
 	return ret;
 }
 
+void executeFailFunc( union CSection *ctx, const char *errmsg ){
+puts("executeFailFunc");
+	if(ctx->common.failfuncid != LUA_TNIL){	/* A function is defined */
+		pthread_mutex_lock( &onefunc );
+		lua_rawgeti( L, LUA_REGISTRYINDEX, ctx->common.failfuncid);	/* retrieves the function */
+		lua_pushstring( L, ctx->common.uid );
+		lua_pushstring( L, ctx->common.topic );
+		lua_pushstring( L, errmsg);
+
+		if(lua_pcall( L, 3, 0, 0)){
+			publishLog('E', "[%s] FailFunc : %s", ctx->common.uid, lua_tostring(L, -1));
+			lua_pop(L, 1);  /* pop error message from the stack */
+			lua_pop(L, 1);  /* pop NIL from the stack */
+		}
+		pthread_mutex_unlock( &onefunc );
+	}
+puts("executeFailFunc ok");
+}
+
 static int lmSendNMsg(lua_State *L){
 	if(lua_gettop(L) != 3){
 		publishLog('E', "In your Lua code, SendNamedMessage() requires 3 arguments : Alerts' names, title and message");

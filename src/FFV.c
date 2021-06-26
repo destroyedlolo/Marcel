@@ -28,6 +28,19 @@ static void handle_FFV(struct _FFV *ctx){
 	}
 
 #ifdef LUA
+	if(ctx->failfunc && ctx->failfuncid == LUA_REFNIL){
+		if(!cfg.luascript){
+			publishLog('E', "[%s] configuration error : No Lua script defined whereas a function is used. This thread is dying.", ctx->uid, ctx->funcname);
+			pthread_exit(NULL);
+		}
+		
+		if( (ctx->failfuncid = findUserFunc( ctx->failfunc )) == LUA_REFNIL ){
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined", ctx->uid, ctx->failfunc);
+			publishLog('F', "[%s] Dying", ctx->uid);
+			pthread_exit(NULL);
+		}
+	}
+
 	if(ctx->funcname && ctx->funcid == LUA_REFNIL){
 		if(!cfg.luascript){
 			publishLog('E', "[%s] configuration error : No Lua script defined whereas a function is used. This thread is dying.", ctx->uid, ctx->funcname);
@@ -71,6 +84,12 @@ static void handle_FFV(struct _FFV *ctx){
 				mqttpublish(cfg.client, l, strlen(msg), msg, 0);
 			}
 		}
+
+#ifdef LUA
+		if( ctx->failfuncid != LUA_REFNIL )
+			executeFailFunc((union CSection *)ctx, emsg);
+#endif
+
 	} else {
 		float val;
 		if(!fscanf(f, "%f", &val))
