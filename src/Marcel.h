@@ -46,7 +46,8 @@ enum _tp_msec {
 	MSEC_METEO3H,		/* 3H meteo */
 	MSEC_METEOD,		/* Daily meteo */
 	MSEC_RTSCMD,		/* Somfy RTS commands */
-	MSEC_REST			/* REST query */
+	MSEC_REST,			/* REST query */
+	MSRC_SHT31			/* Sht31 humidity sensor */
 };
 
 struct var {	/* Storage for var list */
@@ -249,6 +250,22 @@ union CSection {
 		int failfuncid;
 		uint32_t did;		/* ID corresponding to this device */
 	} RTSCmd;
+	struct _Sht31 {
+		union CSection *next;
+		enum _tp_msec section_type;
+		pthread_t thread;	/* Child to handle this section */
+		const char *uid;	/* Unique identifier */
+		int h;				/* hash code for this id */
+		const char *topic;	/* Root topic */
+		bool disabled;		/* this section is currently disabled */
+		bool keep;			/* Stay alive in cas of failure */
+		bool retained;		/* send MQTT retained message */
+		int sample;
+		const char *failfunc;	/* Lua function to be called in case of failure */
+		int failfuncid;
+		const char *device;		/* I2C device */
+		const char *i2c_addr	/* I2C address (default : 0x44) */
+	} Sht;
 };
 
 struct notification {	/* Storage for named notification */

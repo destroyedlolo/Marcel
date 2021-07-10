@@ -4,4 +4,4 @@
 
 cd src
 
-LFMakeMaker -v +f=Makefile -cc='gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -DINOTIFY -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99' *.c -t=../Marcel > Makefile
+LFMakeMaker -v +f=Makefile -cc='gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -DINOTIFY -DSHT31 -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99' *.c -t=../Marcel > Makefile
