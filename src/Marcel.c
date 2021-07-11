@@ -584,6 +584,17 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				printf("Entering section REST '%s'\n", n->REST.uid );
+		} else if((arg = striKWcmp(l,"*SHT31="))){
+			union CSection *n = createCSection( sizeof(struct _Sht31), arg );
+			n->common.section_type = MSRC_SHT31;
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(verbose)
+				printf("Entering SHT31 section '%s'\n", n->common.uid);
 		} else if(!strcmp(l,"Randomize\n")){	/* Randomize FFV starting */
 			cfg.Randomize = true;
 			if(verbose)
@@ -628,17 +639,6 @@ static void read_configuration( const char *fch){
 			assert( last_section->FFV.latch = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tLatch file : '%s'\n", last_section->FFV.latch);
-		} else if((arg = striKWcmp(l,"Offset="))){
-			if(!last_section || last_section->common.section_type != MSEC_FFV){
-				publishLog('F', "Configuration issue : Offset directive outside a FFV section");
-				exit(EXIT_FAILURE);
-			}
-			last_section->FFV.offset = atof(arg);
-			if(verbose){
-				printf("\tOffset : %f\n", last_section->FFV.offset);
-				if(!last_section->FFV.offset)
-					puts("*W*\tIs it normal it's a NULL offset ?");
-			}
 		} else if(!strcmp(l,"safe85\n")){		/* This section is currently disabled */
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				publishLog('F', "Configuration issue : safe85 directive outside a FFV section");
@@ -647,6 +647,25 @@ static void read_configuration( const char *fch){
 			last_section->FFV.safe85 = true;
 			if(verbose)
 				puts("\tsafe85");
+		} else if((arg = striKWcmp(l,"Offset="))){
+			float offset;
+			switch(last_section ? last_section->common.section_type : MSEC_INVALID){
+			case MSEC_FFV:
+				offset = last_section->FFV.offset = atof(arg);
+				break;
+			case MSRC_SHT31:
+				offset = last_section->Sht.offset = atof(arg);
+				break;
+			default:
+				publishLog('F', "Configuration issue : Offset directive outside a FFV or SHT31 section");
+				exit(EXIT_FAILURE);
+			}
+
+			if(verbose){
+				printf("\tOffset : %f\n", offset);
+				if(!offset)
+					puts("*W*\tIs it normal it's a NULL offset ?");
+			}
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				publishLog('F', "Configuration issue : Host directive outside a UPS section");
