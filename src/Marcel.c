@@ -666,6 +666,23 @@ static void read_configuration( const char *fch){
 				if(!offset)
 					puts("*W*\tIs it normal it's a NULL offset ?");
 			}
+		} else if((arg = striKWcmp(l,"Device="))){
+			if(!last_section || last_section->common.section_type != MSRC_SHT31){
+				publishLog('F', "Configuration issue : Device directive outside a SHT31 section");
+				exit(EXIT_FAILURE);
+			}
+			assert( last_section->Sht.device = strdup( removeLF(arg) ));
+			if(verbose)
+				printf("\tDevice : '%s'\n", last_section->Sht.device);
+		} else if((arg = striKWcmp(l,"Address="))){
+			char *dummy;
+			if(!last_section || last_section->common.section_type != MSRC_SHT31){
+				publishLog('F', "Configuration issue : Address directive outside a SHT31 section");
+				exit(EXIT_FAILURE);
+			}
+			last_section->Sht.i2c_addr = strtol(arg, &dummy, 16);
+			if(verbose)
+				printf("\tAddress : '%02x'\n", last_section->Sht.i2c_addr);
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				publishLog('F', "Configuration issue : Host directive outside a UPS section");

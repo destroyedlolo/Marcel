@@ -264,7 +264,7 @@ union CSection {
 		const char *failfunc;	/* Lua function to be called in case of failure */
 		int failfuncid;
 		const char *device;		/* I2C device */
-		const char *i2c_addr;	/* I2C address (default : 0x44) */
+		uint8_t i2c_addr;	/* I2C address (default : 0x44) */
 		float offset;		/* Offset to apply to the raw value */
 	} Sht;
 };
