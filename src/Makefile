@@ -37,7 +37,7 @@ Lua.o : Lua.c Marcel.h Version.h Alerting.h DList.h MQTT_tools.h \
 
 Marcel.o : Marcel.c Marcel.h Version.h FFV.h Freebox.h UPS.h \
   DeadPublisherDetection.h MQTT_tools.h Alerting.h DList.h Every.h \
-  Meteo.h RFXtrx_marcel.h REST.h OutFile.h Makefile 
+  Meteo.h RFXtrx_marcel.h REST.h OutFile.h Sht31.h Makefile 
 	$(cc) -c -o Marcel.o Marcel.c $(opts) 
 
 Meteo.o : Meteo.c Meteo.h Marcel.h Version.h MQTT_tools.h \

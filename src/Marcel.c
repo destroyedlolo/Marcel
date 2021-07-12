@@ -65,6 +65,7 @@
 #include "RFXtrx_marcel.h"
 #include "REST.h"
 #include "OutFile.h"
+#include "Sht31.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1268,6 +1269,22 @@ int main(int ac, char **av){
 					publishLog('E', "[%s] %s : %s", s->Look4Changes.uid, s->Look4Changes.dir, emsg);
 				}
 			}
+			break;
+#endif
+#ifdef SHT31
+		case MSRC_SHT31:
+			if( !s->common.topic ){
+				s->common.topic = s->common.uid;
+				publishLog('W', "[%s] no topic specified, using the uid.", s->common.uid);
+			}
+			if(s->common.sample){
+				if(pthread_create( &(s->common.thread), &thread_attr, process_Sht31, s) < 0){
+					publishLog('F', "[%s] Can't create a processing thread", s->common.uid);
+					exit(EXIT_FAILURE);
+				}
+			} else
+				publishLog('E', "Can't launch SHT31 for '%s' : 0 waiting delay", s->FFV.topic);
+			firstFFV=true;
 			break;
 #endif
 		default :	/* Ignore unsupported type */
