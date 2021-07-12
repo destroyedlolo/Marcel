@@ -587,6 +587,7 @@ static void read_configuration( const char *fch){
 		} else if((arg = striKWcmp(l,"*SHT31="))){
 			union CSection *n = createCSection( sizeof(struct _Sht31), arg );
 			n->common.section_type = MSRC_SHT31;
+			n->Sht.i2c_addr = 0x44;
 
 			if(last_section)
 				last_section->common.next = n;
@@ -682,7 +683,7 @@ static void read_configuration( const char *fch){
 			}
 			last_section->Sht.i2c_addr = strtol(arg, &dummy, 16);
 			if(verbose)
-				printf("\tAddress : '%02x'\n", last_section->Sht.i2c_addr);
+				printf("\tAddress : '0x%02x'\n", last_section->Sht.i2c_addr);
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				publishLog('F', "Configuration issue : Host directive outside a UPS section");
