@@ -312,6 +312,29 @@ extern char *mystrdup(const char *);
 
 extern size_t socketreadline( int, char *, size_t);
 
+	/* Lookup values for variables substitution
+	 *	Replace all occurrences of given variables with values
+	 *	Variables' name have to contains enclosing %
+	 *	(f.e "%ClientID%")
+	 *
+	 *	The list must NULL terminated
+	 */
+struct _VarSubstitution {
+	const char *var;	/* Variable's name */
+	const char *val;	/* Value */
+	size_t lvar;		/* size of the variable name (initialize to 0)*/
+	size_t lval;		/* size of the value (initialize to 0)*/
+};
+
+	/* Calculate lengths */
+extern void init_VarSubstitution( struct _VarSubstitution * );
+
+	/* replacement
+	 * Lookup table must has been initialized before.
+	 * Resulting string is dynamically allocated.
+	 */
+extern char *replaceVar( const char *, struct _VarSubstitution * );
+
 	/* Logging */
 extern void publishLog( char, const char *, ...);
 

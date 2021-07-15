@@ -30,6 +30,25 @@ void *process_Sht31(void *actx){
 
 	publishLog('I', "Launching a processing flow for SHT31 '%s'", ctx->uid);
 
+		/* Build temperature topic */
+	struct _VarSubstitution tempvslookup[] = {
+		{ "%FIGURE%", "Temperature" },	/* MUST BE THE 1ST VARIABLE */
+		{ NULL }
+	};
+	init_VarSubstitution( tempvslookup );
+	const char *temptopic = replaceVar( ctx->topic, tempvslookup );
+
+		/* Build Humidity topic */
+	struct _VarSubstitution humvslookup[] = {
+		{ "%FIGURE%", "Humidity" },	/* MUST BE THE 1ST VARIABLE */
+		{ NULL }
+	};
+	init_VarSubstitution( humvslookup );
+	const char *humtopic = replaceVar( ctx->topic, humvslookup );
+
+	publishLog('I', "[%s] Temperature : '%s'", ctx->uid, temptopic);
+	publishLog('I', "[%s] Humidity : '%s'", ctx->uid, humtopic);
+
 	for(;;){	/* Infinite loop to publish data */
 		if(ctx->disabled){
 			publishLog('T', "SHT31 '%s' is disabled", ctx->uid);

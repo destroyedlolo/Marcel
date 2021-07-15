@@ -190,29 +190,45 @@ char *stradd(char *p, const char *s, bool addspace){
 	return(np);
 }
 
-char *replaceVar(char *arg){
-/* Replace "variables" in given string.
- * Known variable :
- * 	%ClientID% = Marcel's ClientID
- */
-	removeLF(arg);
-	size_t idx, idxd, 			/* source and destination indexes */
-		sz, max=strlen(arg);	/* size of allocated area and max index */
-	char *s = malloc( sz=max+1 );
+void init_VarSubstitution( struct _VarSubstitution *tbl ){
+	while(tbl->var){
+		tbl->lvar = strlen(tbl->var);
+		tbl->lval = strlen(tbl->val);
+		tbl++;
+	}
+}
 
+char *replaceVar( const char *arg, struct _VarSubstitution *lookup ){
+	size_t idx, idxd, 				/* source and destination indexes */
+		sz, max=strlen(arg);		/* size of allocated area and max index */
+
+	char *s = malloc( sz=max+1 );	/* resulting string */
 	assert(s);
 
 	for(idx = idxd = 0; idx<max; idx++){
-		if(arg[idx] == '%' && !strncmp(arg+idx, "%ClientID%",10) ){
-			sz += strlen(cfg.ClientID)-10;
-			s = realloc(s, sz);
-			assert(s);
-			strcpy(s+idxd, cfg.ClientID);
-			idxd += strlen(cfg.ClientID);	/* Skip ClientID */
-			idx += 9;	/* Skip %ClientID% */
+		if(arg[idx] == '%'){
+			bool found=false;
+			struct _VarSubstitution *t;
+
+			for(t=lookup; t->var; t++){
+				if(!strncmp(arg+idx, t->var, t->lvar)){
+					sz += t->lval - t->lvar;
+					assert(s = realloc(s, sz));
+					strcpy(s+idxd, t->val);		/* Insert the value */
+					idxd += t->lval;			/* Skip variable's content */
+					idx += t->lvar-1;				/* Skip variable's name */
+
+					found=true;
+					break;
+				}
+			}
+
+			if(!found)
+				s[idxd++] = arg[idx];
 		} else
 			s[idxd++] = arg[idx];
 	}
+
 	s[idxd] = 0;
 	return s;
 }
@@ -329,18 +345,27 @@ static void read_configuration( const char *fch){
 		exit(EXIT_FAILURE);
 	}
 
+		/* Build ClientID lookup */
+	struct _VarSubstitution vslookup[] = {
+		{ "%ClientID%", cfg.ClientID },	/* MUST BE THE 1ST VARIABLE */
+		{ NULL }
+	};
+	init_VarSubstitution( vslookup );
+
 	while(fgets(l, MAXLINE, f)){
 		if(*l == '#' || *l == '\n')
 			continue;
 
-		if((arg = striKWcmp(l,"Broker="))){
+		if((arg = striKWcmp(l,"ClientID="))){
+			assert( cfg.ClientID = strdup( removeLF(arg) ) );
+			vslookup[0].val = cfg.ClientID;
+			vslookup[0].lval = strlen(cfg.ClientID);
+			if(verbose)
+				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
+		} else if((arg = striKWcmp(l,"Broker="))){
 			assert( cfg.Broker = strdup( removeLF(arg) ) );
 			if(verbose)
 				printf("Broker : '%s'\n", cfg.Broker);
-		} else if((arg = striKWcmp(l,"ClientID="))){
-			assert( cfg.ClientID = strdup( removeLF(arg) ) );
-			if(verbose)
-				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
 		} else if((arg = striKWcmp(l,"MinVersion="))){
 			float v = atof(arg);
 			if( v > (float)atof(MARCEL_VERSION)){
@@ -879,7 +904,7 @@ static void read_configuration( const char *fch){
 				publishLog('F', "Configuration issue : Topic directive outside a section");
 				exit(EXIT_FAILURE);
 			}
-			last_section->common.topic = replaceVar( arg );
+			last_section->common.topic = removeLF(replaceVar(arg, vslookup));
 			if(verbose)
 				printf("\tTopic : '%s'\n", last_section->common.topic);
 		} else if((arg = striKWcmp(l,"ErrorTopic="))){
