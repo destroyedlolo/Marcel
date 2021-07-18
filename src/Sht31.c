@@ -65,14 +65,17 @@ void *process_Sht31(void *actx){
 
 		char data[6];
 
-		data[0] = 0x2c;	/* high repeatability measurement command */
+		data[0] = 0x2c;	/* high repeatability measurement command with clock stretching */
 		data[1] = 0x06;
 		write(fd, data, 2);
-		sleep(1);
+/* Thanks to clock stretching, it's not needed as the reading will be possible
+ * only after acquisition.
+ * sleep(1); 
+ */
 
 		if(read(fd, data, 6) != 6){	/* Read the result */
 			publishLog('E', "[%s] I/O error", ctx->uid);
-		} else {
+		} else {	/* Conversion formulas took from SHT31 datasheet */
 			double val = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
 			printf("Temp : %.2f\n", val);
 
