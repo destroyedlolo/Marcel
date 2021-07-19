@@ -65,24 +65,36 @@ void *process_Sht31(void *actx){
 
 		char data[6];
 
-		data[0] = 0x2c;	/* high repeatability measurement command with clock stretching */
-		data[1] = 0x06;
-		write(fd, data, 2);
+		data[0] = 0x2c;	/* clock stretching */
+		data[1] = 0x06; /* high repeatability measurement command */
+		if(write(fd, data, 2) != 2){
+			close(fd);
+			publishLog('E', "[%s] write I/O error", ctx->uid);
+		} else {
+
 /* Thanks to clock stretching, it's not needed as the reading will be possible
  * only after acquisition.
  * sleep(1); 
  */
 
-		if(read(fd, data, 6) != 6){	/* Read the result */
-			publishLog('E', "[%s] I/O error", ctx->uid);
-		} else {	/* Conversion formulas took from SHT31 datasheet */
-			double val = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
-			printf("Temp : %.2f\n", val);
+			if(read(fd, data, 6) != 6){	/* Read the result */
+				close(fd);
+				publishLog('E', "[%s] I/O error", ctx->uid);
+			} else {	/* Conversion formulas took from SHT31 datasheet */
+				double val;
+				char t[8];
 
-			val = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
-			printf("Hum : %.2f\n", val);
+				close(fd);	/* Release the bus as soon as possible */
+
+				val = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
+				sprintf(t, "%.2f", val);
+				mqttpublish(cfg.client, temptopic, strlen(t), t, 0);
+
+				val = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
+				sprintf(t, "%.2f", val);
+				mqttpublish(cfg.client, humtopic, strlen(t), t, 0);
+			}
 		}
-		close(fd);
 
 		sleep(ctx->sample);
 	}
