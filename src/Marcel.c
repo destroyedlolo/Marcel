@@ -65,6 +65,7 @@
 #include "RFXtrx_marcel.h"
 #include "REST.h"
 #include "OutFile.h"
+#include "Sht31.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -189,29 +190,45 @@ char *stradd(char *p, const char *s, bool addspace){
 	return(np);
 }
 
-char *replaceVar(char *arg){
-/* Replace "variables" in given string.
- * Known variable :
- * 	%ClientID% = Marcel's ClientID
- */
-	removeLF(arg);
-	size_t idx, idxd, 			/* source and destination indexes */
-		sz, max=strlen(arg);	/* size of allocated area and max index */
-	char *s = malloc( sz=max+1 );
+void init_VarSubstitution( struct _VarSubstitution *tbl ){
+	while(tbl->var){
+		tbl->lvar = strlen(tbl->var);
+		tbl->lval = strlen(tbl->val);
+		tbl++;
+	}
+}
 
+char *replaceVar( const char *arg, struct _VarSubstitution *lookup ){
+	size_t idx, idxd, 				/* source and destination indexes */
+		sz, max=strlen(arg);		/* size of allocated area and max index */
+
+	char *s = malloc( sz=max+1 );	/* resulting string */
 	assert(s);
 
 	for(idx = idxd = 0; idx<max; idx++){
-		if(arg[idx] == '%' && !strncmp(arg+idx, "%ClientID%",10) ){
-			sz += strlen(cfg.ClientID)-10;
-			s = realloc(s, sz);
-			assert(s);
-			strcpy(s+idxd, cfg.ClientID);
-			idxd += strlen(cfg.ClientID);	/* Skip ClientID */
-			idx += 9;	/* Skip %ClientID% */
+		if(arg[idx] == '%'){
+			bool found=false;
+			struct _VarSubstitution *t;
+
+			for(t=lookup; t->var; t++){
+				if(!strncmp(arg+idx, t->var, t->lvar)){
+					sz += t->lval - t->lvar;
+					assert(s = realloc(s, sz));
+					strcpy(s+idxd, t->val);		/* Insert the value */
+					idxd += t->lval;			/* Skip variable's content */
+					idx += t->lvar-1;				/* Skip variable's name */
+
+					found=true;
+					break;
+				}
+			}
+
+			if(!found)
+				s[idxd++] = arg[idx];
 		} else
 			s[idxd++] = arg[idx];
 	}
+
 	s[idxd] = 0;
 	return s;
 }
@@ -328,18 +345,27 @@ static void read_configuration( const char *fch){
 		exit(EXIT_FAILURE);
 	}
 
+		/* Build ClientID lookup */
+	struct _VarSubstitution vslookup[] = {
+		{ "%ClientID%", cfg.ClientID },	/* MUST BE THE 1ST VARIABLE */
+		{ NULL }
+	};
+	init_VarSubstitution( vslookup );
+
 	while(fgets(l, MAXLINE, f)){
 		if(*l == '#' || *l == '\n')
 			continue;
 
-		if((arg = striKWcmp(l,"Broker="))){
+		if((arg = striKWcmp(l,"ClientID="))){
+			assert( cfg.ClientID = strdup( removeLF(arg) ) );
+			vslookup[0].val = cfg.ClientID;
+			vslookup[0].lval = strlen(cfg.ClientID);
+			if(verbose)
+				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
+		} else if((arg = striKWcmp(l,"Broker="))){
 			assert( cfg.Broker = strdup( removeLF(arg) ) );
 			if(verbose)
 				printf("Broker : '%s'\n", cfg.Broker);
-		} else if((arg = striKWcmp(l,"ClientID="))){
-			assert( cfg.ClientID = strdup( removeLF(arg) ) );
-			if(verbose)
-				printf("MQTT Client ID : '%s'\n", cfg.ClientID);
 		} else if((arg = striKWcmp(l,"MinVersion="))){
 			float v = atof(arg);
 			if( v > (float)atof(MARCEL_VERSION)){
@@ -584,6 +610,18 @@ static void read_configuration( const char *fch){
 			last_section = n;
 			if(verbose)
 				printf("Entering section REST '%s'\n", n->REST.uid );
+		} else if((arg = striKWcmp(l,"*SHT31="))){
+			union CSection *n = createCSection( sizeof(struct _Sht31), arg );
+			n->common.section_type = MSRC_SHT31;
+			n->Sht.i2c_addr = 0x44;
+
+			if(last_section)
+				last_section->common.next = n;
+			else	/* First section */
+				cfg.sections = n;
+			last_section = n;
+			if(verbose)
+				printf("Entering SHT31 section '%s'\n", n->common.uid);
 		} else if(!strcmp(l,"Randomize\n")){	/* Randomize FFV starting */
 			cfg.Randomize = true;
 			if(verbose)
@@ -628,17 +666,6 @@ static void read_configuration( const char *fch){
 			assert( last_section->FFV.latch = strdup( removeLF(arg) ));
 			if(verbose)
 				printf("\tLatch file : '%s'\n", last_section->FFV.latch);
-		} else if((arg = striKWcmp(l,"Offset="))){
-			if(!last_section || last_section->common.section_type != MSEC_FFV){
-				publishLog('F', "Configuration issue : Offset directive outside a FFV section");
-				exit(EXIT_FAILURE);
-			}
-			last_section->FFV.offset = atof(arg);
-			if(verbose){
-				printf("\tOffset : %f\n", last_section->FFV.offset);
-				if(!last_section->FFV.offset)
-					puts("*W*\tIs it normal it's a NULL offset ?");
-			}
 		} else if(!strcmp(l,"safe85\n")){		/* This section is currently disabled */
 			if(!last_section || last_section->common.section_type != MSEC_FFV){
 				publishLog('F', "Configuration issue : safe85 directive outside a FFV section");
@@ -647,6 +674,42 @@ static void read_configuration( const char *fch){
 			last_section->FFV.safe85 = true;
 			if(verbose)
 				puts("\tsafe85");
+		} else if((arg = striKWcmp(l,"Offset="))){
+			float offset;
+			switch(last_section ? last_section->common.section_type : MSEC_INVALID){
+			case MSEC_FFV:
+				offset = last_section->FFV.offset = atof(arg);
+				break;
+			case MSRC_SHT31:
+				offset = last_section->Sht.offset = atof(arg);
+				break;
+			default:
+				publishLog('F', "Configuration issue : Offset directive outside a FFV or SHT31 section");
+				exit(EXIT_FAILURE);
+			}
+
+			if(verbose){
+				printf("\tOffset : %f\n", offset);
+				if(!offset)
+					puts("*W*\tIs it normal it's a NULL offset ?");
+			}
+		} else if((arg = striKWcmp(l,"Device="))){
+			if(!last_section || last_section->common.section_type != MSRC_SHT31){
+				publishLog('F', "Configuration issue : Device directive outside a SHT31 section");
+				exit(EXIT_FAILURE);
+			}
+			assert( last_section->Sht.device = strdup( removeLF(arg) ));
+			if(verbose)
+				printf("\tDevice : '%s'\n", last_section->Sht.device);
+		} else if((arg = striKWcmp(l,"Address="))){
+			char *dummy;
+			if(!last_section || last_section->common.section_type != MSRC_SHT31){
+				publishLog('F', "Configuration issue : Address directive outside a SHT31 section");
+				exit(EXIT_FAILURE);
+			}
+			last_section->Sht.i2c_addr = strtol(arg, &dummy, 16);
+			if(verbose)
+				printf("\tAddress : '0x%02x'\n", last_section->Sht.i2c_addr);
 		} else if((arg = striKWcmp(l,"Host="))){
 			if(!last_section || last_section->common.section_type != MSEC_UPS){
 				publishLog('F', "Configuration issue : Host directive outside a UPS section");
@@ -841,7 +904,7 @@ static void read_configuration( const char *fch){
 				publishLog('F', "Configuration issue : Topic directive outside a section");
 				exit(EXIT_FAILURE);
 			}
-			last_section->common.topic = replaceVar( arg );
+			last_section->common.topic = removeLF(replaceVar(arg, vslookup));
 			if(verbose)
 				printf("\tTopic : '%s'\n", last_section->common.topic);
 		} else if((arg = striKWcmp(l,"ErrorTopic="))){
@@ -1231,6 +1294,22 @@ int main(int ac, char **av){
 					publishLog('E', "[%s] %s : %s", s->Look4Changes.uid, s->Look4Changes.dir, emsg);
 				}
 			}
+			break;
+#endif
+#ifdef SHT31
+		case MSRC_SHT31:
+			if( !s->common.topic ){
+				s->common.topic = s->common.uid;
+				publishLog('W', "[%s] no topic specified, using the uid.", s->common.uid);
+			}
+			if(s->common.sample){
+				if(pthread_create( &(s->common.thread), &thread_attr, process_Sht31, s) < 0){
+					publishLog('F', "[%s] Can't create a processing thread", s->common.uid);
+					exit(EXIT_FAILURE);
+				}
+			} else
+				publishLog('E', "Can't launch SHT31 for '%s' : 0 waiting delay", s->FFV.topic);
+			firstFFV=true;
 			break;
 #endif
 		default :	/* Ignore unsupported type */

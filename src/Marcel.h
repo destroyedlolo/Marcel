@@ -46,7 +46,8 @@ enum _tp_msec {
 	MSEC_METEO3H,		/* 3H meteo */
 	MSEC_METEOD,		/* Daily meteo */
 	MSEC_RTSCMD,		/* Somfy RTS commands */
-	MSEC_REST			/* REST query */
+	MSEC_REST,			/* REST query */
+	MSRC_SHT31			/* Sht31 humidity sensor */
 };
 
 struct var {	/* Storage for var list */
@@ -249,6 +250,23 @@ union CSection {
 		int failfuncid;
 		uint32_t did;		/* ID corresponding to this device */
 	} RTSCmd;
+	struct _Sht31 {
+		union CSection *next;
+		enum _tp_msec section_type;
+		pthread_t thread;	/* Child to handle this section */
+		const char *uid;	/* Unique identifier */
+		int h;				/* hash code for this id */
+		const char *topic;	/* Root topic */
+		bool disabled;		/* this section is currently disabled */
+		bool keep;			/* Stay alive in cas of failure */
+		bool retained;		/* send MQTT retained message */
+		int sample;
+		const char *failfunc;	/* Lua function to be called in case of failure */
+		int failfuncid;
+		const char *device;		/* I2C device */
+		uint8_t i2c_addr;	/* I2C address (default : 0x44) */
+		float offset;		/* Offset to apply to the raw value */
+	} Sht;
 };
 
 struct notification {	/* Storage for named notification */
@@ -293,6 +311,29 @@ extern char *mystrdup(const char *);
 #define strdup(s) mystrdup(s)
 
 extern size_t socketreadline( int, char *, size_t);
+
+	/* Lookup values for variables substitution
+	 *	Replace all occurrences of given variables with values
+	 *	Variables' name have to contains enclosing %
+	 *	(f.e "%ClientID%")
+	 *
+	 *	The list must NULL terminated
+	 */
+struct _VarSubstitution {
+	const char *var;	/* Variable's name */
+	const char *val;	/* Value */
+	size_t lvar;		/* size of the variable name (initialize to 0)*/
+	size_t lval;		/* size of the value (initialize to 0)*/
+};
+
+	/* Calculate lengths */
+extern void init_VarSubstitution( struct _VarSubstitution * );
+
+	/* replacement
+	 * Lookup table must has been initialized before.
+	 * Resulting string is dynamically allocated.
+	 */
+extern char *replaceVar( const char *, struct _VarSubstitution * );
 
 	/* Logging */
 extern void publishLog( char, const char *, ...);

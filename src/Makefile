@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -DINOTIFY -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99
+cc=gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -DINOTIFY -DSHT31 -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99
 opts=
 
 Alerting.o : Alerting.c Marcel.h Alerting.h DList.h Makefile 
@@ -37,7 +37,7 @@ Lua.o : Lua.c Marcel.h Version.h Alerting.h DList.h MQTT_tools.h \
 
 Marcel.o : Marcel.c Marcel.h Version.h FFV.h Freebox.h UPS.h \
   DeadPublisherDetection.h MQTT_tools.h Alerting.h DList.h Every.h \
-  Meteo.h RFXtrx_marcel.h REST.h OutFile.h Makefile 
+  Meteo.h RFXtrx_marcel.h REST.h OutFile.h Sht31.h Makefile 
 	$(cc) -c -o Marcel.o Marcel.c $(opts) 
 
 Meteo.o : Meteo.c Meteo.h Marcel.h Version.h MQTT_tools.h \
@@ -57,14 +57,18 @@ RFXtrx_marcel.o : RFXtrx_marcel.c RFXtrx_marcel.h Marcel.h RFXtrx.h \
   Makefile 
 	$(cc) -c -o RFXtrx_marcel.o RFXtrx_marcel.c $(opts) 
 
+Sht31.o : Sht31.c Marcel.h Sht31.h MQTT_tools.h Makefile 
+	$(cc) -c -o Sht31.o Sht31.c $(opts) 
+
 UPS.o : UPS.c UPS.h Marcel.h MQTT_tools.h Makefile 
 	$(cc) -c -o UPS.o UPS.c $(opts) 
 
-../Marcel : UPS.o RFXtrx_marcel.o REST.o OutFile.o MQTT_tools.o \
-  Meteo.o Marcel.o Lua.o Freebox.o FFV.o Every.o DList.o \
-  DeadPublisherDetection.o CURL_helpers.o Alerting.o Makefile 
-	 $(cc) -o ../Marcel UPS.o RFXtrx_marcel.o REST.o OutFile.o \
+../Marcel : UPS.o Sht31.o RFXtrx_marcel.o REST.o OutFile.o \
   MQTT_tools.o Meteo.o Marcel.o Lua.o Freebox.o FFV.o Every.o DList.o \
-  DeadPublisherDetection.o CURL_helpers.o Alerting.o $(opts) 
+  DeadPublisherDetection.o CURL_helpers.o Alerting.o Makefile 
+	 $(cc) -o ../Marcel UPS.o Sht31.o RFXtrx_marcel.o REST.o \
+  OutFile.o MQTT_tools.o Meteo.o Marcel.o Lua.o Freebox.o FFV.o \
+  Every.o DList.o DeadPublisherDetection.o CURL_helpers.o Alerting.o \
+  $(opts) 
 
 all: ../Marcel 

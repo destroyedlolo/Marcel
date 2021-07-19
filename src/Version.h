@@ -31,19 +31,21 @@
  * 18/08/2018	- LF - v6.13 - Add absolute time to Every
  * 25/11/2018	- LF - v6.14 - Add safe85 to FFV
  * 27/07/2020	- LF - v6.15 - Add Copyright to Lua
+ * 			-----------
  * 09/07/2020	- LF - v7.00 - Create "Trace" log level
  * 01/08/2020	- LF - v7.01 - Add Log()
  * 02/08/2020	- LF - v7.02 - Directives can have variables (replaceVar())
  * 27/09/2020	- LF - v7.03 - Add Randomize
  * 09/04/2021	- LF - v7.04 - Add Retained directive
  * 25/06/2021	- LF - v7.05 - Introduce FailFunc
+ * 10/07/2021	- LF - v7.06 - Add SHT31 support
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define MARCEL_VERSION "7.0400"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "7.0601"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
