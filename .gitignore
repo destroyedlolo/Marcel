@@ -33,3 +33,7 @@
 
 # test configuration file
 Test.conf
+
+# VI's
+*.sw*
+

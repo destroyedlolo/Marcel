@@ -195,7 +195,7 @@ static int lmSendMsgSMS(lua_State *L){
 
 static int lmRiseAlert(lua_State *L){
 	if(lua_gettop(L) != 2){
-		publishLog('E', "In your Lua code, RiseAlert() requires 2 arguments : topic, message");
+		publishLog('E', "In your Lua code, RiseAlert() requires 2 arguments : title, message");
 		return 0;
 	}
 
@@ -208,7 +208,7 @@ static int lmRiseAlert(lua_State *L){
 
 static int lmRiseAlertSMS(lua_State *L){
 	if(lua_gettop(L) != 2){
-		publishLog('E', "In your Lua code, RiseAlertSMS() requires 2 arguments : topic, message");
+		publishLog('E', "In your Lua code, RiseAlertSMS() requires 2 arguments : title, message");
 		return 0;
 	}
 
@@ -221,7 +221,7 @@ static int lmRiseAlertSMS(lua_State *L){
 
 static int lmClearAlert(lua_State *L){
 	if(lua_gettop(L) != 1){
-		publishLog('E', "In your Lua code, ClearAlert() requires 1 argument : topic");
+		publishLog('E', "In your Lua code, ClearAlert() requires 1 argument : title");
 		return 0;
 	}
 
