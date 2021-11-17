@@ -126,6 +126,9 @@ void publishLog( char l, const char *msg, ...){
 		case 'I':
 			sub = "/Log/Information";
 			break;
+		case 'C':
+			sub = "/Log/Corrected";
+			break;
 		default :	/* Trace */
 			sub = "/Log";
 		}
