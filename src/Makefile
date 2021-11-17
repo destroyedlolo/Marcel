@@ -8,7 +8,8 @@ gotoall: all
 cc=gcc -Wall -O2 -DxDEBUG -DRFXTRX -DFREEBOX -DUPS -DMETEO -DINOTIFY -DSHT31 -lcurl -lpthread -lpaho-mqtt3c -DLUA `pkg-config --cflags lua` `pkg-config --libs lua` `pkg-config --cflags json-c` `pkg-config --libs json-c` -std=c99
 opts=
 
-Alerting.o : Alerting.c Marcel.h Alerting.h DList.h Makefile 
+Alerting.o : Alerting.c Marcel.h Alerting.h DList.h MQTT_tools.h \
+  Makefile 
 	$(cc) -c -o Alerting.o Alerting.c $(opts) 
 
 CURL_helpers.o : CURL_helpers.c CURL_helpers.h Marcel.h Makefile 

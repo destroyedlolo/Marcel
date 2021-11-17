@@ -288,7 +288,6 @@ extern struct Config {
 	bool L4Cgrouped;		/* Look4Changes are all grouped */
 	struct _Look4Changes *first_L4C;	/* Pointer to the first subscription */
 	bool ConLostFatal;		/* Die if broker connection is lost */
-	bool publishlog;		/* Publish logs */
 	const char *luascript;	/* file containing Lua functions */
 	const char *OwAlarm;	/* Path to 1-wire alarm directory */
 	int OwAlarmSample;		/* Delay b/w 2 sample on alarm directory */

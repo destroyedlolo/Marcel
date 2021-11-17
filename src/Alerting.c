@@ -10,6 +10,7 @@
 
 #include "Marcel.h"
 #include "Alerting.h"
+#include "MQTT_tools.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -128,8 +129,22 @@ void pAlertCmd( const char *cmd, const char *id, const char *msg ){
 	fclose(f);
 }
 
-void AlertCmd( const char *id, const char *msg ){
+static void AlertCmd( const char *id, const char *msg ){
 	pAlertCmd(cfg.AlertCmd, id, msg);
+}
+
+void sentAlertsCounter( void ){
+	unsigned int nbre=0;
+
+	for(struct alert *an = (struct alert *)alerts.first; an; an = (struct alert *)an->node.next)
+		nbre++;
+
+	char tmsg[31];
+	char ttopic[ strlen(cfg.ClientID) + 13 + 1 ];	/* "/AlertsCounter" */
+	sprintf(ttopic, "%s%s", cfg.ClientID, "/AlertsCounter");
+	sprintf(tmsg, "%u", nbre);
+
+	mqttpublish( cfg.client, ttopic, strlen(tmsg), tmsg, 0);
 }
 
 static struct alert *findalert(const char *id){
@@ -176,6 +191,8 @@ void init_alerting(void){
 		publishLog('W', "Alert's command not configured : disabling unamed external alerting");
 	if(!cfg.notiflist)
 		publishLog('W', "No named notification configured : disabling");
+
+	sentAlertsCounter();
 }
 
 void SendAlert(const char *id, const char *msg, int withSMS){
@@ -185,7 +202,12 @@ void SendAlert(const char *id, const char *msg, int withSMS){
 		sendSMS( id, smsg );
 	AlertCmd( id, msg );
 
-	publishLog('T', "Alert sent : '%s' : '%s'", id, msg);
+		/* SendAlert() is also called by Lua's SendMessage*()
+		 * Maybe it would be better to use 'Trace' here and send
+		 * 'Error' in RiseAlert().
+		 * But, for the moment, it's like that :)
+		 */
+	publishLog('E', "[%s] %s", id, msg);
 }
 
 void RiseAlert(const char *id, const char *msg, int withSMS){
@@ -196,6 +218,7 @@ void RiseAlert(const char *id, const char *msg, int withSMS){
 		assert( an = malloc( sizeof(struct alert) ) );
 		assert( an->alert = strdup( id ) );
 		DLAdd( &alerts, (struct DLNode *)an );
+		sentAlertsCounter();
 	}
 }
 
@@ -207,11 +230,12 @@ void AlertIsOver(const char *id){
 		sprintf( smsg, "%s : recovered", id );
 		sendSMS( id, smsg );
 
-		publishLog('T', "Alert cleared for '%s'", id);
+		publishLog('C', "Alert cleared for '%s'", id);
 
 		DLRemove( &alerts, (struct DLNode *)an );
 		free( (void *)an->alert );
 		free( an );
+		sentAlertsCounter();
 	}
 }
 

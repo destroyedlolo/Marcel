@@ -39,13 +39,14 @@
  * 09/04/2021	- LF - v7.04 - Add Retained directive
  * 25/06/2021	- LF - v7.05 - Introduce FailFunc
  * 10/07/2021	- LF - v7.06 - Add SHT31 support
+ * 16/11/2021	- LF - v7.07 - Publish alerts
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define MARCEL_VERSION "7.0602"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "7.0701"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
