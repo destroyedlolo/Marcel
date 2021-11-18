@@ -231,6 +231,12 @@ static int lmClearAlert(lua_State *L){
 	return 0;
 }
 
+static int lmSendAlertsCounter(lua_State *L){
+	sentAlertsCounter();
+
+	return 0;
+}
+
 static int lmPublish(lua_State *L){
 	int retain = 0;
 	if(lua_gettop(L) < 2 || lua_gettop(L) > 3){
@@ -294,6 +300,7 @@ static const struct luaL_reg MarcelLib [] = {
 	{"RiseAlert", lmRiseAlert},		/* ... and send only a mail */
 	{"RiseAlertSMS", lmRiseAlertSMS},	/* ... and send both a mail and a SMS */
 	{"ClearAlert", lmClearAlert},
+	{"SendAlertsCounter", lmSendAlertsCounter},
 	{"MQTTPublish", lmPublish},
 	{"Hostname", lmHostname},
 	{"ClientID", lmClientID},
