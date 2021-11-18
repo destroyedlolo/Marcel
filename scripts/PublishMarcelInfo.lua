@@ -5,4 +5,5 @@
 function PublishMarcelInfo()
 	Marcel.Log('I', "Marcel's version ".. Marcel.Version() )
 	Marcel.Log('I', Marcel.Copyright() )
+	Marcel.SendAlertsCounter()
 end
