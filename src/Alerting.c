@@ -230,7 +230,7 @@ void AlertIsOver(const char *id){
 		sprintf( smsg, "%s : recovered", id );
 		sendSMS( id, smsg );
 
-		publishLog('C', "Alert cleared for '%s'", id);
+		publishLog('C', "[%s] Alert recovered", id);
 
 		DLRemove( &alerts, (struct DLNode *)an );
 		free( (void *)an->alert );
