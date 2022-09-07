@@ -4,4 +4,4 @@
 
 cd src
 
-LFMakeMaker -v +f=Makefile -cc='gcc -Wall -O2' *.c -t=../Marcel > Makefile
+LFMakeMaker -v +f=Makefile -cc='gcc -Wall -O2 -DDEBUG' *.c -t=../Marcel > Makefile

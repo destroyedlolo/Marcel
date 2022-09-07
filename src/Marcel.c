@@ -56,6 +56,56 @@
 #include "Marcel.h"
 #include "Version.h"
 
+#include <unistd.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <libgen.h>
+
+bool verbose = false;
+bool configtest = false;
+
+#ifdef DEBUG
+bool debug = false;
+#endif
+
+
 int main(int ac, char **av){
+	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
+	int c;
+
+	while((c = getopt(ac, av, "hvtf:")) != EOF) switch(c){
+	case 't':
+		configtest = true;
+	case 'v':
+		puts(MARCEL_COPYRIGHT);
+		verbose = true;
+		break;
+#ifdef DEBUG
+	case 'd':
+		debug = true;
+		break;
+#endif
+	case 'h':
+	default:
+		fprintf( c=='?' ? stderr: stdout,
+			MARCEL_COPYRIGHT
+			"\nA lightweight MQTT publisher\n"
+			"\n"
+			"Known options are :\n"
+			"\t-h : this online help\n"
+			"\t-v : enable verbose messages\n"
+#ifdef DEBUG
+			"\t-d : enable debug messages (overwrite -q)\n"
+#endif
+			"\t-f<file> : read <file> for configuration\n"
+			"\t\t(default is '%s')\n"
+			"\t-t : test configuration file and exit\n",
+			conf_file
+		);
+		exit( c=='?' ? EXIT_FAILURE : EXIT_SUCCESS );
+	}
+
+	exit(EXIT_SUCCESS);
 }
 

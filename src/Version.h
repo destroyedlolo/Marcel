@@ -40,18 +40,27 @@
  * 25/06/2021	- LF - v7.05 - Introduce FailFunc
  * 10/07/2021	- LF - v7.06 - Add SHT31 support
  * 16/11/2021	- LF - v7.07 - Publish alerts
+ * 			-----------
+ * 06/09/2022	- LF - v8.00 - redesign for modularity
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
 
-#define MARCEL_VERSION "7.0703"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0000"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
 							 */
 
-#define MARCEL_COPYRIGHT "Marcel (c) L.Faillie 2015-2021"
+#define MARCEL_COPYRIGHT "Marcel "MARCEL_VERSION" (c) L.Faillie 2015-2022"
+
+#ifdef DEBUG
+#	define DEFAULT_CONFIGURATION_FILE	"config"
+#else
+#	define DEFAULT_CONFIGURATION_FILE	"/usr/local/etc/Marcel"
+#endif
+
 
 #endif

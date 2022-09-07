@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -O2
+cc=gcc -Wall -O2 -DDEBUG
 opts=
 
 DList.o : DList.c DList.h Makefile 
