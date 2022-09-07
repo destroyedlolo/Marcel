@@ -74,10 +74,6 @@ bool configtest = false;
 bool debug = false;
 #endif
 
-	/* buffer to read files */
-#define MAXL 2048
-static char l[MAXL];
-
 	/* ***
 	 * Read configuration directory
 	 * ***/
@@ -87,26 +83,37 @@ int acceptfile(const struct dirent *entry){
 }
 
 void read_configuration( const char *dir ){
-	size_t dirl = strlen(dir);
+	/* to avoid temporary storage for each file to read,
+	 * we chdir() to the configuration directory.
+	 * Consequently, files are accessible from the current
+	 * directory.
+	 */
 
-	assert(dirl < MAXL -2);
-	strcpy(l, dir);
-	char *file = l + dirl++;
-	*(file++) = '/';
-	*file = 0;
+		/* keep the cwd */
+	char *cwd = realpath(".", NULL);
+	if(!cwd){
+		perror("current directory");
+		exit( EXIT_FAILURE );
+	}
 
 #if DEBUG
-	if(debug)
-		printf("*d* reading config from : %s\n", l);
+	if(debug){
+		printf("*d* current directory : %s\n", cwd);
+		printf("*d* reading config from : %s\n", dir);
+	}
 #endif
 
-	int n;
-	struct dirent **namelist;
-	if((n = scandir(dir, &namelist, acceptfile, alphasort)) < 0){
+	if(chdir(dir)){	/* go to configuration directory */
 		perror(dir);
 		exit( EXIT_FAILURE );
 	}
 
+	int n;	/* read and sort files */
+	struct dirent **namelist;
+	if((n = scandir(".", &namelist, acceptfile, alphasort)) < 0){
+		perror(dir);
+		exit( EXIT_FAILURE );
+	}
 
 #if DEBUG
 	if(debug)
@@ -114,10 +121,17 @@ void read_configuration( const char *dir ){
 			printf("%s\n", namelist[i]->d_name);
 #endif
 
+		/* Cleanup */
 	while(n--)
 		free(namelist[n]);
 
 	free(namelist);
+
+	if(chdir(cwd)){
+		perror(cwd);
+		exit( EXIT_FAILURE );
+	}
+	free(cwd);
 }
 
 
