@@ -65,6 +65,7 @@
 
 #include <libgen.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 bool verbose = false;
 bool configtest = false;
@@ -81,9 +82,11 @@ static char l[MAXL];
 	 * Read configuration directory
 	 * ***/
 
+int acceptfile(const struct dirent *entry){
+	return(*entry->d_name != '.');	/* ignore dot files */
+}
+
 void read_configuration( const char *dir ){
-	DIR *dp;
-	struct dirent *entry;
 	size_t dirl = strlen(dir);
 
 	assert(dirl < MAXL -2);
@@ -97,22 +100,24 @@ void read_configuration( const char *dir ){
 		printf("*d* reading config from : %s\n", l);
 #endif
 
-	if(!(dp = opendir(dir))){
-		fprintf(stderr,"cannot open directory: %s\n", dir);
+	int n;
+	struct dirent **namelist;
+	if((n = scandir(dir, &namelist, acceptfile, alphasort)) < 0){
+		perror(dir);
 		exit( EXIT_FAILURE );
 	}
 
-	while((entry = readdir(dp))){
-		if(*entry->d_name == '.')	/* Ignore dot file */
-			continue;
 
-		size_t filel = strlen(entry->d_name);
-		assert(dirl + filel < MAXL -2);
-		strcpy(file, entry->d_name);
-puts(l);
-	}
+#if DEBUG
+	if(debug)
+		for(int i=0; i<n; i++)
+			printf("%s\n", namelist[i]->d_name);
+#endif
 
-	closedir(dp);
+	while(n--)
+		free(namelist[n]);
+
+	free(namelist);
 }
 
 
