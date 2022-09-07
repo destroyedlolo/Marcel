@@ -60,7 +60,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
+
 #include <libgen.h>
+#include <dirent.h>
 
 bool verbose = false;
 bool configtest = false;
@@ -69,17 +73,62 @@ bool configtest = false;
 bool debug = false;
 #endif
 
+	/* buffer to read files */
+#define MAXL 2048
+static char l[MAXL];
+
+	/* ***
+	 * Read configuration directory
+	 * ***/
+
+void read_configuration( const char *dir ){
+	DIR *dp;
+	struct dirent *entry;
+	size_t dirl = strlen(dir);
+
+	assert(dirl < MAXL -2);
+	strcpy(l, dir);
+	char *file = l + dirl++;
+	*(file++) = '/';
+	*file = 0;
+
+#if DEBUG
+	if(debug)
+		printf("*d* reading config from : %s\n", l);
+#endif
+
+	if(!(dp = opendir(dir))){
+		fprintf(stderr,"cannot open directory: %s\n", dir);
+		exit( EXIT_FAILURE );
+	}
+
+	while((entry = readdir(dp))){
+		if(*entry->d_name == '.')	/* Ignore dot file */
+			continue;
+
+		size_t filel = strlen(entry->d_name);
+		assert(dirl + filel < MAXL -2);
+		strcpy(file, entry->d_name);
+puts(l);
+	}
+
+	closedir(dp);
+}
+
 
 int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
 	int c;
 
-	while((c = getopt(ac, av, "hvtf:")) != EOF) switch(c){
+	while((c = getopt(ac, av, "hvtdf:")) != EOF) switch(c){
 	case 't':
 		configtest = true;
 	case 'v':
 		puts(MARCEL_COPYRIGHT);
 		verbose = true;
+		break;
+	case 'f':
+		conf_file = optarg;
 		break;
 #ifdef DEBUG
 	case 'd':
@@ -88,6 +137,11 @@ int main(int ac, char **av){
 #endif
 	case 'h':
 	default:
+		if( c != '?' && c != 'h'){
+			fprintf( stderr, "*F* invalid option -- '%c'\n", c);
+			c = '?';
+		}
+
 		fprintf( c=='?' ? stderr: stdout,
 			MARCEL_COPYRIGHT
 			"\nA lightweight MQTT publisher\n"
@@ -96,7 +150,7 @@ int main(int ac, char **av){
 			"\t-h : this online help\n"
 			"\t-v : enable verbose messages\n"
 #ifdef DEBUG
-			"\t-d : enable debug messages (overwrite -q)\n"
+			"\t-d : enable debug messages\n"
 #endif
 			"\t-f<file> : read <file> for configuration\n"
 			"\t\t(default is '%s')\n"
@@ -105,6 +159,8 @@ int main(int ac, char **av){
 		);
 		exit( c=='?' ? EXIT_FAILURE : EXIT_SUCCESS );
 	}
+
+	read_configuration( conf_file );
 
 	exit(EXIT_SUCCESS);
 }
