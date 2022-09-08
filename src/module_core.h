@@ -7,4 +7,7 @@
 
 #include "module.h"
 
+
+extern void init_module_core();
+
 #endif

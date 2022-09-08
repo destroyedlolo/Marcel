@@ -20,7 +20,7 @@ struct module {
 	const char *name;					/* module's name */
 	int module_index;
 
-	bool (*readconf)( const char * );	/* is provided line apply to this module */
+	bool (*readconf)( const char * );	/* is provided line apply to this module (true) */
 };
 
 extern int numbe_of_loaded_modules;

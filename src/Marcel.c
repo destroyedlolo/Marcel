@@ -79,11 +79,19 @@ bool debug = false;
 	 * Read configuration directory
 	 * ***/
 
-int acceptfile(const struct dirent *entry){
+static void process_conffile(const char *fch){
+	FILE *f;
+	char l[MAXLINE];
+
+	if(verbose)
+		printf("\n*C* Reading configuration file : '%s'\n--------------------------------\n", fch);
+}
+
+static int acceptfile(const struct dirent *entry){
 	return(*entry->d_name != '.');	/* ignore dot files */
 }
 
-void read_configuration( const char *dir ){
+static void read_configuration( const char *dir ){
 	/* to avoid temporary storage for each file to read,
 	 * we chdir() to the configuration directory.
 	 * Consequently, files are accessible from the current
@@ -116,11 +124,8 @@ void read_configuration( const char *dir ){
 		exit( EXIT_FAILURE );
 	}
 
-#if DEBUG
-	if(debug)
-		for(int i=0; i<n; i++)
-			printf("%s\n", namelist[i]->d_name);
-#endif
+	for(int i=0; i<n; i++)
+		process_conffile(namelist[i]->d_name);
 
 		/* Cleanup */
 	while(n--)
@@ -143,6 +148,10 @@ int main(int ac, char **av){
 	while((c = getopt(ac, av, "hvtdf:")) != EOF) switch(c){
 	case 't':
 		configtest = true;
+#ifdef DEBUG
+	case 'd':
+		debug = true;
+#endif
 	case 'v':
 		puts(MARCEL_COPYRIGHT);
 		verbose = true;
@@ -150,11 +159,6 @@ int main(int ac, char **av){
 	case 'f':
 		conf_file = optarg;
 		break;
-#ifdef DEBUG
-	case 'd':
-		debug = true;
-		break;
-#endif
 	case 'h':
 	default:
 		if( c != '?' && c != 'h'){
@@ -180,6 +184,7 @@ int main(int ac, char **av){
 		exit( c=='?' ? EXIT_FAILURE : EXIT_SUCCESS );
 	}
 
+	init_module_core();
 	read_configuration( conf_file );
 
 	exit(EXIT_SUCCESS);

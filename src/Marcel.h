@@ -24,5 +24,14 @@
 #ifndef MARCEL_H
 #define MARCEL_H
 
+#include <stdbool.h>
+
+#define MAXLINE 1024
+
+extern bool verbose;
+#ifdef DEBUG
+extern bool debug;
+#endif
+
 #endif
 
