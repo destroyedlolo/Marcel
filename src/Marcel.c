@@ -56,8 +56,9 @@
 #include "Marcel.h"
 #include "Version.h"
 
+#include "module_core.h"
+
 #include <unistd.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

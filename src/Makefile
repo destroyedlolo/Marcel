@@ -14,7 +14,10 @@ DList.o : DList.c DList.h Makefile
 Marcel.o : Marcel.c Marcel.h Version.h Makefile 
 	$(cc) -c -o Marcel.o Marcel.c $(opts) 
 
-../Marcel : Marcel.o DList.o Makefile 
-	 $(cc) -o ../Marcel Marcel.o DList.o $(opts) 
+module.o : module.c module.h Makefile 
+	$(cc) -c -o module.o module.c $(opts) 
+
+../Marcel : module.o Marcel.o DList.o Makefile 
+	 $(cc) -o ../Marcel module.o Marcel.o DList.o $(opts) 
 
 all: ../Marcel 
