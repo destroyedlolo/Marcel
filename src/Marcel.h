@@ -33,5 +33,7 @@ extern bool verbose;
 extern bool debug;
 #endif
 
+extern void publishLog( char l, const char *msg, ...);
+
 #endif
 

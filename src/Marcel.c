@@ -63,7 +63,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
+#include <stdarg.h>
+#include <errno.h>
 #include <libgen.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -76,6 +77,54 @@ bool debug = false;
 #endif
 
 	/* ***
+	 * Logging 
+	 * ***/
+
+void publishLog( char l, const char *msg, ...){
+	va_list args;
+	va_start(args, msg);
+
+	if(verbose || l=='E' || l=='F'){
+		char t[ strlen(msg) + 7 ];
+		sprintf(t, "*%c* %s\n", l, msg);
+		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
+	}
+
+ #if 0
+	if(cfg.client){
+		char *sub;
+		switch(l){
+		case 'F':
+			sub = "/Log/Fatal";
+			break;
+		case 'E':
+			sub = "/Log/Error";
+			break;
+		case 'W':
+			sub = "/Log/Warning";
+			break;
+		case 'I':
+			sub = "/Log/Information";
+			break;
+		case 'C':
+			sub = "/Log/Corrected";
+			break;
+		default :	/* Trace */
+			sub = "/Log";
+		}
+
+		char tmsg[1024];	/* No simple way here to know the message size */
+		char ttopic[ strlen(cfg.ClientID) + strlen(sub) + 1 ];
+		sprintf(ttopic, "%s%s", cfg.ClientID, sub);
+		vsnprintf(tmsg, sizeof(tmsg), msg, args);
+
+		mqttpublish( cfg.client, ttopic, strlen(tmsg), tmsg, 0);
+	}
+	va_end(args);
+#endif
+}
+
+	/* ***
 	 * Read configuration directory
 	 * ***/
 
@@ -85,6 +134,11 @@ static void process_conffile(const char *fch){
 
 	if(verbose)
 		printf("\n*C* Reading configuration file : '%s'\n--------------------------------\n", fch);
+
+	if(!(f=fopen(fch, "r"))){
+		publishLog('F', "%s : %s", fch, strerror( errno ));
+		exit(EXIT_FAILURE);
+	}
 }
 
 static int acceptfile(const struct dirent *entry){
