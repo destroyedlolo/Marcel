@@ -69,12 +69,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-bool verbose = false;
+struct Config cfg;
 bool configtest = false;
-
-#ifdef DEBUG
-bool debug = false;
-#endif
 
 	/* ***
 	 * Logging 
@@ -84,7 +80,7 @@ void publishLog( char l, const char *msg, ...){
 	va_list args;
 	va_start(args, msg);
 
-	if(verbose || l=='E' || l=='F'){
+	if(cfg.verbose || l=='E' || l=='F'){
 		char t[ strlen(msg) + 7 ];
 		sprintf(t, "*%c* %s\n", l, msg);
 		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
@@ -124,6 +120,70 @@ void publishLog( char l, const char *msg, ...){
 #endif
 }
 
+
+	/* ***
+	 * Variable substitution
+	 * ***/
+
+struct _VarSubstitution {
+	const char *var;	/* Variable's name */
+	const char *val;	/* Value */
+	size_t lvar;		/* size of the variable name (initialize to 0)*/
+	size_t lval;		/* size of the value (initialize to 0)*/
+};
+
+static void init_VarSubstitution( struct _VarSubstitution *tbl ){
+	while(tbl->var){
+		tbl->lvar = strlen(tbl->var);
+		tbl->lval = strlen(tbl->val);
+		tbl++;
+	}
+}
+
+
+/**
+ * @brief Replace variables found in the string by their value
+ *
+ * @param arg original string
+ * @param lookup variables lookup tables (name, value)
+ * @return malloced resulting string
+ */
+static char *replaceVar( const char *arg, struct _VarSubstitution *lookup ){
+	size_t idx, idxd, 				/* source and destination indexes */
+		sz, max=strlen(arg);		/* size of allocated area and max index */
+
+	char *s = malloc( sz=max+1 );	/* resulting string */
+	assert(s);
+
+	for(idx = idxd = 0; idx<max; idx++){
+		if(arg[idx] == '%'){
+			bool found=false;
+			struct _VarSubstitution *t;
+
+			for(t=lookup; t->var; t++){
+				if(!strncmp(arg+idx, t->var, t->lvar)){
+					sz += t->lval - t->lvar;
+					assert((s = realloc(s, sz)));
+					strcpy(s+idxd, t->val);		/* Insert the value */
+					idxd += t->lval;			/* Skip variable's content */
+					idx += t->lvar-1;			/* Skip variable's name */
+
+					found=true;
+					break;
+				}
+			}
+
+			if(!found)
+				s[idxd++] = arg[idx];
+		} else
+			s[idxd++] = arg[idx];
+	}
+
+	s[idxd] = 0;
+	return s;
+}
+
+
 	/* ***
 	 * Read configuration directory
 	 * ***/
@@ -132,13 +192,22 @@ static void process_conffile(const char *fch){
 	FILE *f;
 	char l[MAXLINE];
 
-	if(verbose)
+		/* Build ClientID lookup */
+	struct _VarSubstitution vslookup[] = {
+		{ "%ClientID%", NULL },	/* MUST BE THE 1ST VARIABLE */
+		{ NULL }
+	};
+	init_VarSubstitution( vslookup );
+
+	if(cfg.verbose)
 		printf("\n*C* Reading configuration file : '%s'\n--------------------------------\n", fch);
 
 	if(!(f=fopen(fch, "r"))){
 		publishLog('F', "%s : %s", fch, strerror( errno ));
 		exit(EXIT_FAILURE);
 	}
+
+	fclose(f);
 }
 
 static int acceptfile(const struct dirent *entry){
@@ -160,7 +229,7 @@ static void read_configuration( const char *dir ){
 	}
 
 #if DEBUG
-	if(debug){
+	if(cfg.debug){
 		printf("*d* current directory : %s\n", cwd);
 		printf("*d* reading config from : %s\n", dir);
 	}
@@ -200,15 +269,18 @@ int main(int ac, char **av){
 	int c;
 
 	while((c = getopt(ac, av, "hvtdf:")) != EOF) switch(c){
-	case 't':
-		configtest = true;
 #ifdef DEBUG
 	case 'd':
-		debug = true;
+		cfg.debug = true;
+		puts(MARCEL_COPYRIGHT);
+		cfg.verbose = true;
+		break;
 #endif
+	case 't':
+		configtest = true;
 	case 'v':
 		puts(MARCEL_COPYRIGHT);
-		verbose = true;
+		cfg.verbose = true;
 		break;
 	case 'f':
 		conf_file = optarg;

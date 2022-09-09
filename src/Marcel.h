@@ -25,13 +25,31 @@
 #define MARCEL_H
 
 #include <stdbool.h>
+#include <MQTTClient.h> /* PAHO library needed */
+
+/* **
+ * Configuration
+ *
+ * A structure is not really needed but it makes the code cleaner
+ * **/
 
 #define MAXLINE 1024
 
-extern bool verbose;
-#ifdef DEBUG
-extern bool debug;
-#endif
+extern struct Config {
+	bool verbose;
+	bool debug;
+
+		/* MQTT related */
+	const char *Broker;		/* Broker's URL */
+	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
+	MQTTClient client;
+	bool ConLostFatal;		/* Die if broker connection is lost */
+} cfg;
+
+
+	/* **
+	 * Utilities
+	 * **/
 
 extern void publishLog( char l, const char *msg, ...);
 

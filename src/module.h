@@ -6,7 +6,7 @@
 
 #ifndef MODULE_H
 
-#include <stdbool.h>
+#include "Marcel.h"
 
 	/* Modules are stored in a fixed length table. Their indexes are used
 	 * to reference them is sections (which module/method is handling this section)
