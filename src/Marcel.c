@@ -72,6 +72,36 @@
 struct Config cfg;
 bool configtest = false;
 
+
+	/* ***
+	 * Helpers
+	 * ***/
+/**
+ * @brief compares a string against a keyword
+ *
+ * @param s string to compare
+ * @param kw keyword
+ * @return remaining string if the keyword matches or NULL if not
+ */
+char *striKWcmp( char *s, const char *kw ){
+	size_t klen = strlen(kw);
+	if( strncasecmp(s,kw,klen) )
+		return NULL;
+	else
+		return s+klen;
+}
+
+/**
+ * @brief remove a potential LF at the end of the string
+ */
+char *removeLF(char *s){
+	size_t l=strlen(s);
+	if(l && s[--l] == '\n')
+		s[l] = 0;
+	return s;
+}
+
+
 	/* ***
 	 * Logging 
 	 * ***/
@@ -205,6 +235,12 @@ static void process_conffile(const char *fch){
 	if(!(f=fopen(fch, "r"))){
 		publishLog('F', "%s : %s", fch, strerror( errno ));
 		exit(EXIT_FAILURE);
+	}
+
+	while(fgets(l, MAXLINE, f)){
+		if(*l == '#' || *l == '\n')
+			continue;
+
 	}
 
 	fclose(f);

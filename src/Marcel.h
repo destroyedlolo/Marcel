@@ -52,6 +52,7 @@ extern struct Config {
 	 * **/
 
 extern void publishLog( char l, const char *msg, ...);
-
+extern char *striKWcmp( char *s, const char *kw );
+extern char *removeLF(char *s);
 #endif
 
