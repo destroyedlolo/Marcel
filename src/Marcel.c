@@ -224,7 +224,7 @@ static void process_conffile(const char *fch){
 
 		/* Build ClientID lookup */
 	struct _VarSubstitution vslookup[] = {
-		{ "%ClientID%", NULL },	/* MUST BE THE 1ST VARIABLE */
+		{ "%ClientID%", cfg.ClientID },	/* MUST BE THE 1ST VARIABLE */
 		{ NULL }
 	};
 	init_VarSubstitution( vslookup );
@@ -241,6 +241,10 @@ static void process_conffile(const char *fch){
 		if(*l == '#' || *l == '\n')
 			continue;
 
+		char *line = replaceVar(removeLF(l), vslookup);
+
+puts(line);
+		free(line);
 	}
 
 	fclose(f);
