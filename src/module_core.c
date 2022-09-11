@@ -21,11 +21,15 @@ static bool mc_readconf(const char *l){
 	const char *arg;
 
 	if((arg = striKWcmp(l,"ClientID="))){
-		assert( (cfg.ClientID = strdup( arg )) );
+		assert(( cfg.ClientID = strdup( arg ) ));
 		setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
 		if(cfg.verbose)
 			publishLog('C', "MQTT Client ID : '%s'", cfg.ClientID);
 		return true;
+	} else if((arg = striKWcmp(l,"Broker="))){
+		assert(( cfg.Broker = strdup( arg ) ));
+		if(cfg.verbose)
+			publishLog('C', "Broker : '%s'\n", cfg.Broker);
 	}
 
 	return false;
