@@ -46,13 +46,25 @@ extern struct Config {
 	bool ConLostFatal;		/* Die if broker connection is lost */
 } cfg;
 
+extern struct _VarSubstitution {
+	const char *var;	/* Variable's name */
+	const char *val;	/* Value */
+	int h;				/* hash of the variable's name */
+	size_t lvar;		/* size of the variable name (initialize to 0)*/
+	size_t lval;		/* size of the value (initialize to 0)*/
+} vslookup[];
+
 
 	/* **
 	 * Utilities
 	 * **/
 
 extern void publishLog( char l, const char *msg, ...);
-extern char *striKWcmp( char *s, const char *kw );
+extern const char *striKWcmp( const char *s, const char *kw );
 extern char *removeLF(char *s);
+extern int chksum(const char *s);
+
+extern bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const char *val, bool freeval);
+extern const char *getSubstitutionVar( struct _VarSubstitution *lookup, const char *name );
 #endif
 

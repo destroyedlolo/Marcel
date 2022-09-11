@@ -24,7 +24,7 @@ static bool mc_readconf(const char *l){
 		assert( (cfg.ClientID = strdup( arg )) );
 		setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
 		if(cfg.verbose)
-			printf("MQTT Client ID : '%s'\n", cfg.ClientID);
+			publishLog('C', "MQTT Client ID : '%s'", cfg.ClientID);
 		return true;
 	}
 
@@ -38,32 +38,30 @@ void init_module_core(){
 	register_module( (struct module *)&mod_Core );
 
 
-		/* initialize client id */
+		/* initialize substitution variables */
+	
+	char t[256];	/* Arbitrary size (larger is indecent) */
+	gethostname(t, 256);
+	t[255] = 0;		/* as gethostname() is not guaranteed to provide \0 string */
 
-	assert(sizeof(pid_t) == 4);	/* Otherwise, the size of defaultCID need to be changed */
-#define SZCLIENTID 32
+	char *hn = strdup(t);
+	assert(hn);
+	setSubstitutionVar(vslookup, "%Hostname%", hn, false);
 
-	static char defaultCID[SZCLIENTID];
-	sprintf(defaultCID, "Marcel.%x.", getpid());
-
-	size_t len = strlen(defaultCID);
-	gethostname(defaultCID + len, SZCLIENTID - len);
-	defaultCID[SZCLIENTID-1] = 0;	/* as gethostname() is not garanted to provide \0 string */
-
-#undef SZCLIENTID
+	snprintf(t, 255, "Marcel.%x.%s", getpid(),hn);
 
 		/* Default values */
 	
+	assert((cfg.ClientID = strdup(t)));
 	cfg.Broker = "tcp://localhost:1883";
-	cfg.ClientID = defaultCID;
 	cfg.client = NULL;
 	cfg.ConLostFatal = false;
 
 		/* init vslookup */
-	setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
+	setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, false);
 
 #ifdef DEBUG
 	if(cfg.debug)
-		printf("*d* default ClientID : '%s'\n", defaultCID);
+		printf("*d* default ClientID : '%s'\n", cfg.ClientID);
 #endif
 }

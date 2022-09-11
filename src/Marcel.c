@@ -74,6 +74,7 @@ bool configtest = false;
 
 struct _VarSubstitution vslookup[] = {
 	{ "%ClientID%", NULL },
+	{ "%Hostname%", NULL },
 	{ NULL }
 };
 
@@ -197,6 +198,18 @@ bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const c
 	return false;
 }
 
+const char *getSubstitutionVar( struct _VarSubstitution *lookup, const char *name ){
+	int  h = chksum(name);
+
+	for(struct _VarSubstitution *tbl = lookup; tbl->var; tbl++){
+		if( h == tbl->h && !strcmp(name, tbl->var) )
+			return tbl->val;
+	}
+
+	return NULL;
+}
+
+
 
 /**
  * @brief Replace variables found in the string by their value
@@ -239,7 +252,6 @@ static char *replaceVar( const char *arg, struct _VarSubstitution *lookup ){
 	s[idxd] = 0;
 	return s;
 }
-
 
 	/* ***
 	 * Read configuration directory
