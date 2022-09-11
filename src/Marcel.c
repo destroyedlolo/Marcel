@@ -72,6 +72,10 @@
 struct Config cfg;
 bool configtest = false;
 
+struct _VarSubstitution vslookup[] = {
+	{ "%ClientID%", NULL },
+	{ NULL }
+};
 
 	/* ***
 	 * Helpers
@@ -83,7 +87,7 @@ bool configtest = false;
  * @param kw keyword
  * @return remaining string if the keyword matches or NULL if not
  */
-char *striKWcmp( char *s, const char *kw ){
+const char *striKWcmp( const char *s, const char *kw ){
 	size_t klen = strlen(kw);
 	if( strncasecmp(s,kw,klen) )
 		return NULL;
@@ -92,7 +96,7 @@ char *striKWcmp( char *s, const char *kw ){
 }
 
 /**
- * @brief remove a potential LF at the end of the string
+ * @brief removes a potential LF at the end of the string
  */
 char *removeLF(char *s){
 	size_t l=strlen(s);
@@ -101,6 +105,15 @@ char *removeLF(char *s){
 	return s;
 }
 
+/**
+ * @brief returns the checksum of a string
+ */
+int chksum(const char *s){
+	int h = 0;
+	while(*s)
+		h += *s++;
+	return h;
+}
 
 	/* ***
 	 * Logging 
@@ -155,19 +168,33 @@ void publishLog( char l, const char *msg, ...){
 	 * Variable substitution
 	 * ***/
 
-struct _VarSubstitution {
-	const char *var;	/* Variable's name */
-	const char *val;	/* Value */
-	size_t lvar;		/* size of the variable name (initialize to 0)*/
-	size_t lval;		/* size of the value (initialize to 0)*/
-};
-
 static void init_VarSubstitution( struct _VarSubstitution *tbl ){
 	while(tbl->var){
 		tbl->lvar = strlen(tbl->var);
-		tbl->lval = strlen(tbl->val);
+		tbl->h = chksum(tbl->var);
 		tbl++;
 	}
+}
+
+bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const char *val, bool freeval){
+	int h = chksum(name);
+
+	for(struct _VarSubstitution *tbl = vars; tbl->var; tbl++){
+		if( h == tbl->h && !strcmp(name, tbl->var) ){
+			if(freeval && tbl->val)
+				free((void *)tbl->val);
+			tbl->val = val;
+			tbl->lval = strlen(val);
+			return true;
+		}
+	}
+
+#ifdef DEBUG
+	if(cfg.debug)
+		publishLog('E', "Variable '%s' not found", name);
+#endif
+
+	return false;
 }
 
 
@@ -222,14 +249,7 @@ static void process_conffile(const char *fch){
 	FILE *f;
 	char l[MAXLINE];
 
-		/* Build ClientID lookup */
-	struct _VarSubstitution vslookup[] = {
-		{ "%ClientID%", cfg.ClientID },	/* MUST BE THE 1ST VARIABLE */
-		{ NULL }
-	};
-	init_VarSubstitution( vslookup );
-
-	if(cfg.verbose)
+		if(cfg.verbose)
 		printf("\n*C* Reading configuration file : '%s'\n--------------------------------\n", fch);
 
 	if(!(f=fopen(fch, "r"))){
@@ -243,7 +263,20 @@ static void process_conffile(const char *fch){
 
 		char *line = replaceVar(removeLF(l), vslookup);
 
-puts(line);
+			/* Ask each module if it knows this configuration */
+		bool accepted = false;
+		for(unsigned int i=0; i<numbe_of_loaded_modules; i++){
+			if(modules[i]->readconf(line)){
+				accepted = true;
+				break;
+			}
+		}
+
+		if(!accepted){
+			publishLog('F', "'%s' is not reconized by any loaded module", line);
+			exit( EXIT_FAILURE );
+		}
+
 		free(line);
 	}
 
@@ -350,6 +383,7 @@ int main(int ac, char **av){
 		exit( c=='?' ? EXIT_FAILURE : EXIT_SUCCESS );
 	}
 
+	init_VarSubstitution( vslookup );
 	init_module_core();
 	read_configuration( conf_file );
 

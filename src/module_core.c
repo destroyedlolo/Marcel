@@ -18,6 +18,16 @@ struct module_Core {
 } mod_Core;
 
 static bool mc_readconf(const char *l){
+	const char *arg;
+
+	if((arg = striKWcmp(l,"ClientID="))){
+		assert( (cfg.ClientID = strdup( arg )) );
+		setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
+		if(cfg.verbose)
+			printf("MQTT Client ID : '%s'\n", cfg.ClientID);
+		return true;
+	}
+
 	return false;
 }
 
@@ -48,6 +58,9 @@ void init_module_core(){
 	cfg.ClientID = defaultCID;
 	cfg.client = NULL;
 	cfg.ConLostFatal = false;
+
+		/* init vslookup */
+	setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
 
 #ifdef DEBUG
 	if(cfg.debug)

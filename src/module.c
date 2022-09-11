@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int numbe_of_loaded_modules = 0;
+unsigned int numbe_of_loaded_modules = 0;
 struct module *modules[MAX_MODULES];
 
 /**

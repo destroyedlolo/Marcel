@@ -23,7 +23,7 @@ struct module {
 	bool (*readconf)( const char * );	/* is provided line apply to this module (true) */
 };
 
-extern int numbe_of_loaded_modules;
+extern unsigned int numbe_of_loaded_modules;
 extern struct module *modules[];
 
 extern void register_module( struct module * );
