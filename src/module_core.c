@@ -28,12 +28,22 @@ void init_module_core(){
 	register_module( (struct module *)&mod_Core );
 
 
-		/* initialise configuration */
+		/* initialize client id */
 
 	assert(sizeof(pid_t) == 4);	/* Otherwise, the size of defaultCID need to be changed */
-	static char defaultCID[16];
-	sprintf(defaultCID, "Marcel.%x", getpid());
+#define SZCLIENTID 32
 
+	static char defaultCID[SZCLIENTID];
+	sprintf(defaultCID, "Marcel.%x.", getpid());
+
+	size_t len = strlen(defaultCID);
+	gethostname(defaultCID + len, SZCLIENTID - len);
+	defaultCID[SZCLIENTID-1] = 0;	/* as gethostname() is not garanted to provide \0 string */
+
+#undef SZCLIENTID
+
+		/* Default values */
+	
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.ClientID = defaultCID;
 	cfg.client = NULL;
