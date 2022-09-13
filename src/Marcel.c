@@ -352,6 +352,7 @@ static void read_configuration( const char *dir ){
 int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
 	int c;
+	cfg.debug = false;
 
 	while((c = getopt(ac, av, "hvtdf:")) != EOF) switch(c){
 #ifdef DEBUG

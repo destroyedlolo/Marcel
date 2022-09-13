@@ -5,8 +5,8 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -O2 -DDEBUG
-opts=
+cc=cc
+opts=-Wall -O2 -fPIC -DDEBUG 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c  -lm -ldl -Wl,--export-dynamic -lpthread 	
 
 DList.o : DList.c DList.h Makefile 
 	$(cc) -c -o DList.o DList.c $(opts) 

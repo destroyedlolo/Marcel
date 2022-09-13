@@ -1,0 +1,6 @@
+# mod_test configuration file
+#
+# This module doesn't do anything useful : it only shows how to build
+# a module.
+
+TestValue=3

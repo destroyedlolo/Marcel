@@ -9,6 +9,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <assert.h>
+#include <dlfcn.h>
+#include <stdlib.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +35,31 @@ static bool mc_readconf(const char *l){
 	} else if((arg = striKWcmp(l,"Broker="))){
 		assert(( cfg.Broker = strdup( arg ) ));
 		if(cfg.verbose)
-			publishLog('C', "Broker : '%s'\n", cfg.Broker);
+			publishLog('C', "Broker : '%s'", cfg.Broker);
+		return true;
+	} else if((arg = striKWcmp(l,"LoadModule="))){
+		void *pgh;
+		char t[strlen(PLUGIN_DIR) + strlen(arg) + 2];
+		void (*func)(void);
+
+		sprintf(t, "%s/%s", PLUGIN_DIR, arg);
+
+		if(cfg.verbose)
+			publishLog('C', "Loading module '%s'", cfg.debug ? t : arg);
+
+		if(!(pgh = dlopen(t, RTLD_LAZY))){
+			publishLog('F', "Can't load plug-in : %s\n", dlerror());
+			exit(EXIT_FAILURE);
+		}
+		dlerror(); /* Clear any existing error */
+
+		if(!(func = dlsym( pgh, "InitModule" ))){
+			publishLog('F', "Can't find plug-in init function : %s\n", dlerror());
+			exit(EXIT_FAILURE);
+		}
+		(*func)();
+
+		return true;
 	}
 
 	return false;

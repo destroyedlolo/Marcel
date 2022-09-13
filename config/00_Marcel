@@ -9,5 +9,10 @@
 
 # MQTT Broker's URL
 #Broker=tcp://localhost:1883
-Broker=tcp://actif.chez.moi:1883
 
+#
+# Load modules
+#
+
+# dummy modules showing how to build a plug-in for Marcel
+LoadModule=mod_test.so

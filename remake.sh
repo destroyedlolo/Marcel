@@ -59,7 +59,20 @@ echo -e "\trm *.so" >> Makefile
 echo >> Makefile
 echo "# Build everything" >> Makefile
 echo "all:" >> Makefile
+if [ ${BUILD_TEST+x} ]; then
+	echo -e '\t$(MAKE) -C src/mod_test' >> Makefile
+fi
 echo -e '\t$(MAKE) -C src' >> Makefile
+
+# =================
+# Build all modules
+# =================
+
+if [ ${BUILD_TEST+x} ]; then
+	cd src/mod_test
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG" *.c -so=../../mod_test.so > Makefile
+	cd ../..
+fi
 
 cd src
 
