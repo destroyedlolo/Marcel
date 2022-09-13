@@ -3,4 +3,8 @@
 # This module doesn't do anything useful : it only shows how to build
 # a module.
 
+# Directive with an argument
 TestValue=3
+
+# Directive without argument
+TestFlag

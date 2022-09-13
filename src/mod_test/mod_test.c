@@ -16,6 +16,7 @@
  * ***/
 
 #include <stdlib.h>
+#include <string.h>
 
 /* ***
  * instantiate module's structure.
@@ -45,6 +46,14 @@ static bool readconf(const char *l){
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "Mod_test's \"test\" variable set to %d", mod_test.test);
+
+		return true;
+	} else if(!strcmp(l, "TestFlag")){	/* Directive without argument */
+		/* processing */
+		mod_test.flag = true;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "Mod_test's \"flag\" set to 'TRUE'");
 
 		return true;
 	}
