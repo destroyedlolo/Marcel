@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <string.h>
 
+	/* This module is the only one having configuration stored in
+	 * "cfg" and not inside its own structure.
+	 * Because it's dealing with configuration used globally in Marcel's
+	 */
 struct module_Core {
 	struct module module;
 } mod_Core;
