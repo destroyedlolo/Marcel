@@ -5,7 +5,7 @@
 
 #ifndef MODULE_CORE_H
 
-#include "module.h"
+#include "Module.h"
 
 
 extern void init_module_core();

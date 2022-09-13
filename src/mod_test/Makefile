@@ -8,7 +8,7 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC -DDEBUG
 
-mod_test.o : mod_test.c mod_test.h ../module.h Makefile 
+mod_test.o : mod_test.c mod_test.h ../Module.h Makefile 
 	$(cc) -c -o mod_test.o mod_test.c $(opts) 
 
 ../../mod_test.so : mod_test.o Makefile 

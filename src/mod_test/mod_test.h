@@ -9,7 +9,7 @@
 #define MOD_TEST_H
 
 /* Include shared modules definitions and utilities */
-#include "../module.h"
+#include "../Module.h"
 
 /* Custom structure to store module's configuration */
 struct module_test {
@@ -17,7 +17,7 @@ struct module_test {
 		 * all stuffs allowing the interface between Marcel's core and the
 		 * module itself. 
 		 */
-	struct module module;
+	struct Module module;
 
 		/* configuration variables
 		 * They are dedicated and only available inside this module.

@@ -8,20 +8,16 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC -DDEBUG 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c  -lm -ldl -Wl,--export-dynamic -lpthread 	
 
-DList.o : DList.c DList.h Makefile 
-	$(cc) -c -o DList.o DList.c $(opts) 
-
-Marcel.o : Marcel.c Marcel.h Version.h module_core.h module.h Makefile 
+Marcel.o : Marcel.c Marcel.h Version.h mod_core.h Module.h Makefile 
 	$(cc) -c -o Marcel.o Marcel.c $(opts) 
 
-module.o : module.c module.h Marcel.h Makefile 
-	$(cc) -c -o module.o module.c $(opts) 
+mod_core.o : mod_core.c mod_core.h Module.h Marcel.h Makefile 
+	$(cc) -c -o mod_core.o mod_core.c $(opts) 
 
-module_core.o : module_core.c module_core.h module.h Marcel.h Makefile 
-	$(cc) -c -o module_core.o module_core.c $(opts) 
+Module.o : Module.c Module.h Marcel.h Makefile 
+	$(cc) -c -o Module.o Module.c $(opts) 
 
-../Marcel : module_core.o module.o Marcel.o DList.o Makefile 
-	 $(cc) -o ../Marcel module_core.o module.o Marcel.o DList.o \
-  $(opts) 
+../Marcel : Module.o mod_core.o Marcel.o Makefile 
+	 $(cc) -o ../Marcel Module.o mod_core.o Marcel.o $(opts) 
 
 all: ../Marcel 

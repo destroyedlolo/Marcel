@@ -76,7 +76,7 @@ void InitModule( void ){
 	mod_test.module.name = "mod_test";	/* Identify the module */
 	mod_test.module.readconf = readconf; /* Initialize callbacks */
 
-	register_module( (struct module *)&mod_test );	/* Register the module */
+	register_module( (struct Module *)&mod_test );	/* Register the module */
 
 		/*
 		 * Do internal initialization

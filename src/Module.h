@@ -16,7 +16,7 @@
 	 */
 #define MAX_MODULES	16
 
-struct module {
+struct Module {
 	const char *name;					/* module's name */
 	int module_index;
 
@@ -24,8 +24,8 @@ struct module {
 };
 
 extern unsigned int numbe_of_loaded_modules;
-extern struct module *modules[];
+extern struct Module *modules[];
 
-extern void register_module( struct module * );
+extern void register_module( struct Module * );
 
 #endif

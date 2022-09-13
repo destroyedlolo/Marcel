@@ -3,7 +3,7 @@
  * 	08/09/2022 - LF - First version
  */
 
-#include "module_core.h"
+#include "mod_core.h"
 
 #include <stddef.h>
 #include <sys/types.h>
@@ -20,7 +20,7 @@
 	 * Because it's dealing with configuration used globally in Marcel's
 	 */
 struct module_Core {
-	struct module module;
+	struct Module module;
 } mod_Core;
 
 static bool mc_readconf(const char *l){
@@ -69,7 +69,7 @@ void init_module_core(){
 	mod_Core.module.name = "mod_core";
 	mod_Core.module.readconf = mc_readconf;
 
-	register_module( (struct module *)&mod_Core );
+	register_module( (struct Module *)&mod_Core );
 
 
 		/* initialize substitution variables */
