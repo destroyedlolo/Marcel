@@ -45,7 +45,7 @@ static bool readconf(const char *l){
 		mod_test.test = atoi(arg);
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "Mod_test's \"test\" variable set to %d", mod_test.test);
+			publishLog('C', "\tMod_test's \"test\" variable set to %d", mod_test.test);
 
 		return true;
 	} else if(!strcmp(l, "TestFlag")){	/* Directive without argument */
@@ -53,7 +53,7 @@ static bool readconf(const char *l){
 		mod_test.flag = true;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "Mod_test's \"flag\" set to 'TRUE'");
+			publishLog('C', "\tMod_test's \"flag\" set to 'TRUE'");
 
 		return true;
 	}

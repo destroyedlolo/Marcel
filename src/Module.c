@@ -18,7 +18,7 @@ struct Module *modules[MAX_MODULES];
  */
 void register_module( struct Module *mod ){
 	if(numbe_of_loaded_modules >= MAX_MODULES){
-		fputs("*F* too many registered modules. Increase MAX_MODULES\n", stderr);
+		publishLog('F',"Too many registered modules. Increase MAX_MODULES\n", stderr);
 		exit( EXIT_FAILURE );
 	}
 

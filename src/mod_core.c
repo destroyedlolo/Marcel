@@ -30,12 +30,12 @@ static bool mc_readconf(const char *l){
 		assert(( cfg.ClientID = strdup( arg ) ));
 		setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
 		if(cfg.verbose)
-			publishLog('C', "MQTT Client ID : '%s'", cfg.ClientID);
+			publishLog('C', "\tMQTT Client ID : '%s'", cfg.ClientID);
 		return true;
 	} else if((arg = striKWcmp(l,"Broker="))){
 		assert(( cfg.Broker = strdup( arg ) ));
 		if(cfg.verbose)
-			publishLog('C', "Broker : '%s'", cfg.Broker);
+			publishLog('C', "\tBroker : '%s'", cfg.Broker);
 		return true;
 	} else if((arg = striKWcmp(l,"LoadModule="))){
 		void *pgh;
@@ -45,7 +45,7 @@ static bool mc_readconf(const char *l){
 		sprintf(t, "%s/%s", PLUGIN_DIR, arg);
 
 		if(cfg.verbose)
-			publishLog('C', "Loading module '%s'", cfg.debug ? t : arg);
+			publishLog('C', "\tLoading module '%s'", cfg.debug ? t : arg);
 
 		if(!(pgh = dlopen(t, RTLD_LAZY))){
 			publishLog('F', "Can't load plug-in : %s\n", dlerror());
