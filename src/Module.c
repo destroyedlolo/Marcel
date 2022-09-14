@@ -1,4 +1,4 @@
-/* module.c
+/* Module.c
  * 	module managements
  *
  * 	08/09/2022 - LF - First version
