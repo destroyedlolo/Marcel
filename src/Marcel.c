@@ -261,8 +261,8 @@ static void process_conffile(const char *fch){
 	FILE *f;
 	char l[MAXLINE];
 
-		if(cfg.verbose)
-		printf("\n*C* Reading configuration file : '%s'\n--------------------------------\n", fch);
+	if(cfg.verbose)
+		publishLog('C', "Reading configuration file : '%s'", fch);
 
 	if(!(f=fopen(fch, "r"))){
 		publishLog('F', "%s : %s", fch, strerror( errno ));
@@ -296,6 +296,17 @@ static void process_conffile(const char *fch){
 }
 
 static int acceptfile(const struct dirent *entry){
+#ifdef DT_REG
+	if(entry->d_type != DT_REG){
+#	ifdef DEBUG
+		if(cfg.debug && *entry->d_name != '.')
+			publishLog('I', "'%s' is not a regular and so, is ignored", entry->d_name);
+#	endif
+		return false;
+	}
+#else
+#	warning("scandir() doesn't identify file type, directory are not ignored")
+#endif
 	return(*entry->d_name != '.');	/* ignore dot files */
 }
 
