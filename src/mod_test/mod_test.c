@@ -31,7 +31,7 @@ struct module_test mod_test;
  * and in this case, the line is passed to next module.
  */
 
-static bool readconf(const char *l){
+static bool readconf(const char *l, struct Section **section ){
 	const char *arg;	/* Argument of the configuration directive */
 
 		/* Parse the command line.
@@ -41,7 +41,16 @@ static bool readconf(const char *l){
 		 */
 
 	if((arg = striKWcmp(l,"TestValue="))){	/* Directive with an argument */
-			/* Processing ... */
+
+		/* Some directives aren't not applicable to section ...
+		 * We are in section if the 2nd argument does point to a non null value
+		 */
+		if(*section){
+			publishLog('F', "TestValue can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		/* Processing ... */
 		mod_test.test = atoi(arg);
 
 		if(cfg.verbose)	/* Be verbose if requested */
@@ -49,6 +58,11 @@ static bool readconf(const char *l){
 
 		return true;
 	} else if(!strcmp(l, "TestFlag")){	/* Directive without argument */
+		if(*section){
+			publishLog('F', "TestFlag can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
 		/* processing */
 		mod_test.flag = true;
 

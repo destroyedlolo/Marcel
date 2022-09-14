@@ -278,7 +278,8 @@ static void process_conffile(const char *fch){
 			/* Ask each module if it knows this configuration */
 		bool accepted = false;
 		for(unsigned int i=0; i<numbe_of_loaded_modules; i++){
-			if(modules[i]->readconf(line)){
+			struct Section *section = NULL;
+			if(modules[i]->readconf(line, &section)){
 				accepted = true;
 				break;
 			}

@@ -23,16 +23,26 @@ struct module_Core {
 	struct Module module;
 } mod_Core;
 
-static bool mc_readconf(const char *l){
+static bool mc_readconf(const char *l, struct Section **section ){
 	const char *arg;
 
 	if((arg = striKWcmp(l,"ClientID="))){
+		if(*section){
+			publishLog('F', "ClientID can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
 		assert(( cfg.ClientID = strdup( arg ) ));
 		setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
 		if(cfg.verbose)
 			publishLog('C', "\tMQTT Client ID : '%s'", cfg.ClientID);
 		return true;
 	} else if((arg = striKWcmp(l,"Broker="))){
+		if(*section){
+			publishLog('F', "Broker can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
 		assert(( cfg.Broker = strdup( arg ) ));
 		if(cfg.verbose)
 			publishLog('C', "\tBroker : '%s'", cfg.Broker);
@@ -41,6 +51,11 @@ static bool mc_readconf(const char *l){
 		void *pgh;
 		char t[strlen(PLUGIN_DIR) + strlen(arg) + 2];
 		void (*func)(void);
+
+		if(*section){
+			publishLog('F', "LoadModule can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
 
 		sprintf(t, "%s/%s", PLUGIN_DIR, arg);
 

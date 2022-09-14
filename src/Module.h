@@ -7,6 +7,7 @@
 #ifndef MODULE_H
 
 #include "Marcel.h"
+#include "Section.h"
 
 	/* Modules are stored in a fixed length table. Their indexes are used
 	 * to reference them is sections (which module/method is handling this section)
@@ -20,7 +21,7 @@ struct Module {
 	const char *name;					/* module's name */
 	int module_index;
 
-	bool (*readconf)( const char * );	/* is provided line apply to this module (true) */
+	bool (*readconf)( const char *, struct Section ** );	/* is provided line apply to this module (true) */
 };
 
 extern unsigned int numbe_of_loaded_modules;
