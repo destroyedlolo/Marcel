@@ -10,6 +10,7 @@
 
 /* Include shared modules definitions and utilities */
 #include "../Module.h"
+#include "../Section.h"
 
 /* Custom structure to store module's configuration */
 struct module_test {
