@@ -8,3 +8,6 @@ TestValue=3
 
 # Directive without argument
 TestFlag
+
+# Entering in a section
+*TEST=toto

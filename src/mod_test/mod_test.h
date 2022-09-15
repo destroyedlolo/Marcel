@@ -14,7 +14,7 @@
 
 /* Custom structure to store module's configuration */
 struct module_test {
-		/* The first field MUST BE a "struct module" which is containing
+		/* The first field MUST BE a "struct Module" which is containing
 		 * all stuffs allowing the interface between Marcel's core and the
 		 * module itself. 
 		 */
@@ -25,6 +25,22 @@ struct module_test {
 		 */
 	int test;	/* variable containing interesting stuffs for the module */
 	bool flag;
+};
+
+
+/* Custom structure to store a section handled by this module.
+ * In this example, only one section but nothing prevent to have several :
+ * in such case, they MUST have unique uid.
+ */
+struct section_test {
+		/* The first field MUST BE a "struct Section" which is containing
+		 * all stuffs allowing the interface between Marcel's core and the
+		 * section itself. 
+		 */
+	struct Section section;
+
+		/* Variables dedicated to this structure */
+	int dummy;
 };
 
 #endif

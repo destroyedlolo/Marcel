@@ -7,7 +7,11 @@
 #ifndef SECTION_H
 #define SECTION_H
 
+#include "Marcel.h"
+
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include <pthread.h>
 
 struct Section {
@@ -35,4 +39,7 @@ struct Section {
 	int failfuncid;
 };
 
+extern struct Section *sections;
+
+extern struct Section *findSectionByName(const char *name);
 #endif

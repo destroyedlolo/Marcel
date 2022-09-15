@@ -70,6 +70,16 @@ static bool readconf(const char *l, struct Section **section ){
 			publishLog('C', "\tMod_test's \"flag\" set to 'TRUE'");
 
 		return true;
+	} else if((arg = striKWcmp(l,"*TEST="))){	/* Starting a section definition */
+		/* By convention, section directives starts by a start '*'.
+		 * Its argument is an UNIQUE name : this name is used "OnOff" topic to
+		 * identify which section it has to deal with.
+		 */
+
+		if(!findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	return false;
