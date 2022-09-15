@@ -304,9 +304,9 @@ static void process_conffile(const char *fch){
 
 			/* Ask each module if it knows this configuration */
 		enum RC_readconf rc = REJECTED;
-		for(unsigned int i=0; i<numbe_of_loaded_modules; i++){
+		for(unsigned int i=0; i<number_of_loaded_modules; i++){
 			struct Section *sec = NULL;
-			rc = modules[i]->readconf(line, &sec);
+			rc = modules[i]->readconf(i, line, &sec);
 
 			if(rc == ACCEPTED || rc == SKIP_FILE)
 				break;

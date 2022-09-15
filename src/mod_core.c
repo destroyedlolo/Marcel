@@ -23,7 +23,7 @@ struct module_Core {
 	struct Module module;
 } mod_Core;
 
-static enum RC_readconf mc_readconf(const char *l, struct Section **section ){
+static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
 	if((arg = striKWcmp(l,"ClientID="))){
@@ -76,10 +76,10 @@ static enum RC_readconf mc_readconf(const char *l, struct Section **section ){
 
 		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"Needs="))){
-		if(!findSectionByName(arg)){
+		if(findModuleByName(arg) == (uint8_t)-1){
 #ifdef DEBUG
 			if(cfg.debug)
-				publishLog('C', "\tConfiguration file ignored : '%s' not loaded", arg);
+				publishLog('C', "\tConfiguration file ignored : '%s' plug-in not loaded", arg);
 #endif
 			return SKIP_FILE;
 		}
@@ -92,6 +92,11 @@ static enum RC_readconf mc_readconf(const char *l, struct Section **section ){
 void init_module_core(){
 	mod_Core.module.name = "mod_core";
 	mod_Core.module.readconf = mc_readconf;
+	
+	if(findModuleByName(mod_Core.module.name) != (uint8_t)-1){
+		publishLog('F', "Module '%s' is already loaded", mod_Core.module.name);
+		exit(EXIT_FAILURE);
+	}
 
 	register_module( (struct Module *)&mod_Core );
 

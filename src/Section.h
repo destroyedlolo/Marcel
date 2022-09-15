@@ -20,7 +20,6 @@ struct Section {
 	uint16_t id;			/* section identifier */
 	const char *uid;		/* unique identifier (name) */
 	int h;					/* hash code for this id */
-	void (*func)(void *);	/* function to handle this section */
 	pthread_t thread;		/* Child to handle this section */
 
 		/* MQTT */
@@ -42,4 +41,5 @@ struct Section {
 extern struct Section *sections;
 
 extern struct Section *findSectionByName(const char *name);
+extern void initSection( struct Section *sec, int8_t module_id, uint8_t section_id, const char *name);
 #endif

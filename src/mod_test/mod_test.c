@@ -25,13 +25,22 @@
 struct module_test mod_test;
 
 /* ***
+ * Unique identifier of section known by this module
+ * Must start by 0 and < 255 
+ */
+
+enum {
+	ST_TEST = 0
+};
+
+/* ***
  * Callback called for each and every line of configuration files
  *
  * Return "true" if the module accept/recognize line content. "false" otherwise
  * and in this case, the line is passed to next module.
  */
 
-static enum RC_readconf readconf(const char *l, struct Section **section ){
+static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;	/* Argument of the configuration directive */
 
 		/* Parse the command line.
@@ -81,6 +90,9 @@ static enum RC_readconf readconf(const char *l, struct Section **section ){
 			exit(EXIT_FAILURE);
 		}
 
+		struct section_test *section = malloc(sizeof(struct section_test));
+		initSection( (struct Section *)section, mid, ST_TEST, "TEST");
+	
 		return ACCEPTED;
 	}
 
@@ -101,6 +113,11 @@ void InitModule( void ){
 		 */
 	mod_test.module.name = "mod_test";	/* Identify the module */
 	mod_test.module.readconf = readconf; /* Initialize callbacks */
+
+	if(findModuleByName(mod_test.module.name) != (uint8_t)-1){
+		publishLog('F', "Module '%s' is already loaded", mod_test.module.name);
+		exit(EXIT_FAILURE);
+	}
 
 	register_module( (struct Module *)&mod_test );	/* Register the module */
 

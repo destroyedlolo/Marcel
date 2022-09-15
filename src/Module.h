@@ -25,15 +25,16 @@ enum RC_readconf {
 };
 
 struct Module {
-	const char *name;					/* module's name */
-	int module_index;
+	const char *name;		/* module's name */
+	int h;					/* hash code for the name */
+	uint8_t module_index;
 
-	enum RC_readconf (*readconf)( const char *, struct Section ** );	/* is provided line apply to this module (true) */
+	enum RC_readconf (*readconf)( uint8_t mod_id, const char *, struct Section ** );	/* is provided line apply to this module (true) */
 };
 
-extern unsigned int numbe_of_loaded_modules;
+extern uint8_t number_of_loaded_modules;
 extern struct Module *modules[];
 
+extern uint8_t findModuleByName(const char *name);
 extern void register_module( struct Module * );
-
 #endif

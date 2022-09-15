@@ -8,6 +8,12 @@
 
 struct Section *sections = NULL;
 
+/**
+ * @brief Search for a section
+ *
+ * @param name Name of the section we are looking for
+ * @return Pointer to the section's structure or NULL if not found
+ */
 struct Section *findSectionByName(const char *name){
 	int h = chksum(name);
 
@@ -17,4 +23,20 @@ struct Section *findSectionByName(const char *name){
 	}
 
 	return NULL;	/* Not found */
+}
+
+/**
+ * @brief Initialize mandatory (only) field of a structure
+ *
+ * @param section Structure to initialize
+ * @param module_id Module unique identifier
+ * @param section_id Section's unique (to this module) identifier
+ * @param name Section's name (its pointer is only copied)
+ */
+void initSection( struct Section *section, int8_t module_id, uint8_t section_id, const char *name){
+	section->next = sections;	/* Replace the head */
+	sections = section;
+	section->id = module_id << 8 | section_id;
+
+printf("-> id : %016x\n", section->id);
 }
