@@ -17,11 +17,18 @@
 	 */
 #define MAX_MODULES	16
 
+	/* Return code of readconf() callback */
+enum RC_readconf {
+	REJECTED = 0,	/* The module doesn't recognize the directive */
+	ACCEPTED,		/* The module proceed the directive */
+	SKIP_FILE		/* This configuration file has to be skipped */
+};
+
 struct Module {
 	const char *name;					/* module's name */
 	int module_index;
 
-	bool (*readconf)( const char *, struct Section ** );	/* is provided line apply to this module (true) */
+	enum RC_readconf (*readconf)( const char *, struct Section ** );	/* is provided line apply to this module (true) */
 };
 
 extern unsigned int numbe_of_loaded_modules;

@@ -23,7 +23,7 @@ struct module_Core {
 	struct Module module;
 } mod_Core;
 
-static bool mc_readconf(const char *l, struct Section **section ){
+static enum RC_readconf mc_readconf(const char *l, struct Section **section ){
 	const char *arg;
 
 	if((arg = striKWcmp(l,"ClientID="))){
@@ -36,7 +36,7 @@ static bool mc_readconf(const char *l, struct Section **section ){
 		setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
 		if(cfg.verbose)
 			publishLog('C', "\tMQTT Client ID : '%s'", cfg.ClientID);
-		return true;
+		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"Broker="))){
 		if(*section){
 			publishLog('F', "Broker can't be part of a section");
@@ -46,7 +46,7 @@ static bool mc_readconf(const char *l, struct Section **section ){
 		assert(( cfg.Broker = strdup( arg ) ));
 		if(cfg.verbose)
 			publishLog('C', "\tBroker : '%s'", cfg.Broker);
-		return true;
+		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"LoadModule="))){
 		void *pgh;
 		char t[strlen(PLUGIN_DIR) + strlen(arg) + 2];
@@ -74,10 +74,19 @@ static bool mc_readconf(const char *l, struct Section **section ){
 		}
 		(*func)();
 
-		return true;
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"Needs="))){
+		if(!findSectionByName(arg)){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('C', "\tConfiguration file ignored : '%s' not loaded", arg);
+#endif
+			return SKIP_FILE;
+		}
+		return ACCEPTED;
 	}
 
-	return false;
+	return REJECTED;
 }
 
 void init_module_core(){

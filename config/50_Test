@@ -3,6 +3,13 @@
 # This module doesn't do anything useful : it only shows how to build
 # a module.
 
+# Specify which module is addressed by this configuration file
+# if at the moment of loading this file, the needed module hasn't
+# been loaded, the remaining of this file is ignored.
+#
+# Several Needs= can be provided
+Needs=toto
+
 # Directive with an argument
 TestValue=3
 

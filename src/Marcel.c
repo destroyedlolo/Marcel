@@ -276,21 +276,24 @@ static void process_conffile(const char *fch){
 		char *line = replaceVar(removeLF(l), vslookup);
 
 			/* Ask each module if it knows this configuration */
-		bool accepted = false;
+		enum RC_readconf rc = REJECTED;
 		for(unsigned int i=0; i<numbe_of_loaded_modules; i++){
 			struct Section *sec = NULL;
-			if(modules[i]->readconf(line, &sec)){
-				accepted = true;
+			rc = modules[i]->readconf(line, &sec);
+
+			if(rc == ACCEPTED || rc == SKIP_FILE)
 				break;
-			}
 		}
 
-		if(!accepted){
+		if(rc == REJECTED){
 			publishLog('F', "'%s' is not reconized by any loaded module", line);
 			exit( EXIT_FAILURE );
 		}
 
 		free(line);
+
+		if(rc == SKIP_FILE)	/* remaining of the file is ignored */
+			break;
 	}
 
 	fclose(f);

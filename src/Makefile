@@ -19,7 +19,7 @@ mod_core.o : mod_core.c mod_core.h Module.h Marcel.h Section.h \
 Module.o : Module.c Module.h Marcel.h Section.h Makefile 
 	$(cc) -c -o Module.o Module.c $(opts) 
 
-Section.o : Section.c Section.h Makefile 
+Section.o : Section.c Section.h Marcel.h Makefile 
 	$(cc) -c -o Section.o Section.c $(opts) 
 
 ../Marcel : Section.o Module.o mod_core.o Marcel.o Makefile 

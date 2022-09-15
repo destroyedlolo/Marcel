@@ -31,7 +31,7 @@ struct module_test mod_test;
  * and in this case, the line is passed to next module.
  */
 
-static bool readconf(const char *l, struct Section **section ){
+static enum RC_readconf readconf(const char *l, struct Section **section ){
 	const char *arg;	/* Argument of the configuration directive */
 
 		/* Parse the command line.
@@ -56,7 +56,7 @@ static bool readconf(const char *l, struct Section **section ){
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tMod_test's \"test\" variable set to %d", mod_test.test);
 
-		return true;
+		return ACCEPTED;
 	} else if(!strcmp(l, "TestFlag")){	/* Directive without argument */
 		if(*section){
 			publishLog('F', "TestFlag can't be part of a section");
@@ -69,20 +69,22 @@ static bool readconf(const char *l, struct Section **section ){
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tMod_test's \"flag\" set to 'TRUE'");
 
-		return true;
+		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"*TEST="))){	/* Starting a section definition */
 		/* By convention, section directives starts by a start '*'.
 		 * Its argument is an UNIQUE name : this name is used "OnOff" topic to
 		 * identify which section it has to deal with.
 		 */
 
-		if(!findSectionByName(arg)){
+		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
 			exit(EXIT_FAILURE);
 		}
+
+		return ACCEPTED;
 	}
 
-	return false;
+	return REJECTED;
 }
 
 /* ***
