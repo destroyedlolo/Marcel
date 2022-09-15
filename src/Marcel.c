@@ -120,6 +120,12 @@ int chksum(const char *s){
 	 * Logging 
 	 * ***/
 
+/**
+ * @brief Display and publish log information
+ *
+ * @param l Log level ('F'atal and 'E'rror goes to stderr, others to stdout)
+ * @param msg Message to publish, in printf() format
+ */
 void publishLog( char l, const char *msg, ...){
 	va_list args;
 	va_start(args, msg);
@@ -146,7 +152,7 @@ void publishLog( char l, const char *msg, ...){
 		case 'I':
 			sub = "/Log/Information";
 			break;
-		case 'C':
+		case 'R':
 			sub = "/Log/Corrected";
 			break;
 		default :	/* Trace */
@@ -169,6 +175,11 @@ void publishLog( char l, const char *msg, ...){
 	 * Variable substitution
 	 * ***/
 
+/**
+ * @brief Compute all hashes of a variables table
+ *
+ * @param tbl Table to work with
+ */
 static void init_VarSubstitution( struct _VarSubstitution *tbl ){
 	while(tbl->var){
 		tbl->lvar = strlen(tbl->var);
@@ -177,6 +188,15 @@ static void init_VarSubstitution( struct _VarSubstitution *tbl ){
 	}
 }
 
+/**
+ * @brief Set a variable value
+ *
+ * @param vars Table of variables
+ * @param name Variable name's keyword
+ * @param val Value to set (only it's pointer is copied)
+ * @param freeval it true, free() current value
+ * @return false if the variable hasn't been found
+ */
 bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const char *val, bool freeval){
 	int h = chksum(name);
 
@@ -198,6 +218,13 @@ bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const c
 	return false;
 }
 
+/**
+ * @brief get a variable's value
+ *
+ * @param lookup Table of variables
+ * @param name Variable name's keyword
+ * @return Variable's content or NULL if not found
+ */
 const char *getSubstitutionVar( struct _VarSubstitution *lookup, const char *name ){
 	int  h = chksum(name);
 
