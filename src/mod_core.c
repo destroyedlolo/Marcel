@@ -28,7 +28,7 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 
 	if((arg = striKWcmp(l,"ClientID="))){
 		if(*section){
-			publishLog('F', "ClientID can't be part of a section");
+			publishLog('F', "ClientID= can't be part of a section");
 			exit(EXIT_FAILURE);
 		}
 
@@ -39,7 +39,7 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"Broker="))){
 		if(*section){
-			publishLog('F', "Broker can't be part of a section");
+			publishLog('F', "Broker= can't be part of a section");
 			exit(EXIT_FAILURE);
 		}
 
@@ -53,7 +53,7 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 		void (*func)(void);
 
 		if(*section){
-			publishLog('F', "LoadModule can't be part of a section");
+			publishLog('F', "LoadModule= can't be part of a section");
 			exit(EXIT_FAILURE);
 		}
 
@@ -76,6 +76,11 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 
 		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"Needs="))){
+		if(*section){
+			publishLog('F', "Needs= can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
 		if(findModuleByName(arg) == (uint8_t)-1){
 #ifdef DEBUG
 			if(cfg.debug)
@@ -84,6 +89,8 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 			return SKIP_FILE;
 		}
 		return ACCEPTED;
+	} else if(!strcmp(l, "Disabled")){
+/*		acceptSectionDirective( l, section ); */
 	}
 
 	return REJECTED;

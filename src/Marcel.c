@@ -287,6 +287,7 @@ static char *replaceVar( const char *arg, struct _VarSubstitution *lookup ){
 static void process_conffile(const char *fch){
 	FILE *f;
 	char l[MAXLINE];
+	struct Section *sec = NULL;	/* Section's definition can't be spread among files */
 
 	if(cfg.verbose)
 		publishLog('C', "Reading configuration file : '%s'", fch);
@@ -305,7 +306,6 @@ static void process_conffile(const char *fch){
 			/* Ask each module if it knows this configuration */
 		enum RC_readconf rc = REJECTED;
 		for(unsigned int i=0; i<number_of_loaded_modules; i++){
-			struct Section *sec = NULL;
 			rc = modules[i]->readconf(i, line, &sec);
 
 			if(rc == ACCEPTED || rc == SKIP_FILE)
