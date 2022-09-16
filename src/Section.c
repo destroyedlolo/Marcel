@@ -36,7 +36,19 @@ struct Section *findSectionByName(const char *name){
 void initSection( struct Section *section, int8_t module_id, uint8_t section_id, const char *name){
 	section->next = sections;	/* Replace the head */
 	sections = section;
-	section->id = module_id << 8 | section_id;
+	section->id = section_id << 8 | module_id;
+	section->uid = name;
+	section->h = chksum(name);
 
-printf("-> id : %016x\n", section->id);
+	section->thread = 0;
+	section->disabled = false;
+
+	section->topic = NULL;
+	section->retained = false;
+
+	section->keep = false;
+	section->sample = 0;
+
+	section->failfunc = NULL;
+	section->failfuncid = -1;
 }

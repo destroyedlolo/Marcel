@@ -90,9 +90,15 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_test *section = malloc(sizeof(struct section_test));
-		initSection( (struct Section *)section, mid, ST_TEST, "TEST");
-	
+		struct section_test *section = malloc(sizeof(struct section_test));	/* Allocate a new section */
+		initSection( (struct Section *)section, mid, ST_TEST, "TEST");	/* Initialize shared fields */
+
+			/* Custom fields may need to be initialized as well */
+		section->dummy = 0;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering section '%s' (%04x)", section->section.uid, section->section.id);
+
 		return ACCEPTED;
 	}
 

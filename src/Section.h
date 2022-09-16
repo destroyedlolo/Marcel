@@ -22,12 +22,12 @@ struct Section {
 	int h;					/* hash code for this id */
 	pthread_t thread;		/* Child to handle this section */
 
+		/* options */
+	bool disabled;			/* this section is currently disabled */
+
 		/* MQTT */
 	const char *topic;
 	bool retained;			/* send MQTT retained message */
-
-		/* options */
-	bool disabled;			/* this section is currently disabled */
 
 		/* options that may or may not used in this kind of section */
 	bool keep;				/* Stay alive in cas of failure */
