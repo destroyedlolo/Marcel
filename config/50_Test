@@ -19,4 +19,5 @@ TestFlag
 # Entering in a section
 *TEST=toto
 
-Disabled
+# This section is disabled at startup
+	Disabled

@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -95,9 +96,14 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 		 * 	Here starting section's shared directives
 		 * ***************/
 
-	} else if(*section) {
-		if(!strcmp(l, "Disabled")){
-			acceptSectionDirective( *section, l );
+	} else if(*section){
+		const char *directive = l;
+
+		while(isspace(*directive))
+			directive++;
+
+		if(!strcmp(directive, "Disabled")){
+			acceptSectionDirective( *section, directive );
 
 			(*section)->disabled = true;
 
