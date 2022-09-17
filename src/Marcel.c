@@ -313,7 +313,7 @@ static void process_conffile(const char *fch){
 		}
 
 		if(rc == REJECTED){
-			publishLog('F', "'%s' is not reconized by any loaded module", line);
+			publishLog('F', "'%s' is not recognized by any loaded module or outside section", line);
 			exit( EXIT_FAILURE );
 		}
 
