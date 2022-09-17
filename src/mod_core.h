@@ -4,6 +4,7 @@
  */
 
 #ifndef MODULE_CORE_H
+#define MODULE_CORE_H
 
 #include "Module.h"
 

@@ -56,6 +56,8 @@
 #include "Marcel.h"
 #include "Version.h"
 
+#include "Module.h"
+#include "Section.h"
 #include "mod_core.h"
 
 #include <unistd.h>
@@ -441,6 +443,50 @@ int main(int ac, char **av){
 	init_VarSubstitution( vslookup );
 	init_module_core();
 	read_configuration( conf_file );
+
+	if(configtest){
+		publishLog('W', "Testing only the configuration ... leaving.");
+		exit(EXIT_FAILURE);
+	}
+
+		/* Display / publish copyright */
+	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
+	publishLog('W', MARCEL_COPYRIGHT);
+
+		/* Creating childs */
+	if(cfg.verbose)
+		puts("\nCreating childs processes\n"
+			   "---------------------------");
+
+	pthread_attr_t thread_attr;
+	assert(!pthread_attr_init (&thread_attr));
+	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+
+	for(struct Section *s = sections; s; s = s->next){
+		uint8_t mid = s->id & 0xff;
+		uint8_t sid = (s->id >> 8) & 0xff;
+
+		if(mid >= number_of_loaded_modules){
+			publishLog('F',"Internal error for [%s] : module ID larger than # loaded modules", s->uid);
+			exit( EXIT_FAILURE );
+		}
+
+		if(modules[mid]->getSlaveFunction){
+			ThreadedFunctionPtr slave = modules[mid]->getSlaveFunction(sid);
+printf("%s : %p\n", s->uid, slave);
+
+			if(slave && pthread_create( &(s->thread), &thread_attr, slave, s) < 0){
+				publishLog('F', "[%s] Can't create a processing thread", s->uid);
+				exit(EXIT_FAILURE);
+			}
+#ifdef DEBUG
+			else if(cfg.debug)
+				publishLog('d', "No threaded slave for [%s]", s->uid);
+#endif
+		}
+	}
+
+pause();
 
 	exit(EXIT_SUCCESS);
 }

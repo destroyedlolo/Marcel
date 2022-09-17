@@ -141,6 +141,16 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 }
 
 
+/**
+ * @brief get the function to run as a slave for sections
+ *
+ * @param sid section id
+ * @return function to launch in slave thread or NULL if none
+ */
+ThreadedFunctionPtr mt_getSlaveFunction(uint8_t sid){
+	return NULL;
+}
+
 /* ***
  * InitModule() - Module's initialisation function
  *
@@ -148,16 +158,18 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
  * Its goal is to initialise module's configuration and register the module.
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
-
 void InitModule( void ){
 		/*
 		 * Initialize module declarations
 		 */
 	mod_test.module.name = "mod_test";							/* Identify the module */
 
-		/* Initialize callbacks */
+		/* Initialize callbacks
+		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
+		 */
 	mod_test.module.readconf = readconf;
 	mod_test.module.acceptSDirective = mt_acceptSDirective;
+	mod_test.module.getSlaveFunction = mt_getSlaveFunction;
 
 	if(findModuleByName(mod_test.module.name) != (uint8_t)-1){
 		publishLog('F', "Module '%s' is already loaded", mod_test.module.name);

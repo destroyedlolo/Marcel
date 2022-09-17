@@ -5,6 +5,7 @@
  */
 
 #ifndef MODULE_H
+#define MODULE_H
 
 #include "Marcel.h"
 #include "Section.h"
@@ -24,6 +25,8 @@ enum RC_readconf {
 	SKIP_FILE		/* This configuration file has to be skipped */
 };
 
+typedef void *(*ThreadedFunctionPtr) (void *);	/* Function to call in thread */
+
 struct Module {
 	const char *name;		/* module's name */
 	int h;					/* hash code for the name */
@@ -31,6 +34,7 @@ struct Module {
 
 	enum RC_readconf (*readconf)( uint8_t mod_id, const char *, struct Section ** );	/* is provided line apply to this module (true) */
 	bool (*acceptSDirective)( uint8_t sec_id, const char * );	/* process a directive */
+	ThreadedFunctionPtr(*getSlaveFunction)(uint8_t sid);
 };
 
 extern uint8_t number_of_loaded_modules;
