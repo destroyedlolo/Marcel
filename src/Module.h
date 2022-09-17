@@ -30,11 +30,13 @@ struct Module {
 	uint8_t module_index;
 
 	enum RC_readconf (*readconf)( uint8_t mod_id, const char *, struct Section ** );	/* is provided line apply to this module (true) */
+	bool (*acceptSDirective)( uint8_t sec_id, const char * );	/* process a directive */
 };
 
 extern uint8_t number_of_loaded_modules;
 extern struct Module *modules[];
 
+extern void acceptSectionDirective( struct Section *section, const char *directive );
 extern uint8_t findModuleByName(const char *name);
 extern void register_module( struct Module * );
 #endif

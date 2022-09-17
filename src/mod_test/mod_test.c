@@ -33,11 +33,14 @@ enum {
 	ST_TEST = 0
 };
 
-/* ***
- * Callback called for each and every line of configuration files
+/**
+ * @breif Callback called for each and every line of configuration files
  *
- * Return "true" if the module accept/recognize line content. "false" otherwise
- * and in this case, the line is passed to next module.
+ * @param mid Module id
+ * @param l line read
+ * @param section Pointer to the section container (set when we're entering in a section)
+ *
+ * @return RC_readconf's value depending if the directive is ACCEPTED or if it has to be passed to next module.
  */
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -90,20 +93,53 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_test *section = malloc(sizeof(struct section_test));	/* Allocate a new section */
-		initSection( (struct Section *)section, mid, ST_TEST, "TEST");	/* Initialize shared fields */
+		struct section_test *nsection = malloc(sizeof(struct section_test));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_TEST, "TEST");	/* Initialize shared fields */
 
 			/* Custom fields may need to be initialized as well */
-		section->dummy = 0;
+		nsection->dummy = 0;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering section '%s' (%04x)", section->section.uid, section->section.id);
+			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
+		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
 	}
 
 	return REJECTED;
 }
+
+
+/**
+ * @brief Tell if a directive is acceptable inside a section
+ *
+ * @param sec_id section type of the current section
+ * @param directive
+ *
+ * @return true we're accepting this directive.
+ * NOTEZ-BIEN : in some cases, it's better this function crash by itself if we need
+ * custom error message.
+ */
+static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
+		/* Check each section types known by this module
+		 * (in this example, only one : ST_TEST)
+		 */
+	if(sec_id == ST_TEST){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else {	
+				/* Custom error message.
+				 * Well it's only an example as it's the default message
+				 * raised.
+				 */
+			publishLog('F', "'%s' not allowed here", directive);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	return false;	/* Directive not handled by any of sections */
+}
+
 
 /* ***
  * InitModule() - Module's initialisation function
@@ -117,8 +153,11 @@ void InitModule( void ){
 		/*
 		 * Initialize module declarations
 		 */
-	mod_test.module.name = "mod_test";	/* Identify the module */
-	mod_test.module.readconf = readconf; /* Initialize callbacks */
+	mod_test.module.name = "mod_test";							/* Identify the module */
+
+		/* Initialize callbacks */
+	mod_test.module.readconf = readconf;
+	mod_test.module.acceptSDirective = mt_acceptSDirective;
 
 	if(findModuleByName(mod_test.module.name) != (uint8_t)-1){
 		publishLog('F', "Module '%s' is already loaded", mod_test.module.name);

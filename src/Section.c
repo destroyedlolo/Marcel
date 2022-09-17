@@ -8,6 +8,7 @@
 
 struct Section *sections = NULL;
 
+
 /**
  * @brief Search for a section
  *

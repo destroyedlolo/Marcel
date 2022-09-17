@@ -89,8 +89,23 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 			return SKIP_FILE;
 		}
 		return ACCEPTED;
-	} else if(!strcmp(l, "Disabled")){
-/*		acceptSectionDirective( l, section ); */
+
+
+		/* ***************
+		 * 	Here starting section's shared directives
+		 * ***************/
+
+	} else if(*section) {
+		if(!strcmp(l, "Disabled")){
+			acceptSectionDirective( *section, l );
+
+			(*section)->disabled = true;
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tStarting DISABLED");
+
+			return ACCEPTED;
+		}
 	}
 
 	return REJECTED;
@@ -99,6 +114,7 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 void init_module_core(){
 	mod_Core.module.name = "mod_core";
 	mod_Core.module.readconf = mc_readconf;
+	mod_Core.module.acceptSDirective = NULL;
 	
 	if(findModuleByName(mod_Core.module.name) != (uint8_t)-1){
 		publishLog('F', "Module '%s' is already loaded", mod_Core.module.name);

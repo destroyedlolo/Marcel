@@ -13,6 +13,31 @@ uint8_t number_of_loaded_modules = 0;
 struct Module *modules[MAX_MODULES];
 
 /**
+ * @brief check if a directive is applicable to the given section of mid module
+ *
+ * @param section section on which to apply the directive (MUST be non-NULL)
+ * @param directive
+ *
+ * Raise a fatal error if the option is not application. If this function returns, it's
+ * because the directive is accepted.
+ */
+void acceptSectionDirective( struct Section *section, const char *directive ){
+	uint8_t mid = section->id & 0xff;
+	uint8_t sid = (section->id >> 8) & 0xff;
+
+	if(mid >= number_of_loaded_modules){
+		publishLog('F',"Internal error : module ID larger than # loaded modules");
+		exit( EXIT_FAILURE );
+	}
+
+	if( modules[mid]->acceptSDirective && !modules[mid]->acceptSDirective(sid,directive) ){
+		publishLog('F', "'%s' not allowed here", directive);
+		exit(EXIT_FAILURE);
+	}
+}
+
+
+/**
  * @brief Search for a section
  *
  * @param name Name of the section we are looking for
@@ -29,13 +54,14 @@ uint8_t findModuleByName(const char *name){
 	return (uint8_t)-1;	/* Not found */
 }
 
+
 /**
- * Register a module.
+ * @brief Register a module.
  * Add it in the liste of known modules
  */
 void register_module( struct Module *mod ){
 	if(number_of_loaded_modules >= MAX_MODULES){
-		publishLog('F',"Too many registered modules. Increase MAX_MODULES\n", stderr);
+		publishLog('F',"Too many registered modules. Increase MAX_MODULES");
 		exit( EXIT_FAILURE );
 	}
 
