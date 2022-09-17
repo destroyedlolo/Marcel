@@ -1,6 +1,10 @@
 Configuration
 =============
 
+Line starting by an hash (#) are ignored as considered as comment.
+
+Notez-bien : '#' and top level directive must start at the 1st character.
+
 Variables substitution
 ----------------------
 
