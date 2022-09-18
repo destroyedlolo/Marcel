@@ -16,8 +16,9 @@ TestValue=3
 # Directive without argument
 TestFlag
 
+# --------------
 # Entering in a section
 *TEST=toto
 
 # This section is disabled at startup
-	Disabled
+#	Disabled

@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 /* ***
  * instantiate module's structure.
@@ -140,14 +141,53 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;	/* Directive not handled by any of sections */
 }
 
+/**
+ * @brief Task to be launched in slave thread to process Test section
+ *
+ * @param actx section_test stucture corresponding to the section
+ *
+ * Notez-bien : as test value is displayed at 'I'nformation level, it will
+ * be shown only if Marcel is launched in verbose (or debug) mode.
+ */
+static void *processTest(void *actx){
+	struct section_test *s = (struct section_test *)actx;	/* Only to avoid multiple cast */
+	uint8_t mid = s->section.id & 0xff;	/* Module identifier */
+
+		/* 1st of all, checking if the section is active */
+	if(s->section.disabled){
+		publishLog('d', "{%s] is disabled", s->section.uid);
+		pthread_exit(0);
+	}
+
+		/* If not event driven, most of the time, the section code
+		 * is an endless loop.
+		 */
+	for(;;){
+		/* section's fields are accessible
+		 * Only one task is accessing to section fields.
+		 */
+		publishLog('I', "Test's dummy : %d", s->dummy++);	
+
+		/* and module's ones as well.
+		 * CAUTION : if one section is modifying module's fields, arbitration
+		 * is required (i.e : semaphore)
+		 */
+		s->dummy %= ((struct module_test *)modules[mid])->test;
+
+		sleep(2);
+	}
+}
 
 /**
- * @brief get the function to run as a slave for sections
+ * @brief returns the function to process specified section as a slave thread
  *
  * @param sid section id
  * @return function to launch in slave thread or NULL if none
  */
 ThreadedFunctionPtr mt_getSlaveFunction(uint8_t sid){
+	if(sid == ST_TEST)
+		return processTest;
+
 	return NULL;
 }
 

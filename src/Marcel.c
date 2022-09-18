@@ -473,11 +473,12 @@ int main(int ac, char **av){
 
 		if(modules[mid]->getSlaveFunction){
 			ThreadedFunctionPtr slave = modules[mid]->getSlaveFunction(sid);
-printf("%s : %p\n", s->uid, slave);
 
-			if(slave && pthread_create( &(s->thread), &thread_attr, slave, s) < 0){
-				publishLog('F', "[%s] Can't create a processing thread", s->uid);
-				exit(EXIT_FAILURE);
+			if(slave){
+				if(pthread_create( &(s->thread), &thread_attr, slave, s) < 0){
+					publishLog('F', "[%s] Can't create a processing thread", s->uid);
+					exit(EXIT_FAILURE);
+				}
 			}
 #ifdef DEBUG
 			else if(cfg.debug)
