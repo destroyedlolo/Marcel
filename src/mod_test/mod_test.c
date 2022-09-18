@@ -128,6 +128,8 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == ST_TEST){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Sample=") )
+			return true;	/* Accepted */
 		else {	
 				/* Custom error message.
 				 * Well it's only an example as it's the default message

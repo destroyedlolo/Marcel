@@ -111,6 +111,15 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tStarting DISABLED");
 
 			return ACCEPTED;
+		} else if((arg = striKWcmp(directive,"Sample="))){
+			acceptSectionDirective( *section, "Sample=" );
+
+			(*section)->sample = atoi(arg);
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tSample time : %d", (*section)->sample);
+
+			return ACCEPTED;
 		}
 	}
 

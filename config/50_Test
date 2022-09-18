@@ -20,5 +20,8 @@ TestFlag
 # Entering in a section
 *TEST=toto
 
+# Delay between displays
+	Sample=2
+
 # This section is disabled at startup
 #	Disabled
