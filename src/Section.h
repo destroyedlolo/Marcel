@@ -31,7 +31,7 @@ struct Section {
 
 		/* options that may or may not used in this kind of section */
 	bool keep;				/* Stay alive in cas of failure */
-	int sample;				/* sample rate */
+	double sample;			/* sample rate or delay */
 
 		/* Lua callbacks called in case of failure */
 	const char *failfunc;

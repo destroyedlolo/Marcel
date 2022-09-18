@@ -21,7 +21,8 @@ TestFlag
 *TEST=toto
 
 # Delay between displays
-	Sample=2
+# if < 0, will run only once
+	Sample=1.5
 
 # This section is disabled at startup
 #	Disabled

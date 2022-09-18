@@ -155,9 +155,8 @@ static void *processTest(void *actx){
 	struct section_test *s = (struct section_test *)actx;	/* Only to avoid multiple cast */
 	uint8_t mid = s->section.id & 0xff;	/* Module identifier */
 
-		/* 1st of all, checking if the section is active */
-	if(s->section.disabled){
-		publishLog('d', "{%s] is disabled", s->section.uid);
+	if(!s->section.sample){
+		publishLog('E', "{%s] Sample time can't be 0. Dying ...", s->section.uid);
 		pthread_exit(0);
 	}
 
@@ -165,18 +164,44 @@ static void *processTest(void *actx){
 		 * is an endless loop.
 		 */
 	for(;;){
-		/* section's fields are accessible
-		 * Only one task is accessing to section fields.
-		 */
-		publishLog('I', "Test's dummy : %d", s->dummy++);	
+			/* 1st of all, checking if the section is active */
+		if(s->section.disabled){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+		} else {	/* Processing */
 
-		/* and module's ones as well.
-		 * CAUTION : if one section is modifying module's fields, arbitration
-		 * is required (i.e : semaphore)
-		 */
-		s->dummy %= ((struct module_test *)modules[mid])->test;
+			/* section's fields are accessible
+			 * Only one task is accessing to section fields.
+			 */
+			publishLog('I', "Test's dummy : %d", s->dummy++);	
 
-		sleep(2);
+			/* and module's ones as well.
+			 * CAUTION : if one section is modifying module's fields, arbitration
+			 * is required (i.e : semaphore)
+			 */
+			s->dummy %= ((struct module_test *)modules[mid])->test;
+		}
+
+		if(s->section.sample < 0){
+			/* Usually, a sampletime < 0 means this process will run only once.
+			 * NOTEZ-BIEN : it's section dependant, other ones may react differently
+			 */
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] runs only once. Dying ...", s->section.uid);
+#endif
+			pthread_exit(0);
+
+		} else {
+			/* Wait for the specified sample time */
+			struct timespec ts;
+			ts.tv_sec = (time_t)s->section.sample;
+			ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
+
+			nanosleep( &ts, NULL );
+		}
 	}
 }
 

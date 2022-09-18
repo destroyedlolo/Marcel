@@ -114,10 +114,10 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 		} else if((arg = striKWcmp(directive,"Sample="))){
 			acceptSectionDirective( *section, "Sample=" );
 
-			(*section)->sample = atoi(arg);
+			(*section)->sample = atof(arg);
 
 			if(cfg.verbose)
-				publishLog('C', "\t\tSample time : %d", (*section)->sample);
+				publishLog('C', "\t\tSample time : %lf", (*section)->sample);
 
 			return ACCEPTED;
 		}
