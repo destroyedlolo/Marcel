@@ -2,6 +2,7 @@
 
 gotoall: all
 
+# Clean previous builds sequels
 clean:
 	rm *.so
 

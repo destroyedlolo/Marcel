@@ -71,6 +71,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+
 struct Config cfg;
 bool configtest = false;
 
@@ -450,6 +451,7 @@ int main(int ac, char **av){
 	}
 
 		/* Display / publish copyright */
+	puts("");
 	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
 	publishLog('W', MARCEL_COPYRIGHT);
 

@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC -DDEBUG
+opts=-Wall -O2 -fPIC -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_test.o : mod_test.c mod_test.h ../Module.h ../Section.h Makefile 
 	$(cc) -c -o mod_test.o mod_test.c $(opts) 

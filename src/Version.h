@@ -42,6 +42,7 @@
  * 16/11/2021	- LF - v7.07 - Publish alerts
  * 			-----------
  * 06/09/2022	- LF - v8.00 - redesign for modularity
+ * 							 - Sample can be a float
  */
 
 #ifndef MARCEL_VERSION_H

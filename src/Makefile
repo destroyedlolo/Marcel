@@ -6,9 +6,9 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC -DDEBUG 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c  -lm -ldl -Wl,--export-dynamic -lpthread 	
+opts=-Wall -O2 -fPIC -DDEBUG -DMCHECK="mcheck(NULL)" 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c  -lm -ldl -Wl,--export-dynamic -lpthread 	
 
-Marcel.o : Marcel.c Marcel.h Version.h mod_core.h Module.h Section.h \
+Marcel.o : Marcel.c Marcel.h Version.h Module.h Section.h mod_core.h \
   Makefile 
 	$(cc) -c -o Marcel.o Marcel.c $(opts) 
 

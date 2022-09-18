@@ -13,6 +13,9 @@ BUILD_TEST=1
 # Enable debugging messages
 DEBUG=1
 
+# MCHECK - check memory concistency (see glibc's mcheck())
+MCHECK=1
+
 
 # Where to put so plugins
 # ---
@@ -34,6 +37,8 @@ PLUGIN_DIR=$( pwd )
 # Build MakeMaker's rules
 # =======================
 
+echo -e "\nSet build options\n=================\n"
+
 CFLAGS="-Wall -O2 -fPIC"
 RDIR=$( pwd )
 
@@ -43,16 +48,28 @@ else
 	echo "DEBUG not defined"
 fi
 
+if [ ${MCHECK+x} ]; then
+	echo "Memory checking activated"
+
+	MCHECK='-DMCHECK="mcheck(NULL)"'
+	MCHECK_LIB="-lmcheck"
+else
+	echo "No memory checking"
+fi
+
+
 # ===============
 # Build Makefiles
 # ===============
+
+echo -e "\nBuild Makefiles\n===============\n"
 
 echo "# global Makefile that is calling sub directories ones" > Makefile
 echo >> Makefile
 echo "gotoall: all" >> Makefile
 echo >> Makefile
 
-echo "# Clean previous builds sequels"
+echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
 echo -e "\trm *.so" >> Makefile
 
@@ -70,13 +87,13 @@ echo -e '\t$(MAKE) -C src' >> Makefile
 
 if [ ${BUILD_TEST+x} ]; then
 	cd src/mod_test
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG" *.c -so=../../mod_test.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK" *.c -so=../../mod_test.so > Makefile
 	cd ../..
 fi
 
 cd src
 
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG \
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread \
 	" *.c -t=../Marcel > Makefile
