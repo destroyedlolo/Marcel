@@ -157,7 +157,6 @@ void init_module_core(){
 	assert((cfg.ClientID = strdup(t)));
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.client = NULL;
-	cfg.ConLostFatal = false;
 
 		/* init vslookup */
 	setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, false);

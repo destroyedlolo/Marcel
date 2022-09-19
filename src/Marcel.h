@@ -43,7 +43,6 @@ extern struct Config {
 	const char *Broker;		/* Broker's URL */
 	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
 	MQTTClient client;
-	bool ConLostFatal;		/* Die if broker connection is lost */
 } cfg;
 
 extern struct _VarSubstitution {

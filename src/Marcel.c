@@ -70,6 +70,7 @@
 #include <libgen.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <signal.h>
 
 
 struct Config cfg;
@@ -393,6 +394,28 @@ static void read_configuration( const char *dir ){
 	free(cwd);
 }
 
+	/*
+	 * Broker related functions
+	 */
+static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+	MQTTClient_freeMessage(&msg);
+	MQTTClient_free(topic);
+	return 1;
+}
+
+static void connlost(void *ctx, char *cause){
+	publishLog('E', "Broker connection lost due to %s", cause);
+	exit(EXIT_FAILURE);
+}
+
+static void brkcleaning(void){	/* Clean broker stuffs */
+	MQTTClient_disconnect(cfg.client, 10000);	/* 10s for the grace period */
+	MQTTClient_destroy(&cfg.client);
+}
+
+static void handleInt(int na){
+	exit(EXIT_SUCCESS);
+}
 
 int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
@@ -450,8 +473,37 @@ int main(int ac, char **av){
 		exit(EXIT_FAILURE);
 	}
 
-		/* Display / publish copyright */
 	puts("");
+
+
+		/* Init MQTT stuffs */
+	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+	conn_opts.reliable = 0;
+	MQTTClient_create( &cfg.client, cfg.Broker, cfg.ClientID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	MQTTClient_setCallbacks( cfg.client, NULL, connlost, msgarrived, NULL);
+
+	int err;
+	switch( err=MQTTClient_connect( cfg.client, &conn_opts) ){
+	case MQTTCLIENT_SUCCESS : 
+		break;
+	case 1 : publishLog('F', "[%s] Unable to connect : Unacceptable protocol version", cfg.Broker);
+		exit(EXIT_FAILURE);
+	case 2 : publishLog('F', "[%s] Unable to connect : Identifier rejected", cfg.Broker);
+		exit(EXIT_FAILURE);
+	case 3 : publishLog('F', "[%s] Unable to connect : Server unavailable", cfg.Broker);
+		exit(EXIT_FAILURE);
+	case 4 : publishLog('F', "[%s] Unable to connect : Bad user name or password", cfg.Broker);
+		exit(EXIT_FAILURE);
+	case 5 : publishLog('F', "[%s] Unable to connect : Not authorized", cfg.Broker);
+		exit(EXIT_FAILURE);
+	default :
+		publishLog('F', "[%s] Unable to connect (%d)", cfg.Broker, err);
+		exit(EXIT_FAILURE);
+	}
+	atexit(brkcleaning);
+
+
+		/* Display / publish copyright */
 	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
 	publishLog('W', MARCEL_COPYRIGHT);
 
@@ -489,6 +541,7 @@ int main(int ac, char **av){
 		}
 	}
 
+	signal(SIGINT, handleInt);
 pause();
 
 	exit(EXIT_SUCCESS);

@@ -9,6 +9,7 @@
 
 # MQTT Broker's URL
 #Broker=tcp://localhost:1883
+Broker=tcp://bpi.chez.moi:1883
 
 #
 # Load modules
