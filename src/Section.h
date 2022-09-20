@@ -33,9 +33,12 @@ struct Section {
 	bool keep;				/* Stay alive in cas of failure */
 	double sample;			/* sample rate or delay */
 
-		/* Lua callbacks called in case of failure */
-	const char *failfunc;
-	int failfuncid;
+		/* Lua callbacks
+		 * (only applicable to some sections)
+		 */
+	const char *funcname;	/* User function to call on data arrival */
+	int funcid;			/* Function id in Lua registry */
+
 };
 
 extern struct Section *sections;

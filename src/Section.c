@@ -50,6 +50,6 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->keep = false;
 	section->sample = 0;
 
-	section->failfunc = NULL;
-	section->failfuncid = -1;
+	section->funcname = NULL;
+	section->funcid = -1;
 }
