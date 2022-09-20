@@ -55,6 +55,7 @@
  */
 #include "Marcel.h"
 #include "Version.h"
+#include "MQTT_tools.h"
 
 #include "Module.h"
 #include "Section.h"
@@ -132,16 +133,10 @@ int chksum(const char *s){
  */
 void publishLog( char l, const char *msg, ...){
 	va_list args;
-	va_start(args, msg);
 
-	if(cfg.verbose || l=='E' || l=='F'){
-		char t[ strlen(msg) + 7 ];
-		sprintf(t, "*%c* %s\n", l, msg);
-		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
-	}
-
- #if 0
 	if(cfg.client){
+		va_start(args, msg);
+
 		char *sub;
 		switch(l){
 		case 'F':
@@ -169,9 +164,20 @@ void publishLog( char l, const char *msg, ...){
 		vsnprintf(tmsg, sizeof(tmsg), msg, args);
 
 		mqttpublish( cfg.client, ttopic, strlen(tmsg), tmsg, 0);
+
+		va_end(args);
 	}
-	va_end(args);
-#endif
+
+	if(cfg.verbose || l=='E' || l=='F'){
+		va_start(args, msg);
+
+		char t[ strlen(msg) + 7 ];
+		sprintf(t, "*%c* %s\n", l, msg);
+		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
+
+		va_end(args);
+	}
+
 }
 
 

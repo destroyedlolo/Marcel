@@ -8,8 +8,8 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC -DDEBUG -DMCHECK="mcheck(NULL)" 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c  -lm -ldl -Wl,--export-dynamic -lpthread 	
 
-Marcel.o : Marcel.c Marcel.h Version.h Module.h Section.h mod_core.h \
-  Makefile 
+Marcel.o : Marcel.c Marcel.h Version.h MQTT_tools.h Module.h Section.h \
+  mod_core.h Makefile 
 	$(cc) -c -o Marcel.o Marcel.c $(opts) 
 
 mod_core.o : mod_core.c mod_core.h Module.h Marcel.h Section.h \
@@ -19,11 +19,15 @@ mod_core.o : mod_core.c mod_core.h Module.h Marcel.h Section.h \
 Module.o : Module.c Module.h Marcel.h Section.h Makefile 
 	$(cc) -c -o Module.o Module.c $(opts) 
 
+MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
+	$(cc) -c -o MQTT_tools.o MQTT_tools.c $(opts) 
+
 Section.o : Section.c Section.h Marcel.h Makefile 
 	$(cc) -c -o Section.o Section.c $(opts) 
 
-../Marcel : Section.o Module.o mod_core.o Marcel.o Makefile 
-	 $(cc) -o ../Marcel Section.o Module.o mod_core.o Marcel.o \
-  $(opts) 
+../Marcel : Section.o MQTT_tools.o Module.o mod_core.o Marcel.o \
+  Makefile 
+	 $(cc) -o ../Marcel Section.o MQTT_tools.o Module.o mod_core.o \
+  Marcel.o $(opts) 
 
 all: ../Marcel 
