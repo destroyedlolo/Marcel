@@ -130,6 +130,13 @@ static void ml_postconfInit( void ){
 
 			lua_pushstring(mod_Lua.L, dirname(rp) );
 			lua_setglobal(mod_Lua.L, "MARCEL_SCRIPT_DIR");
+
+#ifdef DEBUG
+			if(cfg.debug){
+				lua_pushinteger(mod_Lua.L, 1 );
+				lua_setglobal(mod_Lua.L, "MARCEL_DEBUG");
+			}
+#endif
 		} else {
 			publishLog('F', "realpath(%s) : %s", mod_Lua.script, strerror( errno ));
 			exit(EXIT_FAILURE);
