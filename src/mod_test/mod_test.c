@@ -23,7 +23,7 @@
  * instantiate module's structure.
  * ***/
 
-struct module_test mod_test;
+static struct module_test mod_test;
 
 /* ***
  * Unique identifier of section known by this module

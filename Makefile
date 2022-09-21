@@ -8,5 +8,6 @@ clean:
 
 # Build everything
 all:
+	$(MAKE) -C src/mod_Lua
 	$(MAKE) -C src/mod_test
 	$(MAKE) -C src

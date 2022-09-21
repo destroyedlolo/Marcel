@@ -7,7 +7,7 @@
 # Uncomment lines of stuffs to be enabled
 
 # Lua callbacks and plugs-in
-LUA=1
+BUILD_LUA=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
@@ -44,7 +44,7 @@ echo -e "\nSet build options\n=================\n"
 CFLAGS="-Wall -O2 -fPIC"
 RDIR=$( pwd )
 
-if [ ${LUA+x} ]; then
+if [ ${BUILD_LUA+x} ]; then
 # 	Test Lua version (development purpose)
 #	LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
 #	LUA="-isystem $LUA_DIR/include"
@@ -108,6 +108,9 @@ echo -e "\trm *.so" >> Makefile
 echo >> Makefile
 echo "# Build everything" >> Makefile
 echo "all:" >> Makefile
+if [ ${BUILD_LUA+x} ]; then
+	echo -e '\t$(MAKE) -C src/mod_Lua' >> Makefile
+fi
 if [ ${BUILD_TEST+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_test' >> Makefile
 fi
@@ -116,6 +119,12 @@ echo -e '\t$(MAKE) -C src' >> Makefile
 # =================
 # Build all modules
 # =================
+
+if [ ${BUILD_LUA+x} ]; then
+	cd src/mod_Lua
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_Lua.so > Makefile
+	cd ../..
+fi
 
 if [ ${BUILD_TEST+x} ]; then
 	cd src/mod_test
