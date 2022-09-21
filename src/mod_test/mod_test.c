@@ -237,6 +237,7 @@ void InitModule( void ){
 	mod_test.module.readconf = readconf;
 	mod_test.module.acceptSDirective = mt_acceptSDirective;
 	mod_test.module.getSlaveFunction = mt_getSlaveFunction;
+	mod_test.module.postconfInit = NULL;
 
 	if(findModuleByName(mod_test.module.name) != (uint8_t)-1){
 		publishLog('F', "Module '%s' is already loaded", mod_test.module.name);

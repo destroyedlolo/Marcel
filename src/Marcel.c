@@ -316,8 +316,10 @@ static void process_conffile(const char *fch){
 			/* Ask each module if it knows this configuration */
 		enum RC_readconf rc = REJECTED;
 		for(unsigned int i=0; i<number_of_loaded_modules; i++){
-			rc = modules[i]->readconf(i, line, &sec);
+			if(!modules[i]->readconf)
+				continue;
 
+			rc = modules[i]->readconf(i, line, &sec);
 			if(rc == ACCEPTED || rc == SKIP_FILE)
 				break;
 		}
@@ -508,6 +510,14 @@ int main(int ac, char **av){
 	}
 	atexit(brkcleaning);
 
+
+		/* Post conf initialisation to be done after configuration reading */
+	for(unsigned int i=0; i<number_of_loaded_modules; i++){
+		if(!modules[i]->postconfInit)
+			continue;
+
+		modules[i]->postconfInit();
+	}
 
 		/* Display / publish copyright */
 	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
