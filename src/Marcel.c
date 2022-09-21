@@ -354,33 +354,9 @@ static int acceptfile(const struct dirent *entry){
 }
 
 static void read_configuration( const char *dir ){
-	/* to avoid temporary storage for each file to read,
-	 * we chdir() to the configuration directory.
-	 * Consequently, files are accessible from the current
-	 * directory.
-	 */
-
-		/* keep the cwd */
-	char *cwd = realpath(".", NULL);
-	if(!cwd){
-		perror("current directory");
-		exit( EXIT_FAILURE );
-	}
-
-#if DEBUG
-	if(cfg.debug){
-		printf("*d* current directory : %s\n", cwd);
-		printf("*d* reading config from : %s\n", dir);
-	}
-#endif
-
-	if(chdir(dir)){	/* go to configuration directory */
-		perror(dir);
-		exit( EXIT_FAILURE );
-	}
-
 	int n;	/* read and sort files */
 	struct dirent **namelist;
+
 	if((n = scandir(".", &namelist, acceptfile, alphasort)) < 0){
 		perror(dir);
 		exit( EXIT_FAILURE );
@@ -395,11 +371,6 @@ static void read_configuration( const char *dir ){
 
 	free(namelist);
 
-	if(chdir(cwd)){
-		perror(cwd);
-		exit( EXIT_FAILURE );
-	}
-	free(cwd);
 }
 
 	/*
@@ -474,11 +445,52 @@ int main(int ac, char **av){
 
 	init_VarSubstitution( vslookup );
 	init_module_core();
+
+	/* ***
+	 * Read the configuration
+	 * ***
+	 * to avoid temporary storage for each file to read,
+	 * we chdir() to the configuration directory.
+	 * Consequently, files are accessible from the current
+	 * directory.
+	 *
+	 * It's done here to allow postconfInit() to run from
+	 * the configuration directory (so Lua's scripts can be load
+	 * relatively to this directory)
+	 */
+
+		/* keep the cwd */
+	char *cwd = realpath(".", NULL);
+	if(!cwd){
+		perror("current directory");
+		exit( EXIT_FAILURE );
+	}
+
+#if DEBUG
+	if(cfg.debug){
+		printf("*d* current directory : %s\n", cwd);
+		printf("*d* reading config from : %s\n", conf_file);
+	}
+#endif
+
+	if(chdir(conf_file)){	/* go to configuration directory */
+		perror(conf_file);
+		exit( EXIT_FAILURE );
+	}
+
+
 	read_configuration( conf_file );
 
 	if(configtest){
 		publishLog('W', "Testing only the configuration ... leaving.");
-		exit(EXIT_FAILURE);
+
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
+
+		exit(EXIT_SUCCESS);
 	}
 
 	puts("");
@@ -495,16 +507,46 @@ int main(int ac, char **av){
 	case MQTTCLIENT_SUCCESS : 
 		break;
 	case 1 : publishLog('F', "[%s] Unable to connect : Unacceptable protocol version", cfg.Broker);
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
 		exit(EXIT_FAILURE);
 	case 2 : publishLog('F', "[%s] Unable to connect : Identifier rejected", cfg.Broker);
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
 		exit(EXIT_FAILURE);
 	case 3 : publishLog('F', "[%s] Unable to connect : Server unavailable", cfg.Broker);
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
 		exit(EXIT_FAILURE);
 	case 4 : publishLog('F', "[%s] Unable to connect : Bad user name or password", cfg.Broker);
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
 		exit(EXIT_FAILURE);
 	case 5 : publishLog('F', "[%s] Unable to connect : Not authorized", cfg.Broker);
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
 		exit(EXIT_FAILURE);
 	default :
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
 		publishLog('F', "[%s] Unable to connect (%d)", cfg.Broker, err);
 		exit(EXIT_FAILURE);
 	}
@@ -518,6 +560,12 @@ int main(int ac, char **av){
 
 		modules[i]->postconfInit();
 	}
+
+	if(chdir(cwd)){
+		perror(cwd);
+		exit( EXIT_FAILURE );
+	}
+	free(cwd);
 
 		/* Display / publish copyright */
 	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
