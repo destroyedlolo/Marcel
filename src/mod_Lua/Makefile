@@ -8,7 +8,7 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DDEBUG -DMCHECK="mcheck(NULL)"
 
-mod_Lua.o : mod_Lua.c mod_Lua.h ../Module.h Makefile 
+mod_Lua.o : mod_Lua.c mod_Lua.h ../Module.h ../Version.h Makefile 
 	$(cc) -c -o mod_Lua.o mod_Lua.c $(opts) 
 
 ../../mod_Lua.so : mod_Lua.o Makefile 

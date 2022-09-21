@@ -1,0 +1,8 @@
+# mod_Lua configuration file
+#
+# Add Lua's user function to Marcel
+
+Needs=mod_Lua
+
+# Where the Lua mother script is located
+UserFuncScript=scripts/LoadAllScripts.lua

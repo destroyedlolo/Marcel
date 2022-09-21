@@ -11,7 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <errno.h>
+#include <libgen.h>
+#include <assert.h>
 
 static struct module_Lua mod_Lua;	/* Module's own structure */
 
@@ -90,6 +92,26 @@ static int exposeFunctions( const char *name, const struct luaL_Reg *funcs){
 	return 1;
 }
 
+static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section **section ){
+	const char *arg;
+
+	if((arg = striKWcmp(l,"UserFuncScript="))){	/* script to load */
+		if(*section){
+			publishLog('F', "UserFuncScript can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		mod_Lua.script = strdup(arg);
+		assert(mod_Lua.script);
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tUser functions definition script : %s", mod_Lua.script);
+
+		return ACCEPTED;
+	}
+
+	return REJECTED;
+}
 
 /* ***
  * Module's initialisation function
@@ -100,17 +122,37 @@ static void clean_lua(void){
 }
 
 static void ml_postconfInit( void ){
-puts("mod_Lua : postconfInit()");
+	if(mod_Lua.script){
+		char rp[ PATH_MAX ];
+		if( realpath( mod_Lua.script, rp ) ){
+			lua_pushstring(mod_Lua.L, basename(rp) );
+			lua_setglobal(mod_Lua.L, "MARCEL_SCRIPT");
+
+			lua_pushstring(mod_Lua.L, dirname(rp) );
+			lua_setglobal(mod_Lua.L, "MARCEL_SCRIPT_DIR");
+		} else {
+			publishLog('F', "realpath(%s) : %s", mod_Lua.script, strerror( errno ));
+			exit(EXIT_FAILURE);
+		}
+
+		int err = luaL_loadfile(mod_Lua.L, mod_Lua.script) || lua_pcall(mod_Lua.L, 0, 0, 0);
+		if(err){
+			publishLog('F', "'%s' : %s", mod_Lua.script, lua_tostring(mod_Lua.L, -1));
+			exit(EXIT_FAILURE);
+		}
+
+	}
 }
 
 void InitModule( void ){
 	mod_Lua.module.name = "mod_Lua";
 
-	mod_Lua.module.readconf = NULL;
+	mod_Lua.module.readconf = ml_readconf;
 	mod_Lua.module.acceptSDirective = NULL;
-	mod_Lua.module.getSlaveFunction = NULL;
+	mod_Lua.module.getSlaveFunction = NULL;			/* No section handled */
 	mod_Lua.module.postconfInit = ml_postconfInit;
 
+	mod_Lua.script = NULL;
 	mod_Lua.exposeFunctions = exposeFunctions;
 
 	if(findModuleByName(mod_Lua.module.name) != (uint8_t)-1){
