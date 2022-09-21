@@ -1,6 +1,6 @@
 This directory contains Lua scripts that are defining user's functions.
 
-Notez-bien : all codes share the same Lua's state. So all identifier **must be unique**.
+:warning:Notez-bien:warning: : all codes share the same Lua's state. So all identifiers **must be unique**.
 
 The following global variables are defined :
 - **MARCEL_SCRIPT_DIR** : where are stored Lua scripts
