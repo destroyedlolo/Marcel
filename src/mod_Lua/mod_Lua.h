@@ -18,6 +18,9 @@ struct module_Lua {
 
 	lua_State *L;
 	pthread_mutex_t onefunc;	/* As using a shared state, only one func can run at a time */
+
+	/* Callbacks */
+	int (*exposeFunctions)(const char *name, const struct luaL_Reg *funcs);
 };
 
 #endif
