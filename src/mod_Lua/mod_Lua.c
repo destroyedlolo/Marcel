@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <libgen.h>
 #include <assert.h>
+#include <ctype.h>
 
 static struct module_Lua mod_Lua;	/* Module's own structure */
 
@@ -108,6 +109,23 @@ static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section *
 			publishLog('C', "\tUser functions definition script : %s", mod_Lua.script);
 
 		return ACCEPTED;
+	} else if(*section){
+		const char *directive = l;
+
+		while(isspace(*directive))
+			directive++;
+
+		if((arg = striKWcmp(directive,"Func="))){
+			acceptSectionDirective( *section, "Func=" );
+
+			(*section)->funcname = strdup(arg);
+			assert( (*section)->funcname );
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\tFunction : %s", (*section)->funcname);
+
+			return ACCEPTED;
+		}
 	}
 
 	return REJECTED;

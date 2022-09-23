@@ -4,5 +4,8 @@
 
 Needs=mod_Lua
 
-# Where the Lua mother script is located
+# Where the Lua script is located
+# Only one UserFuncScript directive can be present. As a workaround,
+# provided scripts/LoadAllScripts.lua will load all *.lua scripts
+# stored in the same directory.
 UserFuncScript=scripts/LoadAllScripts.lua

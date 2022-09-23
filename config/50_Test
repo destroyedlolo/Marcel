@@ -24,5 +24,12 @@ TestFlag
 # if < 0, will run only once
 	Sample=1.5
 
+# Function to be called when this section is activated
+# Parameters and return values are section dependant (each kind of
+# section has its owns).
+# NOTEZ-BIEN : Only ONE function can run at a time. Consequently, functions
+# have to be AS FAST AS POSSIBLE and NON BLOQUING
+Func=func_Test
+
 # This section is disabled at startup
 #	Disabled

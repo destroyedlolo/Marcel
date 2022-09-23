@@ -9,7 +9,7 @@ for file in lfs.dir(MARCEL_SCRIPT_DIR) do
 		file:sub(1, 1) ~= '.'
 	then
 		if MARCEL_DEBUG then
-			print("Running ", file)
+			print("*Lua* Running ", file)
 			dofile(MARCEL_SCRIPT_DIR .. '/' .. file)
 		end
 	end

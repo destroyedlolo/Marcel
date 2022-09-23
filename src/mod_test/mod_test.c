@@ -130,6 +130,8 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Sample=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
 		else {	
 				/* Custom error message.
 				 * Well it's only an example as it's the default message
