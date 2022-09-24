@@ -6,12 +6,17 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DDEBUG -DMCHECK="mcheck(NULL)"
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
-mod_Lua.o : mod_Lua.c mod_Lua.h ../Module.h ../Version.h Makefile 
+exposedFunction.o : exposedFunction.c mod_Lua.h ../Module.h \
+  ../Version.h Makefile 
+	$(cc) -c -o exposedFunction.o exposedFunction.c $(opts) 
+
+mod_Lua.o : mod_Lua.c mod_Lua.h ../Module.h Makefile 
 	$(cc) -c -o mod_Lua.o mod_Lua.c $(opts) 
 
-../../mod_Lua.so : mod_Lua.o Makefile 
-	 $(cc) -shared -o ../../mod_Lua.so mod_Lua.o $(opts) 
+../../mod_Lua.so : mod_Lua.o exposedFunction.o Makefile 
+	 $(cc) -shared -o ../../mod_Lua.so mod_Lua.o exposedFunction.o \
+  $(opts) 
 
 all: ../../mod_Lua.so 

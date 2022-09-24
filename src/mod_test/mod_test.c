@@ -10,6 +10,9 @@
  * ***/
 
 #include "mod_test.h"	/* module's own stuffs */
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 
 /* ***
  * System's include
@@ -162,6 +165,21 @@ static void *processTest(void *actx){
 		pthread_exit(0);
 	}
 
+		/* Handle Lua functions */
+	struct module_Lua *mod_Lua = NULL;
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
+	if(mod_Lua_id != (uint8_t)-1){
+#ifdef LUA
+		if(s->section.funcname){	/* if an user function defined ? */
+			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+				pthread_exit(NULL);
+			}
+		}
+#endif
+	}
+
 		/* If not event driven, most of the time, the section code
 		 * is an endless loop.
 		 */
@@ -173,6 +191,33 @@ static void *processTest(void *actx){
 				publishLog('d', "[%s] is disabled", s->section.uid);
 #endif
 		} else {	/* Processing */
+
+#ifdef LUA
+			/* Call user function if defined.
+			 * Notez-bien : the implementation is totally module/section
+			 * dependant.
+			 * Here, we decided to pass one argument (dummy value)
+			 * and got a return code.
+			 */
+			if(s->section.funcid != LUA_REFNIL){ /* A function is defined */
+					/* As the state is shared among all threads, it's MANDATORY
+					 * to lock it before any action (like pushing arguments)
+					 * to avoid race condition.
+					 * These stopped periods MUST be as short as possible
+					 */
+				mod_Lua->lockState();
+
+				mod_Lua->pushFUnctionId( s->section.funcid );	/* Push the function to be called */
+				mod_Lua->pushNumber( (double)s->dummy );	/* Push the argument */
+				if(mod_Lua->exec(1, 0)){
+					publishLog('E', "[%s] Test : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_Lua->pop(1);	/* pop NIL from the stack */
+				}
+
+				mod_Lua->unlockState();
+			}
+#endif
 
 			/* section's fields are accessible
 			 * Only one task is accessing to section fields.

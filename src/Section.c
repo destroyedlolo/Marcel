@@ -6,6 +6,12 @@
 
 #include "Section.h"
 
+#ifdef LUA
+#	include <lualib.h>
+#else
+#	define LUA_REFNIL	(-1)
+#endif
+
 struct Section *sections = NULL;
 
 
@@ -51,5 +57,5 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->sample = 0;
 
 	section->funcname = NULL;
-	section->funcid = -1;
+	section->funcid = LUA_REFNIL;
 }

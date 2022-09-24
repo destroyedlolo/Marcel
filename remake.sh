@@ -56,11 +56,11 @@ if [ ${BUILD_LUA+x} ]; then
 
 	if pkg-config --cflags lua$VERLUA > /dev/null 2>&1; then
 		echo "  (Packaged)"
-		LUA="\$(shell pkg-config --cflags lua$VERLUA )"
+		LUA="\$(shell pkg-config --cflags lua$VERLUA ) -DLUA"
 		LUALIB="\$(shell pkg-config --libs lua$VERLUA )"
 	elif pkg-config --cflags lua > /dev/null 2>&1; then
 		echo " (unpackaged)"
-		LUA="\$(shell pkg-config --cflags lua )"
+		LUA="\$(shell pkg-config --cflags lua ) -DLUA"
 		LUALIB="\$(shell pkg-config --libs lua )"
 	else
 		echo " - No package found"
@@ -128,7 +128,7 @@ fi
 
 if [ ${BUILD_TEST+x} ]; then
 	cd src/mod_test
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK" *.c -so=../../mod_test.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_test.so > Makefile
 	cd ../..
 fi
 

@@ -6,11 +6,9 @@
  */
 
 #include "mod_Lua.h"	/* module's own stuffs */
-#include "../Version.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
 #include <libgen.h>
 #include <assert.h>
@@ -18,55 +16,7 @@
 
 static struct module_Lua mod_Lua;	/* Module's own structure */
 
-/* ***
- * Lua exposed functions
- * ***/
-
-static int lmHostname(lua_State *L){
-	char n[HOST_NAME_MAX];
-	gethostname(n, HOST_NAME_MAX);
-
-	lua_pushstring(L, n);
-	return 1;
-}
-
-static int lmClientID(lua_State *L){
-	lua_pushstring(L, cfg.ClientID);
-
-	return 1;
-}
-
-static int lmVersion(lua_State *L){
-	lua_pushstring(L, MARCEL_VERSION);
-
-	return 1;
-}
-
-static int lmCopyright(lua_State *L){
-	lua_pushstring(L, MARCEL_COPYRIGHT);
-
-	return 1;
-}
-
-static const struct luaL_Reg MarcelLib [] = {
-#if 0
-	{"SendNamedMessage", lmSendNMsg},
-	{"SendMessage", lmSendMsg},
-	{"SendMessageSMS", lmSendMsgSMS},
-	{"RiseAlert", lmRiseAlert},		/* ... and send only a mail */
-	{"RiseAlertSMS", lmRiseAlertSMS},	/* ... and send both a mail and a SMS */
-	{"ClearAlert", lmClearAlert},
-	{"SendAlertsCounter", lmSendAlertsCounter},
-	{"MQTTPublish", lmPublish},
-	{"Log", lmLog},
-#endif
-	{"Hostname", lmHostname},
-	{"ClientID", lmClientID},
-	{"Version", lmVersion},
-	{"Copyright", lmCopyright},
-	{NULL, NULL}
-};
-
+	/* Expose function to Lua */
 static int exposeFunctions( const char *name, const struct luaL_Reg *funcs){
 	luaL_newmetatable(mod_Lua.L, name);
 	lua_pushstring(mod_Lua.L, "__index");
@@ -91,6 +41,56 @@ static int exposeFunctions( const char *name, const struct luaL_Reg *funcs){
 	}
 
 	return 1;
+}
+
+	/**
+	 * @brief find user defined function
+	 * @param name function name
+	 * @return function identifier
+	 */
+static int findUserFunc( const char *name ){
+	pthread_mutex_lock( &mod_Lua.onefunc );
+	lua_getglobal(mod_Lua.L, name);
+	if( lua_type(mod_Lua.L, -1) != LUA_TFUNCTION ){
+		if(lua_type(mod_Lua.L, -1) != LUA_TNIL )
+			publishLog('E', "\"%s\" is not a function, a %s", name, lua_typename(mod_Lua.L, lua_type(mod_Lua.L, -1)) );
+		lua_pop(mod_Lua.L, 1);
+		pthread_mutex_unlock( &mod_Lua.onefunc );
+		return LUA_REFNIL;
+	}
+
+	int ref = luaL_ref(mod_Lua.L,LUA_REGISTRYINDEX);	/* Get the reference to the function */
+
+	pthread_mutex_unlock( &mod_Lua.onefunc );
+	return ref;
+}
+
+static void lockState(void){
+	pthread_mutex_lock( &mod_Lua.onefunc );
+}
+
+static void unlockState(void){
+	pthread_mutex_unlock( &mod_Lua.onefunc );
+}
+
+static void pushNumber(const double val){
+	lua_pushnumber( mod_Lua.L, val );
+}
+
+static void pushFUnctionId(int id){
+	lua_rawgeti( mod_Lua.L, LUA_REGISTRYINDEX, id );
+}
+
+static int ml_exec(int narg, int nret){
+	return lua_pcall( mod_Lua.L, narg, nret, 0);
+}
+
+static void ml_pop(int idx){
+	return lua_pop( mod_Lua.L, idx );
+}
+
+static const char *getStringFromStack(int idx){
+	return lua_tostring( mod_Lua.L, idx );
 }
 
 static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -179,6 +179,14 @@ void InitModule( void ){
 
 	mod_Lua.script = NULL;
 	mod_Lua.exposeFunctions = exposeFunctions;
+	mod_Lua.findUserFunc = findUserFunc;
+	mod_Lua.lockState = lockState;
+	mod_Lua.unlockState = unlockState;
+	mod_Lua.pushNumber = pushNumber;
+	mod_Lua.pushFUnctionId = pushFUnctionId;
+	mod_Lua.exec = ml_exec;
+	mod_Lua.pop = ml_pop;
+	mod_Lua.getStringFromStack = getStringFromStack;
 
 	if(findModuleByName(mod_Lua.module.name) != (uint8_t)-1){
 		publishLog('F', "Module '%s' is already loaded", mod_Lua.module.name);

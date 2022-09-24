@@ -21,8 +21,28 @@ struct module_Lua {
 
 	const char *script;			/* Script to load */
 
-	/* Callbacks */
-	int (*exposeFunctions)(const char *name, const struct luaL_Reg *funcs);	/* Expose Lua functions */
+	/* ***
+	 * Callbacks
+	 * ***/
+
+		/* Expose Lua functions */
+	int (*exposeFunctions)(const char *name, const struct luaL_Reg *funcs);
+		/* Find identifier of an user function */
+	int (*findUserFunc)(const char *name);
+		/* locking */
+	void (*lockState)(void);
+	void (*unlockState)(void);
+		/* Push value on state */
+	void (*pushNumber)(const double val);
+		/* Push on state a function by its ID */
+	void (*pushFUnctionId)(int functionid);
+		/* Exec a function */
+	int (*exec)(int narg, int nret);
+		/* Pop a value from stack */
+	void (*pop)(int idx);
+		/* get a string from stack */
+	const char *(*getStringFromStack)(int idx);
 };
 
+extern const struct luaL_Reg MarcelLib [];
 #endif

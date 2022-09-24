@@ -11,7 +11,7 @@
 Needs=mod_test
 
 # Directive with an argument
-TestValue=3
+TestValue=6
 
 # Directive without argument
 TestFlag
