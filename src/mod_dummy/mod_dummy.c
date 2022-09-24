@@ -294,11 +294,6 @@ void InitModule( void ){
 	mod_dummy.module.getSlaveFunction = mt_getSlaveFunction;
 	mod_dummy.module.postconfInit = NULL;
 
-	if(findModuleByName(mod_dummy.module.name) != (uint8_t)-1){
-		publishLog('F', "Module '%s' is already loaded", mod_dummy.module.name);
-		exit(EXIT_FAILURE);
-	}
-
 	register_module( (struct Module *)&mod_dummy );	/* Register the module */
 
 		/*

@@ -196,11 +196,6 @@ void InitModule( void ){
 	mod_Lua.getStringFromStack = getStringFromStack;
 	mod_Lua.getBooleanFromStack = getBooleanFromStack;
 
-	if(findModuleByName(mod_Lua.module.name) != (uint8_t)-1){
-		publishLog('F', "Module '%s' is already loaded", mod_Lua.module.name);
-		exit(EXIT_FAILURE);
-	}
-
 	register_module( (struct Module *)&mod_Lua );	/* Register the module */
 
 	mod_Lua.L = luaL_newstate();		/* opens Lua */

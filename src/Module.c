@@ -63,6 +63,11 @@ uint8_t findModuleByName(const char *name){
  * Add it in the liste of known modules
  */
 void register_module( struct Module *mod ){
+	if(findModuleByName(mod->name) != (uint8_t)-1){
+		publishLog('F', "Module '%s' is already loaded", mod->name);
+		exit(EXIT_FAILURE);
+	}
+
 	if(number_of_loaded_modules >= MAX_MODULES){
 		publishLog('F',"Too many registered modules. Increase MAX_MODULES");
 		exit( EXIT_FAILURE );
