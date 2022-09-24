@@ -93,6 +93,10 @@ static const char *getStringFromStack(int idx){
 	return lua_tostring( mod_Lua.L, idx );
 }
 
+static bool getBooleanFromStack(int idx){
+	return lua_toboolean( mod_Lua.L, idx );
+}
+
 static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -187,6 +191,7 @@ void InitModule( void ){
 	mod_Lua.exec = ml_exec;
 	mod_Lua.pop = ml_pop;
 	mod_Lua.getStringFromStack = getStringFromStack;
+	mod_Lua.getBooleanFromStack = getBooleanFromStack;
 
 	if(findModuleByName(mod_Lua.module.name) != (uint8_t)-1){
 		publishLog('F', "Module '%s' is already loaded", mod_Lua.module.name);

@@ -42,6 +42,8 @@ struct module_Lua {
 	void (*pop)(int idx);
 		/* get a string from stack */
 	const char *(*getStringFromStack)(int idx);
+		/* get a boolean from stack */
+	bool (*getBooleanFromStack)(int idx);
 };
 
 extern const struct luaL_Reg MarcelLib [];
