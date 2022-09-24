@@ -1,6 +1,9 @@
 /* Section.h
  * 	Common section definition
  * 	
+ * This file is part of Marcel project and is following the same
+ * license rules (see LICENSE file)
+ *
  * 14/09/2022 - LF - First version
  */
 

@@ -2,6 +2,9 @@
  *
  * Add Lua's plugins to Marcel
  *
+ * This file is part of Marcel project and is following the same
+ * license rules (see LICENSE file)
+ *
  * 21/09/2022 - LF - First version
  */
 

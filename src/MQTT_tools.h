@@ -2,6 +2,9 @@
  *
  * Definition for tools useful for MQTT processing
  *
+ * This file is part of Marcel project and is following the same
+ * license rules (see LICENSE file)
+ *
  * 13/07/2015 LF : First version
  */
 

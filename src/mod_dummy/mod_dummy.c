@@ -2,6 +2,9 @@
  *
  * This "fake" module only shows how to create a module for Marcel
  *
+ * This file is part of Marcel project and is following the same
+ * license rules (see LICENSE file)
+ *
  * 13/09/2022 - LF - First version
  */
 

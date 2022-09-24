@@ -1,6 +1,9 @@
 /* module.h
  * 	module managements
  *
+ * This file is part of Marcel project and is following the same
+ * license rules (see LICENSE file)
+ *
  * 	08/09/2022 - LF - First version
  */
 

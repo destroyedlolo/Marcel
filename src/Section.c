@@ -1,6 +1,9 @@
 /* Section.c
  * 	section managements
  *
+ * This file is part of Marcel project and is following the same
+ * license rules (see LICENSE file)
+ *
  * 	15/09/2022 - LF - First version
  */
 
