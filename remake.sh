@@ -9,6 +9,9 @@
 # Lua callbacks and plugs-in
 BUILD_LUA=1
 
+# Repetitive task
+BUILD_EVERY=1
+
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
 BUILD_DUMMY=1
@@ -111,6 +114,9 @@ echo "all:" >> Makefile
 if [ ${BUILD_LUA+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_Lua' >> Makefile
 fi
+if [ ${BUILD_EVERY+x} ]; then
+	echo -e '\t$(MAKE) -C src/mod_every' >> Makefile
+fi
 if [ ${BUILD_DUMMY+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_dummy' >> Makefile
 fi
@@ -123,6 +129,12 @@ echo -e '\t$(MAKE) -C src' >> Makefile
 if [ ${BUILD_LUA+x} ]; then
 	cd src/mod_Lua
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_Lua.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_EVERY+x} ]; then
+	cd src/mod_every
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_every.so > Makefile
 	cd ../..
 fi
 

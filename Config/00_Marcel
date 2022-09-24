@@ -15,8 +15,11 @@
 #
 
 # dummy modules showing how to build a plug-in for Marcel
-LoadModule=mod_dummy.so
+# LoadModule=mod_dummy.so
 
 # Lua user functions
 LoadModule=mod_Lua.so
+
+# Repetitive tasks
+LoadModule=mod_every.so
 

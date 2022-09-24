@@ -9,5 +9,6 @@ clean:
 # Build everything
 all:
 	$(MAKE) -C src/mod_Lua
+	$(MAKE) -C src/mod_every
 	$(MAKE) -C src/mod_dummy
 	$(MAKE) -C src
