@@ -6,11 +6,9 @@
 # you MUST set an uniq ID per Marcel instance.
 # Default is : random identifier based on the host name and the process ID
 #ClientID=Marcel
-ClientID=Marcel.dev
 
 # MQTT Broker's URL
 #Broker=tcp://localhost:1883
-Broker=tcp://torchwood.chez.moi:1883
 
 #
 # Load modules
