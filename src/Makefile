@@ -1,12 +1,12 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.6 (May  7 2022 20:46:23) (c)LFSoft 1997
+# LFMakeMaker 1.6 (May  9 2022 15:11:43) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --libs lua5.3 ) 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread 	
+opts=-Wall -O2 -fPIC -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --libs lua5.4 ) 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread 	
 
 Marcel.o : Marcel.c Marcel.h Version.h MQTT_tools.h Module.h Section.h \
   mod_core.h Makefile 

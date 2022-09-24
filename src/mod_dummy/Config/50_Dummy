@@ -8,7 +8,7 @@
 # been loaded, the remaining of this file is ignored.
 #
 # Several Needs= can be provided
-Needs=mod_test
+Needs=mod_dummy
 
 # Directive with an argument
 TestValue=6
@@ -18,7 +18,7 @@ TestFlag
 
 # --------------
 # Entering in a section
-*TEST=toto
+*Dummy=toto
 
 # Delay between displays
 # if < 0, will run only once

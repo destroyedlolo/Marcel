@@ -11,7 +11,7 @@ BUILD_LUA=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
-BUILD_TEST=1
+BUILD_DUMMY=1
 
 # Enable debugging messages
 DEBUG=1
@@ -111,8 +111,8 @@ echo "all:" >> Makefile
 if [ ${BUILD_LUA+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_Lua' >> Makefile
 fi
-if [ ${BUILD_TEST+x} ]; then
-	echo -e '\t$(MAKE) -C src/mod_test' >> Makefile
+if [ ${BUILD_DUMMY+x} ]; then
+	echo -e '\t$(MAKE) -C src/mod_dummy' >> Makefile
 fi
 echo -e '\t$(MAKE) -C src' >> Makefile
 
@@ -126,9 +126,9 @@ if [ ${BUILD_LUA+x} ]; then
 	cd ../..
 fi
 
-if [ ${BUILD_TEST+x} ]; then
-	cd src/mod_test
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_test.so > Makefile
+if [ ${BUILD_DUMMY+x} ]; then
+	cd src/mod_dummy
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_dummy.so > Makefile
 	cd ../..
 fi
 

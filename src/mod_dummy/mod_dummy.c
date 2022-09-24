@@ -1,4 +1,4 @@
-/* mod_test
+/* mod_dummy
  *
  * This "fake" module only shows how to create a module for Marcel
  *
@@ -9,7 +9,7 @@
  * Marcel's own include 
  * ***/
 
-#include "mod_test.h"	/* module's own stuffs */
+#include "mod_dummy.h"	/* module's own stuffs */
 #ifdef LUA
 #	include "../mod_Lua/mod_Lua.h"
 #endif
@@ -26,7 +26,7 @@
  * instantiate module's structure.
  * ***/
 
-static struct module_test mod_test;
+static struct module_dummy mod_dummy;
 
 /* ***
  * Unique identifier of section known by this module
@@ -34,7 +34,7 @@ static struct module_test mod_test;
  */
 
 enum {
-	ST_TEST = 0
+	ST_DUMMY = 0
 };
 
 /**
@@ -67,10 +67,10 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		/* Processing ... */
-		mod_test.test = atoi(arg);
+		mod_dummy.test = atoi(arg);
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tMod_test's \"test\" variable set to %d", mod_test.test);
+			publishLog('C', "\tMod_dummy's \"test\" variable set to %d", mod_dummy.test);
 
 		return ACCEPTED;
 	} else if(!strcmp(l, "TestFlag")){	/* Directive without argument */
@@ -80,13 +80,13 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		/* processing */
-		mod_test.flag = true;
+		mod_dummy.flag = true;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tMod_test's \"flag\" set to 'TRUE'");
+			publishLog('C', "\tMod_dummy's \"flag\" set to 'TRUE'");
 
 		return ACCEPTED;
-	} else if((arg = striKWcmp(l,"*TEST="))){	/* Starting a section definition */
+	} else if((arg = striKWcmp(l,"*Dummy="))){	/* Starting a section definition */
 		/* By convention, section directives starts by a start '*'.
 		 * Its argument is an UNIQUE name : this name is used "OnOff" topic to
 		 * identify which section it has to deal with.
@@ -97,8 +97,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_test *nsection = malloc(sizeof(struct section_test));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_TEST, "TEST");	/* Initialize shared fields */
+		struct section_dummy *nsection = malloc(sizeof(struct section_dummy));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_DUMMY, "Dummy");	/* Initialize shared fields */
 
 			/* Custom fields may need to be initialized as well */
 		nsection->dummy = 0;
@@ -126,9 +126,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
  */
 static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 		/* Check each section types known by this module
-		 * (in this example, only one : ST_TEST)
+		 * (in this example, only one : ST_DUMMY)
 		 */
-	if(sec_id == ST_TEST){
+	if(sec_id == ST_DUMMY){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Sample=") )
@@ -151,17 +151,17 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 /**
  * @brief Task to be launched in slave thread to process Test section
  *
- * @param actx section_test stucture corresponding to the section
+ * @param actx section_dummy stucture corresponding to the section
  *
- * Notez-bien : as test value is displayed at 'I'nformation level, it will
+ * Notez-bien : as value is displayed at 'I'nformation level, it will
  * be shown only if Marcel is launched in verbose (or debug) mode.
  */
 static void *processTest(void *actx){
-	struct section_test *s = (struct section_test *)actx;	/* Only to avoid multiple cast */
+	struct section_dummy *s = (struct section_dummy *)actx;	/* Only to avoid multiple cast */
 	uint8_t mid = s->section.id & 0xff;	/* Module identifier */
 
 	if(!s->section.sample){
-		publishLog('E', "{%s] Sample time can't be 0. Dying ...", s->section.uid);
+		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->section.uid);
 		pthread_exit(0);
 	}
 
@@ -213,7 +213,7 @@ static void *processTest(void *actx){
 				mod_Lua->pushFUnctionId( s->section.funcid );	/* Push the function to be called */
 				mod_Lua->pushNumber( (double)s->dummy );	/* Push the argument */
 				if(mod_Lua->exec(1, 0)){
-					publishLog('E', "[%s] Test : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+					publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else
@@ -226,14 +226,14 @@ static void *processTest(void *actx){
 			 * Only one task is accessing to section fields.
 			 */
 			if(ret)
-				publishLog('I', "Test's dummy : %d", s->dummy);
+				publishLog('I', "Dummy : %d", s->dummy);
 
 			/* and module's ones as well.
 			 * CAUTION : if one section is modifying module's fields, arbitration
 			 * is required (i.e : semaphore)
 			 */
 			s->dummy++;
-			s->dummy %= ((struct module_test *)modules[mid])->test;
+			s->dummy %= ((struct module_dummy *)modules[mid])->test;
 		}
 
 		if(s->section.sample < 0){
@@ -264,7 +264,7 @@ static void *processTest(void *actx){
  * @return function to launch in slave thread or NULL if none
  */
 ThreadedFunctionPtr mt_getSlaveFunction(uint8_t sid){
-	if(sid == ST_TEST)
+	if(sid == ST_DUMMY)
 		return processTest;
 
 	return NULL;
@@ -281,26 +281,26 @@ void InitModule( void ){
 		/*
 		 * Initialize module declarations
 		 */
-	mod_test.module.name = "mod_test";							/* Identify the module */
+	mod_dummy.module.name = "mod_dummy";							/* Identify the module */
 
 		/* Initialize callbacks
 		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
 		 */
-	mod_test.module.readconf = readconf;
-	mod_test.module.acceptSDirective = mt_acceptSDirective;
-	mod_test.module.getSlaveFunction = mt_getSlaveFunction;
-	mod_test.module.postconfInit = NULL;
+	mod_dummy.module.readconf = readconf;
+	mod_dummy.module.acceptSDirective = mt_acceptSDirective;
+	mod_dummy.module.getSlaveFunction = mt_getSlaveFunction;
+	mod_dummy.module.postconfInit = NULL;
 
-	if(findModuleByName(mod_test.module.name) != (uint8_t)-1){
-		publishLog('F', "Module '%s' is already loaded", mod_test.module.name);
+	if(findModuleByName(mod_dummy.module.name) != (uint8_t)-1){
+		publishLog('F', "Module '%s' is already loaded", mod_dummy.module.name);
 		exit(EXIT_FAILURE);
 	}
 
-	register_module( (struct Module *)&mod_test );	/* Register the module */
+	register_module( (struct Module *)&mod_dummy );	/* Register the module */
 
 		/*
 		 * Do internal initialization
 		 */
-	mod_test.test = 0;
-	mod_test.flag = false;
+	mod_dummy.test = 0;
+	mod_dummy.flag = false;
 }

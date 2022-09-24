@@ -1,19 +1,19 @@
-/* mod_test
+/* mod_dummy
  *
  * This "fake" module only shows how to create a module for Marcel
  *
  * 13/09/2022 - LF - First version
  */
 
-#ifndef MOD_TEST_H
-#define MOD_TEST_H
+#ifndef MOD_DUMMY_H
+#define MOD_DUMMY_H
 
 /* Include shared modules definitions and utilities */
 #include "../Module.h"
 #include "../Section.h"
 
 /* Custom structure to store module's configuration */
-struct module_test {
+struct module_dummy {
 		/* The first field MUST BE a "struct Module" which is containing
 		 * all stuffs allowing the interface between Marcel's core and the
 		 * module itself. 
@@ -32,7 +32,7 @@ struct module_test {
  * In this example, only one section but nothing prevent to have several :
  * in such case, they MUST have unique uid.
  */
-struct section_test {
+struct section_dummy {
 		/* The first field MUST BE a "struct Section" which is containing
 		 * all stuffs allowing the interface between Marcel's core and the
 		 * section itself. 

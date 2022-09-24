@@ -58,7 +58,7 @@
 #define MARCEL_COPYRIGHT "Marcel "MARCEL_VERSION" (c) L.Faillie 2015-2022"
 
 #ifdef DEBUG
-#	define DEFAULT_CONFIGURATION_FILE	"config"
+#	define DEFAULT_CONFIGURATION_FILE	"Config"
 #else
 #	define DEFAULT_CONFIGURATION_FILE	"/usr/local/etc/Marcel"
 #endif
