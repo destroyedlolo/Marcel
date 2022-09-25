@@ -29,7 +29,7 @@ static struct module_every mod_every;
 
 	/* Section identifier */
 enum {
-	ST_EVERY = 0
+	SE_EVERY = 0
 };
 
 /* ***
@@ -45,7 +45,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_every *nsection = malloc(sizeof(struct section_every));
-		initSection( (struct Section *)nsection, mid, ST_EVERY, "Every");
+		initSection( (struct Section *)nsection, mid, SE_EVERY, "Every");
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -57,11 +57,32 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	 return REJECTED;
 }
 
+static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
+	if(sec_id == SE_EVERY){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Sample=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+		else {	
+				/* Custom error message.
+				 * Well it's only an example as it's the default message
+				 * raised.
+				 */
+			publishLog('F', "'%s' not allowed here", directive);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	return false;	/* not accepted */
+}
+
 void InitModule( void ){
 	mod_every.module.name = "mod_every";
 
 	mod_every.module.readconf = readconf;
-	mod_every.module.acceptSDirective = NULL;
+	mod_every.module.acceptSDirective = me_acceptSDirective;
 	mod_every.module.getSlaveFunction = NULL;
 	mod_every.module.postconfInit = NULL;
 
