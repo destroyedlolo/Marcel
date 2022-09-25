@@ -33,7 +33,7 @@ void acceptSectionDirective( struct Section *section, const char *directive ){
 		exit( EXIT_FAILURE );
 	}
 
-	if( modules[mid]->acceptSDirective && !modules[mid]->acceptSDirective(sid,directive) ){
+	if( !(modules[mid]->acceptSDirective && modules[mid]->acceptSDirective(sid,directive)) ){
 		publishLog('F', "'%s' not allowed here", directive);
 		exit(EXIT_FAILURE);
 	}

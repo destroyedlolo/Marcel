@@ -129,7 +129,7 @@ static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section *
 			assert( (*section)->funcname );
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\tFunction : %s", (*section)->funcname);
+				publishLog('C', "\t\tFunction : %s", (*section)->funcname);
 
 			return ACCEPTED;
 		}
