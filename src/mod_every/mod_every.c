@@ -33,6 +33,39 @@ enum {
 };
 
 /* ***
+ * Processing
+ * ***/
+static void *processEvery(void *actx){
+	struct section_every *s = (struct section_every *)actx;	/* Only to avoid multiple cast */
+
+		/* Sanity checks */
+	if(s->section.sample <= 0){
+		publishLog('E', "[%s] Sample time can't be negative of null. Dying ...", s->section.uid);
+		pthread_exit(0);
+	}
+
+	struct module_Lua *mod_Lua = NULL;
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+	if(mod_Lua_id == (uint8_t)-1){
+		publishLog('E', "[%s] Every without Lua support is useless. This thread is dying.", s->section.uid);
+		pthread_exit(NULL);
+	}
+
+#ifdef LUA
+	if(s->section.funcname){	/* if an user function defined ? */
+		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+		if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+			pthread_exit(NULL);
+		}
+	}
+
+	for(bool first=true;; first=false){
+	}
+#endif
+}
+
+/* ***
  * Module interface
  * ***/
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -65,6 +98,8 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Immediate") )
+			return true;	/* Accepted */
 		else {	
 				/* Custom error message.
 				 * Well it's only an example as it's the default message
@@ -76,6 +111,19 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 	}
 
 	return false;	/* not accepted */
+}
+
+/**
+ * @brief returns the function to process specified section as a slave thread
+ *
+ * @param sid section id
+ * @return function to launch in slave thread or NULL if none
+ */
+ThreadedFunctionPtr me_getSlaveFunction(uint8_t sid){
+	if(sid == SE_EVERY)
+		return processEvery;
+
+	return NULL;
 }
 
 void InitModule( void ){
