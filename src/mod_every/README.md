@@ -11,8 +11,13 @@ Repeat a function *every* seconds.
 ### Accepted directives
 * **Sample=** Number of seconds between samples, in seconds
 * **Func=** Function to execute
-* **Immediate** Execute at startup (or when the section is enabled) then wait for *sample* seconds
-* **Disabled** Section is disabled at startup
+* **Topic=** passed as argument (see bellow) [optional]
+* **Immediate** Execute at startup (or when the section is enabled) then wait for *sample* seconds [optional]
+* **Disabled** Section is disabled at startup [optional]
+
+### Argument
+
+* **Topic=**'s content if provided, the section name otherwise.
 
 ## Section At
 Launch a function at the given time, daily.
