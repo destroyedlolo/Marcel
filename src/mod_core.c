@@ -123,6 +123,16 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tSample time : %lf", (*section)->sample);
 
 			return ACCEPTED;
+		} else if((arg = striKWcmp(directive,"Topic="))){
+			acceptSectionDirective( *section, "Topic=" );
+
+			(*section)->topic = strdup(arg);
+			assert((*section)->topic);
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tTopic : '%s'", (*section)->topic);
+
+			return ACCEPTED;
 		} else if(!strcmp(directive, "Immediate")){
 			acceptSectionDirective( *section, directive );
 
