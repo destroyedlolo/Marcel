@@ -12,3 +12,8 @@ Substitution is done globally in configuration files.
 
 * **%ClientID%** is replaced by the MQTT's ClientID. 
 * **%Hostname%** is replaced by the hostname
+
+ToDo
+====
+
+mod\_every : manage "Immediate" when On after Off

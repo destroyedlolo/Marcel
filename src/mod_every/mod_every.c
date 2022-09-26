@@ -125,6 +125,8 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */
 		else {	
