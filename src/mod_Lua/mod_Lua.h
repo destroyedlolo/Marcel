@@ -37,6 +37,7 @@ struct module_Lua {
 	void (*unlockState)(void);
 		/* Push value on state */
 	void (*pushNumber)(const double val);
+	void (*pushString)(const char *val);
 		/* Push on state a function by its ID */
 	void (*pushFUnctionId)(int functionid);
 		/* Exec a function */

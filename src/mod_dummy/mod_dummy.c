@@ -101,7 +101,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_dummy *nsection = malloc(sizeof(struct section_dummy));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_DUMMY, "Dummy");	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, ST_DUMMY, strdup(arg));	/* Initialize shared fields */
 
 			/* Custom fields may need to be initialized as well */
 		nsection->dummy = 0;

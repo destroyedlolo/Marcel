@@ -9,6 +9,8 @@
 
 #include "Section.h"
 
+#include <assert.h>
+
 #ifdef LUA
 #	include <lualib.h>
 #else
@@ -44,6 +46,8 @@ struct Section *findSectionByName(const char *name){
  * @param name Section's name (its pointer is only copied)
  */
 void initSection( struct Section *section, int8_t module_id, uint8_t section_id, const char *name){
+	assert( name );	/* as most of the time allocated by a strdup() */
+
 	section->next = sections;	/* Replace the head */
 	sections = section;
 	section->id = section_id << 8 | module_id;

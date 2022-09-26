@@ -61,6 +61,33 @@ static void *processEvery(void *actx){
 	}
 
 	for(bool first=true;; first=false){
+		if(s->section.disabled){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+		} else if( !first || s->section.immediate ){
+			mod_Lua->lockState();
+			mod_Lua->pushFUnctionId( s->section.funcid );
+			if(s->section.topic)
+				mod_Lua->pushString( s->section.topic );
+			else
+				mod_Lua->pushString( s->section.uid );
+
+			if(mod_Lua->exec(1, 0)){
+				publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+				mod_Lua->pop(1);	/* pop error message from the stack */
+				mod_Lua->pop(1);	/* pop NIL from the stack */
+			}
+
+			mod_Lua->unlockState();
+		}
+
+		struct timespec ts;
+		ts.tv_sec = (time_t)s->section.sample;
+		ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
+
+		nanosleep( &ts, NULL );
 	}
 #endif
 }
@@ -78,7 +105,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_every *nsection = malloc(sizeof(struct section_every));
-		initSection( (struct Section *)nsection, mid, SE_EVERY, "Every");
+		initSection( (struct Section *)nsection, mid, SE_EVERY, strdup(arg));
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -131,7 +158,7 @@ void InitModule( void ){
 
 	mod_every.module.readconf = readconf;
 	mod_every.module.acceptSDirective = me_acceptSDirective;
-	mod_every.module.getSlaveFunction = NULL;
+	mod_every.module.getSlaveFunction = me_getSlaveFunction;
 	mod_every.module.postconfInit = NULL;
 
 	register_module( (struct Module *)&mod_every );
