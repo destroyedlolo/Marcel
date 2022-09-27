@@ -10,7 +10,13 @@
 #include "../Module.h"
 #include "../Section.h"
 
-	/* own structure */
+	/* **
+	 * own structures 
+	 *
+	 * For the moment, no customisation needed but custom strutures
+	 * prepares the future :)
+	 *
+	 * **/
 struct module_every {
 	struct Module module;
 
@@ -19,4 +25,9 @@ struct module_every {
 struct section_every {
 	struct Section section;
 };
+
+struct section_at {
+	struct Section section;
+};
+
 #endif

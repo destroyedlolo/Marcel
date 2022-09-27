@@ -27,9 +27,10 @@
 
 static struct module_every mod_every;
 
-	/* Section identifier */
+	/* Section identifiers */
 enum {
-	SE_EVERY = 0
+	SE_EVERY = 0,
+	SE_AT
 };
 
 /* ***
@@ -112,6 +113,20 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*At="))){	/* Starting a section definition */
+		if(findSectionByName(arg)){	/* Name must be unique */
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_every *nsection = malloc(sizeof(struct section_at));
+		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg));
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+
+		*section = (struct Section *)nsection;
+		return ACCEPTED;
 	}
 
 	 return REJECTED;
@@ -121,22 +136,25 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == SE_EVERY){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Sample=") )
-			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */
-		else {	
-				/* Custom error message.
-				 * Well it's only an example as it's the default message
-				 * raised.
-				 */
-			publishLog('F', "'%s' not allowed here", directive);
-			exit(EXIT_FAILURE);
-		}
+		else if( !strcmp(directive, "Sample=") )
+			return true;	/* Accepted */
+	} else if(sec_id == SE_AT){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "At=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "RunIfOver") )
+			return true;	/* Accepted */
 	}
 
 	return false;	/* not accepted */
