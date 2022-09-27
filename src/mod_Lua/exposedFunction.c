@@ -5,8 +5,25 @@
 
 #include "mod_Lua.h"	/* module's own stuffs */
 #include "../Version.h"
+#include "../MQTT_tools.h"
 
 #include <unistd.h>
+
+static int lmPublish(lua_State *L){
+	int retain = 0;
+	if(lua_gettop(L) < 2 || lua_gettop(L) > 3){
+		publishLog('E', "In your Lua code, Publish() requires at least 2 arguments : topic, value and optionnaly retain");
+		return 0;
+	}
+
+	const char *topic = luaL_checkstring(L, 1),
+				*val = luaL_checkstring(L, 2);
+	retain =  lua_toboolean(L, 3);
+
+	mqttpublish( cfg.client, topic, strlen(val), (void *)val, retain );
+
+	return 0;
+}
 
 static int lmLog(lua_State *L){
 	if(lua_gettop(L) != 2){
@@ -57,8 +74,8 @@ const struct luaL_Reg MarcelLib [] = {
 	{"RiseAlertSMS", lmRiseAlertSMS},	/* ... and send both a mail and a SMS */
 	{"ClearAlert", lmClearAlert},
 	{"SendAlertsCounter", lmSendAlertsCounter},
-	{"MQTTPublish", lmPublish},
 #endif
+	{"MQTTPublish", lmPublish},
 	{"Log", lmLog},
 	{"Hostname", lmHostname},
 	{"ClientID", lmClientID},
