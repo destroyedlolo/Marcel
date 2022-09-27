@@ -21,27 +21,14 @@ static struct module_Lua mod_Lua;	/* Module's own structure */
 
 	/* Expose function to Lua */
 static int exposeFunctions( const char *name, const struct luaL_Reg *funcs){
-	luaL_newmetatable(mod_Lua.L, name);
-	lua_pushstring(mod_Lua.L, "__index");
-	lua_pushvalue(mod_Lua.L, -2);
-	lua_settable(mod_Lua.L, -3);	/* metatable.__index = metatable */
-
-/* printf("******* version %d\n", LUA_VERSION_NUM); */
-#if LUA_VERSION_NUM < 503
-	/* Insert __name field if Lua < 5.3
-	 * on 5.3+, it's provided out of the box
-	 */
-	lua_pushstring(mod_Lua.L, name);
-	lua_setfield(mod_Lua.L, -2, "__name");
-#endif
-
-	if(funcs){	/* May be NULL if we're creating an empty metatable */
 #if LUA_VERSION_NUM > 501
-		luaL_setfuncs(mod_Lua.L, funcs, 0);
+	lua_newtable(mod_Lua.L);
+	luaL_setfuncs (mod_Lua.L, funcs, 0);
+	lua_pushvalue(mod_Lua.L, -1);	// pluck these lines out if they offend you
+	lua_setglobal(mod_Lua.L, name); // for they clobber the Holy _G
 #else
-		luaL_register(mod_Lua.L, NULL, funcs);
+	luaL_register(mod_Lua.L, name, funcs);
 #endif
-	}
 
 	return 1;
 }
