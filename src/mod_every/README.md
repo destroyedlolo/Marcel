@@ -26,5 +26,6 @@ Launch a function at the given time, daily.
 * **At=** At which time the function will be launched (format HHMM so `1425` means it will be launched at 2.25PM)
 * **Func=** Function to execute
 * **Topic=** passed as argument (see bellow) [optional]
-* **RunIfOver** Execute the function if the specified hour is over
-* **Disabled** Section is disabled at startup
+* **Immediate** Execute at startup (or when the section is enabled) then wait for the given hour [optional]
+* **RunIfOver** Execute the function if the specified hour is over [optional]
+* **Disabled** Section is disabled at startup [optional]

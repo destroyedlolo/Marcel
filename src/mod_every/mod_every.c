@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 static struct module_every mod_every;
 
@@ -93,6 +94,93 @@ static void *processEvery(void *actx){
 #endif
 }
 
+static void waitNextQuery( struct Section *s, bool first, bool runIfOver ){
+			/* Wait for next run */
+	time_t now;
+	struct tm tmt;
+
+	time(&now);
+	localtime_r(&now, &tmt);
+
+	unsigned int h,m;
+	h = ((unsigned int)s->sample) / 100;
+	m = ((unsigned int)s->sample) % 100;
+
+#ifdef DEBUG
+	if(cfg.debug)
+		publishLog('d', "[%s] is expected to run at %02d:%02d", s->uid, h,m);
+#endif
+
+	if(first){	/* First time we're running */
+		if( s->immediate || 
+			( h*60 + m <= tmt.tm_hour * 60 + tmt.tm_min && runIfOver ) /* Overdue */
+		)
+			return;	/* No need to wait */
+	}
+
+		/* waiting */
+	if(h*60 + m <= tmt.tm_hour * 60 + tmt.tm_min)	/* We have to wait until the next day */
+		tmt.tm_hour = h + 24;
+	else
+		tmt.tm_hour = h;
+	tmt.tm_min = m;
+	tmt.tm_sec = 0;
+
+#ifdef DEBUG
+	if(cfg.debug)
+		publishLog('d', "[%s] will really run in %02d:%02d", s->uid, tmt.tm_hour, tmt.tm_min);
+#endif
+
+	sleep( (unsigned int)difftime(mktime( &tmt ), now) );
+}
+
+static void *processAt(void *actx){
+	struct section_at *s = (struct section_at *)actx;	/* Only to avoid multiple cast */
+
+	struct module_Lua *mod_Lua = NULL;
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+	if(mod_Lua_id == (uint8_t)-1){
+		publishLog('E', "[%s] Every without Lua support is useless. This thread is dying.", s->section.uid);
+		pthread_exit(NULL);
+	}
+
+#ifdef LUA
+	if(s->section.funcname){	/* if an user function defined ? */
+		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+		if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+			pthread_exit(NULL);
+		}
+	}
+
+	for(bool first=true;; first=false){
+		if(s->section.disabled){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+		} 
+
+		waitNextQuery((struct Section *)s, first, s->runIfOver);
+
+		mod_Lua->lockState();
+		mod_Lua->pushFUnctionId( s->section.funcid );
+		if(s->section.topic)
+			mod_Lua->pushString( s->section.topic );
+		else
+			mod_Lua->pushString( s->section.uid );
+
+		if(mod_Lua->exec(1, 0)){
+			publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+			mod_Lua->pop(1);	/* pop error message from the stack */
+			mod_Lua->pop(1);	/* pop NIL from the stack */
+		}
+
+		mod_Lua->unlockState();
+	}
+#endif
+}
+
 /* ***
  * Module interface
  * ***/
@@ -119,14 +207,38 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_every *nsection = malloc(sizeof(struct section_at));
+		struct section_at *nsection = malloc(sizeof(struct section_at));
 		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg));
+		nsection->runIfOver = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = (struct Section *)nsection;
 		return ACCEPTED;
+	} else if(*section){
+		if((arg = striKWcmp(l,"At="))){
+			(*section)->sample = (double)atoi(arg);	/* Recycling*/
+
+			if((*section)->sample <= 0){
+				publishLog('E', "[%s] At= can't be null or negative", (*section)->uid);
+				exit(EXIT_FAILURE);
+			}
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tLaunch at : %d", (int)(*section)->sample);
+
+			return ACCEPTED;
+		} else if(!strcmp(l, "RunIfOver")){
+			acceptSectionDirective( *section, l );
+
+			(*(struct section_at **)section)->runIfOver = true;	/* Recycling*/
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tRun if overdue");
+
+			return ACCEPTED;
+		}
 	}
 
 	 return REJECTED;
@@ -151,6 +263,8 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Immediate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "At=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "RunIfOver") )
@@ -169,6 +283,8 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 ThreadedFunctionPtr me_getSlaveFunction(uint8_t sid){
 	if(sid == SE_EVERY)
 		return processEvery;
+	else if(sid == SE_AT)
+		return processAt;
 
 	return NULL;
 }
