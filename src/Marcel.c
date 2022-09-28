@@ -72,7 +72,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <signal.h>
-
+#include <ctype.h>
 
 struct Config cfg;
 bool configtest = false;
@@ -308,10 +308,15 @@ static void process_conffile(const char *fch){
 	}
 
 	while(fgets(l, MAXLINE, f)){
-		if(*l == '#' || *l == '\n')
+		char *line = l;
+
+		while(isspace(*line))
+			line++;
+
+		if(*line == '#' || *line == '\n' || !*line)
 			continue;
 
-		char *line = replaceVar(removeLF(l), vslookup);
+		line = replaceVar(removeLF(line), vslookup);
 
 			/* Ask each module if it knows this configuration */
 		enum RC_readconf rc = REJECTED;

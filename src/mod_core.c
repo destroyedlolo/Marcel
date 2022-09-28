@@ -14,7 +14,6 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -100,13 +99,8 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 		 * ***************/
 
 	} else if(*section){
-		const char *directive = l;
-
-		while(isspace(*directive))
-			directive++;
-
-		if(!strcmp(directive, "Disabled")){
-			acceptSectionDirective( *section, directive );
+		if(!strcmp(l, "Disabled")){
+			acceptSectionDirective( *section, l);
 
 			(*section)->disabled = true;
 
@@ -114,7 +108,7 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tStarting DISABLED");
 
 			return ACCEPTED;
-		} else if((arg = striKWcmp(directive,"Sample="))){
+		} else if((arg = striKWcmp(l, "Sample="))){
 			acceptSectionDirective( *section, "Sample=" );
 
 			(*section)->sample = atof(arg);
@@ -123,7 +117,7 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tSample time : %lf", (*section)->sample);
 
 			return ACCEPTED;
-		} else if((arg = striKWcmp(directive,"Topic="))){
+		} else if((arg = striKWcmp(l, "Topic="))){
 			acceptSectionDirective( *section, "Topic=" );
 
 			(*section)->topic = strdup(arg);
@@ -133,8 +127,8 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tTopic : '%s'", (*section)->topic);
 
 			return ACCEPTED;
-		} else if(!strcmp(directive, "Immediate")){
-			acceptSectionDirective( *section, directive );
+		} else if(!strcmp(l, "Immediate")){
+			acceptSectionDirective( *section, l );
 
 			(*section)->immediate = true;
 
