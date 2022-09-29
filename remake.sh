@@ -12,6 +12,9 @@ BUILD_LUA=1
 # Repetitive task
 BUILD_EVERY=1
 
+# UPS / NUT server
+BUILD_UPS=1
+
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
 BUILD_DUMMY=1
@@ -117,6 +120,9 @@ fi
 if [ ${BUILD_EVERY+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_every' >> Makefile
 fi
+if [ ${BUILD_UPS+x} ]; then
+	echo -e '\t$(MAKE) -C src/mod_ups' >> Makefile
+fi
 if [ ${BUILD_DUMMY+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_dummy' >> Makefile
 fi
@@ -138,6 +144,12 @@ if [ ${BUILD_EVERY+x} ]; then
 	cd ../..
 fi
 
+if [ ${BUILD_UPS+x} ]; then
+	cd src/mod_ups
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_ups.so > Makefile
+	cd ../..
+fi
+
 if [ ${BUILD_DUMMY+x} ]; then
 	cd src/mod_dummy
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_dummy.so > Makefile
@@ -155,7 +167,7 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUALIB \
 	-L$RDIR -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread \
 	" *.c -t=../Marcel > Makefile
 
-echo
-echo "Don't forget if you want to run it without installing first"
-echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
+#echo
+#echo "Don't forget if you want to run it without installing first"
+#echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
 
