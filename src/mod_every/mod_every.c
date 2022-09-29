@@ -154,29 +154,29 @@ static void *processAt(void *actx){
 	}
 
 	for(bool first=true;; first=false){
+		waitNextQuery((struct Section *)s, first, s->runIfOver);
+
 		if(s->section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);
 #endif
-		} 
+		} else {
+			mod_Lua->lockState();
+			mod_Lua->pushFUnctionId( s->section.funcid );
+			if(s->section.topic)
+				mod_Lua->pushString( s->section.topic );
+			else
+				mod_Lua->pushString( s->section.uid );
 
-		waitNextQuery((struct Section *)s, first, s->runIfOver);
+			if(mod_Lua->exec(1, 0)){
+				publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+				mod_Lua->pop(1);	/* pop error message from the stack */
+				mod_Lua->pop(1);	/* pop NIL from the stack */
+			}
 
-		mod_Lua->lockState();
-		mod_Lua->pushFUnctionId( s->section.funcid );
-		if(s->section.topic)
-			mod_Lua->pushString( s->section.topic );
-		else
-			mod_Lua->pushString( s->section.uid );
-
-		if(mod_Lua->exec(1, 0)){
-			publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
-			mod_Lua->pop(1);	/* pop error message from the stack */
-			mod_Lua->pop(1);	/* pop NIL from the stack */
+			mod_Lua->unlockState();
 		}
-
-		mod_Lua->unlockState();
 	}
 #endif
 }

@@ -29,3 +29,7 @@ Launch a function at the given time, daily.
 * **Immediate** Execute at startup (or when the section is enabled) then wait for the given hour [optional]
 * **RunIfOver** Execute the function if the specified hour is over [optional]
 * **Disabled** Section is disabled at startup [optional]
+
+## Example
+
+An example is provided in Config sub directory of the current one
