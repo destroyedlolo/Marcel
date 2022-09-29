@@ -136,6 +136,15 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tRun immediately");
 
 			return ACCEPTED;
+		} else if(!strcmp(l, "Keep")){
+			acceptSectionDirective( *section, l );
+
+			(*section)->keep = true;
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tKeep");
+
+			return ACCEPTED;
 		}
 	}
 
