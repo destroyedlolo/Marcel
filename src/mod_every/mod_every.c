@@ -128,7 +128,12 @@ static void waitNextQuery( struct Section *s, bool first, bool runIfOver ){
 
 #ifdef DEBUG
 	if(cfg.debug)
-		publishLog('d', "[%s] will really run in %02d:%02d", s->uid, tmt.tm_hour, tmt.tm_min);
+		publishLog('d', "[%s] will really run at %d:%02d:%02d",
+			s->uid, 
+			tmt.tm_hour / 24, 
+			tmt.tm_hour % 24, 
+			tmt.tm_min
+		);
 #endif
 
 	sleep( (unsigned int)difftime(mktime( &tmt ), now) );
