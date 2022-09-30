@@ -1,0 +1,33 @@
+# mod_ups configuration file
+# Get UPS informations from a NUT server
+
+Needs=mod_ups
+
+# entering into UPS section
+# Section ID is the identifier of the UPS in NUT server
+*UPS=onduleur
+
+# delay b/w sample 
+	Sample=15
+
+# root of topics
+	Topic=onduleur.dev
+
+# NUT server point of presence (mandatory)
+	Host=bPI.chez.moi
+	Port=3493
+
+# NUT variables to publish
+	Var=ups.load
+	Var=ups.realpower.nominal
+	Var=battery.charge
+	Var=battery.charge.warning
+	Var=input.voltage
+	Var=input.transfer.high
+	Var=input.transfer.low
+
+# Do not die in case of error, sleep until next run
+	Keep
+
+# This section is disabled at startup
+#	Disabled
