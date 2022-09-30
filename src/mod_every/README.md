@@ -32,4 +32,4 @@ Launch a function at the given time, daily.
 
 ## Example
 
-An example is provided in Config sub directory of the current one
+An example is provided in `Config` sub directory of the current one
