@@ -62,6 +62,7 @@ extern void publishLog( char l, const char *msg, ...);
 extern const char *striKWcmp( const char *s, const char *kw );
 extern char *removeLF(char *s);
 extern int chksum(const char *s);
+extern size_t socketreadline( int fd, char *l, size_t sz);
 
 extern bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const char *val, bool freeval);
 extern const char *getSubstitutionVar( struct _VarSubstitution *lookup, const char *name );

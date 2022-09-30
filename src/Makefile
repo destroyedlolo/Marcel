@@ -8,8 +8,11 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --libs lua5.3 ) 	-DPLUGIN_DIR='"/home/laurent/Projets/Marcel"' -L/home/laurent/Projets/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread 	
 
-Marcel.o : Marcel.c Marcel.h Version.h MQTT_tools.h Module.h Section.h \
-  mod_core.h Makefile 
+helpers.o : helpers.c Marcel.h MQTT_tools.h Makefile 
+	$(cc) -c -o helpers.o helpers.c $(opts) 
+
+Marcel.o : Marcel.c Marcel.h Version.h Module.h Section.h mod_core.h \
+  Makefile 
 	$(cc) -c -o Marcel.o Marcel.c $(opts) 
 
 mod_core.o : mod_core.c mod_core.h Module.h Marcel.h Section.h \
@@ -26,8 +29,8 @@ Section.o : Section.c Section.h Marcel.h Makefile
 	$(cc) -c -o Section.o Section.c $(opts) 
 
 ../Marcel : Section.o MQTT_tools.o Module.o mod_core.o Marcel.o \
-  Makefile 
+  helpers.o Makefile 
 	 $(cc) -o ../Marcel Section.o MQTT_tools.o Module.o mod_core.o \
-  Marcel.o $(opts) 
+  Marcel.o helpers.o $(opts) 
 
 all: ../Marcel 

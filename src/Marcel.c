@@ -55,7 +55,6 @@
  */
 #include "Marcel.h"
 #include "Version.h"
-#include "MQTT_tools.h"
 
 #include "Module.h"
 #include "Section.h"
@@ -66,7 +65,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <stdarg.h>
 #include <errno.h>
 #include <libgen.h>
 #include <dirent.h>
@@ -82,103 +80,6 @@ struct _VarSubstitution vslookup[] = {
 	{ "%Hostname%", NULL },
 	{ NULL }
 };
-
-	/* ***
-	 * Helpers
-	 * ***/
-/**
- * @brief compares a string against a keyword
- *
- * @param s string to compare
- * @param kw keyword
- * @return remaining string if the keyword matches or NULL if not
- */
-const char *striKWcmp( const char *s, const char *kw ){
-	size_t klen = strlen(kw);
-	if( strncasecmp(s,kw,klen) )
-		return NULL;
-	else
-		return s+klen;
-}
-
-/**
- * @brief removes a potential LF at the end of the string
- */
-char *removeLF(char *s){
-	size_t l=strlen(s);
-	if(l && s[--l] == '\n')
-		s[l] = 0;
-	return s;
-}
-
-/**
- * @brief returns the checksum of a string
- */
-int chksum(const char *s){
-	int h = 0;
-	while(*s)
-		h += *s++;
-	return h;
-}
-
-	/* ***
-	 * Logging 
-	 * ***/
-
-/**
- * @brief Display and publish log information
- *
- * @param l Log level ('F'atal and 'E'rror goes to stderr, others to stdout)
- * @param msg Message to publish, in printf() format
- */
-void publishLog( char l, const char *msg, ...){
-	va_list args;
-
-	if(cfg.client){
-		va_start(args, msg);
-
-		char *sub;
-		switch(l){
-		case 'F':
-			sub = "/Log/Fatal";
-			break;
-		case 'E':
-			sub = "/Log/Error";
-			break;
-		case 'W':
-			sub = "/Log/Warning";
-			break;
-		case 'I':
-			sub = "/Log/Information";
-			break;
-		case 'R':
-			sub = "/Log/Corrected";
-			break;
-		default :	/* Trace */
-			sub = "/Log";
-		}
-
-		char tmsg[1024];	/* No simple way here to know the message size */
-		char ttopic[ strlen(cfg.ClientID) + strlen(sub) + 1 ];
-		sprintf(ttopic, "%s%s", cfg.ClientID, sub);
-		vsnprintf(tmsg, sizeof(tmsg), msg, args);
-
-		mqttpublish( cfg.client, ttopic, strlen(tmsg), tmsg, 0);
-
-		va_end(args);
-	}
-
-	if(cfg.verbose || l=='E' || l=='F'){
-		va_start(args, msg);
-
-		char t[ strlen(msg) + 7 ];
-		sprintf(t, "*%c* %s\n", l, msg);
-		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
-
-		va_end(args);
-	}
-
-}
 
 
 	/* ***
