@@ -62,6 +62,9 @@ static void *processEvery(void *actx){
 		}
 	}
 
+	if(cfg.verbose)
+		publishLog('I', "Launching a processing flow for Every/%s", s->section.uid);
+
 	for(bool first=true;; first=false){
 		if(s->section.disabled){
 #ifdef DEBUG
@@ -157,6 +160,9 @@ static void *processAt(void *actx){
 			pthread_exit(NULL);
 		}
 	}
+
+	if(cfg.verbose)
+		publishLog('I', "Launching a processing flow for AT/%s", s->section.uid);
 
 	for(bool first=true;; first=false){
 		waitNextQuery((struct Section *)s, first, s->runIfOver);
