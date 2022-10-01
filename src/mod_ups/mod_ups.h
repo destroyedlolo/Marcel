@@ -1,6 +1,6 @@
 /* mod_ups.h
  *
- * This "fake" module only shows how to create a module for Marcel
+ * Retrieves UPS figures through its NUT server
  *
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)
