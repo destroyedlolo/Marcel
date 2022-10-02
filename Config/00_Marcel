@@ -23,3 +23,5 @@ LoadModule=mod_Lua.so
 # Repetitive tasks
 LoadModule=mod_every.so
 
+# Freebox
+LoadModule=mod_freebox.so
