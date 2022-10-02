@@ -11,7 +11,6 @@ none
 
 ### Accepted directives
 * **Sample=** Number of seconds between samples, in seconds
-* **Func=** Function to execute
 * **Topic=** root of topics
 * **Keep** Do not die in case of error, sleep until next run [optional]
 * **Disabled** Section is disabled at startup [optional]
