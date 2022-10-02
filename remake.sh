@@ -15,6 +15,9 @@ BUILD_EVERY=1
 # UPS / NUT server
 BUILD_UPS=1
 
+# Freebox v4/v5 figures
+BUILD_FREEBOX=1
+
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
 BUILD_DUMMY=1
@@ -123,6 +126,9 @@ fi
 if [ ${BUILD_UPS+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_ups' >> Makefile
 fi
+if [ ${BUILD_FREEBOX+x} ]; then
+	echo -e '\t$(MAKE) -C src/mod_freebox' >> Makefile
+fi
 if [ ${BUILD_DUMMY+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_dummy' >> Makefile
 fi
@@ -147,6 +153,12 @@ fi
 if [ ${BUILD_UPS+x} ]; then
 	cd src/mod_ups
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_ups.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_FREEBOX+x} ]; then
+	cd src/mod_freebox
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freebox.so > Makefile
 	cd ../..
 fi
 
