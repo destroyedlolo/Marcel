@@ -3,14 +3,7 @@
  *	A daemon to publish smart home data to MQTT broker and rise alert
  *	if needed.
  *
- * Additional options :
- *	-DFREEBOX : enable Freebox (v4 / v5) statistics
- *	-DUPS : enable UPS statistics (NUT needed)
- *	-DLUA : enable Lua user functions
- *	-DMETEO : enable meteo forcast publishing
- *	-DINOTIFY : add inotify support (needed by *LookForChanges)
- *
- *	Copyright 2015-2018 Laurent Faillie
+ *	Copyright 2015-2022 Laurent Faillie
  *
  *		Marcel is covered by
  *		Creative Commons Attribution-NonCommercial 3.0 License
@@ -282,7 +275,31 @@ static void read_configuration( const char *dir ){
 	/*
 	 * Broker related functions
 	 */
+
+	/* @brief receive a message
+	 *
+	 * Notez-bien : only straight strings are supported for topic and payload
+	 */
 static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+		/* format payload */
+	char payload[msg->payloadlen + 1];
+	memcpy(payload, msg->payload, msg->payloadlen);
+	payload[msg->payloadlen] = 0;
+
+#ifdef DEBUG
+	if(cfg.debug)
+		publishLog('T', "message arrival (topic : '%s', msg : '%s')", topic, payload);
+#endif
+
+		/* looks for a sections that is accepting MQTT's messages */
+	for(struct Section *s = sections; s; s = s->next){
+		if(s->processMsg){
+			if(s->processMsg(topic, payload))	/* true if message processed */
+				break;
+		}
+	}
+	
+		/* Clean messages */
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
 	return 1;

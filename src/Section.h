@@ -31,6 +31,7 @@ struct Section {
 		/* MQTT */
 	const char *topic;
 	bool retained;			/* send MQTT retained message */
+	bool (*processMsg)(const char *, char *);
 
 		/* options that may or may not used in this kind of section */
 	bool keep;				/* Stay alive in cas of failure */

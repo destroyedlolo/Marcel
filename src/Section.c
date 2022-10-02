@@ -60,6 +60,7 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 
 	section->topic = NULL;
 	section->retained = false;
+	section->processMsg = NULL;
 
 	section->keep = false;
 	section->sample = 0;
