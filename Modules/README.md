@@ -1,8 +1,8 @@
 # Source code and modules documentation
 
-**Marcel** is composed of many modules that implements new interfaces and features. 
+**Marcel** is composed of many modules that implement new interfaces and features. 
 They generally don't dependent on others but *core* components and **mod_lua**.
-Each of the modules are documented in their own directorie.
+Each of the modules are documented in their own directory.
 
 ## modules
 
