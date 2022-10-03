@@ -55,4 +55,5 @@ struct section_echo {
 	struct Section section;
 };
 
+extern bool st_echo_processMQTT( const char *, char *);
 #endif

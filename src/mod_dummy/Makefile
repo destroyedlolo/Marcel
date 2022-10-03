@@ -16,8 +16,13 @@ processStructDummy.o : processStructDummy.c mod_dummy.h ../Module.h \
   ../Section.h ../mod_Lua/mod_Lua.h Makefile 
 	$(cc) -c -o processStructDummy.o processStructDummy.c $(opts) 
 
-../../mod_dummy.so : processStructDummy.o mod_dummy.o Makefile 
-	 $(cc) -shared -o ../../mod_dummy.so processStructDummy.o \
-  mod_dummy.o $(opts) 
+sectionEcho.o : sectionEcho.c mod_dummy.h ../Module.h ../Section.h \
+  Makefile 
+	$(cc) -c -o sectionEcho.o sectionEcho.c $(opts) 
+
+../../mod_dummy.so : sectionEcho.o processStructDummy.o mod_dummy.o \
+  Makefile 
+	 $(cc) -shared -o ../../mod_dummy.so sectionEcho.o \
+  processStructDummy.o mod_dummy.o $(opts) 
 
 all: ../../mod_dummy.so 

@@ -37,11 +37,12 @@ static struct module_dummy mod_dummy;
  */
 
 enum {
-	ST_DUMMY = 0
+	ST_DUMMY = 0,
+	ST_ECHO
 };
 
 /**
- * @breif Callback called for each and every line of configuration files
+ * @brief Callback called for each and every line of configuration files
  *
  * @param mid Module id
  * @param l line read
@@ -111,6 +112,23 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*Echo="))){	/* Starting a section definition */
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_echo *nsection = malloc(sizeof(struct section_echo));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_ECHO, strdup(arg));	/* Initialize shared fields */
+
+			/* This section is processing MQTT messages */
+		nsection->section.processMsg = st_echo_processMQTT;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
+		return ACCEPTED;
 	}
 
 	return REJECTED;
@@ -129,7 +147,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
  */
 static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 		/* Check each section types known by this module
-		 * (in this example, only one : ST_DUMMY)
 		 */
 	if(sec_id == ST_DUMMY){
 		if( !strcmp(directive, "Disabled") )
@@ -146,6 +163,11 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 			publishLog('F', "'%s' not allowed here", directive);
 			exit(EXIT_FAILURE);
 		}
+	} else if(sec_id == ST_ECHO){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
 	}
 
 	return false;	/* Directive not handled by any of sections */
@@ -161,6 +183,7 @@ ThreadedFunctionPtr mt_getSlaveFunction(uint8_t sid){
 	if(sid == ST_DUMMY)
 		return processDummy;
 
+	/* No slave for Echo : it will process incoming messages */
 	return NULL;
 }
 
