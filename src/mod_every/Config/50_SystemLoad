@@ -1,6 +1,9 @@
 # Call a function 'Every' seconds
 # Uid of the section is passed as argument to the called function
 # (may be overwriten by 'Topic=' but some bytes are lost in this case)
+
+Needs=mod_every
+
 *Every=Publish system load
 	Sample=15
 	Func=PublishLoad

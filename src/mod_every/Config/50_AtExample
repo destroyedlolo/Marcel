@@ -1,6 +1,9 @@
 # Call a function 'At' the given time
 # Uid of the section is passed as argument to the called function
 # (may be overwriten by 'Topic=' but some bytes are lost in this case)
+
+Needs=mod_every
+
 *At=Test
 	At=0203
 	Func=AtExample
