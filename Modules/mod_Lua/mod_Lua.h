@@ -11,7 +11,7 @@
 #ifndef MOD_LUA_H
 #define MOD_LUA_H
 
-#include "../Module.h"
+#include "../Marcel/Module.h"
 
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */

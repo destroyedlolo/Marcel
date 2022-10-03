@@ -7,7 +7,7 @@
 # Uncomment lines of stuffs to be enabled
 
 # Lua callbacks and plugs-in
-#BUILD_LUA=1
+BUILD_LUA=1
 
 # Repetitive task
 #BUILD_EVERY=1
@@ -118,7 +118,7 @@ echo >> Makefile
 echo "# Build everything" >> Makefile
 echo "all:" >> Makefile
 if [ ${BUILD_LUA+x} ]; then
-	echo -e '\t$(MAKE) -C src/mod_Lua' >> Makefile
+	echo -e '\t$(MAKE) -C Modules/mod_Lua' >> Makefile
 fi
 if [ ${BUILD_EVERY+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_every' >> Makefile
@@ -139,8 +139,8 @@ echo -e '\t$(MAKE) -C Modules/Marcel' >> Makefile
 # =================
 
 if [ ${BUILD_LUA+x} ]; then
-	cd src/mod_Lua
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_Lua.so > Makefile
+	cd Modules/mod_Lua
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK $LUALIB" *.c -so=../../mod_Lua.so > Makefile
 	cd ../..
 fi
 

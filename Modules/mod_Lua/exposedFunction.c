@@ -4,8 +4,8 @@
  */
 
 #include "mod_Lua.h"	/* module's own stuffs */
-#include "../Version.h"
-#include "../MQTT_tools.h"
+#include "../Marcel/Version.h"
+#include "../Marcel/MQTT_tools.h"
 
 #include <unistd.h>
 
