@@ -46,4 +46,13 @@ struct section_dummy {
 	int dummy;
 };
 
+extern void *processDummy(void *);
+
+/* Another section
+ * This one will only "echo" received MQTT messages
+ */
+struct section_echo {
+	struct Section section;
+};
+
 #endif
