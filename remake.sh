@@ -10,13 +10,13 @@
 BUILD_LUA=1
 
 # Repetitive task
-#BUILD_EVERY=1
+BUILD_EVERY=1
 
 # UPS / NUT server
 #BUILD_UPS=1
 
 # Freebox v4/v5 figures
-#BUILD_FREEBOX=1
+BUILD_FREEBOX=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
@@ -121,16 +121,16 @@ if [ ${BUILD_LUA+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_Lua' >> Makefile
 fi
 if [ ${BUILD_EVERY+x} ]; then
-	echo -e '\t$(MAKE) -C src/mod_every' >> Makefile
+	echo -e '\t$(MAKE) -C Modules/mod_every' >> Makefile
 fi
 if [ ${BUILD_UPS+x} ]; then
-	echo -e '\t$(MAKE) -C src/mod_ups' >> Makefile
+	echo -e '\t$(MAKE) -C Modules/mod_ups' >> Makefile
 fi
 if [ ${BUILD_FREEBOX+x} ]; then
-	echo -e '\t$(MAKE) -C src/mod_freebox' >> Makefile
+	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
 fi
 if [ ${BUILD_DUMMY+x} ]; then
-	echo -e '\t$(MAKE) -C src/mod_dummy' >> Makefile
+	echo -e '\t$(MAKE) -C Modules/mod_dummy' >> Makefile
 fi
 echo -e '\t$(MAKE) -C Modules/Marcel' >> Makefile
 
@@ -145,25 +145,25 @@ if [ ${BUILD_LUA+x} ]; then
 fi
 
 if [ ${BUILD_EVERY+x} ]; then
-	cd src/mod_every
+	cd Modules/mod_every
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_every.so > Makefile
 	cd ../..
 fi
 
 if [ ${BUILD_UPS+x} ]; then
-	cd src/mod_ups
+	cd Modules/mod_ups
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_ups.so > Makefile
 	cd ../..
 fi
 
 if [ ${BUILD_FREEBOX+x} ]; then
-	cd src/mod_freebox
+	cd Modules/mod_freebox
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freebox.so > Makefile
 	cd ../..
 fi
 
 if [ ${BUILD_DUMMY+x} ]; then
-	cd src/mod_dummy
+	cd Modules/mod_dummy
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_dummy.so > Makefile
 	cd ../..
 fi

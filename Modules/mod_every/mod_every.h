@@ -7,8 +7,8 @@
 #ifndef MOD_EVERY_H
 #define MOD_EVERY_H
 
-#include "../Module.h"
-#include "../Section.h"
+#include "../Marcel/Module.h"
+#include "../Marcel/Section.h"
 
 	/* **
 	 * own structures 

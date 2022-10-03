@@ -9,7 +9,7 @@
  */
 
 #include "mod_freebox.h"
-#include "../MQTT_tools.h"
+#include "../Marcel/MQTT_tools.h"
 
 #include <stdlib.h>
 #include <string.h>

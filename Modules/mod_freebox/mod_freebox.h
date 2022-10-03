@@ -11,8 +11,8 @@
 #ifndef MOD_FREEBOX_H
 #define MOD_FREEBOX_H
 
-#include "../Module.h"
-#include "../Section.h"
+#include "../Marcel/Module.h"
+#include "../Marcel/Section.h"
 
 struct module_freebox {
 	struct Module module;
