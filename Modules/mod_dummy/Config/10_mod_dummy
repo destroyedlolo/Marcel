@@ -1,0 +1,15 @@
+# Load the module
+
+LoadModule=mod_dummy.so
+
+# Module wise configuration directives
+
+# Directive with an argument
+TestValue=6
+
+# Directive without argument
+TestFlag
+
+
+
+

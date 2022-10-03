@@ -10,18 +10,3 @@
 # MQTT Broker's URL
 #Broker=tcp://localhost:1883
 
-#
-# Load modules
-#
-
-# dummy modules showing how to build a plug-in for Marcel
-# LoadModule=mod_dummy.so
-
-# Lua user functions
-LoadModule=mod_Lua.so
-
-# Repetitive tasks
-LoadModule=mod_every.so
-
-# Freebox
-LoadModule=mod_freebox.so

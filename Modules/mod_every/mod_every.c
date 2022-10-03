@@ -162,7 +162,7 @@ static void *processAt(void *actx){
 	}
 
 	if(cfg.verbose)
-		publishLog('I', "Launching a processing flow for AT/%s", s->section.uid);
+		publishLog('I', "Launching a processing flow for At/%s", s->section.uid);
 
 	for(bool first=true;; first=false){
 		waitNextQuery((struct Section *)s, first, s->runIfOver);
@@ -221,6 +221,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_at *nsection = malloc(sizeof(struct section_at));
 		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg));
 		nsection->runIfOver = false;
+puts("***** 0");
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -256,6 +257,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 }
 
 static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
+puts("**** 1");
 	if(sec_id == SE_EVERY){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
@@ -270,17 +272,20 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 	} else if(sec_id == SE_AT){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Func=") )
+		else if( !strcmp(directive, "Func=") ){
+puts("****** func");
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Topic=") )
+		} else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "At=") )
+		else if( !strcmp(directive, "At=") ){
+puts("******* at");
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "RunIfOver") )
+		} else if( !strcmp(directive, "RunIfOver") )
 			return true;	/* Accepted */
 	}
+puts("**** 2");
 
 	return false;	/* not accepted */
 }
