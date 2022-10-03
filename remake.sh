@@ -7,20 +7,20 @@
 # Uncomment lines of stuffs to be enabled
 
 # Lua callbacks and plugs-in
-BUILD_LUA=1
+#BUILD_LUA=1
 
 # Repetitive task
-BUILD_EVERY=1
+#BUILD_EVERY=1
 
 # UPS / NUT server
-BUILD_UPS=1
+#BUILD_UPS=1
 
 # Freebox v4/v5 figures
-BUILD_FREEBOX=1
+#BUILD_FREEBOX=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
-BUILD_DUMMY=1
+#BUILD_DUMMY=1
 
 # Enable debugging messages
 DEBUG=1
@@ -132,7 +132,7 @@ fi
 if [ ${BUILD_DUMMY+x} ]; then
 	echo -e '\t$(MAKE) -C src/mod_dummy' >> Makefile
 fi
-echo -e '\t$(MAKE) -C src' >> Makefile
+echo -e '\t$(MAKE) -C Modules/Marcel' >> Makefile
 
 # =================
 # Build all modules
@@ -172,12 +172,12 @@ fi
 # Build main source
 # =================
 
-cd src
+cd Modules/Marcel
 
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUALIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread \
-	" *.c -t=../Marcel > Makefile
+	" *.c -t=../../Marcel > Makefile
 
 #echo
 #echo "Don't forget if you want to run it without installing first"
