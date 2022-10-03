@@ -2,13 +2,13 @@
 
 Repeating tasks
 
-### Accepted global directives
+### Global directives
 none
 
 ## Section Every
 Repeat a function *every* seconds.
 
-### Accepted directives
+### Directives
 * **Sample=** Number of seconds between samples, in seconds
 * **Func=** Function to execute
 * **Topic=** passed as argument (see bellow) [optional]
@@ -22,7 +22,7 @@ Repeat a function *every* seconds.
 ## Section At
 Launch a function at the given time, daily.
 
-### Accepted directives
+### Directives
 * **At=** At which time the function will be launched (format HHMM so `1425` means it will be launched at 2.25PM)
 * **Func=** Function to execute
 * **Topic=** passed as argument (see bellow) [optional]
