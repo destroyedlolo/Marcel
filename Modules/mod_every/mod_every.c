@@ -221,7 +221,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_at *nsection = malloc(sizeof(struct section_at));
 		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg));
 		nsection->runIfOver = false;
-puts("***** 0");
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -257,7 +256,6 @@ puts("***** 0");
 }
 
 static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
-puts("**** 1");
 	if(sec_id == SE_EVERY){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
@@ -272,20 +270,17 @@ puts("**** 1");
 	} else if(sec_id == SE_AT){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Func=") ){
-puts("****** func");
+		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
-		} else if( !strcmp(directive, "Topic=") )
+		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "At=") ){
-puts("******* at");
+		else if( !strcmp(directive, "At=") )
 			return true;	/* Accepted */
-		} else if( !strcmp(directive, "RunIfOver") )
+		else if( !strcmp(directive, "RunIfOver") )
 			return true;	/* Accepted */
 	}
-puts("**** 2");
 
 	return false;	/* not accepted */
 }
