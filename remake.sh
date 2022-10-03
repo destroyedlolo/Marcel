@@ -20,7 +20,7 @@ BUILD_FREEBOX=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
-#BUILD_DUMMY=1
+BUILD_DUMMY=1
 
 # Enable debugging messages
 DEBUG=1

@@ -12,8 +12,8 @@
 #define MOD_DUMMY_H
 
 /* Include shared modules definitions and utilities */
-#include "../Module.h"
-#include "../Section.h"
+#include "../Marcel/Module.h"
+#include "../Marcel/Section.h"
 
 /* Custom structure to store module's configuration */
 struct module_dummy {
