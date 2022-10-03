@@ -13,7 +13,7 @@ BUILD_LUA=1
 BUILD_EVERY=1
 
 # UPS / NUT server
-#BUILD_UPS=1
+BUILD_UPS=1
 
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1

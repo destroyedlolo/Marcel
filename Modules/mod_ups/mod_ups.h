@@ -11,8 +11,8 @@
 #ifndef MOD_UPS_H
 #define MOD_UPS_H
 
-#include "../Module.h"
-#include "../Section.h"
+#include "../Marcel/Module.h"
+#include "../Marcel/Section.h"
 
 struct module_ups {
 	struct Module module;

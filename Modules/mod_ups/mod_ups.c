@@ -9,7 +9,7 @@
  */
 
 #include "mod_ups.h"	/* module's own stuffs */
-#include "../MQTT_tools.h"
+#include "../Marcel/MQTT_tools.h"
 
 #ifdef LUA
 #	include "../mod_Lua/mod_Lua.h"
