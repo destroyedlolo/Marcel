@@ -42,8 +42,10 @@ struct Section {
 		 * (only applicable to some sections)
 		 */
 	const char *funcname;	/* User function to call on data arrival */
-	int funcid;			/* Function id in Lua registry */
+	int funcid;				/* Function id in Lua registry */
 
+		/* Callback */
+	void (*postconfInit)(void);	/* Initialisation to be done after configuration phase */
 };
 
 extern struct Section *sections;

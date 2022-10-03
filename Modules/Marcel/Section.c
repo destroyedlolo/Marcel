@@ -67,4 +67,6 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 
 	section->funcname = NULL;
 	section->funcid = LUA_REFNIL;
+
+	section->postconfInit = NULL;
 }
