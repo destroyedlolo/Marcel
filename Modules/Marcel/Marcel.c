@@ -293,7 +293,6 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 
 		/* looks for a sections that is accepting MQTT's messages */
 	for(struct Section *s = sections; s; s = s->next){
-puts("bip");
 		if(s->processMsg){
 			if(s->processMsg(s, topic, payload))	/* true if message processed */
 				break;

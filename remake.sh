@@ -15,6 +15,9 @@ BUILD_EVERY=1
 # UPS / NUT server
 BUILD_UPS=1
 
+# Write to flat files
+BUILD_OUTFILE=1
+
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1
 
@@ -126,6 +129,9 @@ fi
 if [ ${BUILD_UPS+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_ups' >> Makefile
 fi
+if [ ${BUILD_OUTFILE+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_outfile' >> Makefile
+fi
 if [ ${BUILD_FREEBOX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
 fi
@@ -153,6 +159,12 @@ fi
 if [ ${BUILD_UPS+x} ]; then
 	cd Modules/mod_ups
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_ups.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_OUTFILE+x} ]; then
+	cd Modules/mod_outfile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_outfile.so > Makefile
 	cd ../..
 fi
 
