@@ -16,7 +16,12 @@ Example :
 Example : loading Lua module.<br>
 `LoadModule=mod_Lua.so`
 
-### Directive understood by very configuration file
+* **SubLast** indicates that all sections doing MQTT subscription
+are grouped at the end of the configuration.<br>
+It's an optimisation option : Marcel will scan subscriptions from
+the end of the configuration and will stop as soon as it found another section.
+
+### Directive understood by many configuration files
 
 * **Needs=** Ignore this configuration file is a module is not loaded.<br>
 Example : only took in account if `mod_dummy` is loaded<br>
