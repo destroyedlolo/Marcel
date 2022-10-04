@@ -293,10 +293,12 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 
 		/* looks for a sections that is accepting MQTT's messages */
 	for(struct Section *s = sections; s; s = s->next){
+puts("bip");
 		if(s->processMsg){
 			if(s->processMsg(s, topic, payload))	/* true if message processed */
 				break;
-		}
+		} else if(cfg.sublast)
+			break;
 	}
 	
 		/* Clean messages */
@@ -322,7 +324,11 @@ static void handleInt(int na){
 int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
 	int c;
+
+		/* Default values */
 	cfg.debug = false;
+	cfg.verbose = false;
+	cfg.sublast = false;
 
 	while((c = getopt(ac, av, "hvtdf:")) != EOF) switch(c){
 #ifdef DEBUG

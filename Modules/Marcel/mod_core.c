@@ -93,6 +93,13 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 		}
 		return ACCEPTED;
 
+	} else if(!strcmp(l, "SubLast")){
+			if(cfg.verbose)
+				publishLog('C', "\tSubscription topics are grouped at the end");
+			
+			cfg.sublast = true;
+			return ACCEPTED;
+			
 
 		/* ***************
 		 * 	Here starting section's shared directives

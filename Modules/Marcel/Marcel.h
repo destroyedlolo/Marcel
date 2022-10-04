@@ -12,7 +12,7 @@
  * 14/05/2016	- LF - add REST section
  * 07/06/2016	- LF - externalize version
  * 21/08/2016	- LF - starting v6.02, each section MUST have an ID
- * 31/08/2016	- LF - Add "keep" option"
+ * 31/08/2016	- LF - Add "keep" option
  * 01/09/2016	- LF - Add publishLog() function
  * 18/08/2018	- LF - Add absolute time to Every
  * 25/11/2018	- LF - Add safe85 to FFV
@@ -38,6 +38,8 @@
 extern struct Config {
 	bool verbose;
 	bool debug;
+
+	bool sublast;	/* Subscribing sections are at the end */
 
 		/* MQTT related */
 	const char *Broker;		/* Broker's URL */
