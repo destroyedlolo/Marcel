@@ -17,6 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+#include <errno.h>
 
 static struct module_outfile mod_outfile;
 
@@ -40,6 +41,20 @@ static void so_postconfInit(struct Section *asec){
 		exit( EXIT_FAILURE );
 	}
 
+	struct module_Lua *mod_Lua = NULL;
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
+	if(mod_Lua_id != (uint8_t)-1){
+#ifdef LUA
+		if(s->section.funcname){	/* if an user function defined ? */
+			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined.", s->section.uid, s->section.funcname);
+					exit( EXIT_FAILURE );
+				}
+			}
+#endif
+		}
+
 		/* Subscribing */
 	if(MQTTClient_subscribe( cfg.client, s->section.topic, 0 ) != MQTTCLIENT_SUCCESS ){
 		publishLog('E', "Can't subscribe to '%s'", s->section.topic );
@@ -51,7 +66,56 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 	struct section_outfile *s = (struct section_outfile *)asec;	/* avoid lot of casting */
 
 	if(!mqtttokcmp(s->section.topic, topic)){
-		publishLog('I', "[%s] %s", s->section.uid, payload);
+		if(s->section.disabled){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+			return true;
+		}
+
+		struct module_Lua *mod_Lua = NULL;
+		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+
+		if(mod_Lua_id != (uint8_t)-1){
+			bool ret = true;
+
+#ifdef LUA
+			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+				mod_Lua->lockState();
+				mod_Lua->pushFUnctionId( s->section.funcid );
+				mod_Lua->pushString( s->section.uid );
+				mod_Lua->pushString( payload );
+				if(mod_Lua->exec(2, 1)){
+					publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_Lua->pop(1);	/* pop NIL from the stack */
+				} else
+					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+				mod_Lua->unlockState();
+			}
+#endif
+
+			if(ret){
+				FILE *f=fopen( s->file, "w" );
+				if(!f){
+					publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+					return true;
+				}
+				fputs(payload, f);
+				if(ferror(f)){
+					publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+					fclose(f);
+					return true;
+				}
+				publishLog('T', "[%s] '%s' written in '%s'", s->section.uid, payload, s->file);
+				fclose(f);
+			} else 
+				publishLog('T', "[%s] Not write due to Lua function", s->section.uid);
+		}
+		
 		return true;	/* we processed the message */
 	}
 
@@ -98,6 +162,8 @@ static bool mo_acceptSDirective( uint8_t sec_id, const char *directive ){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "File=") )
 			return true;	/* Accepted */

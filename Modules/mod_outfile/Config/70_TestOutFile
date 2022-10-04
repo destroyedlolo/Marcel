@@ -1,0 +1,17 @@
+# mod_outfile example
+
+Needs=mod_outfile
+
+*OutFile=Test outfile
+	# Topic to listen to
+	Topic=%ClientID%/tst_outfile
+
+	# File to be written with message payload
+	File=/tmp/tst_outfile
+
+	# Enabling function(sectionid, payload)
+	# if returns 'true', file is written
+	# Func=
+
+	# Section starting disabled
+	# Disabled
