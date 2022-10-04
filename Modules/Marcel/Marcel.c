@@ -294,7 +294,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		/* looks for a sections that is accepting MQTT's messages */
 	for(struct Section *s = sections; s; s = s->next){
 		if(s->processMsg){
-			if(s->processMsg(topic, payload))	/* true if message processed */
+			if(s->processMsg(s, topic, payload))	/* true if message processed */
 				break;
 		}
 	}
@@ -484,7 +484,7 @@ int main(int ac, char **av){
 
 	for(struct Section *s = sections; s; s = s->next){
 		if(s->postconfInit)
-			s->postconfInit();
+			s->postconfInit(s);
 	}
 
 	if(chdir(cwd)){
@@ -494,13 +494,8 @@ int main(int ac, char **av){
 	free(cwd);
 
 		/* Display / publish copyright */
-	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
 	publishLog('I', MARCEL_COPYRIGHT);
-
-		/* Creating childs */
-	if(cfg.verbose)
-		puts("\nCreating childs processes\n"
-			   "---------------------------");
+	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
 
 	pthread_attr_t thread_attr;
 	assert(!pthread_attr_init (&thread_attr));

@@ -1,0 +1,10 @@
+# Subscribe to echo service
+# For optimisation purposes (see SubLast), sections subscribing
+# have the higher level (70_)
+
+Needs=mod_dummy
+
+*Echo=Echo incoming message
+	Topic=%ClientID%/echo
+
+#	Disable

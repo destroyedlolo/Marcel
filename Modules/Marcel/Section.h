@@ -31,7 +31,7 @@ struct Section {
 		/* MQTT */
 	const char *topic;
 	bool retained;			/* send MQTT retained message */
-	bool (*processMsg)(const char *, char *);
+	bool (*processMsg)(struct Section *, const char *, char *);
 
 		/* options that may or may not used in this kind of section */
 	bool keep;				/* Stay alive in cas of failure */
@@ -45,7 +45,7 @@ struct Section {
 	int funcid;				/* Function id in Lua registry */
 
 		/* Callback */
-	void (*postconfInit)(void);	/* Initialisation to be done after configuration phase */
+	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */
 };
 
 extern struct Section *sections;

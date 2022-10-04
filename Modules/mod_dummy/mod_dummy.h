@@ -55,5 +55,6 @@ struct section_echo {
 	struct Section section;
 };
 
-extern bool st_echo_processMQTT( const char *, char *);
+extern bool st_echo_processMQTT(struct Section *, const char *, char *);
+extern void st_echo_postconfInit(struct Section *);
 #endif

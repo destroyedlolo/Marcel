@@ -11,7 +11,7 @@
 
 #include "MQTT_tools.h"
 
-int mqtttokcmp(register const char *s, register const char *t){
+int mqtttokcmp(const char *s, const char *t){
 	char last = 0;
 	if(!s || !t)
 		return -1;

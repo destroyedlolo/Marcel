@@ -122,7 +122,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		initSection( (struct Section *)nsection, mid, ST_ECHO, strdup(arg));	/* Initialize shared fields */
 
 			/* This section is processing MQTT messages */
-		nsection->section.processMsg = st_echo_processMQTT;
+		nsection->section.postconfInit = st_echo_postconfInit;	/* Subscribe */
+		nsection->section.processMsg = st_echo_processMQTT;		/* Processing */
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);

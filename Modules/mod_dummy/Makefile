@@ -17,7 +17,7 @@ processStructDummy.o : processStructDummy.c mod_dummy.h \
 	$(cc) -c -o processStructDummy.o processStructDummy.c $(opts) 
 
 sectionEcho.o : sectionEcho.c mod_dummy.h ../Marcel/Module.h \
-  ../Marcel/Section.h Makefile 
+  ../Marcel/Section.h ../Marcel/MQTT_tools.h Makefile 
 	$(cc) -c -o sectionEcho.o sectionEcho.c $(opts) 
 
 ../../mod_dummy.so : sectionEcho.o processStructDummy.o mod_dummy.o \
