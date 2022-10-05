@@ -22,7 +22,7 @@ struct module_dpd {
 struct section_dpd {
 	struct Section section;
 
-	const char *errtopic;	/* Topic to publish error to */
+	const char *notiftopic;	/* Topic to publish error to */
 	int rcv;				/* Event for data receiving */
 	bool inerror;			/* true if this DPD is in error */
 };

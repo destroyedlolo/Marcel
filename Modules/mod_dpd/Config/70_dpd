@@ -1,0 +1,20 @@
+# mod_dpd example
+
+Needs=mod_dpd
+
+*DPD=Test DPD
+	# Topic to listen to
+	Topic=%ClientID%/tst_dpd
+
+	# Watchdog timeout (Sample= is also accepted)
+	Timeout=5.0
+
+	# where to notify in case of watchdog
+	NotificationTopic=%ClientID%/watchdog
+
+	# Acceptation function(sectionid, payload)
+	# if returns 'false', watchdog continue
+	Func=Test
+
+	# Section starting disabled
+	Disabled
