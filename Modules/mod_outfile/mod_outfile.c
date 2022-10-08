@@ -77,8 +77,8 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 		struct module_Lua *mod_Lua = NULL;
 		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
 
+		bool ret = true;
 		if(mod_Lua_id != (uint8_t)-1){
-			bool ret = true;
 
 #ifdef LUA
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
@@ -97,25 +97,25 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 				mod_Lua->unlockState();
 			}
 #endif
-
-			if(ret){
-				FILE *f=fopen( s->file, "w" );
-				if(!f){
-					publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
-					return true;
-				}
-				fputs(payload, f);
-				if(ferror(f)){
-					publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
-					fclose(f);
-					return true;
-				}
-				publishLog('T', "[%s] '%s' written in '%s'", s->section.uid, payload, s->file);
-				fclose(f);
-			} else 
-				publishLog('T', "[%s] Not write due to Lua function", s->section.uid);
 		}
-		
+
+		if(ret){
+			FILE *f=fopen( s->file, "w" );
+			if(!f){
+				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+				return true;
+			}
+			fputs(payload, f);
+			if(ferror(f)){
+				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+				fclose(f);
+				return true;
+			}
+			publishLog('T', "[%s] '%s' written in '%s'", s->section.uid, payload, s->file);
+			fclose(f);
+		} else 
+			publishLog('T', "[%s] Not write due to Lua function", s->section.uid);
+
 		return true;	/* we processed the message */
 	}
 
