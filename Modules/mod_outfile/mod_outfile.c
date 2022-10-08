@@ -89,7 +89,7 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 				mod_Lua->pushString( s->section.uid );
 				mod_Lua->pushString( payload );
 				if(mod_Lua->exec(2, 1)){
-					publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+					publishLog('E', "[%s] Outfile : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else
