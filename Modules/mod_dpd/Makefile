@@ -9,7 +9,7 @@ cc=cc
 opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_dpd.o : mod_dpd.c mod_dpd.h ../Marcel/Module.h ../Marcel/Section.h \
-  ../mod_Lua/mod_Lua.h Makefile 
+  ../mod_Lua/mod_Lua.h ../Marcel/MQTT_tools.h Makefile 
 	$(cc) -c -o mod_dpd.o mod_dpd.c $(opts) 
 
 ../../mod_dpd.so : mod_dpd.o Makefile 
