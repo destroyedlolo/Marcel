@@ -101,9 +101,12 @@ static void *processDPD(void *asec){
 			} else
 				pthread_exit(0);
 		case 0:	/* Timeout */
-			if(s->section.disabled)
-				publishLog('T', "[%s] Alerting is disabled", s->section.uid);
-			else {
+			if(s->section.disabled){
+#ifdef DEBUG
+				if(cfg.debug)
+					publishLog('d', "[%s] Alerting is disabled", s->section.uid);
+#endif
+			} else {
 				publishLog('T', "timeout for DPD '%s'", s->section.uid);
 				if(!s->inerror){	/* Entering in error condition */
 					if(!s->notiftopic){		/* No notification topic defined : sending an alert */
@@ -137,9 +140,12 @@ static void *processDPD(void *asec){
 				if(read(s->rcv, &v, sizeof( uint64_t )) == -1)
 					publishLog('E', "[%s] eventfd() : %s - reading notification", s->section.uid, strerror(errno));
 
-				if(s->section.disabled)
-					publishLog('T', "[%s] Disabled", s->section.uid);
-				else {
+				if(s->section.disabled){
+#ifdef DEBUG
+					if(cfg.debug)
+						publishLog('d', "[%s] Disabled", s->section.uid);
+#endif
+				} else {
 					if(s->inerror){	/* Exiting error condition */
 						if(!s->notiftopic){		/* No notification topic defined : sending an alert */
 							char topic[strlen(s->section.uid) + 7]; /* "Alert/" + 1 */
