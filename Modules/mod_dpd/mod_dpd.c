@@ -29,6 +29,53 @@ enum {
 	SD_DPD = 0
 };
 
+static bool sd_processMQTT(struct Section *asec, const char *topic, char *payload){
+	struct section_dpd *s = (struct section_dpd *)asec;
+
+	if(!mqtttokcmp(s->section.topic, topic)){
+		if(s->section.disabled){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+			return true;
+	}
+
+		struct module_Lua *mod_Lua = NULL;
+		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+
+		bool ret = true;
+		if(mod_Lua_id != (uint8_t)-1){
+
+#ifdef LUA
+			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+				mod_Lua->lockState();
+				mod_Lua->pushFUnctionId( s->section.funcid );
+				mod_Lua->pushString( s->section.uid );
+				mod_Lua->pushString( payload );
+				if(mod_Lua->exec(2, 1)){
+					publishLog('E', "[%s] DPD : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_Lua->pop(1);	/* pop NIL from the stack */
+				} else
+					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+				mod_Lua->unlockState();
+			}
+#endif
+		}
+
+		if(ret){
+			uint64_t v = 1;
+			if(write( s->rcv, &v, sizeof(v) ) == -1)	/* Signaling */
+				publishLog('E', "[%s] eventfd to signal message reception : %s", s->section.uid, strerror( errno ));
+		}
+		return true;
+	}
+	return false;	/* Let's try with other sections */
+}
+
 static void *processDPD(void *asec){
 	struct section_dpd *s = (struct section_dpd *)asec;	/* avoid lot of casting */
 
@@ -197,6 +244,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->notiftopic = NULL;
 		nsection->rcv = -1;
 		nsection->inerror = false;
+
+		nsection->section.processMsg = sd_processMQTT;	/* process incoming messages */
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);

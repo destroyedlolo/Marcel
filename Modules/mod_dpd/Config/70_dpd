@@ -14,7 +14,12 @@ Needs=mod_dpd
 
 	# Acceptation function(sectionid, payload)
 	# if returns 'false', watchdog continue
-	Func=Test
+	Func=TestNo
 
 	# Section starting disabled
-	Disabled
+#	Disabled
+
+	# using Keep prevent Marcel to crash in case of technical
+	# error. But in such case, it will continue in DEGRADED way
+	# without notification when message is received.
+	Keep
