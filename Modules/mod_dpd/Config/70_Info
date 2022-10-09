@@ -1,0 +1,9 @@
+# Publish Marcel info
+
+Needs=mod_dpd
+
+# DPD can be used to ask Marcel to do some action
+# here, publish version and copyright
+*DPD=Marcel info
+	topic=%ClientID%/About
+	Func=PublishMarcelInfo
