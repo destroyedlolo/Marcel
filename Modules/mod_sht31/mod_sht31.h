@@ -27,8 +27,6 @@ struct section_sht31 {
 	struct Section section;
 
 		/* Variables dedicated to this structure */
-	int dummy;
-
 	const char *device;	/* I2C device */
 	uint8_t i2c_addr;	/* I2C address (default : 0x44) */
 	float offset;		/* Offset to apply to the raw value */
