@@ -1,0 +1,34 @@
+# Declare local sht31
+
+Needs=mod_sht31
+
+*SHT31=bpi location
+
+	# Topic : Topic to publish to
+	# 	(if missing, the uid is used instead)
+	#	%FIGURE% will be replace by Temperature and Humidity as per the
+	#	submited value.
+	Topic=%ClientID%/maison/%FIGURE%/cave
+
+	# Device : I2C device
+	# Address : Probe I2C address (if not set : 0x44)
+	# 	Notez-bien : HEXADECIMAL notation only
+	Device=/dev/i2c-2
+	Address=0x44
+
+	#Sample : delay between sample in seconds
+	Sample=30
+
+	# Launch it immediately
+	Immediate
+
+	# Stay in case of error
+	Keep
+
+	# Lua user function validation
+	# func=
+
+	# Offset : Calibration offset to apply to the temperature value
+	Offset=-3.25
+
+#	Disable
