@@ -21,6 +21,9 @@ BUILD_OUTFILE=1
 # Dead Publisher Dectector
 BUILD_DPD=1
 
+# SHT31 local probe
+BUILD_SHT31=1
+
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1
 
@@ -138,6 +141,9 @@ fi
 if [ ${BUILD_DPD+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_dpd' >> Makefile
 fi
+if [ ${BUILD_SHT31+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_sht31' >> Makefile
+fi
 if [ ${BUILD_FREEBOX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
 fi
@@ -177,6 +183,12 @@ fi
 if [ ${BUILD_DPD+x} ]; then
 	cd Modules/mod_dpd
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_dpd.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_SHT31+x} ]; then
+	cd Modules/mod_sht31
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_sht31.so > Makefile
 	cd ../..
 fi
 

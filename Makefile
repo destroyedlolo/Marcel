@@ -13,6 +13,7 @@ all:
 	$(MAKE) -C Modules/mod_ups
 	$(MAKE) -C Modules/mod_outfile
 	$(MAKE) -C Modules/mod_dpd
+	$(MAKE) -C Modules/mod_sht31
 	$(MAKE) -C Modules/mod_freebox
 	$(MAKE) -C Modules/mod_dummy
 	$(MAKE) -C Modules/Marcel
