@@ -53,8 +53,13 @@ extern struct _VarSubstitution {
 	int h;				/* hash of the variable's name */
 	size_t lvar;		/* size of the variable name (initialize to 0)*/
 	size_t lval;		/* size of the value (initialize to 0)*/
-} vslookup[];
+} vslookup[];	/* used by both mod_core (initializing) and Marcel (command line reading) */
 
+
+extern void init_VarSubstitution( struct _VarSubstitution *tbl );
+extern char *replaceVar( const char *, struct _VarSubstitution *);
+extern bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const char *val, bool freeval);
+extern const char *getSubstitutionVar( struct _VarSubstitution *lookup, const char *name );
 
 	/* **
 	 * Utilities
@@ -66,7 +71,5 @@ extern char *removeLF(char *s);
 extern int chksum(const char *s);
 extern size_t socketreadline( int fd, char *l, size_t sz);
 
-extern bool setSubstitutionVar(struct _VarSubstitution *vars, const char *name, const char *val, bool freeval);
-extern const char *getSubstitutionVar( struct _VarSubstitution *lookup, const char *name );
 #endif
 

@@ -18,6 +18,17 @@
 #include <stdio.h>
 #include <string.h>
 
+	/* ***
+	 * Lookup table to applicate on all configuration files
+	 * ***/
+
+struct _VarSubstitution vslookup[] = {
+	{ "%ClientID%", NULL },
+	{ "%Hostname%", NULL },
+	{ NULL }
+};
+
+
 	/* This module is the only one having configuration stored in
 	 * "cfg" and not inside its own structure.
 	 * Because it's dealing with configuration used globally in Marcel's
