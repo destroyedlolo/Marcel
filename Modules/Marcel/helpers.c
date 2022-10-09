@@ -153,6 +153,10 @@ void init_VarSubstitution( struct _VarSubstitution *tbl ){
 	while(tbl->var){
 		tbl->lvar = strlen(tbl->var);
 		tbl->h = chksum(tbl->var);
+
+		if(tbl->val)	/* Value already initialized */
+			tbl->lval = strlen(tbl->val);
+
 		tbl++;
 	}
 }
