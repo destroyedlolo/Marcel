@@ -82,7 +82,7 @@ void *processDummy(void *actx){
 					 */
 				mod_Lua->lockState();
 
-				mod_Lua->pushFUnctionId( s->section.funcid );	/* Push the function to be called */
+				mod_Lua->pushFunctionId( s->section.funcid );	/* Push the function to be called */
 				mod_Lua->pushNumber( (double)s->dummy );	/* Push the argument */
 				if(mod_Lua->exec(1, 1)){
 					publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));

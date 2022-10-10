@@ -70,7 +70,7 @@ static void pushString(const char *val){
 	lua_pushstring( mod_Lua.L, val );
 }
 
-static void pushFUnctionId(int id){
+static void pushFunctionId(int id){
 	lua_rawgeti( mod_Lua.L, LUA_REGISTRYINDEX, id );
 }
 
@@ -181,7 +181,7 @@ void InitModule( void ){
 	mod_Lua.unlockState = unlockState;
 	mod_Lua.pushNumber = pushNumber;
 	mod_Lua.pushString = pushString;
-	mod_Lua.pushFUnctionId = pushFUnctionId;
+	mod_Lua.pushFunctionId = pushFunctionId;
 	mod_Lua.exec = ml_exec;
 	mod_Lua.pop = ml_pop;
 	mod_Lua.getStringFromStack = getStringFromStack;

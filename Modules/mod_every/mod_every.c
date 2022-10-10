@@ -73,7 +73,7 @@ static void *processEvery(void *actx){
 #endif
 		} else if( !first || s->section.immediate ){
 			mod_Lua->lockState();
-			mod_Lua->pushFUnctionId( s->section.funcid );
+			mod_Lua->pushFunctionId( s->section.funcid );
 			if(s->section.topic)
 				mod_Lua->pushString( s->section.topic );
 			else
@@ -174,7 +174,7 @@ static void *processAt(void *actx){
 #endif
 		} else {
 			mod_Lua->lockState();
-			mod_Lua->pushFUnctionId( s->section.funcid );
+			mod_Lua->pushFunctionId( s->section.funcid );
 			if(s->section.topic)
 				mod_Lua->pushString( s->section.topic );
 			else

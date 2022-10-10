@@ -125,7 +125,7 @@ static void *processSHT31(void *actx){
 #ifdef LUA
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
 							mod_Lua->lockState();
-							mod_Lua->pushFUnctionId( s->section.funcid );
+							mod_Lua->pushFunctionId( s->section.funcid );
 							mod_Lua->pushString( s->section.uid );
 							mod_Lua->pushNumber( valt );
 							mod_Lua->pushNumber( valh );
