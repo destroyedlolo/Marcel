@@ -21,9 +21,9 @@ At least one of `NotificationTopic=` and `Func=` must be present, otherwise the 
 
 ### Lua function arguments
 
-1- Section ID
-2- MQTT message value
+1. Section ID
+2. MQTT message value
 
 ### Lua function return
 
-1- `true` if the value is accepted and the watchdog reset. `false`, value rejected.
+1. `true` if the value is accepted and the watchdog reset. `false`, value rejected.
