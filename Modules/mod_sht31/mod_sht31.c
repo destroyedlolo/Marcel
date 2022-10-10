@@ -58,7 +58,6 @@ static void *processSHT31(void *actx){
 #endif
 	}
 
-		/* Substitution */
 		/* Build temperature topic */
 	struct _VarSubstitution tempvslookup[] = {
 		{ "%FIGURE%", "Temperature" },	/* MUST BE THE 1ST VARIABLE */
@@ -113,18 +112,41 @@ static void *processSHT31(void *actx){
 					close(fd);
 					publishLog('E', "[%s] I/O error", s->section.uid);
 				} else {	/* Conversion formulas took from SHT31 datasheet */
-					double val;
-					char t[8];
-
 					close(fd);	/* Release the bus as soon as possible */
 
-					val = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
-					sprintf(t, "%.2f", val);
-					mqttpublish(cfg.client, temptopic, strlen(t), t, 0);
+					double valt, valh;
+					char t[8];
 
-					val = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
-					sprintf(t, "%.2f", val);
-					mqttpublish(cfg.client, humtopic, strlen(t), t, 0);
+					valt = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
+					valh = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
+
+					bool ret = true;
+					if(mod_Lua_id != (uint8_t)-1){
+#ifdef LUA
+						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+							mod_Lua->lockState();
+							mod_Lua->pushFUnctionId( s->section.funcid );
+							mod_Lua->pushString( s->section.uid );
+							mod_Lua->pushNumber( valt );
+							mod_Lua->pushNumber( valh );
+							if(mod_Lua->exec(3, 1)){
+								publishLog('E', "[%s] SHT31 : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								mod_Lua->pop(1);	/* pop error message from the stack */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
+							} else
+								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							mod_Lua->unlockState();
+						}
+#endif
+					}
+
+					if(ret){
+						sprintf(t, "%.2f", valt);
+						mqttpublish(cfg.client, temptopic, strlen(t), t, 0);
+
+						sprintf(t, "%.2f", valh);
+						mqttpublish(cfg.client, humtopic, strlen(t), t, 0);
+					}
 				}
 			}
 

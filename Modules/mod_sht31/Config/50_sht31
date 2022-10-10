@@ -26,7 +26,7 @@ Needs=mod_sht31
 	Keep
 
 	# Lua user function validation
-	# func=
+	func=DisplayTH
 
 	# Offset : Calibration offset to apply to the temperature value
 	Offset=-3.25
