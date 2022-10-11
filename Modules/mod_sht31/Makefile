@@ -9,7 +9,8 @@ cc=cc
 opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_sht31.o : mod_sht31.c mod_sht31.h ../Marcel/Module.h \
-  ../Marcel/Section.h ../mod_Lua/mod_Lua.h Makefile 
+  ../Marcel/Section.h ../mod_Lua/mod_Lua.h ../Marcel/MQTT_tools.h \
+  Makefile 
 	$(cc) -c -o mod_sht31.o mod_sht31.c $(opts) 
 
 ../../mod_sht31.so : mod_sht31.o Makefile 
