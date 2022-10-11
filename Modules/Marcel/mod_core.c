@@ -145,6 +145,15 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tTopic : '%s'", (*section)->topic);
 
 			return ACCEPTED;
+		} else if(!strcmp(l, "Retained")){
+			acceptSectionDirective( *section, l );
+
+			(*section)->retained = true;
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tSent as retained");
+
+			return ACCEPTED;
 		} else if(!strcmp(l, "Immediate")){
 			acceptSectionDirective( *section, l );
 

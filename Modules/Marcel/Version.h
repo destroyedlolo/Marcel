@@ -49,13 +49,13 @@
 #define MARCEL_VERSION_H
 
 
-#define MARCEL_VERSION "8.0006"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0007"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
 							 */
 
-#define MARCEL_COPYRIGHT "Marcel "MARCEL_VERSION" (c) L.Faillie 2015-2022"
+#define MARCEL_COPYRIGHT "Marcel v"MARCEL_VERSION" (c) L.Faillie 2015-2022"
 
 #ifdef DEBUG
 #	define DEFAULT_CONFIGURATION_FILE	"Config"
