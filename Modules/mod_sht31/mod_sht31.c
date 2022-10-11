@@ -118,7 +118,9 @@ static void *processSHT31(void *actx){
 					char t[8];
 
 					valt = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
+					valt += s->offset;
 					valh = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
+					valh += s->offsetH;
 
 					bool ret = true;
 					if(mod_Lua_id != (uint8_t)-1){
@@ -176,6 +178,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device = NULL;
 		nsection->i2c_addr = 0x44;
 		nsection->offset = 0;
+		nsection->offsetH = 0;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -200,6 +203,12 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tOffset: %f", (*(struct section_sht31 **)section)->offset);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"OffsetH="))){
+			(*(struct section_sht31 **)section)->offsetH = strtof(arg, NULL);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tOffsetH: %f", (*(struct section_sht31 **)section)->offsetH);
 			return ACCEPTED;
 		}
 	}
@@ -227,7 +236,9 @@ static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Offset=") )
 			return true;	/* Accepted */
-	}
+		else if( !strcmp(directive, "OffsetH=") )
+			return true;	/* Accepted */
+}
 
 	return false;
 }
