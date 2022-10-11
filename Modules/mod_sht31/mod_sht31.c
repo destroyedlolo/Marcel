@@ -177,8 +177,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		nsection->device = NULL;
 		nsection->i2c_addr = 0x44;
-		nsection->offset = 0;
-		nsection->offsetH = 0;
+		nsection->offset = 0.0;
+		nsection->offsetH = 0.0;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
