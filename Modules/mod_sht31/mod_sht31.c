@@ -238,7 +238,7 @@ static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "OffsetH=") )
 			return true;	/* Accepted */
-}
+	}
 
 	return false;
 }
