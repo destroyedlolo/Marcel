@@ -22,4 +22,19 @@ struct module_1wire {
 	bool randomize;		/* Randomize probes to avoid they are all launched at the same time */
 };
 
+/* Float value exposed as a file
+ * 
+ * Mostly for 1-wire exposed probes but can be used (without 1-wire only options)
+ * with any value exposed as a file. The function callback can be
+ * used to parse complex files
+ */
+struct section_FFV {
+	struct Section section;
+
+	const char *file;	/* File containing the data to read */
+	const char *latch;	/* Related latch file (optional) */
+	float offset;		/* Offset to apply to the raw value */
+	bool safe85;		/* Ignores underpowered temperature probes */
+};
+
 #endif

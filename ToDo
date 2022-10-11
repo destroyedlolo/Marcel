@@ -1,0 +1,5 @@
+Add Retained to all sections
+
+mod_1wire
+	global sample
+	failure callbacks

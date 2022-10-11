@@ -60,9 +60,48 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
+	} else if(*section){
+		if((arg = striKWcmp(l,"File="))){
+			assert(( (*(struct section_FFV **)section)->file = strdup(arg) ));
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tFile : '%s'", (*(struct section_FFV **)section)->file);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"Offset="))){
+			(*(struct section_FFV **)section)->offset = strtof(arg, NULL);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tOffset: %f", (*(struct section_FFV **)section)->offset);
+			return ACCEPTED;
+		}
 	}
 
 	return REJECTED;
+}
+
+static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
+	if(sec_id == ST_FFV){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Immediate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Keep") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Retained") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Sample=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "File=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Offset=") )
+			return true;	/* Accepted */
+	}
+
+	return false;
 }
 
 void InitModule( void ){
@@ -72,7 +111,7 @@ void InitModule( void ){
 		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
 		 */
 	mod_1wire.module.readconf = readconf;
-	mod_1wire.module.acceptSDirective = NULL;
+	mod_1wire.module.acceptSDirective = mh_acceptSDirective;
 	mod_1wire.module.getSlaveFunction = NULL;
 	mod_1wire.module.postconfInit = NULL;
 

@@ -1,0 +1,9 @@
+# Load the 1-wire module
+
+LoadModule=mod_1wire.so
+
+# Randomly delayed probe querying to avoid each probes to samples 
+# at the same time and then creates electricity consumption pick
+# (really needed for very large network)
+RandomizeProbes
+
