@@ -208,7 +208,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		initSection( (struct Section *)nsection, mid, SE_EVERY, strdup(arg));
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering Every section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = (struct Section *)nsection;
 		return ACCEPTED;
@@ -223,7 +223,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->runIfOver = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering At section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = (struct Section *)nsection;
 		return ACCEPTED;

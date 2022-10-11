@@ -248,7 +248,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->section.processMsg = sd_processMQTT;	/* process incoming messages */
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering DPD section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = (struct Section *)nsection;
 		return ACCEPTED;

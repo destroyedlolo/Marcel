@@ -138,7 +138,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 		nsection->var_list = NULL;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering UPS section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = nsection;	/* we're now in a section */
 		return ACCEPTED;
