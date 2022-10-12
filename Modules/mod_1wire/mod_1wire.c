@@ -26,6 +26,18 @@ enum {
 	ST_FFV= 0,
 };
 
+static void *processFFV(void *actx){
+	struct section_FFV *s = (struct section_FFV *)actx;
+
+		/* Sanity checks */
+	if(!s->section.sample){
+		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->section.uid);
+		pthread_exit(0);
+	}
+
+printf("Sample : %f\n", s->section.sample);
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -41,6 +53,19 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('C', "\tProbes are randomized");
 
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"DefaultSampleDelay="))){
+		/* No need to check if we are on not inside a section :
+		 * despite this directive is a top level one, it can be placed
+		 * anywhere : we don't know when a section definition
+		 * is over
+		 */
+
+		mod_1wire.defaultsampletime = strtof(arg, NULL);
+
+		if(cfg.verbose)
+			publishLog('C', "\tDefault sample time : %f", mod_1wire.defaultsampletime);
+
+		return ACCEPTED;	
 	} else if((arg = striKWcmp(l,"*FFV="))){
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
@@ -50,6 +75,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_FFV *nsection = malloc(sizeof(struct section_FFV));	/* Allocate a new section */
 		initSection( (struct Section *)nsection, mid, ST_FFV, strdup(arg));	/* Initialize shared fields */
 
+		nsection->section.sample = mod_1wire.defaultsampletime;
 		nsection->file = NULL;
 		nsection->latch = NULL;
 		nsection->offset = 0.0;
@@ -73,13 +99,19 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tOffset: %f", (*(struct section_FFV **)section)->offset);
 			return ACCEPTED;
+		} else if(!strcmp(l, "Safe85")){
+			(*(struct section_FFV **)section)->safe85 = true;
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tIgnore 85°C probes");
+			return ACCEPTED;
 		}
 	}
 
 	return REJECTED;
 }
 
-static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
+static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == ST_FFV){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
@@ -99,9 +131,18 @@ static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Offset=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Safe85") )
+			return true;	/* Accepted */
 	}
 
 	return false;
+}
+
+ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
+	if(sid == ST_FFV)
+		return processFFV;
+
+	return NULL;
 }
 
 void InitModule( void ){
@@ -111,11 +152,12 @@ void InitModule( void ){
 		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
 		 */
 	mod_1wire.module.readconf = readconf;
-	mod_1wire.module.acceptSDirective = mh_acceptSDirective;
-	mod_1wire.module.getSlaveFunction = NULL;
+	mod_1wire.module.acceptSDirective = m1_acceptSDirective;
+	mod_1wire.module.getSlaveFunction = m1_getSlaveFunction;
 	mod_1wire.module.postconfInit = NULL;
 
 	mod_1wire.randomize = false;
+	mod_1wire.defaultsampletime = 0.0;
 
 	register_module( (struct Module *)&mod_1wire );	/* Register the module */
 }

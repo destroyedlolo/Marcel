@@ -20,6 +20,7 @@ struct module_1wire {
 	struct Module module;
 
 	bool randomize;		/* Randomize probes to avoid they are all launched at the same time */
+	float defaultsampletime;
 };
 
 /* Float value exposed as a file
