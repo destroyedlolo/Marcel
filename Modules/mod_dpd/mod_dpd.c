@@ -79,12 +79,9 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 static void *processDPD(void *asec){
 	struct section_dpd *s = (struct section_dpd *)asec;	/* avoid lot of casting */
 
-		/* Sanity checks
-		 * As they're highlighting configuration issue, let's
-		 * consider error as fatal.
-		 */
+		/* Sanity checks */
 	if(!s->section.topic){
-		publishLog('F', "[%s] Topic can't be NULL", s->section.uid);
+		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
 		pthread_exit(0);
 	}
 

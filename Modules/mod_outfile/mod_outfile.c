@@ -28,17 +28,15 @@ enum {
 static void so_postconfInit(struct Section *asec){
 	struct section_outfile *s = (struct section_outfile *)asec;	/* avoid lot of casting */
 
-		/* Sanity checks
-		 * As they're highlighting configuration issue, let's
-		 * consider error as fatal.
-		 */
+		/* Sanity checks */
 	if(!s->section.topic){
-		publishLog('F', "[%s] Topic can't be NULL", s->section.uid);
-		exit( EXIT_FAILURE );
+		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		pthread_exit(0);
 	}
+
 	if(!s->file){
-		publishLog('F', "[%s] File can't be NULL", s->section.uid);
-		exit( EXIT_FAILURE );
+		publishLog('E', "[%s] File must be set. Dying ...", s->section.uid);
+		pthread_exit(0);
 	}
 
 	struct module_Lua *mod_Lua = NULL;
@@ -48,8 +46,8 @@ static void so_postconfInit(struct Section *asec){
 		if(s->section.funcname){	/* if an user function defined ? */
 			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
-					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined.", s->section.uid, s->section.funcname);
-					exit( EXIT_FAILURE );
+					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+					pthread_exit(NULL);
 				}
 			}
 #endif

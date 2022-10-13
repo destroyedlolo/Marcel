@@ -30,12 +30,37 @@ static void *processFFV(void *actx){
 	struct section_FFV *s = (struct section_FFV *)actx;
 
 		/* Sanity checks */
+	if(!s->section.topic){
+		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		pthread_exit(0);
+	}
+
 	if(!s->section.sample){
 		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->section.uid);
 		pthread_exit(0);
 	}
 
-printf("Sample : %f\n", s->section.sample);
+	if(!s->file){
+		publishLog('E', "[%s] File must be set. Dying ...", s->section.uid);
+		pthread_exit(0);
+	}
+
+			/* Handle Lua functions */
+	struct module_Lua *mod_Lua = NULL;
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
+	if(mod_Lua_id != (uint8_t)-1){
+#ifdef LUA
+		if(s->section.funcname){	/* if an user function defined ? */
+			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+				pthread_exit(NULL);
+			}
+		}
+#endif
+	}
+
+
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){

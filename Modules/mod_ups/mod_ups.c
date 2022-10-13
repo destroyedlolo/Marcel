@@ -39,6 +39,11 @@ void *process_UPS(void *actx){
 	struct sockaddr_in serv_addr;
 
 		/* Sanity checks */
+	if(!ctx->section.topic){
+		publishLog('F', "[%s] Topic must be set. Dying ...", ctx->section.uid);
+		pthread_exit(0);
+	}
+
 	if( !ctx->host || !ctx->port ){
 		publishLog('E', "[%s] NUT server missing. Dying ...", ctx->section.uid);
 		pthread_exit(0);

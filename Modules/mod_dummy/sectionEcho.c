@@ -35,8 +35,8 @@ void st_echo_postconfInit(struct Section *asec){
 		 * consider error as fatal.
 		 */
 	if(!s->section.topic){
-		publishLog('F', "[%s] Topic can't be NULL", s->section.uid);
-		exit( EXIT_FAILURE );
+		publishLog('E', "[%s] Topic must be set. Dying ...", s->section.uid);
+		pthread_exit(0);
 	}
 
 		/* Subscribing */

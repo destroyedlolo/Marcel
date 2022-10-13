@@ -33,6 +33,11 @@ static void *processSHT31(void *actx){
 	struct section_sht31 *s = (struct section_sht31 *)actx;
 
 		/* Sanity checks */
+	if(!s->section.topic){
+		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		pthread_exit(0);
+	}
+
 	if(!s->section.sample){
 		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->section.uid);
 		pthread_exit(0);
