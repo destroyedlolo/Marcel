@@ -156,13 +156,13 @@ static void *processSHT31(void *actx){
 					}
 				}
 			}
-
-			struct timespec ts;
-			ts.tv_sec = (time_t)s->section.sample;
-			ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
-
-			nanosleep( &ts, NULL );
 		}
+
+		struct timespec ts;
+		ts.tv_sec = (time_t)s->section.sample;
+		ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
+
+		nanosleep( &ts, NULL );
 	}
 
 	pthread_exit(0);
