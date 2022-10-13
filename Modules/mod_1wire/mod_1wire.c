@@ -60,7 +60,27 @@ static void *processFFV(void *actx){
 #endif
 	}
 
+	for(bool first=true;; first=false){	/* Infinite publishing loop */
+		if(s->section.disabled){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+		} else if( !first || s->section.immediate || s->section.sample == -1 ){	/* processing */
+		}
 
+		if(s->section.sample == -1)	/* Run once */
+			pthread_exit(0);
+		else {
+			struct timespec ts;
+			ts.tv_sec = (time_t)s->section.sample;
+			ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
+
+			nanosleep( &ts, NULL );
+		}
+	}
+
+	pthread_exit(0);
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
