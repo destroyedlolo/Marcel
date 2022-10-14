@@ -2,11 +2,30 @@
 
 Needs=mod_1wire
 
+# Default sample value to apply when Sample=0
+# Many ones can be present, in such case last one before the 
+# section definition is took in account
+DefaultSampleDelay=60
+
 # Outside temperature probe
 *FFV=Exterieur
 
 	# Where the probe is exposed
 	File=/var/lib/owfs/mnt/28.FF7BF0001502/temperature
+
+	# Lua validation user function
+	# Arguments :
+	# 	raw value
+	# 	compensated value
+	Func=ValTProbe
+	
+	# Function to be called in case the file can't be opened
+	# Typical usage : reset the DS2482-800 which is driving my 
+	# 1-wire bus in case it hangs.
+	# Arguments : 
+	# 	- section UID
+	# 	- error message
+	FailFunc=NoProbe
 
 	# Topic to publish to.
 	Topic=maison/Temperature/Dehors
@@ -17,10 +36,15 @@ Needs=mod_1wire
 	# Offset to apply to raw value
 	Offset=-0.1069182813
 
+	# if the read value is 85, data is not published and an 'E' error
+	# is raised. Mostly applicable to 1-wire temperature probes where 85° means
+	# the probe is underpowered
+	Safe85
+
 	# Sample : Delay b/w sample
 	# if 0 : use default one
 	# if -1 : only once
-	Sample=120
+#	Sample=120
 
 	# Launch it immediately
 	Immediate
@@ -29,4 +53,4 @@ Needs=mod_1wire
 	Keep
 
 	# Start disabled
-	Disabled
+#	Disabled

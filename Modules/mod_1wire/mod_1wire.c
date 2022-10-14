@@ -130,10 +130,23 @@ static void *processFFV(void *actx){
 					if(s->safe85 && val == 85.0)
 						publishLog('E', "[%s] The probe replied 85° implying powering issue.", s->section.uid);
 					else {
-#ifdef LUA0
-				if( ctx->funcid != LUA_REFNIL )
-					publish = execUserFuncFFV(ctx, val, compensated);
+#ifdef LUA
+						if(s->section.funcid != LUA_REFNIL){
+							mod_Lua->lockState();
+							mod_Lua->pushFunctionId( s->section.funcid );
+							mod_Lua->pushString( s->section.uid );
+							mod_Lua->pushNumber( val );
+							mod_Lua->pushNumber( compensated );
+							if(mod_Lua->exec(3, 1)){
+								publishLog('E', "[%s] FFV : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								mod_Lua->pop(1);	/* pop error message from the stack */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
+							} else
+								publish = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							mod_Lua->unlockState();
+						}
 #endif
+
 						if(publish){
 							publishLog('T', "[%s] -> %f", s->section.uid, compensated);
 							sprintf(l,"%.1f", compensated);
