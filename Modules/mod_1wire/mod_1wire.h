@@ -32,10 +32,13 @@ struct module_1wire {
 struct section_FFV {
 	struct Section section;
 
-	const char *file;	/* File containing the data to read */
-	const char *latch;	/* Related latch file (optional) */
-	float offset;		/* Offset to apply to the raw value */
-	bool safe85;		/* Ignores underpowered temperature probes */
+	const char *file;		/* File containing the data to read */
+	const char *latch;		/* Related latch file (optional) */
+	float offset;			/* Offset to apply to the raw value */
+	bool safe85;			/* Ignores underpowered temperature probes */
+
+	const char *failfunc;	/* User function to call on data arrival */
+	int failfuncid;			/* Function id in Lua registry */
 };
 
 #endif
