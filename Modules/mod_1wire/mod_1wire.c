@@ -120,6 +120,30 @@ static void *processFFV(void *actx){
 				}
 #endif
 			} else {
+				float val;
+				if(!fscanf(f, "%f", &val))
+					publishLog('E', "[%s] : %s -> Unable to read a float value.", s->section.uid, s->file);
+				else {	/* Only to normalize the response */
+					bool publish = true;
+					float compensated = val + s->offset;
+
+					if(s->safe85 && val == 85.0)
+						publishLog('E', "[%s] The probe replied 85° implying powering issue.", s->section.uid);
+					else {
+#ifdef LUA0
+				if( ctx->funcid != LUA_REFNIL )
+					publish = execUserFuncFFV(ctx, val, compensated);
+#endif
+						if(publish){
+							publishLog('T', "[%s] -> %f", s->section.uid, compensated);
+							sprintf(l,"%.1f", compensated);
+							mqttpublish(cfg.client, s->section.topic, strlen(l), l, s->section.retained );
+						} else
+							publishLog('T', "[%s] UserFunction requested not to publish", s->section.uid);
+					}
+				}
+
+				fclose(f);
 			}
 		}
 
