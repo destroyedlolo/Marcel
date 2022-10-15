@@ -263,8 +263,6 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Keep") )
-			return true;	/* Accepted */
 		else if( !strcmp(directive, "Retained") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Sample=") )

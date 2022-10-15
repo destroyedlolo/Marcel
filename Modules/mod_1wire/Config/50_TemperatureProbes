@@ -42,15 +42,11 @@ DefaultSampleDelay=60
 	Safe85
 
 	# Sample : Delay b/w sample
-	# if 0 : use default one
 	# if -1 : only once
 #	Sample=120
 
 	# Launch it immediately
 	Immediate
-
-	# Stay in case of error
-	Keep
 
 	# Start disabled
 #	Disabled

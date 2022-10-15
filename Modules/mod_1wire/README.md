@@ -3,9 +3,9 @@ Handles 1-wire probes (also suitable for any value exposed as a file).
 
 ### Accepted global directives
 
-* **DefaultSampleDelay=** Sample value to apply when Sample=0 or absent. This directive is convenient to 
+* **DefaultSampleDelay=** Sample value to apply when `Sample=` is absent. This directive is convenient to 
 provide the same sample value to many probes.<br>
-Many DefaultSampleDelay= can be present, in such case the last one before the section definition is
+Many `DefaultSampleDelay=` can be present, in such case the last one before the section definition is
 taken into account.
 
 ## Section FFV
@@ -27,6 +27,6 @@ callback can be used to parse complex files.
 is raised. Mostly applicable to 1-wire temperature probes where 85° means
 the probe is underpowered
 * **Sample=** Number of seconds between samples, in seconds. Special values are :
-  * **0** or missing : takes the last `DefaultSampleDelay=`
+  * missing : takes the last `DefaultSampleDelay=`
   * **-1** run only once
 * **Immediate** Launch the 1st sample at startup
