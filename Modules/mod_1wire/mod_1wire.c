@@ -163,6 +163,9 @@ static void *processFFV(void *actx){
 		if(s->section.sample == -1)	/* Run once */
 			pthread_exit(0);
 		else {
+			if(s->section.sample < 0)
+				break;
+
 			struct timespec ts;
 			ts.tv_sec = (time_t)s->section.sample;
 			ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
