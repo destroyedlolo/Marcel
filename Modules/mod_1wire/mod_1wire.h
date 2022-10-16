@@ -21,6 +21,11 @@ struct module_1wire {
 
 	bool randomize;		/* Randomize probes to avoid they are all launched at the same time */
 	float defaultsampletime;
+
+		/* Alarm handling */
+	const char *OwAlarm;	/* 1w alarm directory */
+	float OwAlarmSample;	/* Delay b/w 2 sample on alarm directory */
+	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
 };
 
 /* Float value exposed as a file
@@ -41,4 +46,5 @@ struct section_FFV {
 	int failfuncid;			/* Function id in Lua registry */
 };
 
+extern void *processFFV(void *);
 #endif
