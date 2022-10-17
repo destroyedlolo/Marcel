@@ -19,7 +19,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
-#include <errno.h>
 
 static struct module_1wire mod_1wire;
 
@@ -55,6 +54,45 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('C', "\tDefault sample time : %f", mod_1wire.defaultsampletime);
 
 		return ACCEPTED;	
+	} else if((arg = striKWcmp(l,"1wire-Alarm-directory="))){
+		if(*section){
+			publishLog('F', "TestFlag can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		if(mod_1wire.OwAlarm)
+			publishLog('E', "1wire-Alarm-directory= defined more than once. Let's continue ...");
+
+		assert(( mod_1wire.OwAlarm = strdup(arg) ));
+
+		if(cfg.verbose)
+			publishLog('C', "\t1-Wire alarm directory : '%s'", mod_1wire.OwAlarm);
+
+		return ACCEPTED;	
+	} else if((arg = striKWcmp(l,"1wire-Alarm-sample="))){
+		if(*section){
+			publishLog('F', "1wire-Alarm-sample= can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		mod_1wire.OwAlarmSample = atof(arg);
+
+		if(cfg.verbose)
+			publishLog('C', "\t1w Alarm Sample time : %lf", mod_1wire.OwAlarmSample);
+
+		return ACCEPTED;
+	} else if(!strcmp(l, "1wire-Alarm-keep")){
+		if(*section){
+			publishLog('F', "1wire-Alarm-keep can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		mod_1wire.randomize = true;
+
+		if(cfg.verbose)
+			publishLog('C', "\tTechnical error are not fatal");
+
+		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"*FFV="))){
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
@@ -157,6 +195,10 @@ void InitModule( void ){
 
 	mod_1wire.randomize = false;
 	mod_1wire.defaultsampletime = 0.0;
+
+	mod_1wire.OwAlarm = NULL;
+	mod_1wire.OwAlarmSample = 0.0;
+	mod_1wire.OwAlarmKeep = false;
 
 	register_module( (struct Module *)&mod_1wire );	/* Register the module */
 }

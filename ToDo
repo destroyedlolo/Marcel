@@ -2,3 +2,4 @@ Add Retained to all sections
 
 mod_1wire
 	For the moment, only 1 alarm is handled
+	Randomize probe starting
