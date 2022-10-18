@@ -38,7 +38,7 @@ struct Module {
 	enum RC_readconf (*readconf)( uint8_t mod_id, const char *, struct Section ** );	/* is provided line apply to this module (true) */
 	bool (*acceptSDirective)( uint8_t sec_id, const char * );	/* process a directive */
 	ThreadedFunctionPtr(*getSlaveFunction)(uint8_t sid);		/* function to call to process a section */
-	void (*postconfInit)(void);										/* Initialisation to be done after configuration phase */
+	void (*postconfInit)(uint8_t mod_id);						/* Initialisation to be done after configuration phase */
 };
 
 extern uint8_t number_of_loaded_modules;

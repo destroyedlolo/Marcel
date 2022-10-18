@@ -14,7 +14,7 @@
 #endif
 #include "../Marcel/MQTT_tools.h"
 
-void start1WAlarm( void ){
+void start1WAlarm( uint8_t mid ){
 	/* Initialise all 1wAlarm */
 
 	/* First reading if Immediate */

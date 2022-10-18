@@ -26,6 +26,7 @@ struct module_1wire {
 	const char *OwAlarm;	/* 1w alarm directory */
 	float OwAlarmSample;	/* Delay b/w 2 sample on alarm directory */
 	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
+	uint16_t OwAlarm_SID;	/* keep alarm section ID */
 };
 
 
@@ -68,5 +69,5 @@ struct section_1wAlarm {
 	const char *latch;		/* Related latch file (optional) */
 };
 
-extern void start1WAlarm( void );
+extern void start1WAlarm( uint8_t );
 #endif

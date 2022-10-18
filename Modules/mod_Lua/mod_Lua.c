@@ -131,7 +131,7 @@ static void clean_lua(void){
 	lua_close(mod_Lua.L);
 }
 
-static void ml_postconfInit( void ){
+static void ml_postconfInit( uint8_t mid ){
 	if(mod_Lua.script){
 		char rp[ PATH_MAX ];
 		if( realpath( mod_Lua.script, rp ) ){

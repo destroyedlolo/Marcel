@@ -369,7 +369,7 @@ int main(int ac, char **av){
 		/* Post conf initialisation to be done after configuration reading */
 	for(unsigned int i=0; i<number_of_loaded_modules; i++){
 		if(modules[i]->postconfInit)
-			modules[i]->postconfInit();
+			modules[i]->postconfInit(i);
 	}
 
 	for(struct Section *s = sections; s; s = s->next){
