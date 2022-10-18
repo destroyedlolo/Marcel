@@ -28,6 +28,16 @@ struct module_1wire {
 	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
 };
 
+
+/* Fields common to 1-wire structures */
+struct OwCommon {
+	struct Section section;
+
+	const char *file;		/* File containing the data to read */
+	const char *failfunc;	/* User function to call on data arrival */
+	int failfuncid;			/* Function id in Lua registry */
+};
+
 /* Float value exposed as a file
  * 
  * Mostly for 1-wire exposed probes but can be used (without 1-wire only options)
@@ -35,16 +45,27 @@ struct module_1wire {
  * used to parse complex files
  */
 struct section_FFV {
-	struct Section section;
+	struct OwCommon common;
 
-	const char *file;		/* File containing the data to read */
-	const char *latch;		/* Related latch file (optional) */
 	float offset;			/* Offset to apply to the raw value */
 	bool safe85;			/* Ignores underpowered temperature probes */
-
-	const char *failfunc;	/* User function to call on data arrival */
-	int failfuncid;			/* Function id in Lua registry */
 };
 
 extern void *processFFV(void *);
+
+/* Alert driven probe
+ *
+ * This section kind has been mostly made for PIOs related alert.
+ * Consequently, temperature related directive are not applicable.
+ * It's up to the Lua user function to implement calibration and
+ * under power situation if used for temperature alerting.
+ */
+
+struct section_1wAlerte {
+	struct OwCommon common;
+
+	const char *initfunc;	/* Initialisation function */
+	const char *latch;		/* Related latch file (optional) */
+};
+
 #endif
