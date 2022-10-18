@@ -23,8 +23,8 @@
 static struct module_1wire mod_1wire;
 
 enum {
-	ST_FFV= 0,
-	ST_ALRM
+	S1_FFV= 0,
+	S1_ALRM
 };
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -101,7 +101,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_FFV *nsection = malloc(sizeof(struct section_FFV));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_FFV, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, S1_FFV, strdup(arg));	/* Initialize shared fields */
 
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
 		nsection->common.file = NULL;
@@ -121,8 +121,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_1wAlerte *nsection = malloc(sizeof(struct section_1wAlerte));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_ALRM, strdup(arg));	/* Initialize shared fields */
+		struct section_1wAlarm *nsection = malloc(sizeof(struct section_1wAlarm));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, S1_ALRM, strdup(arg));	/* Initialize shared fields */
 
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
@@ -143,10 +143,10 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				publishLog('C', "\t\tFile : '%s'", (*(struct section_FFV **)section)->common.file);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Latch="))){
-			assert(( (*(struct section_1wAlerte **)section)->latch = strdup(arg) ));
+			assert(( (*(struct section_1wAlarm **)section)->latch = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tLatch : '%s'", (*(struct section_1wAlerte **)section)->latch);
+				publishLog('C', "\t\tLatch : '%s'", (*(struct section_1wAlarm **)section)->latch);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Offset="))){
 			(*(struct section_FFV **)section)->offset = strtof(arg, NULL);
@@ -162,10 +162,10 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				publishLog('C', "\t\tFailFunc: '%s'", (*(struct section_FFV **)section)->common.failfunc);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"InitFunc="))){
-			assert(( (*(struct section_1wAlerte **)section)->initfunc = strdup(arg) ));
+			assert(( (*(struct section_1wAlarm **)section)->initfunc = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tInitFunc: '%s'", (*(struct section_1wAlerte **)section)->initfunc);
+				publishLog('C', "\t\tInitFunc: '%s'", (*(struct section_1wAlarm **)section)->initfunc);
 			return ACCEPTED;
 #endif
 		} else if(!strcmp(l, "Safe85")){
@@ -181,7 +181,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 }
 
 static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
-	if(sec_id == ST_FFV){
+	if(sec_id == S1_FFV){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
@@ -202,7 +202,7 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Safe85") )
 			return true;	/* Accepted */
-	} else if(sec_id == ST_ALRM){
+	} else if(sec_id == S1_ALRM){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
@@ -227,7 +227,7 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 }
 
 ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
-	if(sid == ST_FFV)
+	if(sid == S1_FFV)
 		return processFFV;
 
 	return NULL;
@@ -242,7 +242,7 @@ void InitModule( void ){
 	mod_1wire.module.readconf = readconf;
 	mod_1wire.module.acceptSDirective = m1_acceptSDirective;
 	mod_1wire.module.getSlaveFunction = m1_getSlaveFunction;
-	mod_1wire.module.postconfInit = NULL;
+	mod_1wire.module.postconfInit = start1WAlarm;
 
 	mod_1wire.randomize = false;
 	mod_1wire.defaultsampletime = 0.0;

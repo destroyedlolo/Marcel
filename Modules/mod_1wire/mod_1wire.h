@@ -61,11 +61,12 @@ extern void *processFFV(void *);
  * under power situation if used for temperature alerting.
  */
 
-struct section_1wAlerte {
+struct section_1wAlarm {
 	struct OwCommon common;
 
 	const char *initfunc;	/* Initialisation function */
 	const char *latch;		/* Related latch file (optional) */
 };
 
+extern void start1WAlarm( void );
 #endif
