@@ -26,9 +26,14 @@ struct module_1wire {
 	const char *OwAlarm;	/* 1w alarm directory */
 	float OwAlarmSample;	/* Delay b/w 2 sample on alarm directory */
 	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
-	uint16_t OwAlarm_SID;	/* keep alarm section ID */
 };
 
+
+	/* Section identifiers */
+enum {
+	S1_FFV= 0,
+	S1_ALRM
+};
 
 /* Fields common to 1-wire structures */
 struct OwCommon {

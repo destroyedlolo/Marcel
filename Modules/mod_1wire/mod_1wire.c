@@ -22,11 +22,6 @@
 
 static struct module_1wire mod_1wire;
 
-enum {
-	S1_FFV= 0,
-	S1_ALRM
-};
-
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
