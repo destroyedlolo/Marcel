@@ -142,6 +142,12 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tFile : '%s'", (*(struct section_FFV **)section)->common.file);
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"Latch="))){
+			assert(( (*(struct section_1wAlerte **)section)->latch = strdup(arg) ));
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tLatch : '%s'", (*(struct section_1wAlerte **)section)->latch);
+			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Offset="))){
 			(*(struct section_FFV **)section)->offset = strtof(arg, NULL);
 
@@ -212,6 +218,8 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "File=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "InitFunc=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Latch=") )
 			return true;	/* Accepted */
 	}
 
