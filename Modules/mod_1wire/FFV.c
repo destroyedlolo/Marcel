@@ -106,6 +106,7 @@ void *processFFV(void *actx){
 						mod_Lua->pop(1);	/* pop error message from the stack */
 						mod_Lua->pop(1);
 					}
+					mod_Lua->unlockState();
 				}
 #endif
 			} else {
