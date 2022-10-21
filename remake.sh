@@ -27,7 +27,7 @@ BUILD_DPD=1
 BUILD_SHT31=1
 
 # 1 wire probes handling
-#BUILD_1WIRE=1
+BUILD_1WIRE=1
 
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1

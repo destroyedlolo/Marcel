@@ -101,7 +101,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
-		nsection->common.failfuncid = LUA_REFNIL;
 		nsection->offset = 0.0;
 		nsection->safe85 = false;
 
@@ -121,7 +120,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
-		nsection->common.failfuncid = LUA_REFNIL;
 		nsection->initfunc = NULL;
 		nsection->latch = NULL;
 

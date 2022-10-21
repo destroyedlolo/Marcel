@@ -35,11 +35,11 @@ void *processFFV(void *actx){
 		pthread_exit(0);
 	}
 
+#ifdef LUA
 			/* Handle Lua functions */
 	struct module_Lua *mod_Lua = NULL;
 	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
 	if(mod_Lua_id != (uint8_t)-1){
-#ifdef LUA
 		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 		if(s->common.section.funcname){	/* if an user function defined ? */
 			if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
@@ -54,8 +54,8 @@ void *processFFV(void *actx){
 				pthread_exit(NULL);
 			}
 		}
-#endif
 	}
+#endif
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
 		if(s->common.section.disabled){
