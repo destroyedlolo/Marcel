@@ -39,10 +39,10 @@ static void so_postconfInit(struct Section *asec){
 		pthread_exit(0);
 	}
 
+#ifdef LUA
 	struct module_Lua *mod_Lua = NULL;
 	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
 	if(mod_Lua_id != (uint8_t)-1){
-#ifdef LUA
 		if(s->section.funcname){	/* if an user function defined ? */
 			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
@@ -50,8 +50,8 @@ static void so_postconfInit(struct Section *asec){
 					pthread_exit(NULL);
 				}
 			}
-#endif
 		}
+#endif
 
 		/* Subscribing */
 	if(MQTTClient_subscribe( cfg.client, s->section.topic, 0 ) != MQTTCLIENT_SUCCESS ){
@@ -72,13 +72,11 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 			return true;
 		}
 
+		bool ret = true;
+#ifdef LUA
 		struct module_Lua *mod_Lua = NULL;
 		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-
-		bool ret = true;
 		if(mod_Lua_id != (uint8_t)-1){
-
-#ifdef LUA
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
 				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 
@@ -94,8 +92,8 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
 				mod_Lua->unlockState();
 			}
-#endif
 		}
+#endif
 
 		if(ret){
 			FILE *f=fopen( s->file, "w" );

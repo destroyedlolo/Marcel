@@ -7,10 +7,12 @@
 # Uncomment lines of stuffs to be enabled
 
 # Lua callbacks and plugs-in
-BUILD_LUA=1
+#BUILD_LUA=1
 
-# Repetitive task
-BUILD_EVERY=1
+if [ ${BUILD_LUA+x} ]; then
+	# Repetitive task
+	BUILD_EVERY=1
+fi
 
 # UPS / NUT server
 BUILD_UPS=1
@@ -25,7 +27,7 @@ BUILD_DPD=1
 BUILD_SHT31=1
 
 # 1 wire probes handling
-BUILD_1WIRE=1
+#BUILD_1WIRE=1
 
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1

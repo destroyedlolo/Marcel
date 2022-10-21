@@ -49,10 +49,10 @@ static void *processSHT31(void *actx){
 	}
 
 		/* Handle Lua functions */
+#ifdef LUA
 	struct module_Lua *mod_Lua = NULL;
 	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
 	if(mod_Lua_id != (uint8_t)-1){
-#ifdef LUA
 		if(s->section.funcname){	/* if an user function defined ? */
 			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
@@ -60,8 +60,8 @@ static void *processSHT31(void *actx){
 				pthread_exit(NULL);
 			}
 		}
-#endif
 	}
+#endif
 
 		/* Build temperature topic */
 	struct _VarSubstitution tempvslookup[] = {
@@ -128,8 +128,8 @@ static void *processSHT31(void *actx){
 					valh += s->offsetH;
 
 					bool ret = true;
-					if(mod_Lua_id != (uint8_t)-1){
 #ifdef LUA
+					if(mod_Lua_id != (uint8_t)-1){
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
 							mod_Lua->lockState();
 							mod_Lua->pushFunctionId( s->section.funcid );
@@ -144,8 +144,8 @@ static void *processSHT31(void *actx){
 								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
 							mod_Lua->unlockState();
 						}
-#endif
 					}
+#endif
 
 					if(ret){
 						sprintf(t, "%.2f", valt);

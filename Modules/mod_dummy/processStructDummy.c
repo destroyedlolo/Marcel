@@ -38,10 +38,10 @@ void *processDummy(void *actx){
 	}
 
 		/* Handle Lua functions */
+#ifdef LUA
 	struct module_Lua *mod_Lua = NULL;
 	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
 	if(mod_Lua_id != (uint8_t)-1){
-#ifdef LUA
 		if(s->section.funcname){	/* if an user function defined ? */
 			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
@@ -49,8 +49,8 @@ void *processDummy(void *actx){
 				pthread_exit(NULL);
 			}
 		}
-#endif
 	}
+#endif
 
 		/* If not event driven, most of the time, the section code
 		 * is an endless loop.
@@ -64,6 +64,7 @@ void *processDummy(void *actx){
 #endif
 		} else {	/* Processing */
 
+			bool ret = true;	/* display value in the module */
 #ifdef LUA
 			/* Call user function if defined.
 			 * Notez-bien : the implementation is totally module/section
@@ -73,7 +74,6 @@ void *processDummy(void *actx){
 			 * has to be executed, false otherwise.
 			 */
 
-			bool ret = true;	/* display value in the module */
 			if(s->section.funcid != LUA_REFNIL){ /* A function is defined */
 					/* As the state is shared among all threads, it's MANDATORY
 					 * to lock it before any action (like pushing arguments)

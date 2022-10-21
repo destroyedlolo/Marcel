@@ -41,13 +41,12 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 			return true;
 	}
 
+		bool ret = true;
+#ifdef LUA
 		struct module_Lua *mod_Lua = NULL;
 		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
 
-		bool ret = true;
 		if(mod_Lua_id != (uint8_t)-1){
-
-#ifdef LUA
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
 				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 
@@ -63,8 +62,8 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
 				mod_Lua->unlockState();
 			}
-#endif
 		}
+#endif
 
 		if(ret){
 			uint64_t v = 1;
@@ -90,11 +89,11 @@ static void *processDPD(void *asec){
 		pthread_exit(0);
 	}
 
+#ifdef LUA
 		/* User function */
 	struct module_Lua *mod_Lua = NULL;
 	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
 	if(mod_Lua_id != (uint8_t)-1){
-#ifdef LUA
 		if(s->section.funcname){	/* if an user function defined ? */
 			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
@@ -102,8 +101,8 @@ static void *processDPD(void *asec){
 				pthread_exit(NULL);
 			}
 		}
-#endif
 	}
+#endif
 
 		/* event */
 	if(( s->rcv = eventfd( 0, 0 )) == -1 ){
