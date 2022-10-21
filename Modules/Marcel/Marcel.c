@@ -365,8 +365,12 @@ int main(int ac, char **av){
 	}
 	atexit(brkcleaning);
 
+	publishLog('I', MARCEL_COPYRIGHT);
 
 		/* Post conf initialisation to be done after configuration reading */
+	if(cfg.verbose)
+		publishLog('C', "Initialising modules");
+
 	for(unsigned int i=0; i<number_of_loaded_modules; i++){
 		if(modules[i]->postconfInit)
 			modules[i]->postconfInit(i);
@@ -384,7 +388,6 @@ int main(int ac, char **av){
 	free(cwd);
 
 		/* Display / publish copyright */
-	publishLog('I', MARCEL_COPYRIGHT);
 	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
 
 	pthread_attr_t thread_attr;
