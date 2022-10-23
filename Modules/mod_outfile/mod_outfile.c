@@ -141,6 +141,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"File="))){
+			acceptSectionDirective(*section, "File=");
 			assert(( (*(struct section_outfile **)section)->file = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */

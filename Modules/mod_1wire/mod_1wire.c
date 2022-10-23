@@ -130,18 +130,21 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"File="))){
+			acceptSectionDirective(*section, "File=");
 			assert(( (*(struct section_FFV **)section)->common.file = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tFile : '%s'", (*(struct section_FFV **)section)->common.file);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Latch="))){
+			acceptSectionDirective(*section, "Latch=");
 			assert(( (*(struct section_1wAlarm **)section)->latch = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tLatch : '%s'", (*(struct section_1wAlarm **)section)->latch);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Offset="))){
+			acceptSectionDirective(*section, "Offset=");
 			(*(struct section_FFV **)section)->offset = strtof(arg, NULL);
 
 			if(cfg.verbose)	/* Be verbose if requested */
@@ -149,12 +152,14 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			return ACCEPTED;
 #ifdef LUA
 		} else if((arg = striKWcmp(l,"FailFunc="))){
+			acceptSectionDirective(*section, "FailFunc=");
 			assert(( (*(struct section_FFV **)section)->common.failfunc = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tFailFunc: '%s'", (*(struct section_FFV **)section)->common.failfunc);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"InitFunc="))){
+			acceptSectionDirective( *section, "InitFunc=");
 			assert(( (*(struct section_1wAlarm **)section)->initfunc = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */
@@ -162,6 +167,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			return ACCEPTED;
 #endif
 		} else if(!strcmp(l, "Safe85")){
+			acceptSectionDirective( *section, l );
 			(*(struct section_FFV **)section)->safe85 = true;
 
 			if(cfg.verbose)
@@ -215,7 +221,6 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "Latch=") )
 			return true;	/* Accepted */
 	}
-
 	return false;
 }
 

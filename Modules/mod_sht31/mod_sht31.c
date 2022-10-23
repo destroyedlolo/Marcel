@@ -192,24 +192,28 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"Device="))){
+			acceptSectionDirective(*section, "Device=");
 			assert(( (*(struct section_sht31 **)section)->device = strdup(arg) ));
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tDevice : '%s'", (*(struct section_sht31 **)section)->device);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Address="))){
+			acceptSectionDirective(*section, "Address=");
 			(*(struct section_sht31 **)section)->i2c_addr = strtoul(arg, NULL, 0);
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tI2c address: 0x%02x", (*(struct section_sht31 **)section)->i2c_addr);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Offset="))){
+			acceptSectionDirective(*section, "Offset=");
 			(*(struct section_sht31 **)section)->offset = strtof(arg, NULL);
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tOffset: %f", (*(struct section_sht31 **)section)->offset);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"OffsetH="))){
+			acceptSectionDirective(*section, "OffsetH=");
 			(*(struct section_sht31 **)section)->offsetH = strtof(arg, NULL);
 
 			if(cfg.verbose)	/* Be verbose if requested */

@@ -250,6 +250,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"Timeout="))){
+			acceptSectionDirective(*section, "Timeout=");
 			(*section)->sample = atof(arg);
 
 			if(cfg.verbose)
@@ -257,6 +258,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			return ACCEPTED;			
 		} else if((arg = striKWcmp(l,"NotificationTopic="))){
+			acceptSectionDirective(*section, "NotificationTopic=");
 			((struct section_dpd *)(*section))->notiftopic = strdup(arg);
 			assert(((struct section_dpd *)(*section))->notiftopic);
 

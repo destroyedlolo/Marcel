@@ -149,6 +149,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"Host="))){
+			acceptSectionDirective(*asection, "Host=");
 			(*section)->host = strdup(arg);
 			assert( (*section)->host );
 
@@ -157,6 +158,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Port="))){
+			acceptSectionDirective(*asection, "Port=");
 			(*section)->port = atoi(arg);
 
 			if(cfg.verbose)
@@ -164,6 +166,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Var="))){
+			acceptSectionDirective(*asection, "Var=");
 			struct var *v = malloc(sizeof(struct var));	/* New variable */
 			assert(v);
 			assert( (v->name = strdup( arg )) );

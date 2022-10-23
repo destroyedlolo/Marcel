@@ -229,6 +229,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"At="))){
+			acceptSectionDirective(*section, "At=");
 			(*section)->sample = (double)atoi(arg);	/* Recycling*/
 
 			if((*section)->sample <= 0){
@@ -241,6 +242,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			return ACCEPTED;
 		} else if(!strcmp(l, "RunIfOver")){
+			acceptSectionDirective(*section, "RunIfOver");
 			acceptSectionDirective( *section, l );
 
 			(*(struct section_at **)section)->runIfOver = true;	/* Recycling*/

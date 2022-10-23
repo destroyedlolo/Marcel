@@ -3,3 +3,8 @@ Add Retained to all sections
 mod_1wire
 	For the moment, only 1 alarm is handled
 	Randomize probe starting
+
+
+-----------
+
+Verifier que toutes les directives de sections fonctionnent. J'ai rajouter acceptSectionDirective() partout

@@ -67,7 +67,7 @@ void *processFFV(void *actx){
 			FILE *f;
 			char l[MAXLINE];
 
-			if(!(f = fopen( s->common.file, "r" ))){
+			if(!(f = fopen( s->common.file, "r" ))){	/* probe is not reachable */
 				char *emsg = strerror(errno);
 				publishLog('E', "[%s] %s : %s", s->common.section.uid, s->common.file, emsg);
 
@@ -93,6 +93,9 @@ void *processFFV(void *actx){
 						char *msg = "Can't open file (and not enough space for the error)";
 						mqttpublish(cfg.client, l, strlen(msg), msg, 0);
 					}
+				} else {
+					char *msg = "Can't open file (and not enough space for the error)";
+					mqttpublish(cfg.client, l, strlen(msg), msg, 0);
 				}
 
 #ifdef LUA
