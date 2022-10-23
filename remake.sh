@@ -7,7 +7,7 @@
 # Uncomment lines of stuffs to be enabled
 
 # Lua callbacks and plugs-in
-#BUILD_LUA=1
+BUILD_LUA=1
 
 if [ ${BUILD_LUA+x} ]; then
 	# Repetitive task

@@ -8,6 +8,8 @@ clean:
 
 # Build everything
 all:
+	$(MAKE) -C Modules/mod_Lua
+	$(MAKE) -C Modules/mod_every
 	$(MAKE) -C Modules/mod_ups
 	$(MAKE) -C Modules/mod_outfile
 	$(MAKE) -C Modules/mod_dpd
