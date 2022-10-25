@@ -10,8 +10,8 @@ for file in lfs.dir(MARCEL_SCRIPT_DIR) do
 	then
 		if MARCEL_DEBUG then
 			print("*Lua* Running ", file)
-			dofile(MARCEL_SCRIPT_DIR .. '/' .. file)
 		end
+		dofile(MARCEL_SCRIPT_DIR .. '/' .. file)
 	end
 end
 
