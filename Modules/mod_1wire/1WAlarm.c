@@ -16,6 +16,8 @@
 
 #include <stdlib.h>
 #include <errno.h>
+#include <assert.h>
+#include <dirent.h>
 
 	/* ***
 	 * Process one probe
@@ -115,10 +117,47 @@ static void processProbe( struct section_1wAlarm *s
 }
 
 	/* ***
+	 * Scan Alert directory
+	 * ***/
+void *scanAlertDir(void *amod){
+	struct module_1wire *mod_1wire = (struct module_1wire *)amod;
+
+	for(;;){
+		struct dirent *de;
+		DIR *d = opendir( mod_1wire->OwAlarm );
+		if( !d ){
+			publishLog(mod_1wire->OwAlarmKeep ? 'E' : 'F', "[1-wire Alarm] : %s", strerror(errno));
+			if(!mod_1wire->OwAlarmKeep)
+				pthread_exit(0);
+		} else {
+			closedir(d);
+		}
+
+		struct timespec ts;
+		ts.tv_sec = (time_t)mod_1wire->OwAlarmSample;
+		ts.tv_nsec = (unsigned long int)((mod_1wire->OwAlarmSample - (time_t)mod_1wire->OwAlarmSample) * 1e9);
+
+		nanosleep( &ts, NULL );
+	}
+}
+
+	/* ***
 	 * Startup of 1-wire alarm driven probe
 	 * ***/
 void start1WAlarm( uint8_t mid ){
+	struct module_1wire *mod_1wire = (struct module_1wire *)modules[mid];
 	uint16_t sid = (S1_ALRM << 8) | mid;	/* Alarm sectionID */
+
+		/* Sanity checks */
+	if(!mod_1wire->OwAlarm){
+		publishLog('F', "[mod_1wire] 1wire-Alarm-directory must be set. Dying ...");
+		exit(EXIT_FAILURE);
+	}
+
+	if(mod_1wire->OwAlarmSample <= 0){
+		publishLog('F', "[mod_1wire] 1wire-Alarm-sample can't be <= 0. Dying ...");
+		exit(EXIT_FAILURE);
+	}
 
 		/* mod_lua */
 #ifdef LUA
@@ -189,5 +228,12 @@ void start1WAlarm( uint8_t mid ){
 	}
 
 	/* Launch reading thread */
-/*AF */
+	pthread_attr_t thread_attr;
+	assert(!pthread_attr_init (&thread_attr));
+	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+
+	if(pthread_create( &(mod_1wire->thread), &thread_attr, scanAlertDir, mod_1wire) < 0){
+		publishLog('F', "Can't create 1-wire alert reader thread");
+		exit(EXIT_FAILURE);
+	}
 }

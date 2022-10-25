@@ -26,6 +26,7 @@ struct module_1wire {
 	const char *OwAlarm;	/* 1w alarm directory */
 	float OwAlarmSample;	/* Delay b/w 2 sample on alarm directory */
 	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
+	pthread_t thread;		/* Slave thread reading alert directory */
 };
 
 
