@@ -74,7 +74,7 @@ static void processProbe( struct section_1wAlarm *s
 			mod_Lua->pushString( s->common.section.uid );
 			mod_Lua->pushString( emsg );
 			if(mod_Lua->exec(2, 0)){
-				publishLog('E', "[%s] FFV failfunction : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
+				publishLog('E', "[%s] 1WAlert failfunction : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 				mod_Lua->pop(1);	/* pop error message from the stack */
 				mod_Lua->pop(1);
 			}
@@ -104,7 +104,7 @@ static void processProbe( struct section_1wAlarm *s
 #endif
 
 			if(publish){
-				publishLog('T', "[%s] -> %f", s->common.section.uid, l);
+				publishLog('T', "[%s] -> %s", s->common.section.uid, l);
 				mqttpublish(cfg.client, s->common.section.topic, strlen(l), l, s->common.section.retained );
 			} else
 				publishLog('T', "[%s] UserFunction requested not to publish", s->common.section.uid);
