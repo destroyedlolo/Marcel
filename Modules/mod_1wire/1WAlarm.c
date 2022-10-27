@@ -121,6 +121,16 @@ static void processProbe( struct section_1wAlarm *s
 	 * ***/
 void *scanAlertDir(void *amod){
 	struct module_1wire *mod_1wire = (struct module_1wire *)amod;
+	uint16_t sid = S1_ALRM << 8 | mod_1wire->module.module_index;
+
+		/* mod_lua */
+#ifdef LUA
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
+	struct module_Lua *mod_Lua = NULL;
+
+	if(mod_Lua_id != (uint8_t)-1)
+		 mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+#endif
 
 	for(;;){
 		struct dirent *de;
@@ -130,6 +140,21 @@ void *scanAlertDir(void *amod){
 			if(!mod_1wire->OwAlarmKeep)
 				pthread_exit(0);
 		} else {
+			while(( de = readdir(d) )){
+				if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
+					publishLog('T', "%s : in alert", de->d_name);
+
+					for(struct section_1wAlarm *s = (struct section_1wAlarm *)sections; s; s = (struct section_1wAlarm *)s->common.section.next){
+						if( s->common.section.id == sid && strstr(s->common.file, de->d_name)){
+							processProbe(s
+#ifdef LUA
+								, mod_Lua
+#endif
+							);
+						}
+					}
+				}
+			}
 			closedir(d);
 		}
 
