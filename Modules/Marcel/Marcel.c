@@ -420,20 +420,8 @@ int main(int ac, char **av){
 	}
 
 	signal(SIGINT, handleInt);
-pause();
+	pause();
 
 	exit(EXIT_SUCCESS);
 }
 
-/**** A FAIRE
- * Dans les sections, rajouter un 
- * 	void (*postconfInit)();
- * ici, elle fera une subscription sur Topic
-
-Needs=mod_dummy
-
-*Echo=Echo incoming message
-	Topic=%ClientID%/echo
-
-#	Disable
- ***/
