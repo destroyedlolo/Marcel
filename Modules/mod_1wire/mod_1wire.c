@@ -27,7 +27,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 	if(!strcmp(l, "RandomizeProbes")){
 		if(*section){
-			publishLog('F', "TestFlag can't be part of a section");
+			publishLog('F', "RandomizeProbes can't be part of a section");
 			exit(EXIT_FAILURE);
 		}
 
