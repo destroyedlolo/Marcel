@@ -140,7 +140,7 @@ static void *handleNotification(void *amod){
 					else
 						continue;	/* skip to next section */
 				} else {
-					if( event->wd == s->wd ){	/* Event's matching */
+					if( event->wd == s->wd && !s->section.disabled ){	/* Event's matching */
 						char *amsg=NULL;
 						if(event->mask & IN_ACCESS)
 							amsg = stradd( amsg, ",ACCESS", true);
