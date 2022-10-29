@@ -29,6 +29,9 @@ BUILD_SHT31=1
 # 1 wire probes handling
 BUILD_1WIRE=1
 
+# File system notification
+BUILD_INOTIFY=1
+
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1
 
@@ -152,6 +155,9 @@ fi
 if [ ${BUILD_1WIRE+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_1wire' >> Makefile
 fi
+if [ ${BUILD_INOTIFY+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_inotify' >> Makefile
+fi
 if [ ${BUILD_FREEBOX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
 fi
@@ -203,6 +209,12 @@ fi
 if [ ${BUILD_1WIRE+x} ]; then
 	cd Modules/mod_1wire
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_1wire.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_INOTIFY+x} ]; then
+	cd Modules/mod_inotify
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_inotify.so > Makefile
 	cd ../..
 fi
 
