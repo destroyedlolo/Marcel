@@ -50,6 +50,26 @@ int chksum(const char *s){
 }
 
 /**
+ * @brief Enlarge a string and add new part
+ * @param p string of the original string (NULL if a new string to allocate)
+ * @param s part to add
+ * @param addspace, skip the 1st character of s if p is NULL
+ * @return pointer to the new string
+ */
+
+char *stradd(char *p, const char *s, bool addspace){
+	if(!p)
+		return(strdup(s + (addspace ? 1:0)));
+
+	size_t asz = strlen(p);
+	char *np = realloc(p, strlen(p) + strlen(s) +1);
+	assert(np);
+	strcpy( np+asz, s );
+
+	return(np);
+}
+
+/**
  * @brief read a line from a file descriptor
  *
  * @param fd file descriptor to read

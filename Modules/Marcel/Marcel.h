@@ -69,6 +69,7 @@ extern void publishLog( char l, const char *msg, ...);
 extern const char *striKWcmp( const char *s, const char *kw );
 extern char *removeLF(char *s);
 extern int chksum(const char *s);
+extern char *stradd(char *p, const char *s, bool addspace);
 extern size_t socketreadline( int fd, char *l, size_t sz);
 
 #endif
