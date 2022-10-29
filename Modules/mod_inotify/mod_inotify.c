@@ -90,11 +90,32 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	return REJECTED;
 }
 
+static bool acceptSDirective( uint8_t sec_id, const char *directive ){
+	if(sec_id == SI_L4C){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Retained") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Dir=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "On=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "For=") )
+			return true;	/* Accepted */
+	}
+
+	return false;
+}
+
 void InitModule( void ){
 	mod_inotify.module.name = "mod_inotify";	/* Identify the module */
 
 	mod_inotify.module.readconf = readconf;
-	mod_inotify.module.acceptSDirective = NULL;
+	mod_inotify.module.acceptSDirective = acceptSDirective;
 	mod_inotify.module.getSlaveFunction = NULL;
 	mod_inotify.module.postconfInit = NULL;
 
