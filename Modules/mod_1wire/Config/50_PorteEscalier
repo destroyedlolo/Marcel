@@ -1,0 +1,52 @@
+# Handle 1-wire alert even
+
+Needs=mod_1wire
+
+# DS2406 based Door sensor
+# driven by 1-wire alert
+*1WAlert=porte escalier
+
+	# Where the probe value is exposed
+	File=/var/lib/owfs/mnt/12.BC0ED0000000/sensed.ALL
+
+	# Write to this file to reset the probe's latch
+	Latch=/var/lib/owfs/mnt/12.BC0ED0000000/latch.BYTE
+
+	# Topic to publish to
+	Topic=maison/IO/Porte_Escalier/Brute
+
+	# submitted as retained message
+	Retained
+
+	# Read and publish value at launching
+	Immediate
+
+	# Function to be executed at startup
+	# Typical usage : set the probe in Alert mode
+	# Arguments :
+	#	sectionID
+	#	File
+	InitFunc=SetAlertMode
+
+	# Lua validation user function
+	# Arguments :
+	# 	- section UID
+	# 	- probe value (as string)
+	Func=ValTProbe
+
+	# Lua validation user function
+	# Arguments :
+	# 	- section UID
+	# 	- probe value (as string)
+	Func=ValTProbe
+
+	# Function to be called in case the file can't be opened
+	# Typical usage : reset the DS2482-800 which is driving my 
+	# 1-wire bus in case it hangs.
+	# Arguments : 
+	# 	- section UID
+	# 	- error message
+	FailFunc=NoProbe
+
+	# Start disabled
+#	Disabled

@@ -1,0 +1,12 @@
+# 1-wire global settings
+
+Needs=mod_1wire
+
+# Directory where alarms are exposed
+1wire-Alarm-directory=/var/lib/owfs/mnt/alarm
+
+# Alarm delay b/w sample (in seconds)
+1wire-Alarm-sample=60
+
+# Technical errors while reading alarm aren't fatal for 1-wire alarm detection
+1wire-Alarm-keep
