@@ -175,6 +175,9 @@ static void *handleNotification(void *amod){
 						if(event->mask & IN_UNMOUNT)
 							amsg = stradd( amsg, ",UNMOUNT", true);
 
+						if(cfg.verbose)
+							publishLog('I', "[%s] %s:%s", s->section.uid, event->len ? event->name : "", amsg);
+
 						size_t sz = event->len + strlen(amsg) + 2;
 						char msg[sz+1];
 						sprintf(msg, "%s:%s", event->len ? event->name : "", amsg);
