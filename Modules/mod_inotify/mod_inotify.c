@@ -71,21 +71,28 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)
 				publishLog('C', "\t\tFor :");
 	
+			char *amsg = NULL;
 			for( char *t = strtok((char *)arg, " \t" ); t; t = strtok( NULL, " \t" ) ){
 				if(!strcasecmp( t, "create" )){
 					(*(struct section_Look4Change **)section)->flags |=  IN_CREATE | IN_MOVED_TO;
 					if(cfg.verbose)
-						publishLog('C', "\t\t\tcreate");
+						amsg = stradd( amsg, ",create", true);
 				} else if(!strcasecmp( t, "remove" )){
 					(*(struct section_Look4Change **)section)->flags |=  IN_DELETE | IN_MOVED_FROM;
 					if(cfg.verbose)
-						publishLog('C', "\t\t\tremove");
+						amsg = stradd( amsg, ",remove", true);
 				} else if(!strcasecmp( t, "modify" )){
 					(*(struct section_Look4Change **)section)->flags |=  IN_ATTRIB | IN_CLOSE_WRITE;
 					if(cfg.verbose)
-						publishLog('C', "\t\t\tmodify");
+						amsg = stradd( amsg, ",modify", true);
 				}
 			}
+			if(cfg.verbose){
+				char msg[strlen(amsg) + 8];
+				sprintf(msg, "\t\tFor : %s", amsg);
+				publishLog('C', msg);
+			}
+			free(amsg);
 			return ACCEPTED;
 		}
 	}
