@@ -22,6 +22,7 @@ struct module_inotify {
 	bool grouped;	/* All LookForChanges are grouped */
 
 	pthread_t thread;		/* Slave thread to handle the notification */
+	int infd;
 
 	struct section_Look4Change *first_section;	/* Pointer to the first section handled by mod_inotify */
 };
