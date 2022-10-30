@@ -217,28 +217,43 @@ void start1WAlarm( uint8_t mid ){
 			}
 
 #ifdef LUA
-			if(s->initfunc){	/* Initialise all 1wAlarm */
-				if(mod_Lua_id != (uint8_t)-1){
-					int funcid;
-					if( (funcid = mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
-						publishLog('E', "[%s] configuration error : Init function \"%s\" is not defined. Dying.", s->common.section.uid, s->initfunc);
-						exit(EXIT_FAILURE);
-					}
-
-					mod_Lua->lockState();
-					mod_Lua->pushFunctionId( funcid );
-					mod_Lua->pushString( s->common.section.uid );
-					mod_Lua->pushString( s->common.file );
-					if(mod_Lua->exec(2, 0)){
-						publishLog('E', "[%s] Init function : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
-						mod_Lua->pop(1);	/* pop error message from the stack */
-						mod_Lua->pop(1);
-					}
-					mod_Lua->unlockState();
-				} else {
-					publishLog('E', "[%s] Init function defined but mod_Lua is not loaded. Dying.", s->common.section.uid);
+			if(s->common.section.funcname){
+				assert(mod_Lua_id != (uint8_t)-1);
+				
+				if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
+					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined", s->common.section.uid, s->common.section.funcname);
 					exit(EXIT_FAILURE);
 				}
+			}
+
+			if(s->common.failfunc){
+				assert(mod_Lua_id != (uint8_t)-1);
+				
+				if( (s->common.failfuncid = mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
+					publishLog('F', "[%s] configuration error : Fail function \"%s\" is not defined", s->common.section.uid, s->common.failfunc);
+					exit(EXIT_FAILURE);
+				}
+			}
+
+			if(s->initfunc){	/* Initialise all 1wAlarm */
+				assert(mod_Lua_id != (uint8_t)-1);
+
+				int funcid;
+				if( (funcid = mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
+					publishLog('E', "[%s] configuration error : Init function \"%s\" is not defined. Dying.", s->common.section.uid, s->initfunc);
+					exit(EXIT_FAILURE);
+				}
+
+				mod_Lua->lockState();
+				mod_Lua->pushFunctionId( funcid );
+				mod_Lua->pushString( s->common.section.uid );
+				mod_Lua->pushString( s->common.file );
+				if(mod_Lua->exec(2, 0)){
+					publishLog('E', "[%s] Init function : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_Lua->pop(1);
+				}
+				mod_Lua->unlockState();
 			}
 #endif
 
