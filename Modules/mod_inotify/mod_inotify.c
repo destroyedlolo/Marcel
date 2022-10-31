@@ -190,19 +190,36 @@ static void *handleNotification(void *amod){
 						if(event->mask & IN_UNMOUNT)
 							amsg = stradd( amsg, ",UNMOUNT", true);
 
-						if(cfg.verbose)
-							publishLog('I', "[%s] %s:%s", s->section.uid, event->len ? event->name : "", amsg);
+						bool publish = true;
 
 #ifdef LUA
-						if(mod_Lua_id != (uint8_t)-1){
-	printf("********** funcid : %d\n", s->section.funcid);
+						if(s->section.funcid != LUA_REFNIL){
+							mod_Lua->lockState();
+							mod_Lua->pushFunctionId(s->section.funcid);
+							mod_Lua->pushString(s->section.uid);
+							mod_Lua->pushString(event->len ? event->name : "");
+							mod_Lua->pushString(amsg);
+
+							if(mod_Lua->exec(3, 1)){
+								publishLog('E', "[%s] 1WAlert : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								mod_Lua->pop(1);	/* pop error message from the stack */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
+							} else
+								publish = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							mod_Lua->unlockState();
 						}
 #endif
-						size_t sz = event->len + strlen(amsg) + 2;
-						char msg[sz+1];
-						sprintf(msg, "%s:%s", event->len ? event->name : "", amsg);
-						free(amsg);
-						mqttpublish(cfg.client, s->section.topic, sz, msg, s->section.retained);
+
+						if(publish){
+							size_t sz = event->len + strlen(amsg) + 2;
+							char msg[sz+1];
+							sprintf(msg, "%s:%s", event->len ? event->name : "", amsg);
+							free(amsg);
+
+							publishLog('T', "[%s] -> %s", s->section.uid, msg);
+							mqttpublish(cfg.client, s->section.topic, sz, msg, s->section.retained);
+						} else
+							publishLog('T', "[%s] UserFunction requested not to publish", s->section.uid);
 					}
 				}
 			}
