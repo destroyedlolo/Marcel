@@ -71,9 +71,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		} else if((arg = striKWcmp(l,"For="))){
 			acceptSectionDirective(*section, "For=");
 
-			if(cfg.verbose)
-				publishLog('C', "\t\tFor :");
-	
 			char *amsg = NULL;
 			for( char *t = strtok((char *)arg, " \t" ); t; t = strtok( NULL, " \t" ) ){
 				if(!strcasecmp( t, "create" )){
@@ -196,6 +193,11 @@ static void *handleNotification(void *amod){
 						if(cfg.verbose)
 							publishLog('I', "[%s] %s:%s", s->section.uid, event->len ? event->name : "", amsg);
 
+#ifdef LUA
+						if(mod_Lua_id != (uint8_t)-1){
+	printf("********** funcid : %d\n", s->section.funcid);
+						}
+#endif
 						size_t sz = event->len + strlen(amsg) + 2;
 						char msg[sz+1];
 						sprintf(msg, "%s:%s", event->len ? event->name : "", amsg);
@@ -215,6 +217,14 @@ static void startNotif( uint8_t mid ){
 			perror("inotify_init()");
 			exit(EXIT_FAILURE);
 		}
+
+#ifdef LUA
+		uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
+		struct module_Lua *mod_Lua = NULL;
+
+		if(mod_Lua_id != (uint8_t)-1)
+			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+#endif
 
 		/* Sanity checks */
 		for(struct section_Look4Change *s = mod_inotify.first_section; s; s = (struct section_Look4Change *)s->section.next){
@@ -243,23 +253,10 @@ static void startNotif( uint8_t mid ){
 				const char *emsg = strerror(errno);
 				publishLog('E', "[%s] %s : %s", s->section.uid, s->dir, emsg);
 			}
-		}
 
-		/* Look for Lua functions */		
+			/* Look for Lua functions */		
 #ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	struct module_Lua *mod_Lua = NULL;
-
-	if(mod_Lua_id != (uint8_t)-1){
-		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-
-		for(struct section_Look4Change *s = mod_inotify.first_section; s; s = (struct section_Look4Change *)s->section.next){
-			if(s->section.id != mod_inotify.first_section->section.id){	/* Not a L4C section anymore */
-				if(mod_inotify.grouped)
-					break;		/* List is over */
-				else
-					continue;	/* skip to next section */
-			} else {		
+			if(mod_Lua_id != (uint8_t)-1){
 				if(s->section.funcname){
 					if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 						publishLog('F', "[%s] configuration error : user function \"%s\" is not defined", s->section.uid, s->section.funcname);
@@ -267,9 +264,8 @@ static void startNotif( uint8_t mid ){
 					}
 				}
 			}
-		}
-	}
 #endif
+		}
 
 			/* Launch notification thread */
 		pthread_attr_t thread_attr;
