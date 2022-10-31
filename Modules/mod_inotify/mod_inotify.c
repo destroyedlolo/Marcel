@@ -10,6 +10,9 @@
 
 #include "mod_inotify.h"	/* module's own stuffs */
 #include "../Marcel/MQTT_tools.h"
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -124,6 +127,14 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 static void *handleNotification(void *amod){
 	struct module_inotify *mod_inotify = (struct module_inotify *)amod;
 
+#ifdef LUA
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
+	struct module_Lua *mod_Lua = NULL;
+
+	if(mod_Lua_id != (uint8_t)-1)
+		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+#endif
+
 	char buf[ INOTIFY_BUF_LEN ];
 
 	for(;;){
@@ -233,6 +244,32 @@ static void startNotif( uint8_t mid ){
 				publishLog('E', "[%s] %s : %s", s->section.uid, s->dir, emsg);
 			}
 		}
+
+		/* Look for Lua functions */		
+#ifdef LUA
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
+	struct module_Lua *mod_Lua = NULL;
+
+	if(mod_Lua_id != (uint8_t)-1){
+		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+		for(struct section_Look4Change *s = mod_inotify.first_section; s; s = (struct section_Look4Change *)s->section.next){
+			if(s->section.id != mod_inotify.first_section->section.id){	/* Not a L4C section anymore */
+				if(mod_inotify.grouped)
+					break;		/* List is over */
+				else
+					continue;	/* skip to next section */
+			} else {		
+				if(s->section.funcname){
+					if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+						publishLog('F', "[%s] configuration error : user function \"%s\" is not defined", s->section.uid, s->section.funcname);
+						exit(EXIT_FAILURE);
+					}
+				}
+			}
+		}
+	}
+#endif
 
 			/* Launch notification thread */
 		pthread_attr_t thread_attr;
