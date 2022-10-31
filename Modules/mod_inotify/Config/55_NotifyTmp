@@ -1,0 +1,23 @@
+# Notify when something changed in /tmp
+
+Needs=mod_inotify
+
+# Send notification when a directory content changes
+*LookForChanges=watch /tmp
+	Topic=%ClientID%/Notification_tmp
+	On=/tmp
+# flags to look for
+# 	create : a file has been moved to the directory
+# 	remove : a file has been moved away
+#	modify : attribute changes
+	For=create remove modify
+
+# Acceptation function
+# 	1: section ID
+# 	2: filename
+# 	3: action list
+	Func=TestNotif
+
+#Retained
+#Disabled
+

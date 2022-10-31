@@ -10,3 +10,5 @@ mod_1wire
 Verifier que toutes les directives de sections fonctionnent. J'ai rajouter acceptSectionDirective() partout
 
 Tester les alarm1W
+
+Exposer dans Lua une API pour accéder au attributs des sections

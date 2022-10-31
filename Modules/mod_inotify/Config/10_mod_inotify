@@ -1,0 +1,11 @@
+# Load the filesystem notification module
+
+LoadModule=mod_inotify.so
+
+# If set, all LookForChanges are grouped, meaning Marcel
+# will look up for the 1st one in its configuration and
+# stop L4C list as soon as it found a section with a different type.
+# It's for optimisation purpose
+
+LookForChangesGrouped
+
