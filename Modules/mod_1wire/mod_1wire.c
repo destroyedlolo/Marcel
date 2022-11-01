@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <assert.h>
 
-static struct module_1wire mod_1wire;
+struct module_1wire mod_1wire;
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
@@ -109,7 +109,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
-	} else if((arg = striKWcmp(l,"*1WAlert="))){
+	} else if((arg = striKWcmp(l,"*1WAlarm="))){
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
 			exit(EXIT_FAILURE);
@@ -126,6 +126,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering 1-wire Alarm section '%s' (%04x)", nsection->common.section.uid, nsection->common.section.id);
 
+		mod_1wire.alarm_in_use = false;
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
 	} else if(*section){
@@ -245,6 +246,7 @@ void InitModule( void ){
 	mod_1wire.randomize = false;
 	mod_1wire.defaultsampletime = 0.0;
 
+	mod_1wire.alarm_in_use = false;
 	mod_1wire.OwAlarm = NULL;
 	mod_1wire.OwAlarmSample = 0.0;
 	mod_1wire.OwAlarmKeep = false;

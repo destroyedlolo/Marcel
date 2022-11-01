@@ -23,12 +23,14 @@ struct module_1wire {
 	float defaultsampletime;
 
 		/* Alarm handling */
+	bool alarm_in_use;		/* At last an alarm is defined */
 	const char *OwAlarm;	/* 1w alarm directory */
 	float OwAlarmSample;	/* Delay b/w 2 sample on alarm directory */
 	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
 	pthread_t thread;		/* Slave thread reading alert directory */
 };
 
+extern struct module_1wire mod_1wire;
 
 	/* Section identifiers */
 enum {

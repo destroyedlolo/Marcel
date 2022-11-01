@@ -162,7 +162,7 @@ void *processFFV(void *actx){
 
 			struct timespec ts;
 			if(first && mod_1wire.randomize){
-				ts.tv_sec = (time_t)(rand() % (int)s->common.section.sample);
+				ts.tv_sec = (time_t)(rand() % ((int)s->common.section.sample/2));
 				ts.tv_nsec = 0;
 
 				if(cfg.debug)
