@@ -76,7 +76,7 @@ static void processProbe( struct section_1wAlarm *s
 			mod_Lua->pushString( s->common.section.uid );
 			mod_Lua->pushString( emsg );
 			if(mod_Lua->exec(2, 0)){
-				publishLog('E', "[%s] 1WAlert failfunction : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
+				publishLog('E', "[%s] 1WAlarm failfunction : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 				mod_Lua->pop(1);	/* pop error message from the stack */
 				mod_Lua->pop(1);
 			}
@@ -96,7 +96,7 @@ static void processProbe( struct section_1wAlarm *s
 				mod_Lua->pushString( s->common.section.uid );
 				mod_Lua->pushString( l );
 				if(mod_Lua->exec(2, 1)){
-					publishLog('E', "[%s] 1WAlert : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
+					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else
@@ -173,6 +173,11 @@ void start1WAlarm( uint8_t mid ){
 	struct module_1wire *mod_1wire = (struct module_1wire *)modules[mid];
 	uint16_t sid = (S1_ALRM << 8) | mid;	/* Alarm sectionID */
 
+	if(!mod_1wire->alarm_in_use){
+		publishLog('W', "[mod_1wire] No alarm defined");
+		return;
+	}
+		
 		/* Sanity checks */
 	if(!mod_1wire->OwAlarm){
 		publishLog('F', "[mod_1wire] 1wire-Alarm-directory must be set. Dying ...");

@@ -4,7 +4,7 @@ Needs=mod_1wire
 
 # DS2406 based Door sensor
 # driven by 1-wire alert
-*1WAlert=porte escalier
+*1WAlarm=porte escalier
 
 	# Where the probe value is exposed
 	File=/var/lib/owfs/mnt/12.BC0ED0000000/sensed.ALL
