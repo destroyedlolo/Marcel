@@ -201,7 +201,7 @@ static void *handleNotification(void *amod){
 							mod_Lua->pushString(amsg);
 
 							if(mod_Lua->exec(3, 1)){
-								publishLog('E', "[%s] 1WAlert : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								publishLog('E', "[%s] LookForChanges : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
 								mod_Lua->pop(1);	/* pop NIL from the stack */
 							} else
