@@ -15,6 +15,7 @@
 #include "../Marcel/MQTT_tools.h"
 
 #include <errno.h>
+#include <stdlib.h>
 
 void *processFFV(void *actx){
 	struct section_FFV *s = (struct section_FFV *)actx;
@@ -160,6 +161,16 @@ void *processFFV(void *actx){
 				break;
 
 			struct timespec ts;
+			if(first && mod_1wire.randomize){
+				ts.tv_sec = (time_t)(rand() % (int)s->common.section.sample);
+				ts.tv_nsec = 0;
+
+				if(cfg.debug)
+					publishLog('I', "[%s] Delayed by %d seconds", s->common.section.uid, ts.tv_sec);
+
+				nanosleep( &ts, NULL );
+			}
+	
 			ts.tv_sec = (time_t)s->common.section.sample;
 			ts.tv_nsec = (unsigned long int)((s->common.section.sample - (time_t)s->common.section.sample) * 1e9);
 

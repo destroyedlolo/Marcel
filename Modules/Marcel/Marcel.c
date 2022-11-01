@@ -256,6 +256,7 @@ int main(int ac, char **av){
 		exit( c=='?' ? EXIT_FAILURE : EXIT_SUCCESS );
 	}
 
+	srand(time(NULL));	/* Initialize random generator */
 	init_VarSubstitution( vslookup );
 	init_module_core();
 
