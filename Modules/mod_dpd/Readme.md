@@ -22,7 +22,8 @@ At least one of `NotificationTopic=` and `Func=` must be present, otherwise the 
 ### Lua function arguments
 
 1. Section ID
-2. MQTT message value
+2. Topic
+3. MQTT message value
 
 ### Lua function return
 
