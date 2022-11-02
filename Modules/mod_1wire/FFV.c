@@ -129,9 +129,10 @@ void *processFFV(void *actx){
 							mod_Lua->lockState();
 							mod_Lua->pushFunctionId( s->common.section.funcid );
 							mod_Lua->pushString( s->common.section.uid );
+							mod_Lua->pushString( s->common.section.topic );
 							mod_Lua->pushNumber( val );
 							mod_Lua->pushNumber( compensated );
-							if(mod_Lua->exec(3, 1)){
+							if(mod_Lua->exec(4, 1)){
 								publishLog('E', "[%s] FFV : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
 								mod_Lua->pop(1);	/* pop NIL from the stack */

@@ -30,3 +30,44 @@ the probe is underpowered
   * missing : takes the last `DefaultSampleDelay=`
   * **-1** run only once
 * **Immediate** Launch the 1st sample at startup
+
+## Section 1WAlarm
+
+Like FFV but value is read only when the probe is in alarm status
+
+### Accepted directives
+
+* **File=** Where the probe is exposed
+* **Latch=** Write to this file to reset the probe's latch (and alarm)
+* **Func=** Acceptance function
+* **FailFunc=** Callback in case of technical failure
+* **InitFunc=** Function to be executed at startup (Typical usage : set the probe in Alert mode)
+* **Topic=** Topic to publish to
+* **Retained** submitted as retained message
+* **Immediate** Read and publish value at launching
+
+## Lua interface
+### Func
+#### Arguments
+
+1. Section id
+2. Topic
+3. raw value
+4. compensated value
+
+#### Return
+
+`true` if the value has to be published, `false` if not
+
+### InitFunc
+#### Arguments
+
+1. Section id
+2. File
+
+### FailFunc
+#### Arguments
+
+1. Section id
+2. error message
+

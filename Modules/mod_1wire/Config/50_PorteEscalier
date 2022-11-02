@@ -31,12 +31,7 @@ Needs=mod_1wire
 	# Lua validation user function
 	# Arguments :
 	# 	- section UID
-	# 	- probe value (as string)
-	Func=ValTProbe
-
-	# Lua validation user function
-	# Arguments :
-	# 	- section UID
+	# 	- topic
 	# 	- probe value (as string)
 	Func=ValTProbe
 

@@ -94,8 +94,9 @@ static void processProbe( struct section_1wAlarm *s
 				mod_Lua->lockState();
 				mod_Lua->pushFunctionId( s->common.section.funcid );
 				mod_Lua->pushString( s->common.section.uid );
+				mod_Lua->pushString( s->common.section.topic );
 				mod_Lua->pushString( l );
-				if(mod_Lua->exec(2, 1)){
+				if(mod_Lua->exec(3, 1)){
 					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);	/* pop NIL from the stack */
