@@ -8,6 +8,7 @@
 #include "../Marcel/MQTT_tools.h"
 
 #include <unistd.h>
+#include <stdlib.h>
 
 static int lmPublish(lua_State *L){
 	int retain = 0;
@@ -23,6 +24,10 @@ static int lmPublish(lua_State *L){
 	mqttpublish( cfg.client, topic, strlen(val), (void *)val, retain );
 
 	return 0;
+}
+
+static int lmShutdown(lua_State *L){
+	exit(EXIT_SUCCESS);
 }
 
 static int lmLog(lua_State *L){
@@ -76,6 +81,7 @@ const struct luaL_Reg MarcelLib [] = {
 	{"SendAlertsCounter", lmSendAlertsCounter},
 #endif
 	{"MQTTPublish", lmPublish},
+	{"Shutdown", lmShutdown},
 	{"Log", lmLog},
 	{"Hostname", lmHostname},
 	{"ClientID", lmClientID},
