@@ -3,7 +3,7 @@
 -- Return false if val == "No", true otherwise
 --
 
-function TestNo( section_name, val )
+function TestNo( section_name, topic, val )
 	print("Test", section_name, val)
 
 	if val == "No" then
