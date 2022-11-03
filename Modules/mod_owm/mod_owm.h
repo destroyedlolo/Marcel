@@ -21,6 +21,8 @@ struct module_owm {
 	const char *apikey;
 };
 
+extern struct module_owm mod_owm;
+
 /* Section identifiers */
 enum {
 	SM_DAILY= 0,
@@ -36,5 +38,8 @@ struct section_OWMQuery {
 };
 
 #define DEFAULT_WEATHER_SAMPLE 600
+
+extern int convWCode(int code, int dayornight);
+extern void *processWFDaily(void *);
 
 #endif

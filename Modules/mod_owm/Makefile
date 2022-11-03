@@ -6,13 +6,19 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA $(shell pkg-config --cflags json-c ) -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_owm.o : mod_owm.c mod_owm.h ../Marcel/Module.h ../Marcel/Section.h \
   Makefile 
 	$(cc) -c -o mod_owm.o mod_owm.c $(opts) 
 
-../../mod_owm.so : mod_owm.o Makefile 
-	 $(cc) -shared -o ../../mod_owm.so mod_owm.o $(opts) 
+WeatherDaily.o : WeatherDaily.c mod_owm.h ../Marcel/Module.h \
+  ../Marcel/Section.h ../Marcel/MQTT_tools.h ../Marcel/Version.h \
+  ../Marcel/CURL_helpers.h Makefile 
+	$(cc) -c -o WeatherDaily.o WeatherDaily.c $(opts) 
+
+../../mod_owm.so : WeatherDaily.o mod_owm.o Makefile 
+	 $(cc) -shared -o ../../mod_owm.so WeatherDaily.o mod_owm.o \
+  $(opts) 
 
 all: ../../mod_owm.so 

@@ -17,6 +17,44 @@
 
 struct module_owm mod_owm;
 
+	/* Convert weather condition to accurate code */
+int convWCode( int code, int dayornight ){
+	if( code >=200 && code < 300 )
+		return 0;
+	else if( code >= 300 && code <= 312 )
+		return 9;
+	else if( code > 312 && code < 400 )
+		return( dayornight ? 39:45 );
+	else if( code == 500 || code == 501 )
+		return 11;
+	else if( code >= 502 && code <= 504 )
+		return 12;
+	else if( code == 511 )
+		return 10;
+	else if( code >= 520 && code <= 529 )
+		return( dayornight ? 39:45 );
+	else if( code == 600)
+		return 13;
+	else if( code > 600 && code < 610 )
+		return 14;
+	else if( code == 612 || (code >= 620 && code < 630) )
+		return( dayornight ? 41:46 );
+	else if( code >= 610 && code < 620 )
+		return 5;
+	else if( code >= 700 && code < 800 )
+		return 21;
+	else if( code == 800 )
+		return( dayornight ? 32:31 );
+	else if( code == 801 )
+		return( dayornight ? 34:33 );
+	else if( code == 802 )
+		return( dayornight ? 30:29 );
+	else if( code == 803 || code == 804 )
+		return( dayornight ? 28:27 );
+
+	return -1;
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -44,7 +82,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->section.sample = DEFAULT_WEATHER_SAMPLE;
 		nsection->city = NULL;
 		nsection->units = "metric";
-		nsection->lang = NULL;
+		nsection->lang = "en";
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Daily Weather section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -102,6 +140,16 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
+	if(sid == SM_DAILY)
+		return processWFDaily;
+/*
+	else if(sid == SM_3H)
+		return processFFV;
+*/
+	return NULL;
+}
+
 void InitModule( void ){
 	mod_owm.module.name = "mod_owm";	/* Identify the module */
 
@@ -110,7 +158,7 @@ void InitModule( void ){
 		 */
 	mod_owm.module.readconf = readconf;
 	mod_owm.module.acceptSDirective = acceptSDirective;
-	mod_owm.module.getSlaveFunction = NULL;
+	mod_owm.module.getSlaveFunction = getSlaveFunction;
 	mod_owm.module.postconfInit = NULL;
 
 	mod_owm.apikey = NULL;

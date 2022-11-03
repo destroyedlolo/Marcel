@@ -102,6 +102,13 @@ else
 	echo "Lua not used"
 fi
 
+if [ ${BUILD_METEOOWM+x} ]; then
+	JSON="\$(shell pkg-config --cflags json-c )"
+	JSONLIB="\$(shell pkg-config --libs json-c ) -lcurl"
+else
+	echo 'No need for Curl and json'
+fi
+
 if [ ${DEBUG+x} ]; then
 	echo "Debuging code enabled"
 	DEBUG="-DDEBUG"
@@ -226,7 +233,7 @@ fi
 
 if [ ${BUILD_METEOOWM+x} ]; then
 	cd Modules/mod_owm
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_owm.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $JSON $DEBUG $MCHECK" *.c -so=../../mod_owm.so > Makefile
 	cd ../..
 fi
 
@@ -248,7 +255,7 @@ fi
 
 cd Modules/Marcel
 
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUALIB \
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUALIB $JSONLIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread \
 	" *.c -t=../../Marcel > Makefile
