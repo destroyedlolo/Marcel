@@ -32,6 +32,9 @@ BUILD_1WIRE=1
 # File system notification
 BUILD_INOTIFY=1
 
+# Meteo forcast using OpenWeatherMap
+BUILD_METEOOWM=1
+
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1
 
@@ -158,6 +161,9 @@ fi
 if [ ${BUILD_INOTIFY+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_inotify' >> Makefile
 fi
+if [ ${BUILD_METEOOWM+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_owm' >> Makefile
+fi
 if [ ${BUILD_FREEBOX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
 fi
@@ -215,6 +221,12 @@ fi
 if [ ${BUILD_INOTIFY+x} ]; then
 	cd Modules/mod_inotify
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_inotify.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_METEOOWM+x} ]; then
+	cd Modules/mod_owm
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_owm.so > Makefile
 	cd ../..
 fi
 
