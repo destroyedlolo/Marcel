@@ -1,0 +1,27 @@
+# Declare some temperature 1-wire probes
+
+Needs=mod_owm
+
+# Query Daily meteo
+#
+*Meteo3H=Meteo Nonglard 3H
+	# Topic to publish to.
+	Topic=
+
+	# delay b/w 2 queries in seconds (minimum is 600s)
+	Sample=600
+
+	# CityName,Country (mandatory)
+	City=annecy,fr
+
+	# metric (default), imperial or Standard
+	Units=metric
+
+	# language
+	Lang=fr
+
+	# Launch it immediately
+	Immediate
+
+	# Start disabled
+#	Disabled

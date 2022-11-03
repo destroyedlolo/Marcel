@@ -1,0 +1,7 @@
+# Load the 1-wire module
+
+LoadModule=mod_owm.so
+
+# APIKey to get from https://openweathermap.org
+APIkey=
+
