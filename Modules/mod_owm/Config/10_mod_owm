@@ -1,4 +1,4 @@
-# Load the 1-wire module
+# Load the OpenWeatherMap module
 
 LoadModule=mod_owm.so
 

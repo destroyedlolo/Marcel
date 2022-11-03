@@ -159,7 +159,7 @@ static void Meteo3H(struct section_OWMQuery *ctx){
 								sprintf( l+lm, "%.2lf", json_object_get_double(swod));
 								mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 							} else
-								publishLog('E', "[%s] Querying meteo : no wind/speed", ctx->section.uid);
+								publishLog('E', "[%s] Querying meteo : no wind/direction", ctx->section.uid);
 						} else
 							publishLog('E', "[%s] Querying meteo : no wind", ctx->section.uid);
 					}

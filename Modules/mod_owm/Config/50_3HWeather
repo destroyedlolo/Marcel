@@ -2,7 +2,7 @@
 
 Needs=mod_owm
 
-# Query Daily meteo
+# Query 3 hours meteo
 #
 *Meteo3H=Meteo Nonglard 3H
 	# Topic to publish to.
