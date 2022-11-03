@@ -18,6 +18,7 @@ none
 * **func=** Acceptation function (*see bellow*)
 * **Offset=** offset to add to temperature value
 * **OffsetH=** offset to add to humidity value
+* **Disabled** Start this section disabled
 
 ### Lua function arguments
 
