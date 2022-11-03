@@ -225,7 +225,7 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
-ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
+static ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
 	if(sid == S1_FFV)
 		return processFFV;
 
