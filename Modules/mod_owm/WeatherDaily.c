@@ -43,7 +43,6 @@ static void MeteoD(struct section_OWMQuery *ctx){
 		chunk.size = 0;
 
 		sprintf(url, URLMETEOD, ctx->city, ctx->units, ctx->lang, mod_owm.apikey);
-puts(url);
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" MARCEL_VERSION);
 

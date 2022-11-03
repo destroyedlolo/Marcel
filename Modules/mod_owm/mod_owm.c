@@ -89,6 +89,25 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*Meteo3H="))){
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_OWMQuery *nsection = malloc(sizeof(struct section_OWMQuery));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, SM_3H, strdup(arg));	/* Initialize shared fields */
+
+		nsection->section.sample = DEFAULT_WEATHER_SAMPLE;
+		nsection->city = NULL;
+		nsection->units = "metric";
+		nsection->lang = "en";
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering 3H Weather section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
+		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"City="))){
 			acceptSectionDirective(*section, "City=");
@@ -143,10 +162,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
 	if(sid == SM_DAILY)
 		return processWFDaily;
-/*
 	else if(sid == SM_3H)
-		return processFFV;
-*/
+		return processWF3H;
 	return NULL;
 }
 

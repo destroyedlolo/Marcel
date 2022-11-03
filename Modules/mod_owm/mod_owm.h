@@ -41,5 +41,5 @@ struct section_OWMQuery {
 
 extern int convWCode(int code, int dayornight);
 extern void *processWFDaily(void *);
-
+extern void *processWF3H(void *);
 #endif
