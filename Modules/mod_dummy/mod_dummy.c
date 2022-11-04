@@ -199,18 +199,16 @@ void InitModule( void ){
 		/*
 		 * Initialize module declarations
 		 */
-	mod_dummy.module.name = "mod_dummy";							/* Identify the module */
+	initModule((struct Module *)&mod_dummy, "mod_dummy"); /* Identify the module */
 
 		/* Initialize callbacks
-		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
+		 * It's MANDATORY that all callbacks are initialised
 		 */
 	mod_dummy.module.readconf = readconf;
 	mod_dummy.module.acceptSDirective = mt_acceptSDirective;
 	mod_dummy.module.getSlaveFunction = mt_getSlaveFunction;
-	mod_dummy.module.postconfInit = NULL;
-	mod_dummy.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_dummy );	/* Register the module */
+	registerModule( (struct Module *)&mod_dummy );	/* Register the module */
 
 		/*
 		 * Do internal initialization

@@ -8,7 +8,8 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
-mod_OnOff.o : mod_OnOff.c Makefile 
+mod_OnOff.o : mod_OnOff.c mod_OnOff.h ../Marcel/Module.h \
+  ../Marcel/Section.h Makefile 
 	$(cc) -c -o mod_OnOff.o mod_OnOff.c $(opts) 
 
 ../../mod_OnOff.so : mod_OnOff.o Makefile 

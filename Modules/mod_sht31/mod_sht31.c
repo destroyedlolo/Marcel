@@ -261,16 +261,14 @@ ThreadedFunctionPtr mh_getSlaveFunction(uint8_t sid){
 }
 
 void InitModule( void ){
-	mod_sht31.module.name = "mod_sht31";	/* Identify the module */
+	initModule((struct Module *)&mod_sht31, "mod_sht31");	/* Identify the module */
 
 		/* Initialize callbacks
-		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
+		 * It's MANDATORY that all callbacks are initialised
 		 */
 	mod_sht31.module.readconf = readconf;
 	mod_sht31.module.acceptSDirective = mh_acceptSDirective;
 	mod_sht31.module.getSlaveFunction = mh_getSlaveFunction;
-	mod_sht31.module.postconfInit = NULL;
-	mod_sht31.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_sht31 );	/* Register the module */
+	registerModule( (struct Module *)&mod_sht31 );	/* Register the module */
 }

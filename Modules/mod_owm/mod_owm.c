@@ -168,18 +168,16 @@ static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
 }
 
 void InitModule( void ){
-	mod_owm.module.name = "mod_owm";	/* Identify the module */
+	initModule((struct Module *)&mod_owm, "mod_owm");	/* Identify the module */
 
 		/* Initialize callbacks
-		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
+		 * It's MANDATORY that all callbacks are initialised
 		 */
 	mod_owm.module.readconf = readconf;
 	mod_owm.module.acceptSDirective = acceptSDirective;
 	mod_owm.module.getSlaveFunction = getSlaveFunction;
-	mod_owm.module.postconfInit = NULL;
-	mod_owm.module.processMsg = NULL;
 
 	mod_owm.apikey = NULL;
 
-	register_module( (struct Module *)&mod_owm );	/* Register the module */
+	registerModule( (struct Module *)&mod_owm );	/* Register the module */
 }

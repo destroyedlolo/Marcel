@@ -41,9 +41,9 @@ void acceptSectionDirective( struct Section *section, const char *directive ){
 
 
 /**
- * @brief Search for a section
+ * @brief Search for a module
  *
- * @param name Name of the section we are looking for
+ * @param name Name of the module we are looking for
  * @return uid of this module (-1 if not found)
  */
 uint8_t findModuleByName(const char *name){
@@ -59,10 +59,24 @@ uint8_t findModuleByName(const char *name){
 
 
 /**
- * @brief Register a module.
- * Add it in the liste of known modules
+ * @brief Initialise module's field
+ * @param module to initialize
+ * @param name Name of the module to initialize
  */
-void register_module( struct Module *mod ){
+void initModule( struct Module *mod, const char *name){
+	mod->name = name;
+	mod->readconf = NULL;
+	mod->acceptSDirective = NULL;
+	mod->getSlaveFunction = NULL;
+	mod->postconfInit = NULL;
+	mod->processMsg = NULL;
+}
+
+/**
+ * @brief Register a module.
+ * Add it in the list of known modules
+ */
+void registerModule( struct Module *mod ){
 	if(findModuleByName(mod->name) != (uint8_t)-1){
 		publishLog('F', "Module '%s' is already loaded", mod->name);
 		exit(EXIT_FAILURE);

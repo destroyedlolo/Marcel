@@ -170,13 +170,10 @@ static bool mo_acceptSDirective( uint8_t sec_id, const char *directive ){
 }
 
 void InitModule( void ){
-	mod_outfile.module.name = "mod_outfile";
+	initModule((struct Module *)&mod_outfile, "mod_outfile");
 
 	mod_outfile.module.readconf = readconf;
 	mod_outfile.module.acceptSDirective = mo_acceptSDirective;
-	mod_outfile.module.getSlaveFunction = NULL;
-	mod_outfile.module.postconfInit = NULL;
-	mod_outfile.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_outfile );
+	registerModule( (struct Module *)&mod_outfile );
 }

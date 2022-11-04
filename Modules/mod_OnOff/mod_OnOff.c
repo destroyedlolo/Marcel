@@ -17,7 +17,7 @@
 static struct module_OnOff mod_OnOff;
 
 void InitModule( void ){
-	mod_OnOff.module.name = "mod_OnOff";
+	initModule((struct Module *)&mod_OnOff, "mod_OnOff");
 
 	mod_OnOff.module.readconf = NULL;
 	mod_OnOff.module.acceptSDirective = NULL;
@@ -25,5 +25,5 @@ void InitModule( void ){
 	mod_OnOff.module.postconfInit = NULL;
 	mod_OnOff.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_OnOff );
+	registerModule( (struct Module *)&mod_OnOff );
 }

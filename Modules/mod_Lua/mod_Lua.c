@@ -167,13 +167,10 @@ static void ml_postconfInit( uint8_t mid ){
 }
 
 void InitModule( void ){
-	mod_Lua.module.name = "mod_Lua";
+	initModule((struct Module *)&mod_Lua, "mod_Lua");
 
 	mod_Lua.module.readconf = ml_readconf;
-	mod_Lua.module.acceptSDirective = NULL;
-	mod_Lua.module.getSlaveFunction = NULL;			/* No section handled */
 	mod_Lua.module.postconfInit = ml_postconfInit;
-	mod_Lua.module.processMsg = ml_postconfInit;
 
 	mod_Lua.script = NULL;
 	mod_Lua.exposeFunctions = exposeFunctions;
@@ -188,7 +185,7 @@ void InitModule( void ){
 	mod_Lua.getStringFromStack = getStringFromStack;
 	mod_Lua.getBooleanFromStack = getBooleanFromStack;
 
-	register_module( (struct Module *)&mod_Lua );	/* Register the module */
+	registerModule( (struct Module *)&mod_Lua );	/* Register the module */
 
 	mod_Lua.L = luaL_newstate();		/* opens Lua */
 	luaL_openlibs( mod_Lua.L );	/* and it's libraries */

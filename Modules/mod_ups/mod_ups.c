@@ -213,13 +213,11 @@ ThreadedFunctionPtr mu_getSlaveFunction(uint8_t sid){
 }
 
 void InitModule( void ){
-	mod_ups.module.name = "mod_ups";
+	initModule((struct Module *)&mod_ups, "mod_ups");
 
 	mod_ups.module.readconf = readconf;
 	mod_ups.module.acceptSDirective = mu_acceptSDirective;
 	mod_ups.module.getSlaveFunction = mu_getSlaveFunction;
-	mod_ups.module.postconfInit = NULL;
-	mod_ups.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_ups );
+	registerModule( (struct Module *)&mod_ups );
 }

@@ -303,13 +303,11 @@ static ThreadedFunctionPtr md_getSlaveFunction(uint8_t sid){
 }
 
 void InitModule( void ){
-	mod_dpd.module.name = "mod_dpd";
+	initModule((struct Module *)&mod_dpd, "mod_dpd");
 
 	mod_dpd.module.readconf = readconf;
 	mod_dpd.module.acceptSDirective = md_acceptSDirective;
 	mod_dpd.module.getSlaveFunction = md_getSlaveFunction;
-	mod_dpd.module.postconfInit = NULL;
-	mod_dpd.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_dpd );	/* Register the module */
+	registerModule( (struct Module *)&mod_dpd );	/* Register the module */
 }

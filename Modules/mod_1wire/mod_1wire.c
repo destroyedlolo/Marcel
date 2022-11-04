@@ -233,16 +233,12 @@ static ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
 }
 
 void InitModule( void ){
-	mod_1wire.module.name = "mod_1wire";	/* Identify the module */
+	initModule((struct Module *)&mod_1wire, "mod_1wire");
 
-		/* Initialize callbacks
-		 * It's MANDATORY that all callbacks are initialised (even by a NULL value)
-		 */
 	mod_1wire.module.readconf = readconf;
 	mod_1wire.module.acceptSDirective = m1_acceptSDirective;
 	mod_1wire.module.getSlaveFunction = m1_getSlaveFunction;
 	mod_1wire.module.postconfInit = start1WAlarm;
-	mod_1wire.module.processMsg = NULL;
 
 	mod_1wire.randomize = false;
 	mod_1wire.defaultsampletime = 0.0;
@@ -252,5 +248,5 @@ void InitModule( void ){
 	mod_1wire.OwAlarmSample = 0.0;
 	mod_1wire.OwAlarmKeep = false;
 
-	register_module( (struct Module *)&mod_1wire );	/* Register the module */
+	registerModule( (struct Module *)&mod_1wire );	/* Register the module */
 }

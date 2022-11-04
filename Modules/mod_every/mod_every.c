@@ -303,13 +303,11 @@ ThreadedFunctionPtr me_getSlaveFunction(uint8_t sid){
 }
 
 void InitModule( void ){
-	mod_every.module.name = "mod_every";
+	initModule((struct Module *)&mod_every, "mod_every");
 
 	mod_every.module.readconf = readconf;
 	mod_every.module.acceptSDirective = me_acceptSDirective;
 	mod_every.module.getSlaveFunction = me_getSlaveFunction;
-	mod_every.module.postconfInit = NULL;
-	mod_every.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_every );
+	registerModule( (struct Module *)&mod_every );
 }

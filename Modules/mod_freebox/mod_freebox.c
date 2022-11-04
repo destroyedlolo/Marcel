@@ -300,13 +300,11 @@ ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
 }
 
 void InitModule( void ){
-	mod_freebox.module.name = "mod_freebox";
+	initModule((struct Module *)&mod_freebox, "mod_freebox");
 
 	mod_freebox.module.readconf = readconf;
 	mod_freebox.module.acceptSDirective = mfb_acceptSDirective;
 	mod_freebox.module.getSlaveFunction = mfb_getSlaveFunction;
-	mod_freebox.module.postconfInit = NULL;
-	mod_freebox.module.processMsg = NULL;
 
-	register_module( (struct Module *)&mod_freebox );
+	registerModule( (struct Module *)&mod_freebox );
 }

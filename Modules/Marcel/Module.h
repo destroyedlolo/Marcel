@@ -47,5 +47,6 @@ extern struct Module *modules[];
 
 extern void acceptSectionDirective( struct Section *section, const char *directive );
 extern uint8_t findModuleByName(const char *name);
-extern void register_module( struct Module * );
+extern void initModule( struct Module *, const char *name );
+extern void registerModule( struct Module * );
 #endif

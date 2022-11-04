@@ -298,16 +298,14 @@ static void startNotif( uint8_t mid ){
 }
 
 void InitModule( void ){
-	mod_inotify.module.name = "mod_inotify";	/* Identify the module */
+	initModule((struct Module *)&mod_inotify, "mod_inotify");	/* Identify the module */
 
 	mod_inotify.module.readconf = readconf;
 	mod_inotify.module.acceptSDirective = acceptSDirective;
-	mod_inotify.module.getSlaveFunction = NULL;
 	mod_inotify.module.postconfInit = startNotif;
-	mod_inotify.module.processMsg = startNotif;
 
 	mod_inotify.grouped = false;
 	mod_inotify.first_section = NULL;
 
-	register_module( (struct Module *)&mod_inotify );	/* Register the module */
+	registerModule( (struct Module *)&mod_inotify );	/* Register the module */
 }
