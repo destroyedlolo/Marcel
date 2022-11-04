@@ -270,6 +270,7 @@ void InitModule( void ){
 	mod_sht31.module.acceptSDirective = mh_acceptSDirective;
 	mod_sht31.module.getSlaveFunction = mh_getSlaveFunction;
 	mod_sht31.module.postconfInit = NULL;
+	mod_sht31.module.processMsg = NULL;
 
 	register_module( (struct Module *)&mod_sht31 );	/* Register the module */
 }

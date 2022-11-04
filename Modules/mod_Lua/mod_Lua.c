@@ -173,6 +173,7 @@ void InitModule( void ){
 	mod_Lua.module.acceptSDirective = NULL;
 	mod_Lua.module.getSlaveFunction = NULL;			/* No section handled */
 	mod_Lua.module.postconfInit = ml_postconfInit;
+	mod_Lua.module.processMsg = ml_postconfInit;
 
 	mod_Lua.script = NULL;
 	mod_Lua.exposeFunctions = exposeFunctions;

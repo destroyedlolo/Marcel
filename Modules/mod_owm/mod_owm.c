@@ -177,6 +177,7 @@ void InitModule( void ){
 	mod_owm.module.acceptSDirective = acceptSDirective;
 	mod_owm.module.getSlaveFunction = getSlaveFunction;
 	mod_owm.module.postconfInit = NULL;
+	mod_owm.module.processMsg = NULL;
 
 	mod_owm.apikey = NULL;
 

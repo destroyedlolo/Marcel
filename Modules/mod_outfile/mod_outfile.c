@@ -176,6 +176,7 @@ void InitModule( void ){
 	mod_outfile.module.acceptSDirective = mo_acceptSDirective;
 	mod_outfile.module.getSlaveFunction = NULL;
 	mod_outfile.module.postconfInit = NULL;
+	mod_outfile.module.processMsg = NULL;
 
 	register_module( (struct Module *)&mod_outfile );
 }

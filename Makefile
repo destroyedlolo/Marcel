@@ -12,6 +12,7 @@ all:
 	$(MAKE) -C Modules/mod_every
 	$(MAKE) -C Modules/mod_ups
 	$(MAKE) -C Modules/mod_outfile
+	$(MAKE) -C Modules/mod_OnOff
 	$(MAKE) -C Modules/mod_dpd
 	$(MAKE) -C Modules/mod_sht31
 	$(MAKE) -C Modules/mod_1wire

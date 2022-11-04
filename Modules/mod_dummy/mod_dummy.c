@@ -208,6 +208,7 @@ void InitModule( void ){
 	mod_dummy.module.acceptSDirective = mt_acceptSDirective;
 	mod_dummy.module.getSlaveFunction = mt_getSlaveFunction;
 	mod_dummy.module.postconfInit = NULL;
+	mod_dummy.module.processMsg = NULL;
 
 	register_module( (struct Module *)&mod_dummy );	/* Register the module */
 

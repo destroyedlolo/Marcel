@@ -309,6 +309,7 @@ void InitModule( void ){
 	mod_every.module.acceptSDirective = me_acceptSDirective;
 	mod_every.module.getSlaveFunction = me_getSlaveFunction;
 	mod_every.module.postconfInit = NULL;
+	mod_every.module.processMsg = NULL;
 
 	register_module( (struct Module *)&mod_every );
 }

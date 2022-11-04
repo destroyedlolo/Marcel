@@ -242,6 +242,7 @@ void InitModule( void ){
 	mod_1wire.module.acceptSDirective = m1_acceptSDirective;
 	mod_1wire.module.getSlaveFunction = m1_getSlaveFunction;
 	mod_1wire.module.postconfInit = start1WAlarm;
+	mod_1wire.module.processMsg = NULL;
 
 	mod_1wire.randomize = false;
 	mod_1wire.defaultsampletime = 0.0;

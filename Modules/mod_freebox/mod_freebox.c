@@ -306,6 +306,7 @@ void InitModule( void ){
 	mod_freebox.module.acceptSDirective = mfb_acceptSDirective;
 	mod_freebox.module.getSlaveFunction = mfb_getSlaveFunction;
 	mod_freebox.module.postconfInit = NULL;
+	mod_freebox.module.processMsg = NULL;
 
 	register_module( (struct Module *)&mod_freebox );
 }

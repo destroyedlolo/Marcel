@@ -20,6 +20,9 @@ BUILD_UPS=1
 # Write to flat files
 BUILD_OUTFILE=1
 
+# Write to flat files
+BUILD_ONOFF=1
+
 # Dead Publisher Dectector
 BUILD_DPD=1
 
@@ -156,6 +159,9 @@ fi
 if [ ${BUILD_OUTFILE+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_outfile' >> Makefile
 fi
+if [ ${BUILD_ONOFF+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_OnOff' >> Makefile
+fi
 if [ ${BUILD_DPD+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_dpd' >> Makefile
 fi
@@ -204,6 +210,12 @@ fi
 if [ ${BUILD_OUTFILE+x} ]; then
 	cd Modules/mod_outfile
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_outfile.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_ONOFF+x} ]; then
+	cd Modules/mod_OnOff
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_OnOff.so > Makefile
 	cd ../..
 fi
 

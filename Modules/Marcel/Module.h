@@ -39,6 +39,7 @@ struct Module {
 	bool (*acceptSDirective)( uint8_t sec_id, const char * );	/* process a directive */
 	ThreadedFunctionPtr(*getSlaveFunction)(uint8_t sid);		/* function to call to process a section */
 	void (*postconfInit)(uint8_t mod_id);						/* Initialisation to be done after configuration phase */
+	bool (*processMsg)(const char *, char *);					/* Process incomming MQTT messages */
 };
 
 extern uint8_t number_of_loaded_modules;

@@ -304,6 +304,7 @@ void InitModule( void ){
 	mod_inotify.module.acceptSDirective = acceptSDirective;
 	mod_inotify.module.getSlaveFunction = NULL;
 	mod_inotify.module.postconfInit = startNotif;
+	mod_inotify.module.processMsg = startNotif;
 
 	mod_inotify.grouped = false;
 	mod_inotify.first_section = NULL;

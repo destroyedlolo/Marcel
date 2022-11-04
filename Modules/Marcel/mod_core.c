@@ -183,6 +183,8 @@ void init_module_core(){
 	mod_Core.module.readconf = mc_readconf;
 	mod_Core.module.acceptSDirective = NULL;
 	mod_Core.module.getSlaveFunction = NULL;
+	mod_Core.module.postconfInit = NULL;
+	mod_Core.module.processMsg = NULL;
 	
 	register_module( (struct Module *)&mod_Core );
 

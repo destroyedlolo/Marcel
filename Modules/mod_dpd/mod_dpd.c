@@ -309,6 +309,7 @@ void InitModule( void ){
 	mod_dpd.module.acceptSDirective = md_acceptSDirective;
 	mod_dpd.module.getSlaveFunction = md_getSlaveFunction;
 	mod_dpd.module.postconfInit = NULL;
+	mod_dpd.module.processMsg = NULL;
 
 	register_module( (struct Module *)&mod_dpd );	/* Register the module */
 }
