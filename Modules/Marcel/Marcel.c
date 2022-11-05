@@ -184,7 +184,12 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 		} else if(cfg.sublast)
 			break;
 	}
-	
+
+	for(unsigned int i=0; i<number_of_loaded_modules; i++){
+		if(modules[i]->processMsg)
+			modules[i]->processMsg(topic, payload);
+	}
+
 		/* Clean messages */
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
