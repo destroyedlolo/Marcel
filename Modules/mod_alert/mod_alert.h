@@ -14,13 +14,7 @@
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
 
-/* Storage for named notification */
-struct notification {
-	struct notification *next;
-	char id;
-	char *url;
-	char *cmd;
-};
+struct section_namedalert;
 
 /* Custom structure to store module's configuration */
 struct module_alert {
@@ -29,9 +23,15 @@ struct module_alert {
 	char alert_name;	/* "Alert/" corresponding named notification */
 	char notif_name;	/* "Notification/" corresponding notification */
 
-	struct notification *notiflist;
-
+	struct section_namedalert *firstalert;
 	bool alertgrouped;	/* Alert are grouped (Optimisation) */
+};
+
+struct section_namedalert {
+	struct Section section;
+
+	char *url;
+	char *cmd;
 };
 
 #endif

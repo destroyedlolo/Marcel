@@ -15,7 +15,11 @@
 #include <unistd.h>
 #include <assert.h>
 
-struct module_alert mod_alert;
+static struct module_alert mod_alert;
+
+enum {
+	SA_ALERT = 0
+};
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
@@ -51,16 +55,39 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		return ACCEPTED;
 	} else if(!strcmp(l, "AlertGrouped")){
-			if(*section){
-				publishLog('F', "AlertGrouped can't be part of a section");
-				exit(EXIT_FAILURE);
-			}
+		if(*section){
+			publishLog('F', "AlertGrouped can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
 
-			mod_alert.alertgrouped = true;
-			if(cfg.verbose)
-				publishLog('C', "\tAlerts are grouped");
+		mod_alert.alertgrouped = true;
+		if(cfg.verbose)
+			publishLog('C', "\tAlerts are grouped");
 			
-			return ACCEPTED;	}
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"$alert="))){
+		if(strlen(arg) != 1){
+			publishLog('F', "[%s] $alert's name can be ONLY 1 character long", arg);
+			exit(EXIT_FAILURE);
+		}
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_namedalert *nsection = malloc(sizeof(struct section_namedalert));
+		initSection( (struct Section *)nsection, mid, SA_ALERT, strdup(arg));
+
+		nsection->url = NULL;
+		nsection->cmd = NULL;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering $alert section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+
+		mod_alert.firstalert = nsection;
+		*section = (struct Section *)nsection;
+		return ACCEPTED;		
+	}
 
 	return REJECTED;
 }
@@ -73,7 +100,7 @@ void InitModule( void ){
 	mod_alert.alert_name = 0;
 	mod_alert.notif_name = 0;
 
-	mod_alert.notiflist = NULL;
+	mod_alert.firstalert = NULL;
 	mod_alert.alertgrouped = false;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
