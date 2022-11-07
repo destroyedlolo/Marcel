@@ -87,15 +87,47 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		mod_alert.firstalert = nsection;
 		*section = (struct Section *)nsection;
 		return ACCEPTED;		
+	} else if(*section){
+		if((arg = striKWcmp(l,"RESTUrl="))){
+			acceptSectionDirective(*section, "RESTUrl=");
+			((struct section_namedalert *)(*section))->url = strdup(arg);
+			assert(((struct section_namedalert *)(*section))->url);
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tRESTUrl : '%s'", ((struct section_namedalert *)(*section))->url);
+
+			return ACCEPTED;
+		} else	if((arg = striKWcmp(l,"OSCmd="))){
+			acceptSectionDirective(*section, "OSCmd=");
+			((struct section_namedalert *)(*section))->cmd = strdup(arg);
+			assert(((struct section_namedalert *)(*section))->cmd);
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tOSCmd : '%s'", ((struct section_namedalert *)(*section))->cmd);
+
+			return ACCEPTED;
+		}
 	}
 
 	return REJECTED;
+}
+
+static bool acceptSDirective( uint8_t sec_id, const char *directive ){
+	if(sec_id == SA_ALERT){
+		if( !strcmp(directive, "RESTUrl=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "OSCmd=") )
+			return true;	/* Accepted */
+	}
+
+	return false;
 }
 
 void InitModule( void ){
 	initModule((struct Module *)&mod_alert, "mod_alert");
 
 	mod_alert.module.readconf = readconf;
+	mod_alert.module.acceptSDirective = acceptSDirective;
 
 	mod_alert.alert_name = 0;
 	mod_alert.notif_name = 0;
