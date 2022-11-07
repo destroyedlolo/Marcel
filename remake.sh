@@ -32,6 +32,9 @@ BUILD_SHT31=1
 # 1 wire probes handling
 BUILD_1WIRE=1
 
+# Alerting
+BUILD_ALERT=1
+
 # File system notification
 BUILD_INOTIFY=1
 
@@ -171,6 +174,9 @@ fi
 if [ ${BUILD_1WIRE+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_1wire' >> Makefile
 fi
+if [ ${BUILD_ALERT+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_alert' >> Makefile
+fi
 if [ ${BUILD_INOTIFY+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_inotify' >> Makefile
 fi
@@ -237,6 +243,11 @@ if [ ${BUILD_1WIRE+x} ]; then
 	cd ../..
 fi
 
+if [ ${BUILD_ALERT+x} ]; then
+	cd Modules/mod_alert
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_alert.so > Makefile
+	cd ../..
+fi
 if [ ${BUILD_INOTIFY+x} ]; then
 	cd Modules/mod_inotify
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_inotify.so > Makefile
