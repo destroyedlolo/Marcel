@@ -14,24 +14,24 @@
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
 
-struct section_namedalert;
+struct section_namednotification;
 
 /* Custom structure to store module's configuration */
 struct module_alert {
 	struct Module module;
 
-	char alert_name;	/* "Alert/" corresponding named notification */
-	char notif_name;	/* "Notification/" corresponding notification */
-
-	struct section_namedalert *firstalert;
+	struct section_namednotification *firstnotification;
 	bool alertgrouped;	/* Alert are grouped (Optimisation) */
+
+	bool alert_used;
+	bool unotif_used;
+	bool nnotif_used;
 };
 
-struct section_namedalert {
+struct section_namednotification {
 	struct Section section;
 
 	char *url;
 	char *cmd;
 };
-
 #endif

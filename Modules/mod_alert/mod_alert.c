@@ -18,12 +18,15 @@
 static struct module_alert mod_alert;
 
 enum {
-	SA_ALERT = 0
+	SA_NAMEDNOTIF = 0,
+	SA_ALERT,
+	SA_NOTIF
 };
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
+#if 0
 	if((arg = striKWcmp(l,"AlertName="))){
 		if(*section){
 			publishLog('F', "AlertName= can't be part of a section");
@@ -76,7 +79,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_namedalert *nsection = malloc(sizeof(struct section_namedalert));
-		initSection( (struct Section *)nsection, mid, SA_ALERT, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SA_NAMEDNOTIF, strdup(arg));
 
 		nsection->url = NULL;
 		nsection->cmd = NULL;
@@ -108,12 +111,12 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			return ACCEPTED;
 		}
 	}
-
+#endif
 	return REJECTED;
 }
 
 static bool acceptSDirective( uint8_t sec_id, const char *directive ){
-	if(sec_id == SA_ALERT){
+	if(sec_id == SA_NAMEDNOTIF){
 		if( !strcmp(directive, "RESTUrl=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "OSCmd=") )
@@ -123,17 +126,63 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+static void subTopic( uint8_t mid ){
+	if(mod_alert.alert_used){
+		if( MQTTClient_subscribe( cfg.client, "Alert/#", 0) != MQTTCLIENT_SUCCESS ){
+			publishLog('F', "Can't subscribe to 'Alert/#'");
+			exit(EXIT_FAILURE);
+		}
+	} else if(cfg.verbose)
+		publishLog('I', "Alert disabled");
+
+	if(mod_alert.unotif_used){
+		if( MQTTClient_subscribe( cfg.client, "Notification/#", 0) != MQTTCLIENT_SUCCESS ){
+			publishLog('F', "Can't subscribe to 'Notification/#'");
+			exit(EXIT_FAILURE);
+		}
+	} else if(cfg.verbose)
+		publishLog('I', "Unabled notification disabled");
+	
+	if(mod_alert.nnotif_used){
+		if( MQTTClient_subscribe( cfg.client, "nNotification/#", 0) != MQTTCLIENT_SUCCESS ){
+			publishLog('F', "Can't subscribe to 'nNotification/#'");
+			exit(EXIT_FAILURE);
+		}
+	} else if(cfg.verbose)
+		publishLog('I', "Named notification disabled");
+}
+
+static bool processMsg(const char *topic, char *payload){
+	const char *arg;
+
+	/* processing "static" topic */
+	if((arg = striKWcmp(topic, "Alert/"))){
+		publishLog('T', "Received alert \"%s\"", arg);
+		return true;
+	} else if((arg = striKWcmp(topic, "Notification/"))){
+		publishLog('T', "Received alert \"%s\"", arg);
+		return true;
+	}
+	/* processing named sessions */
+
+
+	return false;
+}
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_alert, "mod_alert");
 
 	mod_alert.module.readconf = readconf;
 	mod_alert.module.acceptSDirective = acceptSDirective;
+	mod_alert.module.postconfInit = subTopic;
+	mod_alert.module.processMsg = processMsg;
 
-	mod_alert.alert_name = 0;
-	mod_alert.notif_name = 0;
-
-	mod_alert.firstalert = NULL;
+	mod_alert.firstnotification = NULL;
 	mod_alert.alertgrouped = false;
+
+	mod_alert.alert_used = false;
+	mod_alert.unotif_used = false;
+	mod_alert.nnotif_used = false;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 }
