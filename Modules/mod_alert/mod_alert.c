@@ -26,18 +26,7 @@ enum {
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
-	if(!strcmp(l, "AlertGrouped")){
-		if(*section){
-			publishLog('F', "AlertGrouped can't be part of a section");
-			exit(EXIT_FAILURE);
-		}
-
-		mod_alert.alertgrouped = true;
-		if(cfg.verbose)
-			publishLog('C', "\tAlerts are grouped");
-			
-		return ACCEPTED;
-	} else if(!strcmp(l, "$Notification")){
+	if(!strcmp(l, "$Notification")){
 		if(findSectionByName("$Notification")){
 			publishLog('F', "$Notification section is already defined");
 			exit(EXIT_FAILURE);
@@ -56,7 +45,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering $Notification section (%04x)", nsection->section.id);
 
-		mod_alert.firstnotification = nsection;
 		*section = (struct Section *)nsection;
 		return ACCEPTED;		
 	}
@@ -200,12 +188,8 @@ void InitModule( void ){
 	mod_alert.module.readconf = readconf;
 	mod_alert.module.acceptSDirective = acceptSDirective;
 
-	mod_alert.firstnotification = NULL;
-	mod_alert.alertgrouped = false;
-
 	mod_alert.alert_used = false;
 	mod_alert.unotif_used = false;
-	mod_alert.nnotif_used = false;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 }

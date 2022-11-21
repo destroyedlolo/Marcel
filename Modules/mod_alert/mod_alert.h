@@ -20,12 +20,8 @@ struct section_namednotification;
 struct module_alert {
 	struct Module module;
 
-	struct section_namednotification *firstnotification;
-	bool alertgrouped;	/* Alert are grouped (Optimisation) */
-
 	bool alert_used;
 	bool unotif_used;
-	bool nnotif_used;
 };
 
 struct section_namednotification {
