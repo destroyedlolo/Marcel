@@ -26,6 +26,40 @@ enum {
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
+	if(!strcmp(l, "AlertGrouped")){
+		if(*section){
+			publishLog('F', "AlertGrouped can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		mod_alert.alertgrouped = true;
+		if(cfg.verbose)
+			publishLog('C', "\tAlerts are grouped");
+			
+		return ACCEPTED;
+	} else if(!strcmp(l, "$Notification")){
+		if(findSectionByName("$Notification")){
+			publishLog('F', "$Notification section is already defined");
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_namednotification *nsection = malloc(sizeof(struct section_namednotification));
+		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$Notification");
+
+		nsection->url = NULL;
+		nsection->cmd = NULL;
+
+/* utiliser postconfInit pour s'abonné au topic "Notification/#"
+ * processMsg() pour les traiter.
+ * Voir mod_outfile
+ */
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering $Notification section (%04x)", nsection->section.id);
+
+		mod_alert.firstnotification = nsection;
+		*section = (struct Section *)nsection;
+		return ACCEPTED;		
+	}
 #if 0
 	if((arg = striKWcmp(l,"AlertName="))){
 		if(*section){
@@ -56,17 +90,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		if(cfg.verbose)
 			publishLog('C', "\t\"/Notification\" notification's name : '%c'", mod_alert.notif_name);
 
-		return ACCEPTED;
-	} else if(!strcmp(l, "AlertGrouped")){
-		if(*section){
-			publishLog('F', "AlertGrouped can't be part of a section");
-			exit(EXIT_FAILURE);
-		}
-
-		mod_alert.alertgrouped = true;
-		if(cfg.verbose)
-			publishLog('C', "\tAlerts are grouped");
-			
 		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"$alert="))){
 		if(strlen(arg) != 1){
@@ -126,6 +149,7 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+#if 0
 static void subTopic( uint8_t mid ){
 	if(mod_alert.alert_used){
 		if( MQTTClient_subscribe( cfg.client, "Alert/#", 0) != MQTTCLIENT_SUCCESS ){
@@ -141,7 +165,7 @@ static void subTopic( uint8_t mid ){
 			exit(EXIT_FAILURE);
 		}
 	} else if(cfg.verbose)
-		publishLog('I', "Unabled notification disabled");
+		publishLog('I', "Unnamed notification disabled");
 	
 	if(mod_alert.nnotif_used){
 		if( MQTTClient_subscribe( cfg.client, "nNotification/#", 0) != MQTTCLIENT_SUCCESS ){
@@ -168,14 +192,13 @@ static bool processMsg(const char *topic, char *payload){
 
 	return false;
 }
+#endif
 
 void InitModule( void ){
 	initModule((struct Module *)&mod_alert, "mod_alert");
 
 	mod_alert.module.readconf = readconf;
 	mod_alert.module.acceptSDirective = acceptSDirective;
-	mod_alert.module.postconfInit = subTopic;
-	mod_alert.module.processMsg = processMsg;
 
 	mod_alert.firstnotification = NULL;
 	mod_alert.alertgrouped = false;
