@@ -70,6 +70,8 @@ PLUGIN_DIR=$( pwd )
 # DON'T MODIFY ANYTHING AFTER THIS LINE
 # -------------------------------------
 
+set -e
+
 # =======================
 # Build MakeMaker's rules
 # =======================
@@ -287,3 +289,5 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUALIB $JSONLIB \
 #echo "Don't forget if you want to run it without installing first"
 #echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
 
+echo
+echo "Makefiles are created"
