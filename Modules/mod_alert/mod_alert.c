@@ -32,11 +32,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		if(mod_alert.unotif_used){
-			publishLog('F', "Only one $UnnamedNotification section can exist");
-			exit(EXIT_FAILURE);
-		}
-
 		struct section_namednotification *nsection = malloc(sizeof(struct section_namednotification));
 		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$UnnamedNotification");
 
@@ -192,9 +187,6 @@ void InitModule( void ){
 
 	mod_alert.module.readconf = readconf;
 	mod_alert.module.acceptSDirective = acceptSDirective;
-
-	mod_alert.alert_used = false;
-	mod_alert.unotif_used = false;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 }

@@ -19,9 +19,6 @@ struct section_namednotification;
 /* Custom structure to store module's configuration */
 struct module_alert {
 	struct Module module;
-
-	bool alert_used;
-	bool unotif_used;
 };
 
 struct section_namednotification {
