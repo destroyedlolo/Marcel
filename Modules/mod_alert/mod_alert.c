@@ -26,14 +26,19 @@ enum {
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
-	if(!strcmp(l, "$Notification")){
-		if(findSectionByName("$Notification")){
-			publishLog('F', "$Notification section is already defined");
+	if((!strcmp(l,"$UnnamedNotification"))){
+		if(findSectionByName("$UnnamedNotification")){
+			publishLog('F', "'$UnnamedNotification' section is already defined");
+			exit(EXIT_FAILURE);
+		}
+
+		if(mod_alert.unotif_used){
+			publishLog('F', "Only one $UnnamedNotification section can exist");
 			exit(EXIT_FAILURE);
 		}
 
 		struct section_namednotification *nsection = malloc(sizeof(struct section_namednotification));
-		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$Notification");
+		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$UnnamedNotification");
 
 		nsection->url = NULL;
 		nsection->cmd = NULL;
@@ -43,7 +48,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
  * Voir mod_outfile
  */
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering $Notification section (%04x)", nsection->section.id);
+			publishLog('C', "\tEntering $UnnamedNotification section (%04x)", nsection->section.id);
 
 		*section = (struct Section *)nsection;
 		return ACCEPTED;		
