@@ -47,7 +47,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;
 		return ACCEPTED;		
-	}
 #if 0
 	if((arg = striKWcmp(l,"AlertName="))){
 		if(*section){
@@ -101,28 +100,28 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		mod_alert.firstalert = nsection;
 		*section = (struct Section *)nsection;
 		return ACCEPTED;		
+#endif
 	} else if(*section){
 		if((arg = striKWcmp(l,"RESTUrl="))){
 			acceptSectionDirective(*section, "RESTUrl=");
-			((struct section_namedalert *)(*section))->url = strdup(arg);
-			assert(((struct section_namedalert *)(*section))->url);
+			((struct section_namednotification *)(*section))->url = strdup(arg);
+			assert(((struct section_namednotification *)(*section))->url);
 
 			if(cfg.verbose)
-				publishLog('C', "\t\tRESTUrl : '%s'", ((struct section_namedalert *)(*section))->url);
+				publishLog('C', "\t\tRESTUrl : '%s'", ((struct section_namednotification *)(*section))->url);
 
 			return ACCEPTED;
 		} else	if((arg = striKWcmp(l,"OSCmd="))){
 			acceptSectionDirective(*section, "OSCmd=");
-			((struct section_namedalert *)(*section))->cmd = strdup(arg);
-			assert(((struct section_namedalert *)(*section))->cmd);
+			((struct section_namednotification *)(*section))->cmd = strdup(arg);
+			assert(((struct section_namednotification *)(*section))->cmd);
 
 			if(cfg.verbose)
-				publishLog('C', "\t\tOSCmd : '%s'", ((struct section_namedalert *)(*section))->cmd);
+				publishLog('C', "\t\tOSCmd : '%s'", ((struct section_namednotification *)(*section))->cmd);
 
 			return ACCEPTED;
 		}
 	}
-#endif
 	return REJECTED;
 }
 
