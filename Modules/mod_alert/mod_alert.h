@@ -14,8 +14,6 @@
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
 
-struct section_namednotification;
-
 /* Custom structure to store module's configuration */
 struct module_alert {
 	struct Module module;
@@ -27,4 +25,7 @@ struct section_namednotification {
 	char *url;
 	char *cmd;
 };
+
+extern void notif_postconfInit(struct Section *);
+extern bool notif_processMQTT(struct Section *asec, const char *topic, char *payload);
 #endif

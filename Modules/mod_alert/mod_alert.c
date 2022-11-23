@@ -35,8 +35,11 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_namednotification *nsection = malloc(sizeof(struct section_namednotification));
 		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$UnnamedNotification");
 
+		nsection->section.topic = "Notification/#";
 		nsection->url = NULL;
 		nsection->cmd = NULL;
+		nsection->section.postconfInit = notif_postconfInit;
+		nsection->section.processMsg = notif_processMQTT;
 
 /* utiliser postconfInit pour s'abonné au topic "Notification/#"
  * processMsg() pour les traiter.
@@ -48,6 +51,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		*section = (struct Section *)nsection;
 		return ACCEPTED;		
 #if 0
+	}
 	if((arg = striKWcmp(l,"AlertName="))){
 		if(*section){
 			publishLog('F', "AlertName= can't be part of a section");
@@ -126,10 +130,12 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 }
 
 static bool acceptSDirective( uint8_t sec_id, const char *directive ){
-	if(sec_id == SA_NAMEDNOTIF){
+	if(sec_id == SA_NOTIF){
 		if( !strcmp(directive, "RESTUrl=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "OSCmd=") )
+			return true;	/* Accepted */
+		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
 	}
 
