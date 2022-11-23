@@ -39,12 +39,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->url = NULL;
 		nsection->cmd = NULL;
 		nsection->section.postconfInit = notif_postconfInit;
-		nsection->section.processMsg = notif_processMQTT;
+		nsection->section.processMsg = notif_unnamednotification_processMQTT;
 
-/* utiliser postconfInit pour s'abonné au topic "Notification/#"
- * processMsg() pour les traiter.
- * Voir mod_outfile
- */
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering $UnnamedNotification section (%04x)", nsection->section.id);
 

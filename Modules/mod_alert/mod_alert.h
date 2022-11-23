@@ -27,5 +27,7 @@ struct section_namednotification {
 };
 
 extern void notif_postconfInit(struct Section *);
-extern bool notif_processMQTT(struct Section *asec, const char *topic, char *payload);
+extern bool notif_unnamednotification_processMQTT(struct Section *, const char *, char *);
+
+extern void execOSCmd(const char *, const char *, const char *);
 #endif

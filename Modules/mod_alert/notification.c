@@ -33,7 +33,7 @@ void notif_postconfInit(struct Section *asec){
 	}
 }
 
-bool notif_processMQTT(struct Section *asec, const char *topic, char *payload){
+bool notif_unnamednotification_processMQTT(struct Section *asec, const char *topic, char *payload){
 	struct section_namednotification *s = (struct section_namednotification *)asec;	/* avoid lot of casting */
 
 	if(!mqtttokcmp(s->section.topic, topic)){
@@ -44,6 +44,19 @@ bool notif_processMQTT(struct Section *asec, const char *topic, char *payload){
 #endif
 			return true;
 		}
+
+		size_t i=strlen(s->section.topic);
+		assert(i>0);
+
+		char t[i+1];
+		strcpy(t, s->section.topic);
+		t[--i]=0;
+
+		const char *aid;
+		assert((aid = striKWcmp(topic,t)));
+
+		execOSCmd(s->cmd, aid, payload);
+		return true;
 	}
 
 	return false;	/* Let's try with other sections */
