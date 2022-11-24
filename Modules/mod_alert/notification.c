@@ -55,7 +55,10 @@ bool notif_unnamednotification_processMQTT(struct Section *asec, const char *top
 		const char *aid;
 		assert((aid = striKWcmp(topic,t)));
 
-		execOSCmd(s->cmd, aid, payload);
+		if(s->cmd && *payload == 'S')
+			execOSCmd(s->cmd, aid, payload + (*payload == 'S' ? 1 : 0));
+		if(s->url)
+			execRest(s->url, aid, payload + (*payload == 'S' ? 1 : 0));
 		return true;
 	}
 
