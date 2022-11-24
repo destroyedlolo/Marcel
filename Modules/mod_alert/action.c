@@ -111,7 +111,7 @@ void execRest(const char *url, const char *title, const char *msg){
 		FILE *fnull = fopen("/dev/null", "wb");
 		assert(fnull);
 
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fnull);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fnull);	/* avoid curl response to be outputted on STDOUT */
 		curl_easy_setopt(curl, CURLOPT_URL, aurl);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
