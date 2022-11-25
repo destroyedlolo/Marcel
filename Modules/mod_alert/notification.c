@@ -17,9 +17,9 @@
 #include <assert.h>
 
 void notif_postconfInit(struct Section *asec){
-	struct section_namednotification *s = (struct section_namednotification *)asec;	/* avoid lot of casting */
+	struct section_unnamednotification *s = (struct section_unnamednotification *)asec;	/* avoid lot of casting */
 
-	if( !s->url && !s->cmd ){
+	if( !s->actions.url && !s->actions.cmd ){
 		publishLog('F', "[%s]Both 'RESTUrl=' and 'OSCmd=' are missing.", s->section.uid);
 		exit(EXIT_FAILURE);
 	}
@@ -34,7 +34,7 @@ void notif_postconfInit(struct Section *asec){
 }
 
 bool notif_unnamednotification_processMQTT(struct Section *asec, const char *topic, char *payload){
-	struct section_namednotification *s = (struct section_namednotification *)asec;	/* avoid lot of casting */
+	struct section_unnamednotification *s = (struct section_unnamednotification *)asec;	/* avoid lot of casting */
 
 	if(!mqtttokcmp(s->section.topic, topic)){
 		if(s->section.disabled){
@@ -55,12 +55,21 @@ bool notif_unnamednotification_processMQTT(struct Section *asec, const char *top
 		const char *aid;
 		assert((aid = striKWcmp(topic,t)));
 
-		if(s->cmd && *payload == 'S')
-			execOSCmd(s->cmd, aid, payload + (*payload == 'S' ? 1 : 0));
-		if(s->url)
-			execRest(s->url, aid, payload + (*payload == 'S' ? 1 : 0));
+		if(s->actions.cmd && *payload == 'S')
+			execOSCmd(s->actions.cmd, aid, payload + (*payload == 'S' ? 1 : 0));
+		if(s->actions.url)
+			execRest(s->actions.url, aid, payload + (*payload == 'S' ? 1 : 0));
 		return true;
 	}
 
 	return false;	/* Let's try with other sections */
+}
+
+struct namednotification *findNamed(const char n){
+	for(struct namednotification *nnotif = mod_alert.nnotif; nnotif; nnotif = nnotif->next){
+		if(nnotif->name == n)
+			return nnotif;
+	}
+
+	return NULL;
 }

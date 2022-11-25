@@ -46,6 +46,7 @@ struct Section *findSectionByName(const char *name){
  * @param name Section's name (its pointer is only copied)
  */
 void initSection( struct Section *section, int8_t module_id, uint8_t section_id, const char *name){
+	assert( section );
 	assert( name );	/* as most of the time allocated by a strdup() */
 
 	section->next = sections;	/* Replace the head */

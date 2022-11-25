@@ -15,37 +15,63 @@
 #include <unistd.h>
 #include <assert.h>
 
-static struct module_alert mod_alert;
+struct module_alert mod_alert;
 
 enum {
-	SA_NAMEDNOTIF = 0,
-	SA_ALERT,
+	SA_ALERT=0,
 	SA_NOTIF
 };
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
-	if((!strcmp(l,"$UnnamedNotification"))){
-		if(findSectionByName("$UnnamedNotification")){
-			publishLog('F', "'$UnnamedNotification' section is already defined");
+	if((!strcmp(l,"$unnamedNotification"))){
+		if(findSectionByName("$unnamedNotification")){
+			publishLog('F', "'$unnamedNotification' section is already defined");
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_namednotification *nsection = malloc(sizeof(struct section_namednotification));
-		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$UnnamedNotification");
+		struct section_unnamednotification *nsection = malloc(sizeof(struct section_unnamednotification));
+		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$unnamedNotification");
 
 		nsection->section.topic = "Notification/#";
-		nsection->url = NULL;
-		nsection->cmd = NULL;
+		nsection->actions.url = NULL;
+		nsection->actions.cmd = NULL;
 		nsection->section.postconfInit = notif_postconfInit;
 		nsection->section.processMsg = notif_unnamednotification_processMQTT;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering $UnnamedNotification section (%04x)", nsection->section.id);
 
+		mod_alert.current = NULL;	/* not anymore in a named */
 		*section = (struct Section *)nsection;
-		return ACCEPTED;		
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"$namedNotification="))){
+		if(arg[1]){
+			publishLog('F', "[%s] \"$namedNotification=\"'s name can be only 1 character long", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		if(findNamed(*arg)){
+			publishLog('F', "\"$namedNotification=%c\" is already defined", *arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct namednotification *nnamed = malloc(sizeof(struct namednotification));
+		assert(nnamed);
+		nnamed->next = mod_alert.nnotif;
+		nnamed->actions.url = NULL;
+		nnamed->actions.cmd = NULL;
+		nnamed->name = *arg;
+		nnamed->disabled = false;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering $namedNotification '%c'", *arg);
+
+		mod_alert.nnotif = nnamed;
+		mod_alert.current = nnamed;
+		*section = NULL;	/* not anymore in a section */
+		return ACCEPTED;
 #if 0
 	}
 	if((arg = striKWcmp(l,"AlertName="))){
@@ -104,20 +130,20 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(*section){
 		if((arg = striKWcmp(l,"RESTUrl="))){
 			acceptSectionDirective(*section, "RESTUrl=");
-			((struct section_namednotification *)(*section))->url = strdup(arg);
-			assert(((struct section_namednotification *)(*section))->url);
+			((struct section_unnamednotification *)(*section))->actions.url = strdup(arg);
+			assert(((struct section_unnamednotification *)(*section))->actions.url);
 
 			if(cfg.verbose)
-				publishLog('C', "\t\tRESTUrl : '%s'", ((struct section_namednotification *)(*section))->url);
+				publishLog('C', "\t\tRESTUrl : '%s'", ((struct section_unnamednotification *)(*section))->actions.url);
 
 			return ACCEPTED;
 		} else	if((arg = striKWcmp(l,"OSCmd="))){
 			acceptSectionDirective(*section, "OSCmd=");
-			((struct section_namednotification *)(*section))->cmd = strdup(arg);
-			assert(((struct section_namednotification *)(*section))->cmd);
+			((struct section_unnamednotification *)(*section))->actions.cmd = strdup(arg);
+			assert(((struct section_unnamednotification *)(*section))->actions.cmd);
 
 			if(cfg.verbose)
-				publishLog('C', "\t\tOSCmd : '%s'", ((struct section_namednotification *)(*section))->cmd);
+				publishLog('C', "\t\tOSCmd : '%s'", ((struct section_unnamednotification *)(*section))->actions.cmd);
 
 			return ACCEPTED;
 		}
@@ -188,6 +214,9 @@ void InitModule( void ){
 
 	mod_alert.module.readconf = readconf;
 	mod_alert.module.acceptSDirective = acceptSDirective;
+
+	mod_alert.nnotif = NULL;
+	mod_alert.current = NULL;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 }
