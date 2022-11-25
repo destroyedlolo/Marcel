@@ -127,23 +127,48 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		*section = (struct Section *)nsection;
 		return ACCEPTED;		
 #endif
-	} else if(*section){
+	} else if(*section || mod_alert.current){
 		if((arg = striKWcmp(l,"RESTUrl="))){
-			acceptSectionDirective(*section, "RESTUrl=");
-			((struct section_unnamednotification *)(*section))->actions.url = strdup(arg);
-			assert(((struct section_unnamednotification *)(*section))->actions.url);
+			if(mod_alert.current){
+				assert(( mod_alert.current->actions.url = strdup(arg) ));
 
-			if(cfg.verbose)
-				publishLog('C', "\t\tRESTUrl : '%s'", ((struct section_unnamednotification *)(*section))->actions.url);
+				if(cfg.verbose)
+					publishLog('C', "\t\tRESTUrl : '%s'", mod_alert.current->actions.url);
 
-			return ACCEPTED;
+				return ACCEPTED;
+			} else {
+				acceptSectionDirective(*section, "RESTUrl=");
+				((struct section_unnamednotification *)(*section))->actions.url = strdup(arg);
+				assert(((struct section_unnamednotification *)(*section))->actions.url);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\tRESTUrl : '%s'", ((struct section_unnamednotification *)(*section))->actions.url);
+
+				return ACCEPTED;
+			}
 		} else	if((arg = striKWcmp(l,"OSCmd="))){
-			acceptSectionDirective(*section, "OSCmd=");
-			((struct section_unnamednotification *)(*section))->actions.cmd = strdup(arg);
-			assert(((struct section_unnamednotification *)(*section))->actions.cmd);
+			if(mod_alert.current){
+				assert(( mod_alert.current->actions.cmd = strdup(arg) ));
+
+				if(cfg.verbose)
+					publishLog('C', "\t\tOSCmd : '%s'", mod_alert.current->actions.cmd);
+
+				return ACCEPTED;
+			} else {
+				acceptSectionDirective(*section, "OSCmd=");
+				((struct section_unnamednotification *)(*section))->actions.cmd = strdup(arg);
+				assert(((struct section_unnamednotification *)(*section))->actions.cmd);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\tOSCmd : '%s'", ((struct section_unnamednotification *)(*section))->actions.cmd);
+
+				return ACCEPTED;
+			}
+		} else if(!strcmp(l,"Disabled") && mod_alert.current){
+			mod_alert.current->disabled = true;
 
 			if(cfg.verbose)
-				publishLog('C', "\t\tOSCmd : '%s'", ((struct section_unnamednotification *)(*section))->actions.cmd);
+				publishLog('C', "\t\tDisabled");
 
 			return ACCEPTED;
 		}
