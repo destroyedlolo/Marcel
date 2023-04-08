@@ -1,9 +1,11 @@
 Add Retained to all sections
 
-mod_1wire
-	For the moment, only 1 alarm is handled
-	Randomize probe starting
+Missing directives :
+ConnectionLostIsFatal
 
+Missing modules :
+mod_alert : documentation, examples, notification ?
+RFX
 
 -----------
 
