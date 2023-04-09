@@ -129,14 +129,14 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 #endif
 	} else if(*section || mod_alert.current){
 		if((arg = striKWcmp(l,"RESTUrl="))){
-			if(mod_alert.current){
+			if(mod_alert.current){	/* Named notification */
 				assert(( mod_alert.current->actions.url = strdup(arg) ));
 
 				if(cfg.verbose)
 					publishLog('C', "\t\tRESTUrl : '%s'", mod_alert.current->actions.url);
 
 				return ACCEPTED;
-			} else {
+			} else {	/* Unamed notification */
 				acceptSectionDirective(*section, "RESTUrl=");
 				((struct section_unnamednotification *)(*section))->actions.url = strdup(arg);
 				assert(((struct section_unnamednotification *)(*section))->actions.url);
@@ -147,14 +147,14 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				return ACCEPTED;
 			}
 		} else	if((arg = striKWcmp(l,"OSCmd="))){
-			if(mod_alert.current){
+			if(mod_alert.current){	/* Named notification */
 				assert(( mod_alert.current->actions.cmd = strdup(arg) ));
 
 				if(cfg.verbose)
 					publishLog('C', "\t\tOSCmd : '%s'", mod_alert.current->actions.cmd);
 
 				return ACCEPTED;
-			} else {
+			} else {	/* Unamed notification */
 				acceptSectionDirective(*section, "OSCmd=");
 				((struct section_unnamednotification *)(*section))->actions.cmd = strdup(arg);
 				assert(((struct section_unnamednotification *)(*section))->actions.cmd);
@@ -165,6 +165,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				return ACCEPTED;
 			}
 		} else if(!strcmp(l,"Disabled") && mod_alert.current){
+				/* Needed as alerts/notifications are stored alone and not
+				 * considered as sections.
+				 */
 			mod_alert.current->disabled = true;
 
 			if(cfg.verbose)
@@ -189,25 +192,9 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
-#if 0
+/* Subscribe ONLY if named notification are used */
 static void subTopic( uint8_t mid ){
-	if(mod_alert.alert_used){
-		if( MQTTClient_subscribe( cfg.client, "Alert/#", 0) != MQTTCLIENT_SUCCESS ){
-			publishLog('F', "Can't subscribe to 'Alert/#'");
-			exit(EXIT_FAILURE);
-		}
-	} else if(cfg.verbose)
-		publishLog('I', "Alert disabled");
-
-	if(mod_alert.unotif_used){
-		if( MQTTClient_subscribe( cfg.client, "Notification/#", 0) != MQTTCLIENT_SUCCESS ){
-			publishLog('F', "Can't subscribe to 'Notification/#'");
-			exit(EXIT_FAILURE);
-		}
-	} else if(cfg.verbose)
-		publishLog('I', "Unnamed notification disabled");
-	
-	if(mod_alert.nnotif_used){
+	if(mod_alert.nnotif){
 		if( MQTTClient_subscribe( cfg.client, "nNotification/#", 0) != MQTTCLIENT_SUCCESS ){
 			publishLog('F', "Can't subscribe to 'nNotification/#'");
 			exit(EXIT_FAILURE);
@@ -219,26 +206,32 @@ static void subTopic( uint8_t mid ){
 static bool processMsg(const char *topic, char *payload){
 	const char *arg;
 
-	/* processing "static" topic */
-	if((arg = striKWcmp(topic, "Alert/"))){
-		publishLog('T', "Received alert \"%s\"", arg);
-		return true;
-	} else if((arg = striKWcmp(topic, "Notification/"))){
-		publishLog('T', "Received alert \"%s\"", arg);
-		return true;
-	}
 	/* processing named sessions */
+	if((arg = striKWcmp(topic, "nNotification/"))){
+		char *title = strchr(arg, '/');
 
+		if(!title)
+			publishLog('E', "Received named notification \"%s\" without title : ignoring", arg);
+		else {
+			while(arg < title){
+				char sec = *arg++;
+				struct namednotification *n = findNamed(sec);
+				publishLog('T', "Received named notification \"%c\" (%s) title \"%s\"", sec, n ? "found":"unknown", title+1);
+			}
+		}
+		return true;	/* Even if notification are unknown, we processed the message */
+	}
 
 	return false;
 }
-#endif
 
 void InitModule( void ){
 	initModule((struct Module *)&mod_alert, "mod_alert");
 
 	mod_alert.module.readconf = readconf;
 	mod_alert.module.acceptSDirective = acceptSDirective;
+	mod_alert.module.postconfInit = subTopic;	/* Named subscription if needed */
+	mod_alert.module.processMsg = processMsg;	/* Named subscription */
 
 	mod_alert.nnotif = NULL;
 	mod_alert.current = NULL;
