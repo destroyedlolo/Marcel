@@ -16,6 +16,11 @@
 #include <unistd.h>
 #include <assert.h>
 
+
+	/* ***
+	 * Unamed notification
+	 * ***/
+
 void notif_postconfInit(struct Section *asec){
 	struct section_unnamednotification *s = (struct section_unnamednotification *)asec;	/* avoid lot of casting */
 
@@ -64,6 +69,11 @@ bool notif_unnamednotification_processMQTT(struct Section *asec, const char *top
 
 	return false;	/* Let's try with other sections */
 }
+
+
+	/* ***
+	 * Named notification
+	 * ***/
 
 struct namednotification *findNamed(const char n){
 	for(struct namednotification *nnotif = mod_alert.nnotif; nnotif; nnotif = nnotif->next){

@@ -43,11 +43,20 @@ struct module_alert {
 		*current;						/* current named */
 };
 
+	/* **
+	 * Unamed notification
+	 * **/
 extern void notif_postconfInit(struct Section *);
 extern bool notif_unnamednotification_processMQTT(struct Section *, const char *, char *);
 
+	/* **
+	 * Named notification
+	 * **/
 extern struct namednotification *findNamed(const char );
 
+	/* **
+	 * Actions
+	 * **/
 extern void execOSCmd(const char *, const char *, const char *);
 extern void execRest(const char *, const char *, const char *);
 #endif
