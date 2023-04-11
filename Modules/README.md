@@ -18,7 +18,7 @@ The configuration can be tested using `-t` flag : Marcel will ensure the syntax 
 
 `-d` (if Marcel has been configured for), will display debuging information. It will display technical information during its execution.
 
-## Build from source
+## Building from source
 
 Please have a look on the build instruction for Marcel itself (in the parent directory) :
 it will guide you to install the compilation chain needed here as well.
