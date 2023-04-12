@@ -1,9 +1,11 @@
 #!/bin/bash
-# this script is used to create Makefiles
+# this script is used
+# - enable / disable the build of particular modules
+# - to create/update Makefiles
 
-# =============
-# Configuration
-# =============
+# ==================
+# Configuration Area
+# ==================
 # Uncomment lines of stuffs to be enabled
 
 # Lua callbacks and plugs-in
@@ -48,6 +50,10 @@ BUILD_FREEBOX=1
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
 BUILD_DUMMY=1
 
+### 
+# Development related
+###
+
 # Enable debugging messages
 DEBUG=1
 
@@ -55,11 +61,11 @@ DEBUG=1
 MCHECK=1
 
 
-# Where to put so plugins
+# Where to generate ".so" plugins
 # ---
-# production
+# production's target directory
 #PLUGIN_DIR=/usr/local/lib/Marcel
-# for development
+# During development, being clean and keep everything in our own directory
 PLUGIN_DIR=$( pwd )
 
 # -------------------------------------
@@ -70,11 +76,12 @@ PLUGIN_DIR=$( pwd )
 # DON'T MODIFY ANYTHING AFTER THIS LINE
 # -------------------------------------
 
+# Error is fatal
 set -e
 
-# =======================
-# Build MakeMaker's rules
-# =======================
+# =============================
+# Configure external components
+# =============================
 
 echo -e "\nSet build options\n=================\n"
 
@@ -82,12 +89,18 @@ CFLAGS="-Wall -O2 -fPIC"
 RDIR=$( pwd )
 
 if [ ${BUILD_LUA+x} ]; then
-# 	Test Lua version (development purpose)
+# Hardcode test Lua version
+# Development purpose only or if pkg-config doesn't work
+#
 #	LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
 #	LUA="-isystem $LUA_DIR/include"
 #	LUALIB="-L$LUA_DIR/lib"
+#
+# If used, uncomment the lines above and comment out system's Lua
+# detection bellow.
 
-# 	system Lua
+# Find out system's installed Lua
+
 	VERLUA=$( lua -v 2>&1 | grep -o -E '[0-9]\.[0-9]' )
 	echo -n "Lua's version :" $VERLUA
 
@@ -110,6 +123,7 @@ else
 	echo "Lua not used"
 fi
 
+# Enable JSon-c for modules having to handle Json data as well as curl
 if [ ${BUILD_METEOOWM+x} ]; then
 	JSON="\$(shell pkg-config --cflags json-c )"
 	JSONLIB="\$(shell pkg-config --libs json-c ) -lcurl"
@@ -134,9 +148,9 @@ else
 fi
 
 
-# ===============
-# Build Makefiles
-# ===============
+# =================
+# Rebuild Makefiles
+# =================
 
 echo -e "\nBuild Makefiles\n===============\n"
 
@@ -193,9 +207,9 @@ if [ ${BUILD_DUMMY+x} ]; then
 fi
 echo -e '\t$(MAKE) -C Modules/Marcel' >> Makefile
 
-# =================
-# Build all modules
-# =================
+# =============================
+# Rebuild modules' own Makefile
+# =============================
 
 if [ ${BUILD_LUA+x} ]; then
 	cd Modules/mod_Lua
@@ -274,9 +288,9 @@ if [ ${BUILD_DUMMY+x} ]; then
 	cd ../..
 fi
 
-# =================
-# Build main source
-# =================
+# ==============================
+# Rebuild Marcel's core Makefile
+# ==============================
 
 cd Modules/Marcel
 

@@ -1,25 +1,41 @@
-# Source code and modules documentation
+# modules documentation
 
-**Marcel** is composed of many modules that implement new interfaces and features. 
-They generally don't dependent on others but *core* components and **mod_lua**.
+**Marcel** is composed of many modules to implement new interfaces and features. 
+It's wise to avoid intermodule dependancies with the exception of *mod_core* components and **mod_lua**.
 Each of the modules are documented in their own directory.
 
-## modules
+## configuration
 
-Here are the steps to add a module to Marcel.
+### Enabling modules
 
-### compilation (only needed if Marcel is not packaged for your distribution)
+Copy and customize from module's `Config` subdirectory to your main configuration directory. Then restart **Marcel**
 
-* Enable corresponding **BUILD_????** option in `remake.sh` shell script.
+### Debuging your configuration
+
+The configuration can be tested using `-t` flag : Marcel will ensure the syntax correctness and exits.
+
+`-v` flag will make Marcel verbose : display how it understands the configuration, and displays some runtime figures.
+
+`-d` (if Marcel has been configured for), will display debuging information. It will display technical information during its execution.
+
+## Building from source
+
+Please have a look on the build instruction for Marcel itself (in the parent directory) :
+it will guide you to install the compilation chain needed here as well.
+
+### Select which modules to build
+
+The default Makefile will build all module. If you're having the need to exclude a module from building (for exemple, in case of technical dependancy issue), you have to :
+* Enable/Disable corresponding **BUILD_????** option in `remake.sh` shell script.
 * Run `remake.sh` to update Makefiles
 * `make` to compile the code.
 * install executable and `.so`.
 
-### Enable the module
-
-Copy and customize files in module's `Config` subdirectory to your configuration directory. Then restart **Marcel**
+**Notez-bien :** we are speaking here of compiling. If your need is to avoid a module to run, it can be done directly from the configuration files, no need to recompile anything.
 
 ## specific modules
+
+Following directories contains special modules. For normal ones, have a look on their own directory. 
 
 ### Marcel
 
