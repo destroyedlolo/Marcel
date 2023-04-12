@@ -217,6 +217,21 @@ static bool processMsg(const char *topic, char *payload){
 				char sec = *arg++;
 				struct namednotification *n = findNamed(sec);
 				publishLog('T', "Received named notification \"%c\" (%s) title \"%s\"", sec, n ? "found":"unknown", title+1);
+
+				if(n){
+					if(n->disabled){
+#ifdef DEBUG
+						if(cfg.debug)
+							publishLog('d', "Named notification \"%c\" is disabled", n->name);
+#endif
+						continue;
+					}
+
+					if(n->actions.cmd)
+						execOSCmd(n->actions.cmd, title+1, payload);
+					if(n->actions.url)
+						execRest(n->actions.url, title+1, payload);
+				}
 			}
 		}
 		return true;	/* Even if notification are unknown, we processed the message */
