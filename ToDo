@@ -15,6 +15,10 @@ Exposer dans Lua une API pour accéder au attributs des sections
 
 ---- Mod_alert
 
+Finir de coder malert_alert_processMQTT(), 
+ajouter l'envoie du compteur avec un argument global.
+Faire le README
+
 Add Lua code to :
 - list alerts
 - raise or clear alerts

@@ -121,6 +121,29 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		mod_alert.current = NULL;	/* not anymore in a named */
 		*section = (struct Section *)nsection;
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*CorrectAlert="))){
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_raise *nsection = malloc(sizeof(struct section_correct));
+		initSection( (struct Section *)nsection, mid, SA_CORRECT, strdup(arg));		
+
+			/* This section is processing MQTT messages */
+		nsection->section.postconfInit = malert_postconfInit;	/* Subscribe */
+		nsection->section.processMsg = salrt_correctalert_processMQTT;	/* Processing */
+
+			/* Module's own fields */
+		nsection->actions.url = NULL;
+		nsection->actions.cmd = NULL;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering CorrectAlert '%s' section (%04x)", nsection->section.uid ,nsection->section.id);
+
+		mod_alert.current = NULL;	/* not anymore in a named */
+		*section = (struct Section *)nsection;
+		return ACCEPTED;
 	} else if(*section || mod_alert.current){
 		if((arg = striKWcmp(l,"RESTUrl="))){
 			if(mod_alert.current){	/* Named notification */
@@ -181,7 +204,7 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
-	} else if(sec_id == SA_RAISE){
+	} else if(sec_id == SA_RAISE || sec_id == SA_CORRECT){
 		if( !strcmp(directive, "RESTUrl=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "OSCmd=") )

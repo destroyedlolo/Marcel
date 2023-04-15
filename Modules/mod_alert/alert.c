@@ -45,6 +45,10 @@ static bool AlertIsOver(const char *id, const char *msg){
 	struct alert *an = findalert(id);
 
 	if(an){	/* The alert exists */
+		DLRemove( &mod_alert.alerts, (struct DLNode *)an );
+		free( (void *)an->alert );
+		free( an );
+
 		publishLog('C', "[%s] Corrected : %s", id, msg);
 		return true;
 	}
@@ -84,20 +88,6 @@ bool malert_alert_processMQTT(struct Section *asec, const char *topic, char *pay
 /*			AlertIsOver(id); */
 		return true;
 
-#if 0
-	} else if((id = striKWcmp(topic, "Raise/"))){
-		if(RiseAlert(id, payload)){
-			execOSCmd(s->actions.cmd, id, payload);
-			execRest(s->actions.url, id, payload);
-		}
-		return true;
-	} else if((id = striKWcmp(topic, "Corrected/"))){
-		if(AlertIsOver(id, payload)){
-			execOSCmd(s->actions.cmd, id, payload);
-			execRest(s->actions.url, id, payload);
-		}
-		return true;
-#endif
 	}
 
 	return false;
@@ -109,6 +99,21 @@ bool salrt_raisealert_processMQTT(struct Section *asec, const char *topic, char 
 
 	if(!mqtttokcmp(s->section.topic, topic, &id)){
 		if(RiseAlert(id, payload)){
+			execOSCmd(s->actions.cmd, id, payload);
+			execRest(s->actions.url, id, payload);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool salrt_correctalert_processMQTT(struct Section *asec, const char *topic, char *payload){
+	struct section_alert *s = (struct section_alert *)asec;	/* avoid lot of casting */
+	const char *id;
+
+	if(!mqtttokcmp(s->section.topic, topic, &id)){
+		if(AlertIsOver(id, payload)){
 			execOSCmd(s->actions.cmd, id, payload);
 			execRest(s->actions.url, id, payload);
 		}

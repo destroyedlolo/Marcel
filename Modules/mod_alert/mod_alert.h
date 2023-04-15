@@ -40,6 +40,12 @@ struct section_raise {
 	struct actions actions;
 };
 
+struct section_correct {
+	struct Section section;
+
+	struct actions actions;
+};
+
 struct namednotification {
 	struct namednotification *next;
 
@@ -82,6 +88,11 @@ extern bool malert_alert_processMQTT(struct Section *, const char *, char *);
 	 * RaiseAlert
 	 * **/
 extern bool salrt_raisealert_processMQTT(struct Section *, const char *, char *);
+
+	/* **
+	 * CorrectAlert
+	 * **/
+extern bool salrt_correctalert_processMQTT(struct Section *, const char *, char *);
 
 	/* **
 	 * Named notification
