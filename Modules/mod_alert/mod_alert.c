@@ -19,7 +19,9 @@ struct module_alert mod_alert;
 
 enum {
 	SA_ALERT=0,
-	SA_NOTIF
+	SA_NOTIF,
+	SA_RAISE,
+	SA_CORRECT
 };
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -81,16 +83,40 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_alert *nsection = malloc(sizeof(struct section_alert));
 		initSection( (struct Section *)nsection, mid, SA_ALERT, "$alert");
 
+			/* This section is processing MQTT messages */
+		nsection->section.topic = "Alerts/#";
+		nsection->section.postconfInit = malert_postconfInit;
+		nsection->section.processMsg = malert_alert_processMQTT;
+
 			/* Module's own fields */
 		nsection->actions.url = NULL;
 		nsection->actions.cmd = NULL;
 
-/*		nsection->section.topic = "Alert/#"; */
-		nsection->section.postconfInit = alert_postconfInit;
-		nsection->section.processMsg = alert_processMQTT;
-
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering $alert section (%04x)", nsection->section.id);
+
+		mod_alert.current = NULL;	/* not anymore in a named */
+		*section = (struct Section *)nsection;
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*RaiseAlert="))){
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_raise *nsection = malloc(sizeof(struct section_raise));
+		initSection( (struct Section *)nsection, mid, SA_RAISE, strdup(arg));		
+
+			/* This section is processing MQTT messages */
+		nsection->section.postconfInit = malert_postconfInit;	/* Subscribe */
+		nsection->section.processMsg = salrt_raisealert_processMQTT;	/* Processing */
+
+			/* Module's own fields */
+		nsection->actions.url = NULL;
+		nsection->actions.cmd = NULL;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering RaiseAlert '%s' section (%04x)", nsection->section.uid ,nsection->section.id);
 
 		mod_alert.current = NULL;	/* not anymore in a named */
 		*section = (struct Section *)nsection;
@@ -153,7 +179,16 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "OSCmd=") )
 			return true;	/* Accepted */
-		if( !strcmp(directive, "Disabled") )
+		else if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+	} else if(sec_id == SA_RAISE){
+		if( !strcmp(directive, "RESTUrl=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "OSCmd=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
 	}
 
