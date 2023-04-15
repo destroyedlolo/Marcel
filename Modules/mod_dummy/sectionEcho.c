@@ -52,7 +52,7 @@ void st_echo_postconfInit(struct Section *asec){
 bool st_echo_processMQTT(struct Section *asec, const char *topic, char *payload ){
 	struct section_echo *s = (struct section_echo *)asec;	/* avoid lot of casting */
 
-	if(!mqtttokcmp(s->section.topic, topic)){
+	if(!mqtttokcmp(s->section.topic, topic, NULL)){
 		publishLog('I', "[%s] %s", s->section.uid, payload);
 		return true;	/* we processed the message */
 	}

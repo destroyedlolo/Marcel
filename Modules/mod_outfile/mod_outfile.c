@@ -63,7 +63,7 @@ static void so_postconfInit(struct Section *asec){
 static bool so_processMQTT(struct Section *asec, const char *topic, char *payload ){
 	struct section_outfile *s = (struct section_outfile *)asec;	/* avoid lot of casting */
 
-	if(!mqtttokcmp(s->section.topic, topic)){
+	if(!mqtttokcmp(s->section.topic, topic, NULL)){
 		if(s->section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)

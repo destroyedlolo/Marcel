@@ -11,7 +11,7 @@
 
 #include "MQTT_tools.h"
 
-int mqtttokcmp(const char *s, const char *t){
+int mqtttokcmp(const char *s, const char *t, const char **rem){
 	char last = 0;
 	if(!s || !t)
 		return -1;
@@ -19,9 +19,15 @@ int mqtttokcmp(const char *s, const char *t){
 	for(; ; s++, t++){
 		if(!*s){ /* End of string */
 			return(*s - *t);
-		} else if(*s == '#') /* ignore remaining of the string */
-			return (!*++s && (!last || last=='/')) ? 0 : -1;
-		else if(*s == '+'){	/* ignore current level of the hierarchy */
+		} else if(*s == '#'){ /* ignore remaining of the string */
+			int ret = (!*++s && (!last || last=='/')) ? 0 : -1;
+			if(rem){
+				*rem = t;
+				if(last == '/')
+					(*rem)++;
+			}
+			return ret;
+		} else if(*s == '+'){	/* ignore current level of the hierarchy */
 			s++;
 			if((last !='/' && last ) || (*s != '/' && *s )) /* has to be enclosed by '/' */
 				return -1;

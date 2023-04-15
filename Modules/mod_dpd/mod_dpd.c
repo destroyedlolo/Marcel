@@ -32,7 +32,7 @@ enum {
 static bool sd_processMQTT(struct Section *asec, const char *topic, char *payload){
 	struct section_dpd *s = (struct section_dpd *)asec;
 
-	if(!mqtttokcmp(s->section.topic, topic)){
+	if(!mqtttokcmp(s->section.topic, topic, NULL)){
 		if(s->section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)
