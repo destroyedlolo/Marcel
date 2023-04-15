@@ -35,14 +35,14 @@ void st_echo_postconfInit(struct Section *asec){
 		 * consider error as fatal.
 		 */
 	if(!s->section.topic){
-		publishLog('E', "[%s] Topic must be set. Dying ...", s->section.uid);
-		pthread_exit(0);
+		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		exit(EXIT_FAILURE);
 	}
 
 		/* Subscribing */
 	if(MQTTClient_subscribe( cfg.client, s->section.topic, 0 ) != MQTTCLIENT_SUCCESS ){
-		publishLog('E', "Can't subscribe to '%s'", s->section.topic );
-		exit( EXIT_FAILURE );
+		publishLog('F', "[%s]Can't subscribe to '%s'", s->section.uid, s->section.topic);
+		exit(EXIT_FAILURE);
 	}
 }
 
