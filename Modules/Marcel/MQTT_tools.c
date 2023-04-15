@@ -21,11 +21,8 @@ int mqtttokcmp(const char *s, const char *t, const char **rem){
 			return(*s - *t);
 		} else if(*s == '#'){ /* ignore remaining of the string */
 			int ret = (!*++s && (!last || last=='/')) ? 0 : -1;
-			if(rem){
+			if(rem)
 				*rem = t;
-				if(last == '/')
-					(*rem)++;
-			}
 			return ret;
 		} else if(*s == '+'){	/* ignore current level of the hierarchy */
 			s++;

@@ -40,8 +40,9 @@ void notif_postconfInit(struct Section *asec){
 
 bool notif_unnamednotification_processMQTT(struct Section *asec, const char *topic, char *payload){
 	struct section_unnamednotification *s = (struct section_unnamednotification *)asec;	/* avoid lot of casting */
+	const char *aid;
 
-	if(!mqtttokcmp(s->section.topic, topic, NULL)){
+	if(!mqtttokcmp(s->section.topic, topic, &aid)){
 		if(s->section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)
@@ -50,6 +51,7 @@ bool notif_unnamednotification_processMQTT(struct Section *asec, const char *top
 			return true;
 		}
 
+/*
 		size_t i=strlen(s->section.topic);
 		assert(i>0);
 
@@ -57,9 +59,8 @@ bool notif_unnamednotification_processMQTT(struct Section *asec, const char *top
 		strcpy(t, s->section.topic);
 		t[--i]=0;
 
-		const char *aid;
 		assert((aid = striKWcmp(topic,t)));
-
+*/
 		if(s->actions.cmd && *payload == 'S')
 			execOSCmd(s->actions.cmd, aid, payload + (*payload == 'S' ? 1 : 0));
 		if(s->actions.url)
