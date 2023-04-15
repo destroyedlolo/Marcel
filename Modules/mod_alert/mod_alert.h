@@ -13,6 +13,7 @@
 
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
+#include "../Marcel/DList.h"
 
 extern struct module_alert mod_alert;
 
@@ -27,6 +28,12 @@ struct section_unnamednotification {
 	struct actions actions;
 };
 
+struct section_alert {
+	struct Section section;
+
+	struct actions actions;
+};
+
 struct namednotification {
 	struct namednotification *next;
 
@@ -35,19 +42,35 @@ struct namednotification {
 	bool disabled;
 };
 
-/* Custom structure to store module's configuration */
+	/* Active alert list */
+struct alert {
+	struct DLNode node;
+	const char *alert;
+};
+
+	/* Custom structure to store module's configuration */
 struct module_alert {
 	struct Module module;
 
 	struct namednotification *nnotif, 	/* named notification list */
 		*current;						/* current named */
+
+	struct DList alerts;
 };
+
+extern struct module_alert mod_alert;
 
 	/* **
 	 * Unamed notification
 	 * **/
 extern void notif_postconfInit(struct Section *);
 extern bool notif_unnamednotification_processMQTT(struct Section *, const char *, char *);
+
+	/* **
+	 * Alerts
+	 * **/
+extern void alert_postconfInit(struct Section *);
+extern bool alert_processMQTT(struct Section *, const char *, char *);
 
 	/* **
 	 * Named notification
