@@ -79,15 +79,23 @@ void malert_postconfInit(struct Section *asec){
 }
 
 bool malert_alert_processMQTT(struct Section *asec, const char *topic, char *payload){
+	struct section_alert *s = (struct section_alert *)asec;	/* avoid lot of casting */
 	const char *id;
 
-	if((id = striKWcmp(topic, "Alerts/"))){	/* Legacy interface, topic hardcoded */
+	if((id = striKWcmp(topic, "Alert/"))){	/* Legacy interface, topic hardcoded */
 		if(*payload == 'S' || *payload == 's' ){	/* Rise an alert */
-/* 			RiseAlert(id, payload+1, *payload == 'S'); */
-		} else	/* Alert's over */
-/*			AlertIsOver(id); */
+			if(RiseAlert(id, payload+1)){
+				execOSCmd(s->actions.cmd, id, payload+1);
+				if(*payload == 'S')
+					execRest(s->actions.url, id, payload+1);
+			}
+		} else {	/* Alert's over */
+			if(AlertIsOver(id, payload)){
+				execOSCmd(s->actions.cmd, id, payload);
+				execRest(s->actions.url, id, payload);
+			}
+		}
 		return true;
-
 	}
 
 	return false;

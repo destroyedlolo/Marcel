@@ -84,7 +84,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		initSection( (struct Section *)nsection, mid, SA_ALERT, "$alert");
 
 			/* This section is processing MQTT messages */
-		nsection->section.topic = "Alerts/#";
+		nsection->section.topic = "Alert/#";
 		nsection->section.postconfInit = malert_postconfInit;
 		nsection->section.processMsg = malert_alert_processMQTT;
 
