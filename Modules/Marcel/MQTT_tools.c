@@ -10,6 +10,7 @@
  */
 
 #include "MQTT_tools.h"
+#include "Marcel.h"
 
 int mqtttokcmp(const char *s, const char *t, const char **rem){
 	char last = 0;
@@ -48,6 +49,11 @@ int mqttpublish(MQTTClient client, const char *topic, int length, void *payload,
 	pubmsg.payloadlen = length;
 	pubmsg.payload = payload;
 
-	return MQTTClient_publishMessage(client, topic, &pubmsg, NULL);
+	int err = MQTTClient_publishMessage(client, topic, &pubmsg, NULL);
+
+	if(cfg.verbose && err != MQTTCLIENT_SUCCESS)
+		publishLog('E', "mqttpublish() : %s", MQTTClient_strerror(err) );
+
+	return err;
 }
 

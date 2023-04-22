@@ -114,6 +114,16 @@ size_t socketreadline( int fd, char *l, size_t sz){
 void publishLog( char l, const char *msg, ...){
 	va_list args;
 
+	if(cfg.verbose || l=='E' || l=='F'){
+		va_start(args, msg);
+
+		char t[ strlen(msg) + 7 ];
+		sprintf(t, "*%c* %s\n", l, msg);
+		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
+
+		va_end(args);
+	}
+
 	if(cfg.client){
 		va_start(args, msg);
 
@@ -147,17 +157,6 @@ void publishLog( char l, const char *msg, ...){
 
 		va_end(args);
 	}
-
-	if(cfg.verbose || l=='E' || l=='F'){
-		va_start(args, msg);
-
-		char t[ strlen(msg) + 7 ];
-		sprintf(t, "*%c* %s\n", l, msg);
-		vfprintf((l=='E' || l=='F')? stderr : stdout, t, args);
-
-		va_end(args);
-	}
-
 }
 
 	/* ***
