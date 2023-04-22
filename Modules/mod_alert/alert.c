@@ -27,6 +27,22 @@ static struct alert *findalert(const char *id){
 	return NULL;
 }
 
+static void sentAlertsCounter( void ){
+	if(mod_alert.countertopic){
+		unsigned int nbre=0;
+
+		for(struct alert *an = (struct alert *)mod_alert.alerts.first; an; an = (struct alert *)an->node.next)
+			nbre++;
+
+		char tmsg[31];
+		sprintf(tmsg, "%u", nbre);
+
+		mqttpublish(cfg.client, mod_alert.countertopic, strlen(tmsg), tmsg, 0);
+
+		publishLog('T', "Alerts counter : %u", nbre);
+	}
+}
+
 static bool RiseAlert(const char *id, const char *msg){
 	struct alert *an = findalert(id);
 
@@ -36,6 +52,8 @@ static bool RiseAlert(const char *id, const char *msg){
 		DLAdd( &mod_alert.alerts, (struct DLNode *)an );
 
 		publishLog('E', "[%s] New alert : %s", id, msg);
+
+		sentAlertsCounter();
 		return true;
 	}
 	return false;
@@ -50,6 +68,8 @@ static bool AlertIsOver(const char *id, const char *msg){
 		free( an );
 
 		publishLog('C', "[%s] Corrected : %s", id, msg);
+
+		sentAlertsCounter();
 		return true;
 	}
 	return false;

@@ -67,7 +67,9 @@ struct module_alert {
 	struct namednotification *nnotif, 	/* named notification list */
 		*current;						/* current named */
 
-	struct DList alerts;
+	struct DList alerts;				/* Alerts' list */
+
+	const char *countertopic;			/* Topic to send counter too */
 };
 
 extern struct module_alert mod_alert;

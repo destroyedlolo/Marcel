@@ -27,7 +27,19 @@ enum {
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
-	if((!strcmp(l,"$unnamedNotification"))){
+	if((arg = striKWcmp(l,"AlertsCounterTopic="))){
+		if(*section){
+			publishLog('F', "AlertCounterTopic can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		assert( (mod_alert.countertopic = strdup(arg)) );
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tAlerts Counter's Topic set to \"%s\"", mod_alert.countertopic);
+
+		return ACCEPTED;
+	} else if((!strcmp(l,"$unnamedNotification"))){
 		if(findSectionByName("$unnamedNotification")){
 			publishLog('F', "'$unnamedNotification' section is already defined");
 			exit(EXIT_FAILURE);
@@ -278,6 +290,8 @@ void InitModule( void ){
 	mod_alert.current = NULL;
 
 	DLListInit(&mod_alert.alerts);
+
+	mod_alert.countertopic = NULL;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 }
