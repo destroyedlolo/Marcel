@@ -43,7 +43,7 @@ static void sentAlertsCounter( void ){
 	}
 }
 
-static bool RiseAlert(const char *id, const char *msg){
+bool RiseAlert(const char *id, const char *msg){
 	struct alert *an = findalert(id);
 
 	if(!an){	/* Creating a new alert */
@@ -59,7 +59,7 @@ static bool RiseAlert(const char *id, const char *msg){
 	return false;
 }
 
-static bool AlertIsOver(const char *id, const char *msg){
+bool AlertIsOver(const char *id, const char *msg){
 	struct alert *an = findalert(id);
 
 	if(an){	/* The alert exists */
