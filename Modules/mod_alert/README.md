@@ -7,13 +7,6 @@ Handles **alerts** and **notifications**.
 A message is sent for every **notification** received whereas Marcel keeps track of **alerts** state : 
 a message is only sent when an alert is raised or cleared, but it sents only once when an alert is signaled many time without being cleared.
 
-### Accepted global directives
-
-* **AlertsCounterTopic=** if set, send number of alerts everytime an alert is raised or cleared.
-
-Example :
-`AlertsCounterTopic=%ClientID%/AlertsCounter`
-
 ## Directives accepted by all kind of sections handled by mod_alert
 
 ### Actions directives
@@ -31,9 +24,45 @@ Example :
 
 * **Disabled** : This section starts disabled (see *mod_OnOff*)
 
-## Notification
+## Alerts
 
-A message is sent for every **notification** received. So, if not correctly configured upstream, you may be spammed by zillion of message. Consequently, **notification** aim is to report transitions' changes or punctual events.
+A message is sent only when an alert is **set** or **cleared**.
+
+A typical use case is a regular monitoring (*let say regarding a fridge temperature, every 5 minutes*) reporting an error condition (*temperature too high*). 
+- If communicating through notifications, a message will be sent at every sample, *so every 5 minutes*. 
+- Using **alerts**, a message will be sent once when the temperature goes outside range, the alerts' counter will be increased, and another one when the temperature is corrected : alerts avoid being spammed by the same error condition.
+
+### Accepted global directives
+
+* **AlertsCounterTopic=** if set, send number of alerts everytime an alert is raised or cleared.
+
+Example :
+`AlertsCounterTopic=%ClientID%/AlertsCounter`
+
+### Alert sections
+
+Notez-bien : there is no segregation between alerts created by $alert or \*RaiseAlert= , they are handled the same way internally (in other words, an $alert can be cleared by \*CorrectAlert= .
+
+#### $alert
+
+**$alert** is supported mostly for compatibility purposes with some of my ancient tools. It is suggested to use **\*RaiseAlert=** instead, which is more versatile and powerful. In the other hand, it can be used as *default alerting channel*.
+
+**$alert** messages are received from `Alert/#` topic where the topic name's trailing part determines the *title*, the payload being the message. 
+
+If the first character of the payload is a '**S**' or '**s**', the alert is raised, any other character means the alert is over.
+- With a '**S**' both RESTURL and AlertCommand are triggered called.
+- With a '**s**' only AlertCommand is called.
+
+Only one can exist and is impersonated by a "*$alert*" section (if needed to be disabled by **OnOff** module). 
+
+#### \*RaiseAlert= and \*CorrectAlert=
+
+Several \*RaiseAlert= and \*CorrectAlert= sections could coexist : it's allowing different actions to trigger, but again, there is no segregation between alerts, every \*CorrectAlert= can clear an alert raised by any \*RaiseAlert= or even $alert.
+
+**Topic=** directive indicates which is the topic to listen to.
+## Notifications
+
+A message is sent for every **notification** received. So, if not correctly configured upstream, you may be spammed by zillion of message. Consequently, **notifications** aim is to report transitions' changes or punctual events.
 
 ### Notification sections
 
@@ -41,7 +70,7 @@ A message is sent for every **notification** received. So, if not correctly conf
 
 **Unnamed Notification** is supported mostly for compatibility purposes with some of my ancient tools. It is suggested to use **[Named Notification](###$namednotification=)** instead which are more versatile and powerful. In the other hand, it can be used as *default notification channel*.
 
-**Unnamed Notification** message are received from `Notification/#` topic where the topic name's trailing part determines the *title*, the payload being the message. Only one can exist and is impersonated by a "*$unnamedNotification*" section (if needed to be disabled by **OnOff** module). 
+**Unnamed Notification** messages are received from `Notification/#` topic where the topic name's trailing part determines the *title*, the payload being the message. Only one can exist and is impersonated by a "*$unnamedNotification*" section (if needed to be disabled by **OnOff** module). 
 
 If the payload starts with a '**S**', both `OSCmd` and `RESTUrl` are used ; Without 'S', only `OSCmd` is triggered.
 
