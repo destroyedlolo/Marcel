@@ -39,6 +39,13 @@ A typical use case is a regular monitoring (*let say regarding a fridge temperat
 Example :
 `AlertsCounterTopic=%ClientID%/AlertsCounter`
 
+### Additional topics
+
+Following topics are used as well when alerting :
+
+- When an alert is raised, a message to `%MarcelID%/Error` is published
+- When cleared, `%MarcelID%/Log/Corrected` is published
+
 ### Alert sections
 
 Notez-bien : there is no segregation between alerts created by $alert or \*RaiseAlert= , they are handled the same way internally (in other words, an $alert can be cleared by \*CorrectAlert= .
