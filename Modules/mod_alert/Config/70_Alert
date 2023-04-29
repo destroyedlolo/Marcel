@@ -1,0 +1,35 @@
+# Alerts handling
+
+Needs=mod_alert
+
+# Legacy 'Alert/#'
+# if the first character of an 'Alert/#' payload is a 'S' or 's', the alert is raised.
+# any other character means the alert is over.
+# With a 'S' both RESTURL and AlertCommand is called.
+# with a 's' only AlertCommand is called.
+#
+# When an alert is raised, a message to %MarcelID%/Error is published
+# When closed, %MarcelID%/Log/Corrected is published
+# Every time, AlertsCounter is published to "AlertsCounterTopic=" if set, the amount of active alerts
+#
+
+$alert
+	OSCmd=echo "alert : %t%"
+	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Erreur
+#	Disabled
+
+# Several RaiseAlert / CorrectAlert could coexist :
+# it's allowing different actions to trigger,
+# but it's not segregating alerts, all alerts are stored the same way.
+
+*RaiseAlert=alerting
+	Topic=Raise/#
+	OSCmd=echo 'raising "%t%"'
+	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Erreur
+#	Disabled
+
+*CorrectAlert=correcting
+	Topic=Corrected/#
+	OSCmd=echo '"%t%" corrected'
+	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Corrected
+#	Disabled

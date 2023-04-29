@@ -1,0 +1,19 @@
+# Unnamed notification
+# 'Notification/#' handling
+
+Needs=mod_alert
+
+# Only one UnnamedNotification section can exist
+# its internal name is "$UnnamedNotification" (if needed to be disabled
+# by OnOff module)
+#
+# if the payload starts with a 'S', both OSCmd and RESTUrl are used
+# Without 'S', only OSCmd is triggered
+#
+# %t% is replaced by the title
+# %m% is replaced by the message
+
+$unnamedNotification
+	OSCmd=echo "%t%"
+	RESTUrl=https://wirepusher.com/send?id=xxxxxcLWkmpsZa&title=Test:%t%&message=%m%&type=Test
+#	Disabled

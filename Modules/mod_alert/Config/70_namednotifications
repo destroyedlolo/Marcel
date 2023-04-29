@@ -1,0 +1,19 @@
+# Named notification
+# '/nNotification' handling
+
+Needs=mod_alert
+
+# %t% is replaced by the title
+# %m% is replaced by the message
+
+# Error notification
+$namedNotification=E
+	OSCmd=echo "Err : %t%"
+	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Erreur
+#	Disabled
+
+# Information
+$namedNotification=i
+	OSCmd=echo "Info : %t%"
+	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Information
+#	Disabled

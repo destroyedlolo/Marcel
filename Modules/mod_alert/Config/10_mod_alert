@@ -1,0 +1,9 @@
+LoadModule=mod_alert.so
+
+# Notez-bien : as alerting is done using subscribing
+# sections depend on SubLast
+
+# Topic to send alert counter too.
+# This topic is sent every time an alert is set or cleared
+# Can be unset if no counter has to be sent
+AlertsCounterTopic=%ClientID%/AlertsCounter

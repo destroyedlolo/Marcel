@@ -28,7 +28,7 @@ mod_core.o : mod_core.c mod_core.h Module.h Marcel.h Section.h \
 Module.o : Module.c Module.h Marcel.h Section.h Makefile 
 	$(cc) -c -o Module.o Module.c $(opts) 
 
-MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
+MQTT_tools.o : MQTT_tools.c MQTT_tools.h Marcel.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c $(opts) 
 
 Section.o : Section.c Section.h Marcel.h Makefile 
