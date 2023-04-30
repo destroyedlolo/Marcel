@@ -103,18 +103,21 @@ bool malert_alert_processMQTT(struct Section *asec, const char *topic, char *pay
 	const char *id;
 
 	if((id = striKWcmp(topic, "Alert/"))){	/* Legacy interface, topic hardcoded */
-		if(*payload == 'S' || *payload == 's' ){	/* Rise an alert */
-			if(RiseAlert(id, payload+1)){
-				execOSCmd(s->actions.cmd, id, payload+1);
-				if(*payload == 'S')
-					execRest(s->actions.url, id, payload+1);
+		if(!s->section.disabled){
+			if(*payload == 'S' || *payload == 's' ){	/* Rise an alert */
+				if(RiseAlert(id, payload+1)){
+					execOSCmd(s->actions.cmd, id, payload+1);
+					if(*payload == 'S')
+						execRest(s->actions.url, id, payload+1);
+				}
+			} else {	/* Alert's over */
+				if(AlertIsOver(id, payload)){
+					execOSCmd(s->actions.cmd, id, payload);
+					execRest(s->actions.url, id, payload);
+				}
 			}
-		} else {	/* Alert's over */
-			if(AlertIsOver(id, payload)){
-				execOSCmd(s->actions.cmd, id, payload);
-				execRest(s->actions.url, id, payload);
-			}
-		}
+		} else if(cfg.debug)
+			publishLog('T', "[%s] is disabled", s->section.uid);
 		return true;
 	}
 

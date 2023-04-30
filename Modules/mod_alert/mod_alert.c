@@ -285,17 +285,16 @@ static int lmRiseAlert(lua_State *L){
 		return 0;
 	}
 
-	const char *id = luaL_checkstring(L, 1);
-	const char *msg = luaL_checkstring(L, 2);
-	if(RiseAlert(id, msg)){
-		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		if(!s)
-			publishLog('E', "No $alert defined");
-		else if(!s->section.disabled){
+	struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
+	if(!s)
+		publishLog('E', "No $alert defined");
+	else if(!s->section.disabled){
+		const char *id = luaL_checkstring(L, 1);
+		const char *msg = luaL_checkstring(L, 2);
+		if(RiseAlert(id, msg))
 			execOSCmd(s->actions.cmd, id, msg);
-		} else if(cfg.debug)
-			publishLog('T', "Alert not sent : $alert is disabled");
-	}
+	} else if(cfg.debug)
+		publishLog('T', "Alert ignored : $alert is disabled");
 	
 	return 0;
 }
@@ -306,18 +305,18 @@ static int lmRiseAlertREST(lua_State *L){
 		return 0;
 	}
 
-	const char *id = luaL_checkstring(L, 1);
-	const char *msg = luaL_checkstring(L, 2);
-	if(RiseAlert(id, msg)){
-		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		if(!s)
-			publishLog('E', "No $alert defined");
-		else if(!s->section.disabled){
+	struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
+	if(!s)
+		publishLog('E', "No $alert defined");
+	else if(!s->section.disabled){
+		const char *id = luaL_checkstring(L, 1);
+		const char *msg = luaL_checkstring(L, 2);
+		if(RiseAlert(id, msg)){
 			execOSCmd(s->actions.cmd, id, msg);
 			execRest(s->actions.url, id, msg);
-		} else if(cfg.debug)
-			publishLog('T', "Alert not sent : $alert is disabled");
-	}
+		}
+	} else if(cfg.debug)
+		publishLog('T', "Alert ignored : $alert is disabled");
 	
 	return 0;
 }
@@ -328,22 +327,23 @@ static int lmClearAlert(lua_State *L){
 		return 0;
 	}
 
-	const char *id = luaL_checkstring(L, 1);
-	const char *msg = lua_tostring(L, 2);	/* optional message */
-	if(!msg)
-		msg = "";
+	struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
+	if(!s)
+		publishLog('E', "No $alert defined");
+	else if(!s->section.disabled){
+		const char *id = luaL_checkstring(L, 1);
+		const char *msg = luaL_checkstring(L, 2);
+		
+		if(!msg)
+			msg = "";
 
-	if(AlertIsOver(id,msg)){
-		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		if(!s)
-			publishLog('E', "No $alert defined");
-		else if(!s->section.disabled){
+		if(AlertIsOver(id, msg)){
 			execOSCmd(s->actions.cmd, id, msg);
 			execRest(s->actions.url, id, msg);
-		} else if(cfg.debug)
-			publishLog('T', "Alert not sent : $alert is disabled");
-	}
-
+		}
+	} else if(cfg.debug)
+		publishLog('T', "Alert ignored : $alert is disabled");
+	
 	return 0;
 }
 

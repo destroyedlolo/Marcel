@@ -1,5 +1,7 @@
 Add Retained to all sections
 Verify that Disable is working for all kinds of section
+	Done for :
+		- mod_alert
 
 Missing directives :
 ConnectionLostIsFatal
