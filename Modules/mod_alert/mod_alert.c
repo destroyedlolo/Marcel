@@ -372,6 +372,26 @@ static int lmSendNotification(lua_State *L){
 	return 0;
 }
 
+static int lmSendNotificationREST(lua_State *L){
+	if(lua_gettop(L) != 2){
+		publishLog('E', "In your Lua code, SendNotification() requires 2 arguments : title and message");
+		return 0;
+	}
+
+	struct section_alert *s = (struct section_alert *)findSectionByName("$unnamedNotification");
+	if(!s)
+		publishLog('E', "No $unnamedNotification defined");
+	else if(!s->section.disabled){
+		const char *id = luaL_checkstring(L, 1);
+		const char *msg = luaL_checkstring(L, 2);
+		execOSCmd(s->actions.cmd, id, msg);
+		execRest(s->actions.url, id, msg);
+	} else if(cfg.debug)
+		publishLog('T', "Notification not sent : $unnamedNotification is disabled");
+	
+	return 0;
+}
+
 static const struct luaL_Reg ModAlertLib [] = {
 	{"RiseAlert", lmRiseAlert},
 	{"RiseAlertSMS", lmRiseAlertREST},	/* compatibility only */
@@ -380,6 +400,8 @@ static const struct luaL_Reg ModAlertLib [] = {
 	{"SendAlertsCounter", lmSendAlertsCounter},
 	{"SendMessage", lmSendNotification},	/* compatibility only */
 	{"SendNotification", lmSendNotification},
+	{"SendMessageSMS", lmSendNotificationREST},	/* compatibility only */
+	{"SendNotificationREST", lmSendNotificationREST},
 	{NULL, NULL}
 };
 #endif
