@@ -5,7 +5,7 @@ Handles **alerts** and **notifications**.
 ## Difference between alerts and notifications
 
 A message is sent for every **notification** received whereas Marcel keeps track of **alerts** state : 
-a message is only sent when an alert is raised or cleared, but it sents only once when an alert is signaled many time without being cleared.
+a message is only sent when an alert is raised or cleared, but it sent only once when an alert is signaled many time without being cleared.
 
 ## Directives accepted by all kind of sections handled by mod_alert
 
@@ -111,3 +111,4 @@ Limitations :
 - **Marcel.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Only `OSCmd=` is triggered.
 - **Marcel.RiseAlertREST( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
 - **Marcel.ClearAlert( *AlertID*, *Message to send* )** - Clear an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+- **Marcel.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined

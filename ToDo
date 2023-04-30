@@ -4,7 +4,6 @@ Missing directives :
 ConnectionLostIsFatal
 
 Missing modules :
-mod_alert : documentation, examples, notification ?
 RFX
 
 -----------
@@ -16,10 +15,12 @@ Exposer dans Lua une API pour accéder au attributs des sections
 ---- Mod_alert
 
 Finir de coder malert_alert_processMQTT(), 
-ajouter l'envoie du compteur avec un argument global.
-Faire le README
 
 Add Lua code to :
 - list alerts
 - raise or clear alerts
 - save / restore alerts (without failure if the file doesn't exist : will save state if Marcel is restarted)
+
+**** How to
+
+mod_alert add Lua function

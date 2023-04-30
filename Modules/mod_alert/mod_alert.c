@@ -335,12 +335,18 @@ static int lmClearAlert(lua_State *L){
 	return 0;
 }
 
+static int lmSendAlertsCounter(lua_State *L){
+	sentAlertsCounter();
+
+	return 0;
+}
 
 static const struct luaL_Reg ModAlertLib [] = {
 	{"RiseAlert", lmRiseAlert},
 	{"RiseAlertSMS", lmRiseAlertREST},
 	{"RiseAlertREST", lmRiseAlertREST},
 	{"ClearAlert", lmClearAlert},
+	{"SendAlertsCounter", lmSendAlertsCounter},
 	{NULL, NULL}
 };
 #endif

@@ -27,7 +27,7 @@ static struct alert *findalert(const char *id){
 	return NULL;
 }
 
-static void sentAlertsCounter( void ){
+void sentAlertsCounter( void ){
 	if(mod_alert.countertopic){
 		unsigned int nbre=0;
 
