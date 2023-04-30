@@ -289,11 +289,12 @@ static int lmRiseAlert(lua_State *L){
 	const char *msg = luaL_checkstring(L, 2);
 	if(RiseAlert(id, msg)){
 		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		if(!s){
+		if(!s)
 			publishLog('E', "No $alert defined");
-			return 0;
-		}
-		execOSCmd(s->actions.cmd, id, msg);
+		else if(!s->section.disabled){
+			execOSCmd(s->actions.cmd, id, msg);
+		} else if(cfg.debug)
+			publishLog('T', "Alert not sent : $alert is disabled");
 	}
 	
 	return 0;
@@ -309,12 +310,13 @@ static int lmRiseAlertREST(lua_State *L){
 	const char *msg = luaL_checkstring(L, 2);
 	if(RiseAlert(id, msg)){
 		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		if(!s){
+		if(!s)
 			publishLog('E', "No $alert defined");
-			return 0;
-		}
-		execOSCmd(s->actions.cmd, id, msg);
-		execRest(s->actions.url, id, msg);
+		else if(!s->section.disabled){
+			execOSCmd(s->actions.cmd, id, msg);
+			execRest(s->actions.url, id, msg);
+		} else if(cfg.debug)
+			publishLog('T', "Alert not sent : $alert is disabled");
 	}
 	
 	return 0;
@@ -333,12 +335,13 @@ static int lmClearAlert(lua_State *L){
 
 	if(AlertIsOver(id,msg)){
 		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		if(!s){
+		if(!s)
 			publishLog('E', "No $alert defined");
-			return 0;
-		}
-		execOSCmd(s->actions.cmd, id, msg);
-		execRest(s->actions.url, id, msg);
+		else if(!s->section.disabled){
+			execOSCmd(s->actions.cmd, id, msg);
+			execRest(s->actions.url, id, msg);
+		} else if(cfg.debug)
+			publishLog('T', "Alert not sent : $alert is disabled");
 	}
 
 	return 0;
