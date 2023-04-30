@@ -15,6 +15,10 @@
 #include "../Marcel/Section.h"
 #include "../Marcel/DList.h"
 
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
+
 extern struct module_alert mod_alert;
 
 struct actions {
@@ -70,6 +74,10 @@ struct module_alert {
 	struct DList alerts;				/* Alerts' list */
 
 	const char *countertopic;			/* Topic to send counter too */
+
+#ifdef LUA
+	struct module_Lua *mod_Lua;
+#endif
 };
 
 extern struct module_alert mod_alert;
@@ -90,6 +98,9 @@ extern bool malert_alert_processMQTT(struct Section *, const char *, char *);
 	 * RaiseAlert
 	 * **/
 extern bool salrt_raisealert_processMQTT(struct Section *, const char *, char *);
+
+bool RiseAlert(const char *id, const char *msg);
+bool AlertIsOver(const char *id, const char *msg);
 
 	/* **
 	 * CorrectAlert

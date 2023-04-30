@@ -104,3 +104,10 @@ will send "*Seems ok*" to notifications **a**, **b** and **c** with "*my title*"
 Limitations :
 - `$namedNotification=` argument is the section name and can be only 1 character long.
 - `$namedNotification=` are not considered as sections and consequently can't be disabled (yet) by **OnOff** module (yet ?)
+
+## Objects exposed to Lua
+### Exposed functions
+
+- **Marcel.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Only `OSCmd=` is triggered.
+- **Marcel.RiseAlertREST( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+- **Marcel.ClearAlert( *AlertID*, *Message to send* )** - Clear an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.

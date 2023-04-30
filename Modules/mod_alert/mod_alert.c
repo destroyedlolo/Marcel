@@ -278,6 +278,73 @@ static bool processMsg(const char *topic, char *payload){
 	return false;
 }
 
+#ifdef LUA
+static int lmRiseAlert(lua_State *L){
+	if(lua_gettop(L) != 2){
+		publishLog('E', "In your Lua code, RiseAlert() requires 2 arguments : title, message");
+		return 0;
+	}
+
+	const char *id = luaL_checkstring(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	if(RiseAlert(id, msg)){
+		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
+		assert(s);	/* this section MUST exist as default one */
+		execOSCmd(s->actions.cmd, id, msg);
+	}
+	
+	return 0;
+}
+
+static int lmRiseAlertREST(lua_State *L){
+	if(lua_gettop(L) != 2){
+		publishLog('E', "In your Lua code, RiseAlertREST() requires 2 arguments : title, message");
+		return 0;
+	}
+
+	const char *id = luaL_checkstring(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	if(RiseAlert(id, msg)){
+		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
+		assert(s);	/* this section MUST exist as default one */
+		execOSCmd(s->actions.cmd, id, msg);
+		execRest(s->actions.url, id, msg);
+	}
+	
+	return 0;
+}
+
+static int lmClearAlert(lua_State *L){
+	if(lua_gettop(L) != 1 && lua_gettop(L) != 2){
+		publishLog('E', "In your Lua code, ClearAlert() requires at least 1 argument : title + optionally message");
+		return 0;
+	}
+
+	const char *id = luaL_checkstring(L, 1);
+	const char *msg = lua_tostring(L, 2);	/* optional message */
+	if(!msg)
+		msg = "";
+
+	if(AlertIsOver(id,msg)){
+		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
+		assert(s);	/* this section MUST exist as default one */
+		execOSCmd(s->actions.cmd, id, msg);
+		execRest(s->actions.url, id, msg);
+	}
+
+	return 0;
+}
+
+
+static const struct luaL_Reg ModAlertLib [] = {
+	{"RiseAlert", lmRiseAlert},
+	{"RiseAlertSMS", lmRiseAlertREST},
+	{"RiseAlertREST", lmRiseAlertREST},
+	{"ClearAlert", lmClearAlert},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_alert, "mod_alert");
 
@@ -294,4 +361,14 @@ void InitModule( void ){
 	mod_alert.countertopic = NULL;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
+
+#ifdef LUA
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
+		mod_alert.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+			/* Expose mod_alert's own function */
+		mod_alert.mod_Lua->exposeFunctions("Marcel", ModAlertLib);
+	}
+#endif
 }

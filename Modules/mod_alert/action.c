@@ -74,9 +74,11 @@ void execRest(const char *url, const char *title, const char *msg){
 		}
 
 		CURLcode res;
-		char *emsg, *etitle;
+		char *etitle;
+		char *emsg = curl_easy_escape(curl,msg,0);
+
 		char aurl[ strlen(url) + 
-			nbrem * strlen( emsg=curl_easy_escape(curl,msg,0) ) +
+			nbrem * (emsg ? strlen(emsg) : strlen("(empty)")) +
 			nbret * strlen( etitle=curl_easy_escape(curl,title,0) ) + 1
 		];
 
@@ -90,7 +92,7 @@ void execRest(const char *url, const char *title, const char *msg){
 				if(!strncmp(p, "%t%",3))
 					what = etitle;
 				else if(!strncmp(p, "%m%",3))
-					what = emsg;
+					what = emsg ? emsg : "(empty)";
 			}
 
 			if(what){	/* we got a token */
