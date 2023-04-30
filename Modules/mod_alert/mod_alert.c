@@ -289,7 +289,10 @@ static int lmRiseAlert(lua_State *L){
 	const char *msg = luaL_checkstring(L, 2);
 	if(RiseAlert(id, msg)){
 		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		assert(s);	/* this section MUST exist as default one */
+		if(!s){
+			publishLog('E', "No $alert defined");
+			return 0;
+		}
 		execOSCmd(s->actions.cmd, id, msg);
 	}
 	
@@ -354,13 +357,14 @@ static int lmSendNotification(lua_State *L){
 	}
 
 	struct section_alert *s = (struct section_alert *)findSectionByName("$unnamedNotification");
-	if(!s){
+	if(!s)
 		publishLog('E', "No $unnamedNotification defined");
-		return 0;
-	}
-	const char *id = luaL_checkstring(L, 1);
-	const char *msg = luaL_checkstring(L, 2);
-	execOSCmd(s->actions.cmd, id, msg);
+	else if(!s->section.disabled){
+		const char *id = luaL_checkstring(L, 1);
+		const char *msg = luaL_checkstring(L, 2);
+		execOSCmd(s->actions.cmd, id, msg);
+	} else if(cfg.debug)
+		publishLog('T', "Notification not sent : $unnamedNotification is disabled");
 	
 	return 0;
 }
