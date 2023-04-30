@@ -306,7 +306,10 @@ static int lmRiseAlertREST(lua_State *L){
 	const char *msg = luaL_checkstring(L, 2);
 	if(RiseAlert(id, msg)){
 		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		assert(s);	/* this section MUST exist as default one */
+		if(!s){
+			publishLog('E', "No $alert defined");
+			return 0;
+		}
 		execOSCmd(s->actions.cmd, id, msg);
 		execRest(s->actions.url, id, msg);
 	}
@@ -327,7 +330,10 @@ static int lmClearAlert(lua_State *L){
 
 	if(AlertIsOver(id,msg)){
 		struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-		assert(s);	/* this section MUST exist as default one */
+		if(!s){
+			publishLog('E', "No $alert defined");
+			return 0;
+		}
 		execOSCmd(s->actions.cmd, id, msg);
 		execRest(s->actions.url, id, msg);
 	}
@@ -341,12 +347,32 @@ static int lmSendAlertsCounter(lua_State *L){
 	return 0;
 }
 
+static int lmSendNotification(lua_State *L){
+	if(lua_gettop(L) != 2){
+		publishLog('E', "In your Lua code, SendNotification() requires 2 arguments : title and message");
+		return 0;
+	}
+
+	struct section_alert *s = (struct section_alert *)findSectionByName("$unnamedNotification");
+	if(!s){
+		publishLog('E', "No $unnamedNotification defined");
+		return 0;
+	}
+	const char *id = luaL_checkstring(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	execOSCmd(s->actions.cmd, id, msg);
+	
+	return 0;
+}
+
 static const struct luaL_Reg ModAlertLib [] = {
 	{"RiseAlert", lmRiseAlert},
-	{"RiseAlertSMS", lmRiseAlertREST},
+	{"RiseAlertSMS", lmRiseAlertREST},	/* compatibility only */
 	{"RiseAlertREST", lmRiseAlertREST},
 	{"ClearAlert", lmClearAlert},
 	{"SendAlertsCounter", lmSendAlertsCounter},
+	{"SendMessage", lmSendNotification},	/* compatibility only */
+	{"SendNotification", lmSendNotification},
 	{NULL, NULL}
 };
 #endif
