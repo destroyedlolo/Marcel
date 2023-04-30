@@ -71,15 +71,6 @@ static int lmCopyright(lua_State *L){
 }
 
 const struct luaL_Reg MarcelLib [] = {
-#if 0
-	{"SendNamedMessage", lmSendNMsg},
-	{"SendMessage", lmSendMsg},
-	{"SendMessageSMS", lmSendMsgSMS},
-	{"RiseAlert", lmRiseAlert},		/* ... and send only a mail */
-	{"RiseAlertSMS", lmRiseAlertSMS},	/* ... and send both a mail and a SMS */
-	{"ClearAlert", lmClearAlert},
-	{"SendAlertsCounter", lmSendAlertsCounter},
-#endif
 	{"MQTTPublish", lmPublish},
 	{"Shutdown", lmShutdown},
 	{"Log", lmLog},
