@@ -108,7 +108,13 @@ Limitations :
 ## Objects exposed to Lua
 ### Exposed functions
 
+#### Legacy reporting
 - **Marcel.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Only `OSCmd=` is triggered.
 - **Marcel.RiseAlertREST( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
 - **Marcel.ClearAlert( *AlertID*, *Message to send* )** - Clear an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+
+- **Marcel.SendNotification( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Only `OSCmd=` is triggered.
+- **Marcel.SendNotificationREST( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+
+#### Misc
 - **Marcel.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined

@@ -117,7 +117,7 @@ bool malert_alert_processMQTT(struct Section *asec, const char *topic, char *pay
 				}
 			}
 		} else if(cfg.debug)
-			publishLog('T', "[%s] is disabled", s->section.uid);
+			publishLog('d', "[%s] is disabled", s->section.uid);
 		return true;
 	}
 
