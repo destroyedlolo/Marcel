@@ -66,6 +66,11 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
+		if(*arg == '/'){
+			publishLog('F', "[%s] \"$namedNotification=\"'s name can't be a slash", arg);
+			exit(EXIT_FAILURE);
+		}
+
 		if(findNamed(*arg)){
 			publishLog('F', "\"$namedNotification=%c\" is already defined", *arg);
 			exit(EXIT_FAILURE);
@@ -250,28 +255,9 @@ static bool processMsg(const char *topic, char *payload){
 
 		if(!title)
 			publishLog('E', "Received named notification \"%s\" without title : ignoring", arg);
-		else {
-			while(arg < title){
-				char sec = *arg++;
-				struct namednotification *n = findNamed(sec);
-				publishLog('T', "Received named notification \"%c\" (%s) title \"%s\"", sec, n ? "found":"unknown", title+1);
+		else 
+			pnNotify(arg, ++title, payload);
 
-				if(n){
-					if(n->disabled){
-#ifdef DEBUG
-						if(cfg.debug)
-							publishLog('d', "Named notification \"%c\" is disabled", n->name);
-#endif
-						continue;
-					}
-
-					if(n->actions.cmd)
-						execOSCmd(n->actions.cmd, title+1, payload);
-					if(n->actions.url)
-						execRest(n->actions.url, title+1, payload);
-				}
-			}
-		}
 		return true;	/* Even if notification are unknown, we processed the message */
 	}
 
@@ -392,6 +378,21 @@ static int lmSendNotificationREST(lua_State *L){
 	return 0;
 }
 
+static int lmSendNamedNotification(lua_State *L){
+	if(lua_gettop(L) != 3){
+		publishLog('E', "In your Lua code, SendNamedNotification() requires 3 arguments : Alerts' names, title and message");
+		return 0;
+	}
+
+	const char *names = luaL_checkstring(L, 1);
+	const char *topic = luaL_checkstring(L, 2);
+	const char *msg = luaL_checkstring(L, 3);
+	pnNotify( names, topic, msg );
+	
+	return 0;
+
+}
+
 static const struct luaL_Reg ModAlertLib [] = {
 	{"RiseAlert", lmRiseAlert},
 	{"RiseAlertSMS", lmRiseAlertREST},	/* compatibility only */
@@ -402,6 +403,8 @@ static const struct luaL_Reg ModAlertLib [] = {
 	{"SendNotification", lmSendNotification},
 	{"SendMessageSMS", lmSendNotificationREST},	/* compatibility only */
 	{"SendNotificationREST", lmSendNotificationREST},
+	{"SendNamedMessage", lmSendNamedNotification},	/* compatibility only */
+	{"SendNamedNotification", lmSendNamedNotification},
 	{NULL, NULL}
 };
 #endif

@@ -74,3 +74,29 @@ struct namednotification *findNamed(const char n){
 
 	return NULL;
 }
+
+void pnNotify(const char *names, const char *title, const char *payload){
+	char sec;
+	while(( sec=*names++ )){
+		if(sec=='/')	/* in order to process nNotification/ message */
+			break;
+
+		struct namednotification *n = findNamed(sec);
+		publishLog('T', "Received named notification \"%c\" (%s) title \"%s\"", sec, n ? "found":"unknown", title);
+
+		if(n){
+			if(n->disabled){
+#ifdef DEBUG
+				if(cfg.debug)
+					publishLog('d', "Named notification \"%c\" is disabled", n->name);
+#endif
+				continue;
+			}
+
+			if(n->actions.cmd)
+				execOSCmd(n->actions.cmd, title, payload);
+			if(n->actions.url)
+				execRest(n->actions.url, title, payload);
+		}
+	}
+}

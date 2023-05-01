@@ -116,5 +116,9 @@ Limitations :
 - **Marcel.SendNotification( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Only `OSCmd=` is triggered.
 - **Marcel.SendNotificationREST( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
 
+#### Named reporting
+
+- **Marcel.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per provided names
+
 #### Misc
 - **Marcel.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined

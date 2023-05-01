@@ -112,6 +112,7 @@ extern bool salrt_correctalert_processMQTT(struct Section *, const char *, char 
 	 * Named notification
 	 * **/
 extern struct namednotification *findNamed(const char );
+extern void pnNotify(const char *names, const char *title, const char *msg);
 
 	/* **
 	 * Actions
