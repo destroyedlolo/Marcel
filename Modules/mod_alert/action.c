@@ -48,7 +48,7 @@ void execOSCmd(const char *cmd, const char *id, const char *msg){
 		perror("popen()");
 		return;
 	}
-	fputs(msg, f);
+	fputs(msg ? msg : "(empty)", f);
 	fclose(f);
 }
 
@@ -75,7 +75,7 @@ void execRest(const char *url, const char *title, const char *msg){
 
 		CURLcode res;
 		char *etitle;
-		char *emsg = curl_easy_escape(curl,msg,0);
+		char *emsg = msg ? curl_easy_escape(curl,msg,0) : NULL;
 
 		char aurl[ strlen(url) + 
 			nbrem * (emsg ? strlen(emsg) : strlen("(empty)")) +

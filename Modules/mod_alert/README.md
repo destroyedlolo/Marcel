@@ -118,6 +118,8 @@ Limitations :
 
 #### Named reporting
 
+- **Marcel.RiseAlert( *AlertID*, *Message to send*, *name* )** - Raise an alert as it was received on *name* `\*RaiseAlert=` topic.
+- **Marcel.ClearAlert( *AlertID*, *Message to send*, *name* )** - Clear an alert as it was received on *name* `\*CorrectAlert=` topic.
 - **Marcel.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per provided names
 
 #### Misc

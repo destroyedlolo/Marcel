@@ -266,21 +266,40 @@ static bool processMsg(const char *topic, char *payload){
 
 #ifdef LUA
 static int lmRiseAlert(lua_State *L){
-	if(lua_gettop(L) != 2){
-		publishLog('E', "In your Lua code, RiseAlert() requires 2 arguments : title, message");
+	struct section_alert *s;
+	const char *sname;
+	uint8_t type;
+
+	switch(lua_gettop(L)){
+	case 2:
+		sname = "$alert";
+		type = SA_ALERT;
+		break;
+	case 3:
+		sname = luaL_checkstring(L, 3);
+		type = SA_RAISE;
+		break;
+	default:
+		publishLog('E', "In your Lua code, RiseAlert() requires 2 or 3 arguments : title, message [,name]");
 		return 0;
 	}
 
-	struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-	if(!s)
-		publishLog('E', "No $alert defined");
-	else if(!s->section.disabled){
+	if(!(s = (struct section_alert *)findSectionByName(sname))){
+		publishLog('E', "[%s] not defined", sname);
+		return 0;
+	} else if(s->section.id != (type << 8 | mod_alert.module.module_index)){
+		publishLog('E', "RaiseAlert() : A section is named '%s' but it's not an %s definition", sname, type == SA_ALERT ? "alert" : "RaiseAlert");
+		return 0;
+	} else if(!s->section.disabled){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = luaL_checkstring(L, 2);
-		if(RiseAlert(id, msg))
+		if(RiseAlert(id, msg)){
 			execOSCmd(s->actions.cmd, id, msg);
+			if(type == SA_RAISE)
+				execRest(s->actions.url, id, msg);
+		}
 	} else if(cfg.debug)
-		publishLog('T', "Alert ignored : $alert is disabled");
+		publishLog('T', "Alert ignored : [%s] is disabled", sname);
 	
 	return 0;
 }
@@ -308,28 +327,41 @@ static int lmRiseAlertREST(lua_State *L){
 }
 
 static int lmClearAlert(lua_State *L){
-	if(lua_gettop(L) != 1 && lua_gettop(L) != 2){
-		publishLog('E', "In your Lua code, ClearAlert() requires at least 1 argument : title + optionally message");
+	struct section_alert *s;
+	const char *sname;
+	uint8_t type;
+
+	switch(lua_gettop(L)){
+	case 1:
+	case 2:
+		sname = "$alert";
+		type = SA_ALERT;
+		break;
+	case 3:
+		sname = luaL_checkstring(L, 3);
+		type = SA_CORRECT;
+		break;
+	default:
+		publishLog('E', "In your Lua code, ClearAlert() requires 1 to 3 arguments : title [, message [,name]]");
 		return 0;
 	}
 
-	struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
-	if(!s)
-		publishLog('E', "No $alert defined");
-	else if(!s->section.disabled){
+	if(!(s = (struct section_alert *)findSectionByName(sname))){
+		publishLog('E', "[%s] not defined", sname);
+		return 0;
+	} else if(s->section.id != (type << 8 | mod_alert.module.module_index)){
+		publishLog('E', "ClearAlert() : A section is named '%s' but it's not an %s definition", sname, type == SA_ALERT ? "alert" : "CorrectAlert");
+		return 0;
+	} else if(!s->section.disabled){
 		const char *id = luaL_checkstring(L, 1);
-		const char *msg = luaL_checkstring(L, 2);
-		
-		if(!msg)
-			msg = "";
-
+		const char *msg = lua_tostring(L, 2);
 		if(AlertIsOver(id, msg)){
 			execOSCmd(s->actions.cmd, id, msg);
 			execRest(s->actions.url, id, msg);
 		}
 	} else if(cfg.debug)
 		publishLog('T', "Alert ignored : $alert is disabled");
-	
+
 	return 0;
 }
 
