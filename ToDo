@@ -17,11 +17,8 @@ Exposer dans Lua une API pour accéder au attributs des sections
 
 ---- Mod_alert
 
-Finir de coder malert_alert_processMQTT(), 
-
 Add Lua code to :
 - list alerts
-- raise or clear alerts
 - save / restore alerts (without failure if the file doesn't exist : will save state if Marcel is restarted)
 
 **** How to
