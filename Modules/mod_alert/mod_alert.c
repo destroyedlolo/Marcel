@@ -265,7 +265,7 @@ static bool processMsg(const char *topic, char *payload){
 }
 
 #ifdef LUA
-static int lmRiseAlert(lua_State *L){
+static int amRiseAlert(lua_State *L){
 	struct section_alert *s;
 	const char *sname;
 	uint8_t type;
@@ -304,7 +304,7 @@ static int lmRiseAlert(lua_State *L){
 	return 0;
 }
 
-static int lmRiseAlertREST(lua_State *L){
+static int amRiseAlertREST(lua_State *L){
 	if(lua_gettop(L) != 2){
 		publishLog('E', "In your Lua code, RiseAlertREST() requires 2 arguments : title, message");
 		return 0;
@@ -326,7 +326,7 @@ static int lmRiseAlertREST(lua_State *L){
 	return 0;
 }
 
-static int lmClearAlert(lua_State *L){
+static int amClearAlert(lua_State *L){
 	struct section_alert *s;
 	const char *sname;
 	uint8_t type;
@@ -365,13 +365,13 @@ static int lmClearAlert(lua_State *L){
 	return 0;
 }
 
-static int lmSendAlertsCounter(lua_State *L){
+static int amSendAlertsCounter(lua_State *L){
 	sentAlertsCounter();
 
 	return 0;
 }
 
-static int lmSendNotification(lua_State *L){
+static int amSendNotification(lua_State *L){
 	if(lua_gettop(L) != 2){
 		publishLog('E', "In your Lua code, SendNotification() requires 2 arguments : title and message");
 		return 0;
@@ -390,7 +390,7 @@ static int lmSendNotification(lua_State *L){
 	return 0;
 }
 
-static int lmSendNotificationREST(lua_State *L){
+static int amSendNotificationREST(lua_State *L){
 	if(lua_gettop(L) != 2){
 		publishLog('E', "In your Lua code, SendNotification() requires 2 arguments : title and message");
 		return 0;
@@ -410,7 +410,7 @@ static int lmSendNotificationREST(lua_State *L){
 	return 0;
 }
 
-static int lmSendNamedNotification(lua_State *L){
+static int amSendNamedNotification(lua_State *L){
 	if(lua_gettop(L) != 3){
 		publishLog('E', "In your Lua code, SendNamedNotification() requires 3 arguments : Alerts' names, title and message");
 		return 0;
@@ -426,17 +426,18 @@ static int lmSendNamedNotification(lua_State *L){
 }
 
 static const struct luaL_Reg ModAlertLib [] = {
-	{"RiseAlert", lmRiseAlert},
-	{"RiseAlertSMS", lmRiseAlertREST},	/* compatibility only */
-	{"RiseAlertREST", lmRiseAlertREST},
-	{"ClearAlert", lmClearAlert},
-	{"SendAlertsCounter", lmSendAlertsCounter},
-	{"SendMessage", lmSendNotification},	/* compatibility only */
-	{"SendNotification", lmSendNotification},
-	{"SendMessageSMS", lmSendNotificationREST},	/* compatibility only */
-	{"SendNotificationREST", lmSendNotificationREST},
-	{"SendNamedMessage", lmSendNamedNotification},	/* compatibility only */
-	{"SendNamedNotification", lmSendNamedNotification},
+	{"RiseAlert", amRiseAlert},
+	{"RiseAlertSMS", amRiseAlertREST},	/* compatibility only */
+	{"RiseAlertREST", amRiseAlertREST},
+	{"ClearAlert", amClearAlert},
+	{"SendAlertsCounter", amSendAlertsCounter},
+	{"SendMessage", amSendNotification},	/* compatibility only */
+	{"SendNotification", amSendNotification},
+	{"SendMessageSMS", amSendNotificationREST},	/* compatibility only */
+	{"SendNotificationREST", amSendNotificationREST},
+	{"SendNamedMessage", amSendNamedNotification},	/* compatibility only */
+	{"SendNamedNotification", amSendNamedNotification},
+/*	{"ListAlert", amListAlert}, */
 	{NULL, NULL}
 };
 #endif
