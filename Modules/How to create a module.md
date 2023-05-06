@@ -23,14 +23,14 @@ Upwards compatibility is not guaranteed, even if the best is done to avoid big b
 
 ### Shared objects
 
-Modules technically are .so shared object that will be loaded on demand using Marcel's `LoadModule=` directive. It's look only for `InitModule()` entry point to initialize module's internal structure : other exchanges are done using **callbacks**.
+Modules technically are shared object (.so) that will be loaded on demand using Marcel's `LoadModule=` directive. The only exposed entry point is `InitModule()` which initialize module's internal structure : other exchanges are done using **callbacks**.
 
 The added value of this kind of architecture (*inspired by the way Amiga's libraries*) is to avoid tight links between Marcel's own code and modules, as it would be the case with classical Linux shared libraries.
 
 ### Golden rules
 
 Following guidelines need to be kept in mind when creating a module :
-- no inter-module sharing : there is no need to share anything between modules (no shared global variable, no call to other module functions, ...). The only exception is **mod_lua** and all exchanges is done using callbacks.
+- no inter-module sharing : there is no need to share anything between modules (no global variable, no cross module functions, ...). The only exception is **mod_lua** and all exchanges is done using callbacks as well.
 - avoid blocking long processing
 - be resource conservative
 - provide a module level `README.md` to document the module
@@ -49,11 +49,11 @@ mkdir Modules/mod_dummy
 
 ### Update Makefile creation script (remake.sh)
 
-**remake.sh** is a shell script where you can configure which modules have to be built and update Makefiles accordingly. Several sections need to be updated.
+**remake.sh** is a shell script where you can configure which modules have to be built and updates Makefiles accordingly. Several sections need to be updated as bellow.
 
 #### Configuration area
 
-The **Configuration area** is where you can tell `remake.sh` which modules need to be compiled or not.
+The **Configuration area** is where you can tell `remake.sh` which modules to build.
 
 ```
 # Example plugin
@@ -67,7 +67,7 @@ This part contains general build options like compiler flags, where to find exte
 
 #### Rebuild Makefiles
 
-Each `mod_` directory contains its own Makefile. This section only adds the module's own Makefile into the global one. That is, a `make` from the project's home directory will build all modules as well.
+Each `mod_` directory contains its own Makefile. This section only adds them into the global one. That is, a `make` from the project's home directory will build all modules as well.
 
 ```
 if [ ${BUILD_DUMMY+x} ]; then
