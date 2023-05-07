@@ -37,6 +37,7 @@ struct Section {
 	bool keep;				/* Stay alive in cas of failure */
 	double sample;			/* sample rate or delay */
 	bool immediate;			/* run it immediately */
+	bool quiet;				/* this section will not produce log */
 
 		/* Lua callbacks
 		 * (only applicable to some sections)

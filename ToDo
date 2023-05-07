@@ -3,6 +3,9 @@ Verify that Disable is working for all kinds of section
 	Done for :
 		- mod_alert
 
+Quiet is working only for *RaiseAlert=.
+In the future, it may be used to avoid logging some section.
+
 Missing directives :
 ConnectionLostIsFatal
 
