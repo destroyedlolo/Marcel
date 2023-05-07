@@ -86,3 +86,47 @@ if [ ${BUILD_DUMMY+x} ]; then
 	cd ../..
 fi
 ```
+
+### Module header (.h)
+
+The C header defines all objects and interfaces belonging to a module.
+
+#### includes
+
+Most of shared include files are stored in `Marcel` directory. Our dummy module needs
+- `#include "../Marcel/Module.h"` modules' handler
+- `#include "../Marcel/Section.h"` we want to define custom sections
+
+#### module structure
+
+```
+struct module_dummy {
+	struct Module module;
+```
+Each module definition **must** start with a *module handler structure*, which contains important information like its name and callbacks.
+
+In addition, it may contain some custom fields used to store module's parameters, internal status, etc ... Our dummy module will create 2 fields :
+
+```
+	int test;	/* variable containing interesting stuffs for the module */
+	bool flag;
+};
+```
+
+#### section structure
+
+Our dummy module can handle 2 sections, impersonated by dedicated structures.
+
+```
+struct section_dummy {
+	struct Section section;
+```
+
+Again, they must start with a section handler to store its name, internal technical stuffs and configuration fields usable among all sections (as `disabled`).
+
+It may contain as well some custom fields.
+```
+		/* Variables dedicated to this structure */
+	int dummy;
+}
+```
