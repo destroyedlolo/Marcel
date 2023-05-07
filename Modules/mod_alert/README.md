@@ -34,7 +34,7 @@ A typical use case is a regular monitoring (*let say regarding a fridge temperat
 
 ### Accepted global directives
 
-* **AlertsCounterTopic=** if set, send number of alerts everytime an alert is raised or cleared.
+* **AlertsCounterTopic=** if set, send number of alerts every time an alert is raised or cleared.
 
 Example :
 `AlertsCounterTopic=%ClientID%/AlertsCounter`
@@ -111,7 +111,7 @@ will send "*Seems ok*" to notifications **a**, **b** and **c** with "*my title*"
 
 Limitations :
 - `$namedNotification=` argument is the section name and can be only 1 character long.
-- `$namedNotification=` are not considered as sections and consequently can't be disabled (yet) by **OnOff** module (yet ?)
+- `$namedNotification=` are not considered as sections and consequently can't be disabled by **OnOff** module (yet ?)
 
 ## Objects exposed to Lua
 ### Exposed functions

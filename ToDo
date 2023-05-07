@@ -5,6 +5,8 @@ Verify that Disable is working for all kinds of section
 
 Quiet is working only for *RaiseAlert=.
 In the future, it may be used to avoid logging some section.
+(about other alert section, I'm not sure it's useful as will disable as well
+sending to 'Error' and 'Corrected' topics)
 
 Missing directives :
 ConnectionLostIsFatal
