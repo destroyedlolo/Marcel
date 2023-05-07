@@ -33,3 +33,8 @@ $alert
 	OSCmd=echo '"%t%" corrected'
 	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Corrected
 #	Disabled
+
+# This one is only used to load previously saved alert
+# but without sending any notification
+*RaiseAlert=silent
+	Quiet

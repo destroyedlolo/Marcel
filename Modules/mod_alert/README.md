@@ -66,7 +66,15 @@ Only one can exist and is impersonated by a "*$alert*" section (if needed to be 
 
 Several \*RaiseAlert= and \*CorrectAlert= sections could coexist : it's allowing different actions to trigger, but again, there is no segregation between alerts, every \*CorrectAlert= can clear an alert raised by any \*RaiseAlert= or even $alert.
 
-**Topic=** directive indicates which is the topic to listen to.
+##### Directives accepted by both \*RaiseAlert= and \*CorrectAlert=
+
+- **Topic=** directive indicates which is the topic to listen to.
+
+##### Directives accepted only by \*RaiseAlert=
+
+- **Quiet** directive indicates it's a **special** section without topic and
+action commands defined. This section is useful to raise an alert (i.e. while loading a backup at restart) without sending messages.
+
 ## Notifications
 
 A message is sent for every **notification** received. So, if not correctly configured upstream, you may be spammed by zillion of message. Consequently, **notifications** aim is to report transitions' changes or punctual events.

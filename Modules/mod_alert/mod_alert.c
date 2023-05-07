@@ -230,6 +230,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Quiet") )
+			return true;	/* Accepted */
 	}
 
 	return false;
@@ -293,7 +295,7 @@ static int amRiseAlert(lua_State *L){
 	} else if(!s->section.disabled){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = luaL_checkstring(L, 2);
-		if(RiseAlert(id, msg)){
+		if(RiseAlert(id, msg, s->section.quiet)){
 			execOSCmd(s->actions.cmd, id, msg);
 			if(type == SA_RAISE)
 				execRest(s->actions.url, id, msg);
@@ -316,7 +318,7 @@ static int amRiseAlertREST(lua_State *L){
 	else if(!s->section.disabled){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = luaL_checkstring(L, 2);
-		if(RiseAlert(id, msg)){
+		if(RiseAlert(id, msg, s->section.quiet)){
 			execOSCmd(s->actions.cmd, id, msg);
 			execRest(s->actions.url, id, msg);
 		}
@@ -355,7 +357,7 @@ static int amClearAlert(lua_State *L){
 	} else if(!s->section.disabled){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = lua_tostring(L, 2);
-		if(AlertIsOver(id, msg)){
+		if(AlertIsOver(id, msg, s->section.quiet)){
 			execOSCmd(s->actions.cmd, id, msg);
 			execRest(s->actions.url, id, msg);
 		}

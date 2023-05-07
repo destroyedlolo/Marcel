@@ -99,8 +99,8 @@ extern bool malert_alert_processMQTT(struct Section *, const char *, char *);
 	 * **/
 extern bool salrt_raisealert_processMQTT(struct Section *, const char *, char *);
 
-extern bool RiseAlert(const char *id, const char *msg);
-extern bool AlertIsOver(const char *id, const char *msg);
+extern bool RiseAlert(const char *id, const char *msg, bool quiet);
+extern bool AlertIsOver(const char *id, const char *msg, bool quiet);
 extern void sentAlertsCounter( void );
 
 	/* **

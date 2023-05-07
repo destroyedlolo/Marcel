@@ -43,7 +43,7 @@ void sentAlertsCounter( void ){
 	}
 }
 
-bool RiseAlert(const char *id, const char *msg){
+bool RiseAlert(const char *id, const char *msg, bool quiet){
 	struct alert *an = findalert(id);
 
 	if(!an){	/* Creating a new alert */
@@ -51,7 +51,8 @@ bool RiseAlert(const char *id, const char *msg){
 		assert( (an->alert = strdup( id )) );
 		DLAdd( &mod_alert.alerts, (struct DLNode *)an );
 
-		publishLog('E', "[%s] New alert : %s", id, msg);
+		if(!quiet)
+			publishLog('E', "[%s] New alert : %s", id, msg);
 
 		sentAlertsCounter();
 		return true;
@@ -59,7 +60,7 @@ bool RiseAlert(const char *id, const char *msg){
 	return false;
 }
 
-bool AlertIsOver(const char *id, const char *msg){
+bool AlertIsOver(const char *id, const char *msg, bool quiet){
 	struct alert *an = findalert(id);
 
 	if(an){	/* The alert exists */
@@ -67,7 +68,8 @@ bool AlertIsOver(const char *id, const char *msg){
 		free( (void *)an->alert );
 		free( an );
 
-		publishLog('C', "[%s] Corrected : %s", id, msg);
+		if(!quiet)
+			publishLog('C', "[%s] Corrected : %s", id, msg);
 
 		sentAlertsCounter();
 		return true;
@@ -82,17 +84,17 @@ bool AlertIsOver(const char *id, const char *msg){
 void malert_postconfInit(struct Section *asec){
 	struct section_alert *s = (struct section_alert *)asec;	/* avoid lot of casting */
 
-	if( !s->actions.url && !s->actions.cmd ){
+	if(!s->section.quiet && !s->actions.url && !s->actions.cmd){
 		publishLog('F', "[%s]Both 'RESTUrl=' and 'OSCmd=' are missing.", s->section.uid);
 		exit(EXIT_FAILURE);
 	}
 
-	if(!s->section.topic){
+	if(!s->section.quiet && !s->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
 		exit(EXIT_FAILURE);
 	}
 
-	if( MQTTClient_subscribe( cfg.client, s->section.topic, 0) != MQTTCLIENT_SUCCESS ){
+	if(s->section.topic && MQTTClient_subscribe( cfg.client, s->section.topic, 0) != MQTTCLIENT_SUCCESS){
 		publishLog('F', "[%s]Can't subscribe to '%s'", s->section.uid, s->section.topic);
 		exit(EXIT_FAILURE);
 	}
@@ -105,13 +107,13 @@ bool malert_alert_processMQTT(struct Section *asec, const char *topic, char *pay
 	if((id = striKWcmp(topic, "Alert/"))){	/* Legacy interface, topic hardcoded */
 		if(!s->section.disabled){
 			if(*payload == 'S' || *payload == 's' ){	/* Rise an alert */
-				if(RiseAlert(id, payload+1)){
+				if(RiseAlert(id, payload+1, s->section.quiet)){
 					execOSCmd(s->actions.cmd, id, payload+1);
 					if(*payload == 'S')
 						execRest(s->actions.url, id, payload+1);
 				}
 			} else {	/* Alert's over */
-				if(AlertIsOver(id, payload)){
+				if(AlertIsOver(id, payload, s->section.quiet)){
 					execOSCmd(s->actions.cmd, id, payload);
 					execRest(s->actions.url, id, payload);
 				}
@@ -129,7 +131,7 @@ bool salrt_raisealert_processMQTT(struct Section *asec, const char *topic, char 
 	const char *id;
 
 	if(!mqtttokcmp(s->section.topic, topic, &id)){
-		if(RiseAlert(id, payload)){
+		if(RiseAlert(id, payload, s->section.quiet)){
 			execOSCmd(s->actions.cmd, id, payload);
 			execRest(s->actions.url, id, payload);
 		}
@@ -144,7 +146,7 @@ bool salrt_correctalert_processMQTT(struct Section *asec, const char *topic, cha
 	const char *id;
 
 	if(!mqtttokcmp(s->section.topic, topic, &id)){
-		if(AlertIsOver(id, payload)){
+		if(AlertIsOver(id, payload, s->section.quiet)){
 			execOSCmd(s->actions.cmd, id, payload);
 			execRest(s->actions.url, id, payload);
 		}
