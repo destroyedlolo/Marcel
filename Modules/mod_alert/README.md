@@ -125,3 +125,6 @@ Limitations :
 #### Misc
 - **Marcel.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined
 - **Marcel.ListAlert()** - Generate a list of all alerts' name.
+
+Notez-bien : ListAlert() is pushing a string per alert, which is not the best way to handle a large amount (but we are not expecting zillion alerts at a time, do we ?). The reason not to use an iterator is it would need to lock alerts list during iterating. It may lead to alert in race condition. 
+Have a look in `Config/scripts` directory for an example how to save/restore alerts list.
