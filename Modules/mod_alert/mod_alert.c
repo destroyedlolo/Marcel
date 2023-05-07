@@ -425,6 +425,17 @@ static int amSendNamedNotification(lua_State *L){
 
 }
 
+static int amListAlert(lua_State *L){
+	int n=0;
+
+	for(struct alert *an = (struct alert *)mod_alert.alerts.first; an; an = (struct alert *)an->node.next){
+		lua_pushstring(L, an->alert);
+		n++;
+	}
+
+	return n;
+}
+
 static const struct luaL_Reg ModAlertLib [] = {
 	{"RiseAlert", amRiseAlert},
 	{"RiseAlertSMS", amRiseAlertREST},	/* compatibility only */
@@ -437,7 +448,7 @@ static const struct luaL_Reg ModAlertLib [] = {
 	{"SendNotificationREST", amSendNotificationREST},
 	{"SendNamedMessage", amSendNamedNotification},	/* compatibility only */
 	{"SendNamedNotification", amSendNamedNotification},
-/*	{"ListAlert", amListAlert}, */
+	{"ListAlert", amListAlert},
 	{NULL, NULL}
 };
 #endif

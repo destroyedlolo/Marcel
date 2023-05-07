@@ -124,3 +124,4 @@ Limitations :
 
 #### Misc
 - **Marcel.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined
+- **Marcel.ListAlert()** - Generate a list of all alerts' name.
