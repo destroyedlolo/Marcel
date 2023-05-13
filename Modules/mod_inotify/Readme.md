@@ -17,14 +17,13 @@ Send notification when a directory content changes. Also applicable to a single 
 
 ### Accepted directives
 
-* **Func=** Acceptance function
 * **Topic=** Topic to publish to
 * **On=** Directory (or file) to watch
 * **For=** *Actions* we are looking for
   * **create** File creation
   * **remove** File removal
   * **modify** A file has been modified
-* **Func=** Acceptation function
+* **Func=** Acceptation function (**mod_Lua** needed)
 * **Retained** submitted as retained message
 * **Disabled** This section is disabled when Marcel's starting
 
