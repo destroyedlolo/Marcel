@@ -9,7 +9,7 @@ none
 
 * **Topic=** Topic to listen to
 * **File=** target file that where received data are written to
-* **Func=** user validation function (see below)
+* **Func=** user validation function (see below, **mod_Lua** needed))
 * **Disabled** start this section disabled
 
 ## User function
