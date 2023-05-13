@@ -1,6 +1,6 @@
 # mod_every
 
-Repeating tasks
+Repeating tasks (**mod_Lua** is obviously required).
 
 ### Global directives
 none
@@ -9,7 +9,7 @@ none
 Repeat a function *every* seconds.
 
 ### Directives
-* **Sample=** Number of seconds between samples, in seconds
+* **Sample=** Number of seconds between launch, in seconds
 * **Func=** Function to execute
 * **Topic=** passed as argument (see bellow) [optional]
 * **Immediate** Execute at startup (or when the section is enabled) then wait for *sample* seconds [optional]
@@ -32,4 +32,4 @@ Launch a function at the given time, daily.
 
 ## Example
 
-An example is provided in `Config` sub directory of the current one
+An example is provided in `Config` subdirectory
