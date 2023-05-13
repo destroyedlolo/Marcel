@@ -12,14 +12,14 @@ taken into account.
 
 *Float value exposed as a file*.<br>
 Mostly provided for 1-wire probes but can be used for any value exposed as a file 
-(like motherboard's health probes). In such case, 1-wire only options are useless. In addition, a function
-callback can be used to parse complex files.
+(like motherboard's health probes). In addition, a function
+callback can be used to parse complex files (needs **mod_Lua**).
 
 ### Accepted directives
 
-* **File=** Where the probe is exposed
-* **Func=** Acceptance function
-* **FailFunc=** Callback in case of technical failure
+* **File=** Where the probe is exposed, file to read
+* **Func=** Acceptance function (**mod_Lua** needed)
+* **FailFunc=** Callback in case of technical failure (**mod_Lua** needed)
 * **Topic=** Topic to publish to
 * **Retained** submitted as retained message
 * **Offset=** offset to add to temperature value (*for calibration purpose*)
@@ -39,9 +39,9 @@ Like FFV but value is read only when the probe is in alarm status
 
 * **File=** Where the probe is exposed
 * **Latch=** Write to this file to reset the probe's latch (and alarm)
-* **Func=** Acceptance function
-* **FailFunc=** Callback in case of technical failure
-* **InitFunc=** Function to be executed at startup (Typical usage : set the probe in Alert mode)
+* **Func=** Acceptance function (**mod_Lua** needed)
+* **FailFunc=** Callback in case of technical failure (**mod_Lua** needed)
+* **InitFunc=** Function to be executed at startup (Typical usage : set the probe in Alert mode, **mod_Lua** needed))
 * **Topic=** Topic to publish to
 * **Retained** submitted as retained message
 * **Immediate** Read and publish value at launching
@@ -70,4 +70,3 @@ Like FFV but value is read only when the probe is in alarm status
 
 1. Section id
 2. error message
-
