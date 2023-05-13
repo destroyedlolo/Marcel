@@ -11,10 +11,12 @@ Add Lua's plugins to Marcel, allowing user functions
 several scripts, provided **LoadAllScripts.lua** will load all script found in the same directory
   * callback functions are launched in the same Lua's state. Consequently, all objects are available 
 to others but functions **have** to be as fast as possible (as they will block other one until completion)
+  * script is executed : it's a convenient way to do some initialisation
 
 # Exposed objects to Lua's side
 
-**Marcel** exposes some objects to user scripts
+**Marcel** exposes some objects to user scripts.<br>
+Here the list of ones exposed by **mod_Lua** itself : other modules may expose additional objects, have a look on their own documentation.
 
 ### Exposed variables
 
