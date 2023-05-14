@@ -46,6 +46,9 @@ BUILD_METEOOWM=1
 # Freebox v4/v5 figures
 BUILD_FREEBOX=1
 
+# RFXcom handling
+BUIlD_RFXTRX=1
+
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
 BUILD_DUMMY=1
@@ -202,6 +205,9 @@ fi
 if [ ${BUILD_FREEBOX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
 fi
+if [ ${BUIlD_RFXTRX+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_RFXtrx' >> Makefile
+fi
 if [ ${BUILD_DUMMY+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_dummy' >> Makefile
 fi
@@ -279,6 +285,12 @@ fi
 if [ ${BUILD_FREEBOX+x} ]; then
 	cd Modules/mod_freebox
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freebox.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUIlD_RFXTRX+x} ]; then
+	cd Modules/mod_RFXtrx
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_RFXtrx.so > Makefile
 	cd ../..
 fi
 
