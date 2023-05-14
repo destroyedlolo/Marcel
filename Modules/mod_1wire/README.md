@@ -9,7 +9,7 @@ Many `DefaultSampleDelay=` can be present, in such case the last one before the 
 taken into account.
 
 * **RandomizeProbes** FFV will be randomly delayed to avoid each probes to samples at the same time 
-(and then creates electricity consumption pick).
+(and then creates electricity consumption pick, really needed for very large network).
 
 ## Section FFV
 
