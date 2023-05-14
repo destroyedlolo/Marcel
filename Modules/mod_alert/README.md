@@ -57,8 +57,8 @@ Notez-bien : there is no segregation between alerts created by $alert or \*Raise
 **$alert** messages are received from `Alert/#` topic where the topic name's trailing part determines the *title*, the payload being the message. 
 
 If the first character of the payload is a '**S**' or '**s**', the alert is raised, any other character means the alert is over.
-- With a '**S**' both RESTURL and AlertCommand are triggered called.
-- With a '**s**' only AlertCommand is called.
+- With a '**S**' both `RESTUrl=` and `OSCommand=` are triggered called.
+- With a '**s**' only `OSCommand=` is called.
 
 Only one can exist and is impersonated by a "*$alert*" section (if needed to be disabled by **OnOff** module). 
 
