@@ -57,8 +57,8 @@ Notez-bien : there is no segregation between alerts created by $alert or \*Raise
 **$alert** messages are received from `Alert/#` topic where the topic name's trailing part determines the *title*, the payload being the message. 
 
 If the first character of the payload is a '**S**' or '**s**', the alert is raised, any other character means the alert is over.
-- With a '**S**' both RESTURL and AlertCommand are triggered called.
-- With a '**s**' only AlertCommand is called.
+- With a '**S**' both `RESTUrl=` and `OSCommand=` are triggered called.
+- With a '**s**' only `OSCommand=` is called.
 
 Only one can exist and is impersonated by a "*$alert*" section (if needed to be disabled by **OnOff** module). 
 
@@ -87,19 +87,19 @@ A message is sent for every **notification** received. So, if not correctly conf
 
 **Unnamed Notification** messages are received from `Notification/#` topic where the topic name's trailing part determines the *title*, the payload being the message. Only one can exist and is impersonated by a "*$unnamedNotification*" section (if needed to be disabled by **OnOff** module). 
 
-If the payload starts with a '**S**', both `OSCmd` and `RESTUrl` are used ; Without 'S', only `OSCmd` is triggered.
+If the payload starts with a '**S**', both `OSCmd=` and `RESTUrl=` are used ; Without 'S', only `OSCmd=` is triggered.
 
 Example :
 - topic : `Notification/My Example`
 - payload : `SI want to tell you`
 
-will send "*I want to tell you*" on both `OSCmd` and `RESTUrl` channels with the title "*My Example*".
+will send "*I want to tell you*" on both `OSCmd=` and `RESTUrl=` channels with the title "*My Example*".
 
 ### $namedNotification=
 
 **Named notification** allows a more flexible in notification mechanism as each and every notification can communicate with a different channel. As example, I'm using [wirepusher](https://wirepusher.com/) to send notifications to my phone and each named notification targets a different message "type" that can be segregated at wirepusher's side.
 
-Unlike unnamed notification, both `OSCmd` and `RESTUrl` are triggered if present, whatever the payload's content.
+Unlike unnamed notification, both `OSCmd=` and `RESTUrl=` are triggered if present, whatever the payload's content.
 
 **Named notification** are received from `nNotification/<names>/<title>` topic where the argument is the list of notification to be considered.
 

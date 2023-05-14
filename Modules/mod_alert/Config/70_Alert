@@ -5,8 +5,8 @@ Needs=mod_alert
 # Legacy 'Alert/#'
 # if the first character of an 'Alert/#' payload is a 'S' or 's', the alert is raised.
 # any other character means the alert is over.
-# With a 'S' both RESTURL and AlertCommand is called.
-# with a 's' only AlertCommand is called.
+# With a 'S' both RESTUrl and OSCommand is called.
+# with a 's' only OSCommand is called.
 #
 # When an alert is raised, a message to %MarcelID%/Error is published
 # When closed, %MarcelID%/Log/Corrected is published

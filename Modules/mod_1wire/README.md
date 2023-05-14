@@ -8,6 +8,9 @@ provide the same sample value to many probes.<br>
 Many `DefaultSampleDelay=` can be present, in such case the last one before the section definition is
 taken into account.
 
+* **RandomizeProbes** FFV will be randomly delayed to avoid each probes to samples at the same time 
+(and then creates electricity consumption pick, really needed for very large network).
+
 ## Section FFV
 
 *Float value exposed as a file*.<br>
