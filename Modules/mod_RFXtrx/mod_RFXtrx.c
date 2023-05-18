@@ -13,6 +13,13 @@
 #include <string.h>
 #include <assert.h>
 
+#include <fcntl.h>	/* open() */
+#include <unistd.h>	/* read(), write() */
+#include <termios.h>
+#include <signal.h>
+#include <setjmp.h>
+#include <errno.h>
+
 static struct module_RFXtrx mod_RFXtrx;
 
 /* Section identifiers */
@@ -81,12 +88,202 @@ static bool mr_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+	/* ***
+	 * RFX's own
+	 * ***/
+typedef uint8_t BYTE;	/* Compatibility */
+
+#include "RFXtrx.h"
+
+static RBUF buff;					/* Communication buffer */
+static pthread_mutex_t oneTRXcmd;	/* One command can be send at a time */
+
+/*
+ * Utilities functions
+ */
+
+#ifdef DEBUG
+static void dumpbuff(){
+	int i;
+	printf("buff.ICMND.packetlength = %02x", buff.ICMND.packetlength);
+	printf("\nbuff.ICMND.packettype = %02x\n", buff.ICMND.packettype);
+	printf("buff.ICMND.subtype = %02x\n", buff.ICMND.subtype);
+	printf("buff.ICMND.seqnbr = %02x\n", buff.ICMND.seqnbr);
+	printf("buff.ICMND.cmnd = %02x\n", buff.ICMND.cmnd);
+	for(i=0; i<16; i++)
+		printf(" %02x", ((char *)&buff.IRESPONSE.msg1)[i]);
+	puts("\n");
+}
+#else
+#	define dumpbuff()
+#endif
+
+static void clearbuff( int len ){
+	memset( &buff, 0, len+1);
+	buff.ICMND.packetlength = len;
+}
+
+static ssize_t writeRFX( int fd ){
+	return write( fd, &buff, buff.ICMND.packetlength +1 );
+}
+
+static int readRFX( int fd ){
+	BYTE *p = &buff.ICMND.packetlength;
+	ssize_t n2read;	/* Number of bytes to read */
+
+	assert(read( fd, &buff.ICMND.packetlength, 1 ));	/* Reading msg size */
+	n2read = buff.ICMND.packetlength;
+	p++;
+
+	assert(buff.ICMND.packetlength < sizeof(buff) / sizeof(BYTE) -1);
+
+	while( n2read ){
+		ssize_t n;
+		
+		if(!(n = read( fd, p, n2read )))
+			return 0;	/* Error ! */
+		n2read -= n;
+		p += n;
+	}
+
+	return buff.ICMND.packetlength;
+}
+
+/*
+ * Initialise RFXtrx
+ *
+ * Note : there is no need to lock the FD as it is only used before any other
+ * threads are created.
+ */
+static jmp_buf env_alarm;
+static void sig_alarm(int signo){
+    longjmp(env_alarm, 1);
+}
+
+static void init_RFX( uint8_t mid ){
+	if(!mod_RFXtrx.RFXdevice)
+		return;	/* No device defined */
+
+	int fd;
+	if((fd = open (mod_RFXtrx.RFXdevice, O_RDWR | O_NOCTTY | O_SYNC)) < 0 ){	/* Open the port */
+		publishLog('E', "RFX open() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	}
+
+		/* Set attributes */
+	struct termios tty;
+	memset (&tty, 0, sizeof tty);
+	if(tcgetattr (fd, &tty)){
+		publishLog('E', "RFX tcgetattr() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	}
+	cfsetospeed(&tty, B38400);
+	cfsetispeed(&tty, B38400);
+	tty.c_cflag = (tty.c_cflag & ~(CSIZE | PARENB | CSTOPB /*| CRTSCTS*/)) | CS8 | CLOCAL | CREAD;
+	tty.c_iflag &= ~(IGNBRK | IXON | IXOFF | IXANY);
+	tty.c_lflag = 0;
+	tty.c_oflag = 0;
+	if(tcsetattr(fd, TCSANOW, &tty)){
+		publishLog('E', "RFX tcsetattr() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	}
+
+	assert( signal(SIGALRM, sig_alarm) != SIG_ERR );
+	if(setjmp(env_alarm) != 0){
+		publishLog('E', "Timeout during RFXtrx initialisation");
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	}
+
+	alarm(10);	/* The initialisation has to be done within 10s */
+
+	clearbuff( 0x0d );	/* Sending reset */
+	dumpbuff();
+	if(writeRFX(fd) == -1){
+		publishLog('E', "RFX reset write() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	}
+	publishLog('T', "RFXtrx reset sent");
+	sleep(1);
+	tcflush( fd, TCIFLUSH );	/* Clear input buffer */
+
+	clearbuff( 0x0d );	/* Get Status command */
+	buff.ICMND.packettype = pTypeInterfaceControl;
+	buff.ICMND.subtype = sTypeInterfaceCommand;
+	buff.ICMND.seqnbr = 1;
+	buff.ICMND.cmnd = cmdSTATUS;
+	dumpbuff();
+	if(writeRFX(fd) == -1){
+		publishLog('E', "RFX GET STATUS write() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	}
+	publishLog('T', "RFXtrx GET STATUS sent");
+	
+	if(!readRFX(fd)){
+		publishLog('E', "RFX Reading status : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	} else {
+		dumpbuff();
+	}
+
+	clearbuff( 0x0d );	/* Start command */
+	buff.ICMND.packettype = pTypeInterfaceControl;
+	buff.ICMND.subtype = sTypeInterfaceCommand;
+	buff.ICMND.seqnbr = 2;
+	buff.ICMND.cmnd = sTypeRecStarted;
+	dumpbuff();
+	if(writeRFX(fd) == -1){
+		publishLog('E', "RFX START write() : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	}
+	publishLog('T', "RFXtrx START COMMAND sent");
+
+	if(!readRFX(fd)){
+		publishLog('E', "RFX Reading status : %s", strerror(errno));
+		publishLog('F', "RFXtrx disabled");
+		close(fd);
+		mod_RFXtrx.RFXdevice = NULL;
+		return;
+	} else {
+		dumpbuff();
+	}
+
+	close(fd);
+	alarm(0);	/* Initialisation is over */
+
+
+	pthread_mutex_init( &oneTRXcmd, NULL );
+}
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_RFXtrx, "mod_RFXtrx"); /* Identify the module */
 
 		/* Callbacks */
 	mod_RFXtrx.module.readconf = readconf;
 	mod_RFXtrx.module.acceptSDirective = mr_acceptSDirective;
+	mod_RFXtrx.module.postconfInit = init_RFX;
 
 		/* Register the module */
 	registerModule( (struct Module *)&mod_RFXtrx );
