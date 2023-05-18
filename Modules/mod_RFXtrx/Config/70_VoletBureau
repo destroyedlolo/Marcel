@@ -1,0 +1,11 @@
+Needs=mod_RFXtrx
+
+*RTSCmd=Volet Bureau
+
+#identifier of the device
+	ID=0x00509401
+
+#Topic on which we will receive command
+	Topic=maison/Volet/Buro
+
+#	Disabled

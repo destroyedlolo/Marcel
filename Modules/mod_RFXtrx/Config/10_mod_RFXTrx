@@ -1,0 +1,7 @@
+LoadModule=mod_RFXtrx.so
+
+# "serial" port where RFXcom is plugged
+# I strongly suggest to use by-id or by-path mapping instead of
+# /dev/ttyUSB?? as the last one may depend on plugged devices
+
+RFXtrx_Port=/dev/serial/by-id/usb-RFXCOM_RFXtrx433_XXXXXXX-XXXX-port0

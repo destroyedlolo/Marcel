@@ -8,6 +8,7 @@
  */
 
 #include "mod_RFXtrx.h"
+#include "../Marcel/MQTT_tools.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +22,9 @@
 #include <errno.h>
 
 static struct module_RFXtrx mod_RFXtrx;
+
+static void sr_postconfInit(struct Section *);
+static bool sr_processMQTT(struct Section *, const char *, char *);
 
 /* Section identifiers */
 enum {
@@ -53,6 +57,10 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		struct section_RFXCom *nsection = malloc(sizeof(struct section_RFXCom));
 		initSection( (struct Section *)nsection, mid, ST_CMD, strdup(arg));
+
+			/* This section is processing MQTT messages */
+		nsection->section.postconfInit = sr_postconfInit;	/* Subscribe */
+		nsection->section.processMsg = sr_processMQTT;		/* Processing */
 
 		nsection->did = 0;
 
@@ -147,6 +155,84 @@ static int readRFX( int fd ){
 	}
 
 	return buff.ICMND.packetlength;
+}
+
+/*
+ * MQTT
+ */
+static void sr_postconfInit(struct Section *asec){
+	struct section_RFXCom *s = (struct section_RFXCom *)asec;	/* avoid lot of casting */
+
+		/* Sanity checks
+		 * As they're highlighting configuration issue, let's
+		 * consider error as fatal.
+		 */
+	if(!s->section.topic){
+		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		exit(EXIT_FAILURE);
+	}
+
+		/* Subscribing */
+	if(MQTTClient_subscribe( cfg.client, s->section.topic, 0 ) != MQTTCLIENT_SUCCESS ){
+		publishLog('F', "[%s]Can't subscribe to '%s'", s->section.uid, s->section.topic);
+		exit(EXIT_FAILURE);
+	}
+}
+
+static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
+	struct section_RFXCom *s = (struct section_RFXCom *)asec;	/* avoid lot of casting */
+	if(!mqtttokcmp(s->section.topic, topic, NULL)){
+		if(s->section.disabled || !mod_RFXtrx.RFXdevice){
+			publishLog('I', "[%s] or RFX is disabled", s->section.uid);
+			return true;	/* We understood the command but nothing is done */
+		}
+
+		BYTE cmd;
+		int fd;
+
+		if(!strcmp(msg,"Stop") || !strcmp(msg,"My"))
+			cmd = rfy_sStop;
+		else if(!strcmp(msg,"Up"))
+			cmd = rfy_sUp;
+		else if(!strcmp(msg,"Down"))
+			cmd = rfy_sDown;
+		else if(!strcmp(msg,"Program"))
+			cmd = rfy_sProgram;
+		else {
+			publishLog('E', "[%s] RTS unsupported command : '%s'", s->section.uid, msg);
+			return true;
+		}
+		
+		if((fd = open (mod_RFXtrx.RFXdevice, O_RDWR | O_NOCTTY | O_SYNC)) < 0 ){
+			publishLog('E', "[%s] RFX open() : %s", s->section.uid, strerror(errno));
+			return true;
+		}
+
+		pthread_mutex_lock( &oneTRXcmd );
+		clearbuff( 0x0c );
+		buff.RFY.packettype = pTypeRFY;
+		buff.RFY.subtype = sTypeRFY;
+		buff.RFY.seqnbr = 0;
+		buff.RFY.id1 = s->did >> 24;
+		buff.RFY.id2 = (s->did >> 16) & 0xff;
+		buff.RFY.id3 = (s->did >> 8) & 0xff;
+		buff.RFY.unitcode = s->did & 0xff;
+		buff.RFY.cmnd = cmd;
+		dumpbuff();
+		if(writeRFX(fd) == -1)
+			publishLog('E', "[%s] RFX Cmd write() : %s", s->section.uid, strerror(errno));
+		else if(!readRFX(fd))
+			publishLog('E', "[%s] RFX Reading status : %s", s->section.uid, strerror(errno));
+
+		pthread_mutex_unlock( &oneTRXcmd );
+		close(fd);
+
+		publishLog('T', "[%s] Sending '%s' (%d) command to %04x", s->section.uid, msg, cmd, s->did);
+
+		return true;	/* we processed the message */
+	}
+
+	return false;	/* Let's try with other sections */
 }
 
 /*
