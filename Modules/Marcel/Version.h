@@ -55,7 +55,7 @@
 							 * 	SS - SubVersion
 							 */
 
-#define MARCEL_COPYRIGHT "Marcel v"MARCEL_VERSION" (c) L.Faillie 2015-2022"
+#define MARCEL_COPYRIGHT "Marcel v"MARCEL_VERSION" (c) L.Faillie 2015-2023"
 
 #ifdef DEBUG
 #	define DEFAULT_CONFIGURATION_FILE	"Config"

@@ -11,14 +11,14 @@ none
 ### Accepted directives
 
 *  **Topic=** Topic to listen to
-*  **Timeout=** Watchdog timeout in seconds (**Sample=** is also accepted)
-*  **NotificationTopic=** where to notify in case of watchdog [optional, *see below*]
+*  **Timeout=** Watchdog timeout in seconds (**Sample=** is also accepted)  [optional, *see below*]
+*  **NotificationTopic=** where to notify in case of watchdog
 *  **Func=** Acceptation function, if returns 'false', watchdog continue [optional, *see below*]
 *  **Disabled** Section is disabled at startup [optional]
 *  **Keep** using `Keep` prevents Marcel to crash in case of technical error. 
 But in such case, it will continue in DEGRADED way, with notifying when a message is received.
 
-At least one of `NotificationTopic=` and `Func=` must be present, otherwise the section is useless and will die.
+At least one of `Timeout=` and `Func=` must be present, otherwise the section is useless and will die.
 
 ### Lua function arguments
 
