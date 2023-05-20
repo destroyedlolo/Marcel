@@ -72,10 +72,10 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(section){
 		if((arg = striKWcmp(l,"ID="))){
 			acceptSectionDirective(*section, "ID=");
-			((struct section_RFXCom *)section)->did = strtol(arg, NULL, 0);
+			((struct section_RFXCom *)*section)->did = strtol(arg, NULL, 0);
 
 			if(cfg.verbose)
-				publishLog('C', "\t\tID : %04x", ((struct section_RFXCom *)section)->did);
+				publishLog('C', "\t\tID : %04x", ((struct section_RFXCom *)*section)->did);
 
 			return ACCEPTED;
 		}
