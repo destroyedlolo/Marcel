@@ -200,7 +200,7 @@ if [ ${BUILD_INOTIFY+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_inotify' >> Makefile
 fi
 if [ ${BUILD_METEOOWM+x} ]; then
-	echo -e '\t$(MAKE) -C Modules/mod_owm' >> Makefile
+	echo -e '\t$(MAKE) -C Modules/mod_OpenWeatherMap' >> Makefile
 fi
 if [ ${BUILD_FREEBOX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
@@ -277,7 +277,7 @@ if [ ${BUILD_INOTIFY+x} ]; then
 fi
 
 if [ ${BUILD_METEOOWM+x} ]; then
-	cd Modules/mod_owm
+	cd Modules/mod_OpenWeatherMap
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $JSON $DEBUG $MCHECK" *.c -so=../../mod_owm.so > Makefile
 	cd ../..
 fi

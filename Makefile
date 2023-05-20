@@ -18,7 +18,7 @@ all:
 	$(MAKE) -C Modules/mod_1wire
 	$(MAKE) -C Modules/mod_alert
 	$(MAKE) -C Modules/mod_inotify
-	$(MAKE) -C Modules/mod_owm
+	$(MAKE) -C Modules/mod_OpenWeatherMap
 	$(MAKE) -C Modules/mod_freebox
 	$(MAKE) -C Modules/mod_RFXtrx
 	$(MAKE) -C Modules/mod_dummy
