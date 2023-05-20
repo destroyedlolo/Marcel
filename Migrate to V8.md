@@ -1,5 +1,9 @@
 As V8 deeply broke syntax compatibility with previous version, here some notes took when I switched my own installation.
 
+# Compilation
+
+If facing some MQTT related linking error during compilation, updgrade **paho** library.
+
 # Global settings 
 
 - ` ConnectionLostIsFatal` - Doesn't exist anymore, as it's now the default behavior.
