@@ -1,3 +1,10 @@
+ToDo list
+=====
+
+(only to take track of the ideas, missing point, ...).
+
+-----
+
 Add Retained to all sections
 Verify that Disable is working for all kinds of section
 	Done for :
@@ -8,18 +15,14 @@ In the future, it may be used to avoid logging some section.
 (about other alert section, I'm not sure it's useful as will disable as well
 sending to 'Error' and 'Corrected' topics)
 
-Missing directives :
-ConnectionLostIsFatal
-
-Missing modules :
-RFX
+Improve Lua by adding API to manage sections themselves
 
 -----------
 
-Tester les alarm1W
+Test alarm1W
 
-Exposer dans Lua une API pour accéder au attributs des sections
+-----
 
 **** How to
 
-mod_alert add Lua function
+mod_alert add Lua function from module
