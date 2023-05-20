@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA  
 
 mod_freebox.o : mod_freebox.c mod_freebox.h ../Marcel/Module.h \
   ../Marcel/Section.h ../Marcel/MQTT_tools.h Makefile 
