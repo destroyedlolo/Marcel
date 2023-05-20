@@ -153,23 +153,19 @@ static void *processDPD(void *asec){
 			} else {
 				publishLog('T', "timeout for DPD '%s'", s->section.uid);
 				if(!s->inerror){	/* Entering in error condition */
+					const char *msg_info = "SNo data received after %d seconds";
+					char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
 					if(!s->notiftopic){		/* No notification topic defined : sending an alert */
 						char topic[strlen(s->section.uid) + 7]; /* "Alert/" + 1 */
-						const char *msg_info = "SNo data received after %d seconds";
-						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
-
 						strcpy( topic, "Alert/" );
 						strcat( topic, s->section.uid );
-						int msg_len = sprintf( msg, msg_info, s->section.sample );
+						int msg_len = sprintf( msg, msg_info, (int)s->section.sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
 							s->inerror = true;	/* otherwise let a chance for next run */
 					} else {	/* Sending to custom topic */
 						char topic[ strlen(s->notiftopic) + strlen(s->section.uid) + 2];	/* + '/' + 0 */
-						const char *msg_info = "No data received after %d seconds";
-						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
-
 						sprintf( topic, "%s/%s", s->notiftopic, s->section.uid );
-						int msg_len = sprintf( msg, msg_info, s->section.sample );
+						int msg_len = sprintf( msg, msg_info, (int)s->section.sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
 							s->inerror = true;	/* otherwise let a chance for next run */
 					}
