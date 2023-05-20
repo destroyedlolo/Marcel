@@ -1,4 +1,5 @@
-# Mod_Dummy
+Mod_Dummy
+====
 
 It's a "*fake*" module only shows how to create a module for Marcel.
 

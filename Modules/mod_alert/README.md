@@ -1,4 +1,5 @@
-# mod_alert
+mod_alert
+====
 
 Handles **alerts** and **notifications**.
 

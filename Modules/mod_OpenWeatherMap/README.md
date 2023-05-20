@@ -1,4 +1,5 @@
-# mod_owm
+mod_owm
+===
 
 Publishes weather forecast from https://openweathermap.org
 

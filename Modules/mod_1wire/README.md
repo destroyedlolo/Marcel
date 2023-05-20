@@ -1,4 +1,6 @@
-# mod_1wire
+mod_1wire
+====
+
 Handles 1-wire probes (also suitable for any value exposed as a file).
 
 ### Accepted global directives

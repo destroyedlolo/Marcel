@@ -1,4 +1,5 @@
-# mod_RFXtrx
+mod_RFXtrx
+===
 
 Controle [RFXCom](http://www.rfxcom.com/en_GB) devices.<br>
 As of V8.0, only RTS Shutters are supported.

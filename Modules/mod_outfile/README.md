@@ -1,4 +1,5 @@
-# mod_outfile
+mod_outfile
+====
 
 Allow to control external devices exposed as files by Unix kernel.
 

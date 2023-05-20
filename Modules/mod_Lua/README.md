@@ -1,4 +1,6 @@
-# mod_Lua
+mod_Lua
+====
+
 Add Lua's plugins to Marcel, allowing user functions
 
 ## Configuration

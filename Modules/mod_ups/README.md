@@ -1,4 +1,5 @@
-# mod_ups
+mod_ups
+====
 
 Get UPS informations from a NUT server
 

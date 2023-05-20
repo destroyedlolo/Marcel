@@ -1,4 +1,5 @@
-# mod_sht31
+mod_sht31
+====
 
 Exposes SHT31 (Temperature/humidity probe) figures. This probe is pluged on one of the local I2C bus.
 

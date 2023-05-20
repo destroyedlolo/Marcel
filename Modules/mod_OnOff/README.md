@@ -1,4 +1,5 @@
-# mod_OnOff
+mod_OnOff
+===
 
 This module provides an easy way to enable/disable a section through the topic `<ClientID>/OnOff/<Section identifier>`. 
 If the payload is equal to `0`, `off` or `disable`, the section is ... disabled. Any other value enables it.

@@ -1,4 +1,5 @@
-# mod_every
+mod_every
+====
 
 Repeating tasks (**mod_Lua** is obviously required).
 

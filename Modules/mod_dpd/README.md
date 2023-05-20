@@ -1,4 +1,5 @@
-# mod_dpd
+mod_dpd
+====
 
 **D**ead **P**ublisher **D**etector : Alerts if some figures don't come in time.
 

@@ -1,4 +1,6 @@
-# mod_inotify
+mod_inotify
+====
+
 Notification for file system changes like file creation, modification or removal.
 
 ### Accepted global directives
