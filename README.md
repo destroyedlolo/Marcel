@@ -18,6 +18,10 @@ Thanks to its open and powerful module's API, it's *easy* to add new functionali
 As the communication is based on MQTT messages, you obviously need a ... **broker** :
 I personally use [Mosquitto](http://mosquitto.org/).
 
+## Global dependancy
+
+Install **PAHO** library for C ( https://eclipse.org/paho/clients/c/ )
+
 ## Modules related runtime dependancies
 
 ### Lua (mod_Lua)
