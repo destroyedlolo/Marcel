@@ -9,6 +9,9 @@ I personally use [Mosquitto](http://mosquitto.org/).
 
 ## Modules related runtime dependancies
 
+### Lua (mod_Lua)
+If you want to had *user*'s functions : https://www.lua.org/
+
 ### 1-wire (mod_1wire)
 Recent linux kernel has *better than nothing* and *limited* 1-wire support. I strongly suggest to use [OWFS](https://www.owfs.org/) instead.
 
