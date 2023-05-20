@@ -1,6 +1,17 @@
 Marcel
 ===
-**Marcel** is a lightweight versatile **MQTT data publisher**
+**Marcel** is a lightweight versatile **MQTT data publisher**.
+
+Focusing smart home (but not only), its optional modules publish : 
+- 1-wire probes environmental figures (can control devices as well)
+- weather forecast
+- UPS figures
+- external MQTT events
+- and many more
+
+Can raise some notifications and manage alerting as well.
+
+Thanks to its open and powerful module's API, it's *easy* to add new functionalities.
 
 # Dependancies
 
