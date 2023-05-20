@@ -1,4 +1,5 @@
-# Marcel's core and utilities
+Marcel's core and utilities
+======
 
 This directory contains Marcel's core and shared mandatory utilities codes.
 
