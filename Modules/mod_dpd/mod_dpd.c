@@ -153,18 +153,22 @@ static void *processDPD(void *asec){
 			} else {
 				publishLog('T', "timeout for DPD '%s'", s->section.uid);
 				if(!s->inerror){	/* Entering in error condition */
-					const char *msg_info = "SNo data received after %d seconds";
-					char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
 					if(!s->notiftopic){		/* No notification topic defined : sending an alert */
 						char topic[strlen(s->section.uid) + 7]; /* "Alert/" + 1 */
 						strcpy( topic, "Alert/" );
 						strcat( topic, s->section.uid );
+
+						const char *msg_info = "SNo data received after %d seconds";
+						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
 						int msg_len = sprintf( msg, msg_info, (int)s->section.sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
 							s->inerror = true;	/* otherwise let a chance for next run */
 					} else {	/* Sending to custom topic */
 						char topic[ strlen(s->notiftopic) + strlen(s->section.uid) + 2];	/* + '/' + 0 */
 						sprintf( topic, "%s/%s", s->notiftopic, s->section.uid );
+
+						const char *msg_info = "No data received after %d seconds";
+						char msg[ strlen(msg_info) + 15 ];	/* Some room for number of seconds */
 						int msg_len = sprintf( msg, msg_info, (int)s->section.sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
 							s->inerror = true;	/* otherwise let a chance for next run */
@@ -187,23 +191,24 @@ static void *processDPD(void *asec){
 #endif
 				} else {
 					if(s->inerror){	/* Exiting error condition */
+						const char *msg_info = "Data received : issue corrected";
+						size_t msglen = strlen(msg_info);
+							/* I duno if it's really needed to have a writable payload,
+							 * but anyway, it's safer as per API prototypes
+							 */
+						char tmsg[ msglen+1 ];
+						strcpy( tmsg, msg_info );
+
 						if(!s->notiftopic){		/* No notification topic defined : sending an alert */
 							char topic[strlen(s->section.uid) + 7]; /* "Alert/" + 1 */
 							strcpy( topic, "Alert/" );
 							strcat( topic, s->section.uid );
-							if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS )
+							if( mqttpublish( cfg.client, topic, msglen, tmsg, 0 ) == MQTTCLIENT_SUCCESS )
 								s->inerror = false;
 						} else {	/* Error topic defined */
 							char topic[ strlen(s->notiftopic) + strlen(s->section.uid) + 2];	/* + '/' + 0 */
-								/* I duno if it's really needed to have a writable payload,
-								 * but anyway, it's safer as per API prototypes
-								 */
-							const char *msg_info = "Data received : issue corrected";
-							size_t msglen = strlen(msg_info);
-							char tmsg[ msglen+1 ];
-							strcpy( tmsg, msg_info );
-
 							sprintf( topic, "%s/%s", s->notiftopic, s->section.uid );
+
 							if( mqttpublish( cfg.client, topic, msglen, tmsg, 0 ) == MQTTCLIENT_SUCCESS )
 								s->inerror = false;
 
