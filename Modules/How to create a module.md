@@ -7,7 +7,7 @@ As of V8, Marcel moved to a strong dynamically loaded modules' architecture.
 This architecture reduces the system's footprint by avoiding loading unused pieces of code, makes development easier and,
 all in all, increase modules' security.
 
-This little document explains how to create your own module to improve Marcel's capabilities, taking **mod_dummy** as example.
+This little document explains how to create your own module to improve Marcel's capabilities, taking **mod_dummy** as example.It describes only its skeleton, full explanation is provided in its source code.
 
 
 ## Structural concepts
@@ -128,6 +128,65 @@ It may contain as well some custom fields.
 ```
 		/* Variables dedicated to this structure */
 	int dummy;
+}
+```
+### Module main code (mod_dummy.c)
+
+#### Instantiate module own structure
+
+```
+static struct module_dummy mod_dummy;
+```
+
+#### Enumerate sections' identifiers
+
+Each section must have a unique identifier per module. Only up to 256 sections can be defined for a single module, which is farther than enough.
+
+```
+enum {
+	ST_DUMMY = 0,
+	ST_ECHO
+};
+```
+
+#### Initialization function - InitModule()
+
+**InitModule()** MUST exist in each module and aims to initialize its custom fields, callbacks and then register the module for its activation inside Marcel.
+
+```
+void InitModule( void ){
+```
+
+##### Module's initialization
+
+Name our module and set its structure fields to safe value.
+
+```
+	initModule((struct Module *)&mod_dummy, "mod_dummy");
+```
+
+Initialize used callbacks
+
+```
+	mod_dummy.module.readconf = readconf;
+	mod_dummy.module.acceptSDirective = mt_acceptSDirective;
+	mod_dummy.module.getSlaveFunction = mt_getSlaveFunction;
+```
+
+Register our module
+
+```
+	registerModule( (struct Module *)&mod_dummy );
+```
+
+Optionally, set some custom fields.
+
+```
+	mod_dummy.test = 0;
+	mod_dummy.flag = false;
+```
+
+```
 }
 ```
 
