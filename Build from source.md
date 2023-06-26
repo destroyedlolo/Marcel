@@ -24,6 +24,8 @@ I strongly suggest to modify then launch **remake.sh** instead of tedious Makefi
 
 ### Modules dependant optional libraries
 * [json-c](https://github.com/json-c/json-c/wiki)
+(debian package : `libjson-c-dev`)
+
 * [libcurl](https://curl.se/libcurl/)
 
 # Compilation :
