@@ -192,7 +192,7 @@ ThreadedFunctionPtr mt_getSlaveFunction(uint8_t sid){
  * InitModule() - Module's initialisation function
  *
  * This function MUST exist and is called when the module is loaded.
- * Its goal is to initialise module's configuration and register the module.
+ * Its goal is to initialize module's configuration and register the module.
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 void InitModule( void ){

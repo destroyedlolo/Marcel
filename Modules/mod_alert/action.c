@@ -49,7 +49,7 @@ void execOSCmd(const char *cmd, const char *id, const char *msg){
 		return;
 	}
 	fputs(msg ? msg : "(empty)", f);
-	fclose(f);
+	pclose(f);
 }
 
 void execRest(const char *url, const char *title, const char *msg){
