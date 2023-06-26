@@ -31,7 +31,7 @@ I strongly suggest to modify then launch **remake.sh** instead of tedious Makefi
 (debian package : `libjson-c-dev`)
 
 * [libcurl](https://curl.se/libcurl/)
-(debian package : `libcurl4`)
+(debian package : `libcurl4-openssl-dev`)
 
 # Compilation :
 ## get sources
