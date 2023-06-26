@@ -23,6 +23,10 @@ I strongly suggest to modify then launch **remake.sh** instead of tedious Makefi
 * [Paho](https://eclipse.org/paho/clients/c/) as MQTT communication layer.
 
 ### Modules dependant optional libraries
+
+* [Lua](http://www.lua.org/)
+(debian package : `liblua5.3-dev`) - Tested with Lua 5.1 and 5.3
+
 * [json-c](https://github.com/json-c/json-c/wiki)
 (debian package : `libjson-c-dev`)
 
