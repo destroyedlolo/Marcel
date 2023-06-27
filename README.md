@@ -2,16 +2,20 @@ Marcel
 ===
 **Marcel** is a lightweight versatile **MQTT data publisher**.
 
-Focusing smart home (but not only), its optional modules publish : 
-- 1-wire probes environmental figures (can control devices as well)
+Focusing smart home automation (but not only), its optional modules publish : 
+- 1-wire probes environmental figures
 - weather forecast
 - UPS figures
 - external MQTT events
 - and many more
 
-Can raise some notifications and manage alerting as well.
+Can raise some notifications, manage alerting and controle some devices. 
+
+**Lua user scripts** can be used to build simple automation, and/or, to validate incomming value.
 
 Thanks to its open and powerful module's API, it's *easy* to add new functionalities.
+
+`Build from source.md` contains technical information if you want to compile directly from its source code.
 
 # Dependancies
 
@@ -34,6 +38,7 @@ Recent linux kernel has *better than nothing* and *limited* 1-wire support. I st
 You need to provide your own license key to query weather forecast, it's free for hobbyists usages.<br>
 Have a look on : https://openweathermap.org/
 
+In addition [json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https://curl.se/libcurl/) are needed.
 
 ## Launch options :
 Marcel knows the following options :
