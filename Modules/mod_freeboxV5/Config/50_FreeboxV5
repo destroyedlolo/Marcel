@@ -1,10 +1,10 @@
 # Publish Freebox v4/v5 figures (French Internet Service Provider)
 
-Needs=mod_freebox
+Needs=mod_freeboxV5
 
 # Note : the uid of this section is hardcoded to Freebox
 # as by design, only one device is accessible.
-*Freebox
+*FreeboxV5
 	Topic=Freebox
 	Sample=60
 	Keep

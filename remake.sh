@@ -44,7 +44,7 @@ BUILD_INOTIFY=1
 BUILD_METEOOWM=1
 
 # Freebox v4/v5 figures
-BUILD_FREEBOX=1
+BUILD_FREEBOXV5=1
 
 # RFXcom handling
 BUIlD_RFXTRX=1
@@ -202,8 +202,8 @@ fi
 if [ ${BUILD_METEOOWM+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_OpenWeatherMap' >> Makefile
 fi
-if [ ${BUILD_FREEBOX+x} ]; then
-	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
+if [ ${BUILD_FREEBOXV5+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_freeboxV5' >> Makefile
 fi
 if [ ${BUIlD_RFXTRX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_RFXtrx' >> Makefile
@@ -282,9 +282,9 @@ if [ ${BUILD_METEOOWM+x} ]; then
 	cd ../..
 fi
 
-if [ ${BUILD_FREEBOX+x} ]; then
-	cd Modules/mod_freebox
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freebox.so > Makefile
+if [ ${BUILD_FREEBOXV5+x} ]; then
+	cd Modules/mod_freeboxV5
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freeboxV5.so > Makefile
 	cd ../..
 fi
 

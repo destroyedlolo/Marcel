@@ -1,4 +1,4 @@
-mod_freebox
+mod_freeboxV5
 ====
 
 Publish Freebox v4/v5 figures (French Internet Service Provider)

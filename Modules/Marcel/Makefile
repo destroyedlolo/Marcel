@@ -1,12 +1,12 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.4 (May  1 2018 12:31:45) (c)LFSoft 1997
+# LFMakeMaker 1.6 (May  7 2022 20:46:23) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC   $(shell pkg-config --libs lua ) $(shell pkg-config --libs json-c ) -lcurl 	-DPLUGIN_DIR='"/usr/local/lib/Marcel"' -L/usr/local/lib/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread 	
+opts=-Wall -O2 -fPIC   $(shell pkg-config --libs lua5.3 ) $(shell pkg-config --libs json-c ) -lcurl 	-DPLUGIN_DIR='"/usr/local/lib/Marcel"' -L/usr/local/lib/Marcel 	-L/home/laurent/Projets/Marcel -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread 	
 
 CURL_helpers.o : CURL_helpers.c CURL_helpers.h Marcel.h Makefile 
 	$(cc) -c -o CURL_helpers.o CURL_helpers.c $(opts) 
