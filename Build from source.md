@@ -17,19 +17,30 @@ Have a look on your distribution documentation :smirk:
 * If you need to modify some compilation options ; [LFMakeMaker](http://destroyedlolo.info/Developpement/LFMakeMaker/).<br>
 I strongly suggest to modify then launch **remake.sh** instead of tedious Makefile changes.
 
+:warning: **Notez-bien : if your experimenting include file not found, but the corresponding dependencies are already installed ... rerun `remake.sh`**.
+It's probably because there are not in the same place compared to my system when I generated the Makefiles.
+
 ## Helpers libraries
 
 ### Mandatory library
 * [Paho](https://eclipse.org/paho/clients/c/) as MQTT communication layer.
 
 ### Modules dependant optional libraries
+
+* [Lua](http://www.lua.org/)
+(debian package : `liblua5.3-dev`) - Tested with Lua 5.1 and 5.3
+
 * [json-c](https://github.com/json-c/json-c/wiki)
+(debian package : `libjson-c-dev`)
+
 * [libcurl](https://curl.se/libcurl/)
+(debian package : `libcurl4-openssl-dev`)
+
 
 # Compilation :
 ## get sources
 Get **Marcel** latest tarball for *stable* version or clone its repository for rolling release version
-(if you get the default branch, you're guaranteed to get a stable and tested version).* Install **PAHO** library for C ( https://eclipse.org/paho/clients/c/ )
+(if you get the default branch, you're guaranteed to get a stable and tested version).
 ```
 git clone https://github.com/destroyedlolo/Marcel.git
 ```
