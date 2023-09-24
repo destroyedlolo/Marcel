@@ -9,7 +9,7 @@ Publish Freebox v4/v5 figures (French Internet Service Provider)
 ### Accepted global directives
 none
 
-## Section Freebox
+## Section FreeboxV5
 
 ### Accepted directives
 * **Sample=** Number of seconds between samples, in seconds
