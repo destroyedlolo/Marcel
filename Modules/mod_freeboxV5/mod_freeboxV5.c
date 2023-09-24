@@ -35,7 +35,7 @@ enum {
 	SFB_FREEBOXV5= 0
 };
 
-void *process_freeboxV5(void *actx){
+static void *process_freeboxV5(void *actx){
 	struct section_freeboxV5 *ctx = (struct section_freeboxV5 *)actx;
 	char l[MAXLINE];
 	struct hostent *server;
@@ -293,7 +293,7 @@ static bool mfb_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
-ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
+static ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
 	if(sid == SFB_FREEBOXV5)
 		return process_freeboxV5;
 

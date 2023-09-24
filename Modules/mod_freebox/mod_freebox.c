@@ -25,6 +25,18 @@ enum {
 	SFB_FREEBOX = 0
 };
 
+static void *process_freebox(void *actx){
+	struct section_freebox *ctx = (struct section_freebox *)actx;
+
+		/* Sanity checks */
+	if(!ctx->section.topic){
+		publishLog('E', "['%s'] configuration error : no topic specified, ignoring this section", ctx->section.uid);
+		pthread_exit(0);
+	}
+
+	puts("ok");
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **asection ){
 	struct section_freebox **section = (struct section_freebox **)asection;
 	const char *arg;
@@ -100,14 +112,19 @@ static bool mfb_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+static ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
+	if(sid == SFB_FREEBOX)
+		return process_freebox;
+
+	return NULL;
+}
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_freebox, "mod_freebox");
 
 	mod_freebox.module.readconf = readconf;
 	mod_freebox.module.acceptSDirective = mfb_acceptSDirective;
-#if 0
 	mod_freebox.module.getSlaveFunction = mfb_getSlaveFunction;
-#endif
 
 	registerModule( (struct Module *)&mod_freebox );
 }
