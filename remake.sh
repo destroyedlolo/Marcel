@@ -46,6 +46,9 @@ BUILD_METEOOWM=1
 # Freebox v4/v5 figures
 BUILD_FREEBOXV5=1
 
+# FreeboxOS figures
+BUILD_FREEBOX=1
+
 # RFXcom handling
 BUIlD_RFXTRX=1
 
@@ -67,9 +70,9 @@ BUILD_DUMMY=1
 # Where to generate ".so" plugins
 # ---
 # production's target directory
-PLUGIN_DIR=/usr/local/lib/Marcel
+#PLUGIN_DIR=/usr/local/lib/Marcel
 # During development, being clean and keep everything in our own directory
-#PLUGIN_DIR=$( pwd )
+PLUGIN_DIR=$( pwd )
 
 # -------------------------------------
 #      END OF CONFIGURATION AREA
@@ -205,6 +208,9 @@ fi
 if [ ${BUILD_FREEBOXV5+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freeboxV5' >> Makefile
 fi
+if [ ${BUILD_FREEBOX+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
+fi
 if [ ${BUIlD_RFXTRX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_RFXtrx' >> Makefile
 fi
@@ -285,6 +291,12 @@ fi
 if [ ${BUILD_FREEBOXV5+x} ]; then
 	cd Modules/mod_freeboxV5
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freeboxV5.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_FREEBOX+x} ]; then
+	cd Modules/mod_freebox
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freebox.so > Makefile
 	cd ../..
 fi
 
