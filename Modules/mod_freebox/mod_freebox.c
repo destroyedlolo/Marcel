@@ -61,6 +61,20 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 				publishLog('C', "\t\tURL : '%s'", (*section)->url);
 	
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"app_token="))){
+/* Not needed as only one section exists
+			acceptSectionDirective(*section, "app_token=");
+*/
+			if((*(struct section_freebox **)section)->app_token){
+				publishLog('F', "['%s'] app_token defined twice", (*section)->section.uid);
+				exit(EXIT_FAILURE);
+			}
+			assert(( (*section)->app_token = strdup(arg) ));
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tapp_token : '%s'", (*section)->app_token);
+	
+			return ACCEPTED;
 		}
 	}
 
