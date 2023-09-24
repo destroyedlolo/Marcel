@@ -23,4 +23,22 @@ Response looks like :
 
 Provided app_token has to be put in Marcel's configuration and "Marcel" needs to be accepted on your Freebox screen. Then, you can fine tune it's rights from FreeboxOS's console (*Acces management/Applications*).
 
+# Marcel's configuration
 
+### Accepted global directives
+none
+
+## Section Freebox
+
+### Accepted directives
+* **URL=**  Where too contact the Freebox
+* **app_token** application token
+* **Topic=** root of topics
+* **Sample=** Number of seconds between samples, in seconds
+* **Keep** Do not die in case of error, sleep until next run [optional]
+* **Immediate** Execute at startup (or when the section is enabled) then wait for *sample* seconds [optional]
+* **Disabled** Section is disabled at startup [optional]
+
+## Example
+
+An example is provided in `Config` sub directory of the current one

@@ -20,5 +20,8 @@ struct module_freebox {
 
 struct section_freebox {
 	struct Section section;
+
+	const char *url;
+	const char *app_token;
 };
 #endif
