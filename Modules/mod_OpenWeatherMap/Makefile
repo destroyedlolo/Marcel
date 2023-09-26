@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA $(shell pkg-config --cflags json-c )  
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA $(shell pkg-config --cflags json-c ) -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_owm.o : mod_owm.c mod_owm.h ../Marcel/Module.h ../Marcel/Section.h \
   Makefile 

@@ -61,10 +61,10 @@ BUILD_DUMMY=1
 ###
 
 # Enable debugging messages
-#DEBUG=1
+DEBUG=1
 
 # MCHECK - check memory concistency (see glibc's mcheck())
-#MCHECK=1
+MCHECK=1
 
 
 # Where to generate ".so" plugins
