@@ -318,10 +318,15 @@ int main(int ac, char **av){
 		/* Init MQTT stuffs */
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 	conn_opts.reliable = 0;
-	MQTTClient_create( &cfg.client, cfg.Broker, cfg.ClientID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
-	MQTTClient_setCallbacks( cfg.client, NULL, connlost, msgarrived, NULL);
 
 	int err;
+	if((err = MQTTClient_create( &cfg.client, cfg.Broker, cfg.ClientID, MQTTCLIENT_PERSISTENCE_NONE, NULL)) != MQTTCLIENT_SUCCESS){
+		publishLog('F', "Failed to create client : %d", cfg.Broker, err);
+		exit(EXIT_FAILURE);
+	}
+
+	MQTTClient_setCallbacks( cfg.client, NULL, connlost, msgarrived, NULL);
+
 	switch( err=MQTTClient_connect( cfg.client, &conn_opts) ){
 	case MQTTCLIENT_SUCCESS : 
 		break;
@@ -354,6 +359,14 @@ int main(int ac, char **av){
 		free(cwd);
 		exit(EXIT_FAILURE);
 	case 5 : publishLog('F', "[%s] Unable to connect : Not authorized", cfg.Broker);
+		if(chdir(cwd)){
+			perror(cwd);
+			exit( EXIT_FAILURE );
+		}
+		free(cwd);
+		exit(EXIT_FAILURE);
+	case MQTTCLIENT_BAD_STRUCTURE :
+		publishLog('F', "Header / Library mismatch : recompilation is needed !");
 		if(chdir(cwd)){
 			perror(cwd);
 			exit( EXIT_FAILURE );
