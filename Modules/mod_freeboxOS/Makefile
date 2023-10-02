@@ -8,12 +8,12 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
-mod_freebox.o : mod_freebox.c mod_freebox.h ../Marcel/Module.h \
+mod_freeboxOS.o : mod_freeboxOS.c mod_freeboxOS.h ../Marcel/Module.h \
   ../Marcel/Section.h ../Marcel/MQTT_tools.h Makefile 
-	$(cc) -c -o mod_freebox.o mod_freebox.c $(opts) 
+	$(cc) -c -o mod_freeboxOS.o mod_freeboxOS.c $(opts) 
 
-../../mod_freebox.so : mod_freebox.o Makefile 
-	 $(cc) -shared -o ../../mod_freebox.so mod_freebox.o $(opts) \
-  
+../../mod_freeboxOS.so : mod_freeboxOS.o Makefile 
+	 $(cc) -shared -o ../../mod_freeboxOS.so mod_freeboxOS.o \
+  $(opts) 
 
-all: ../../mod_freebox.so 
+all: ../../mod_freeboxOS.so 

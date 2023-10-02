@@ -1,4 +1,4 @@
-mod_freebox
+mod_freeboxOS
 ====
 
 Publish **FreeboxOS** powered figures (French Internet Service Provider, group Iliad)

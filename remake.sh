@@ -47,7 +47,7 @@ BUILD_METEOOWM=1
 BUILD_FREEBOXV5=1
 
 # FreeboxOS figures
-BUILD_FREEBOX=1
+BUILD_FREEBOXOS=1
 
 # RFXcom handling
 BUIlD_RFXTRX=1
@@ -209,8 +209,8 @@ fi
 if [ ${BUILD_FREEBOXV5+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freeboxV5' >> Makefile
 fi
-if [ ${BUILD_FREEBOX+x} ]; then
-	echo -e '\t$(MAKE) -C Modules/mod_freebox' >> Makefile
+if [ ${BUILD_FREEBOXOS+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_freeboxOS' >> Makefile
 fi
 if [ ${BUIlD_RFXTRX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_RFXtrx' >> Makefile
@@ -295,9 +295,9 @@ if [ ${BUILD_FREEBOXV5+x} ]; then
 	cd ../..
 fi
 
-if [ ${BUILD_FREEBOX+x} ]; then
-	cd Modules/mod_freebox
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freebox.so > Makefile
+if [ ${BUILD_FREEBOXOS+x} ]; then
+	cd Modules/mod_freeboxOS
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_freeboxOS.so > Makefile
 	cd ../..
 fi
 

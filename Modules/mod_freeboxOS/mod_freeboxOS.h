@@ -1,4 +1,4 @@
-/* mod_freebox
+/* mod_freeboxOS
  *
  *  Publish FreeboxOS figures
  *
@@ -8,17 +8,17 @@
  * 24/09/2023 - LF - First version
  */
 
-#ifndef MOD_FREEBOX_H
-#define MOD_FREEBOX_H
+#ifndef MOD_FREEBOXOS_H
+#define MOD_FREEBOXOS_H
 
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
 
-struct module_freebox {
+struct module_freeboxOS {
 	struct Module module;
 };
 
-struct section_freebox {
+struct section_freeboxOS {
 	struct Section section;
 
 	const char *url;

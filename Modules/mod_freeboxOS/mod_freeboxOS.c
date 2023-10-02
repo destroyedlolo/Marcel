@@ -1,4 +1,4 @@
-/* mod_freebox
+/* mod_freeboxOS
  *
  *  Publish FreeboxOS figures
  *
@@ -8,7 +8,7 @@
  * 24/09/2023 - LF - First version
  */
 
-#include "mod_freebox.h"
+#include "mod_freeboxOS.h"
 #include "../Marcel/MQTT_tools.h"
 
 #include <stdlib.h>
@@ -19,14 +19,14 @@
 #include <errno.h>
 #endif
 
-static struct module_freebox mod_freebox;
+static struct module_freeboxOS mod_freeboxOS;
 
 enum {
 	SFB_FREEBOX = 0
 };
 
-static void *process_freebox(void *actx){
-	struct section_freebox *ctx = (struct section_freebox *)actx;
+static void *process_freeboxOS(void *actx){
+	struct section_freeboxOS *ctx = (struct section_freeboxOS *)actx;
 
 		/* Sanity checks */
 	if(!ctx->section.topic){
@@ -44,23 +44,23 @@ static void *process_freebox(void *actx){
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **asection ){
-	struct section_freebox **section = (struct section_freebox **)asection;
+	struct section_freeboxOS **section = (struct section_freeboxOS **)asection;
 	const char *arg;
 
-	if((arg = striKWcmp(l,"*Freebox="))){	/* Starting a section definition */
+	if((arg = striKWcmp(l,"*FreeboxOS="))){	/* Starting a section definition */
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_freebox *nsection = malloc(sizeof(struct section_freebox));
+		struct section_freeboxOS *nsection = malloc(sizeof(struct section_freeboxOS));
 		initSection( (struct Section *)nsection, mid, SFB_FREEBOX, strdup(arg));
 
 		nsection->url = NULL;
 		nsection->app_token = NULL;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering Freebox section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering FreeboxOS section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = nsection;	/* we're now in a section */
 		return ACCEPTED;
@@ -69,7 +69,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 /* Not needed as only one section exists
 			acceptSectionDirective(*section, "URL=");
 */
-			if((*(struct section_freebox **)section)->url){
+			if((*(struct section_freeboxOS **)section)->url){
 				publishLog('F', "['%s'] Url defined twice", (*section)->section.uid);
 				exit(EXIT_FAILURE);
 			}
@@ -83,7 +83,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 /* Not needed as only one section exists
 			acceptSectionDirective(*section, "app_token=");
 */
-			if((*(struct section_freebox **)section)->app_token){
+			if((*(struct section_freeboxOS **)section)->app_token){
 				publishLog('F', "['%s'] app_token defined twice", (*section)->section.uid);
 				exit(EXIT_FAILURE);
 			}
@@ -120,17 +120,17 @@ static bool mfb_acceptSDirective( uint8_t sec_id, const char *directive ){
 
 static ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
 	if(sid == SFB_FREEBOX)
-		return process_freebox;
+		return process_freeboxOS;
 
 	return NULL;
 }
 
 void InitModule( void ){
-	initModule((struct Module *)&mod_freebox, "mod_freebox");
+	initModule((struct Module *)&mod_freeboxOS, "mod_freeboxOS");
 
-	mod_freebox.module.readconf = readconf;
-	mod_freebox.module.acceptSDirective = mfb_acceptSDirective;
-	mod_freebox.module.getSlaveFunction = mfb_getSlaveFunction;
+	mod_freeboxOS.module.readconf = readconf;
+	mod_freeboxOS.module.acceptSDirective = mfb_acceptSDirective;
+	mod_freeboxOS.module.getSlaveFunction = mfb_getSlaveFunction;
 
-	registerModule( (struct Module *)&mod_freebox );
+	registerModule( (struct Module *)&mod_freeboxOS );
 }
