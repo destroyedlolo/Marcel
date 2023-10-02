@@ -167,7 +167,8 @@ echo >> Makefile
 
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
-echo -e "\trm *.so" >> Makefile
+echo -e "\trm -f *.so" >> Makefile
+echo -e "\trm -f Modules/*/*.o" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile

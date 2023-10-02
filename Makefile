@@ -4,7 +4,8 @@ gotoall: all
 
 # Clean previous builds sequels
 clean:
-	rm *.so
+	rm -f *.so
+	rm -f Modules/*/*.o
 
 # Build everything
 all:
