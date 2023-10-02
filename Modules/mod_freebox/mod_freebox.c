@@ -30,7 +30,13 @@ static void *process_freebox(void *actx){
 
 		/* Sanity checks */
 	if(!ctx->section.topic){
-		publishLog('E', "['%s'] configuration error : no topic specified, ignoring this section", ctx->section.uid);
+		publishLog('E', "['%s'] configuration error : no topic specified. Dying ...", ctx->section.uid);
+		pthread_exit(0);
+	}
+
+
+	if(!ctx->section.sample){
+		publishLog('E', "[%s] Sample time can't be 0. Dying ...", ctx->section.uid);
 		pthread_exit(0);
 	}
 
