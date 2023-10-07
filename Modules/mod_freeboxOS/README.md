@@ -3,7 +3,7 @@ mod_freeboxOS
 
 Publish **FreeboxOS** powered figures (French Internet Service Provider, group Iliad)
 
-**mod_freeboxV6** module can publish old Freebox v4 and V5.
+**mod_freeboxV5** module can publish old Freebox v4 and V5.
 
 # Prerequisite
 
