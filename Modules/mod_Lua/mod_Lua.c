@@ -16,7 +16,7 @@
 #include <libgen.h>
 #include <assert.h>
 
-static struct module_Lua mod_Lua;	/* Module's own structure */
+struct module_Lua mod_Lua;	/* Module's own structure */
 
 	/* Expose function to Lua */
 static int exposeFunctions( const char *name, const struct luaL_Reg *funcs){

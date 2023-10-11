@@ -1,6 +1,7 @@
 /* mod_Lua - Exposed functions
  *
  * 24/09/2022 - LF - First version
+ * 11/09/2023 - LF - Add Sections
  */
 
 #include "mod_Lua.h"	/* module's own stuffs */
@@ -70,6 +71,24 @@ static int lmCopyright(lua_State *L){
 	return 1;
 }
 
+static int lm_sinter(lua_State *L){
+	if(mod_Lua.psection){
+		lua_pushstring(L, mod_Lua.psection->uid);
+		mod_Lua.psection = mod_Lua.psection->uid;
+
+		return 1;
+	} else
+		return 0;
+}
+
+static int lmSections(lua_State *L){
+	mod_Lua.psection = sections;
+
+	lua_pushcclosure(L, lm_sinter, 1);
+
+	return 1;
+}
+
 const struct luaL_Reg MarcelLib [] = {
 	{"MQTTPublish", lmPublish},
 	{"Shutdown", lmShutdown},
@@ -78,6 +97,8 @@ const struct luaL_Reg MarcelLib [] = {
 	{"ClientID", lmClientID},
 	{"Version", lmVersion},
 	{"Copyright", lmCopyright},
+
+	{"Sections", lmSections},
 	{NULL, NULL}
 };
 

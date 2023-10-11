@@ -12,6 +12,7 @@
 #define MOD_LUA_H
 
 #include "../Marcel/Module.h"
+#include "../Marcel/Section.h"
 
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
@@ -23,6 +24,8 @@ struct module_Lua {
 	pthread_mutex_t onefunc;	/* As using a shared state, only one func can run at a time */
 
 	const char *script;			/* Script to load */
+
+	struct Section *psection;	/* section iterator */
 
 	/* ***
 	 * Callbacks
@@ -50,5 +53,7 @@ struct module_Lua {
 	bool (*getBooleanFromStack)(int idx);
 };
 
+extern struct module_Lua mod_Lua;
 extern const struct luaL_Reg MarcelLib [];
+
 #endif
