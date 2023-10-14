@@ -41,12 +41,12 @@ static int mls_getKind(lua_State *L){
 	return 1;
 }
 
-static int mls_getDisabled(lua_State *L){
+static int mls_isEnabled(lua_State *L){
 	struct Section **s = lua_touserdata(L,1);
 	if(!s)
 		luaL_error(L, "Not a Section");
 	
-	lua_pushstring(L, (*s)->disabled ? "Disabled" : "Enabled");
+	lua_pushboolean(L, !(*s)->disabled);
 
 	return 1;
 }
@@ -55,7 +55,8 @@ static const struct luaL_Reg mlSectionM[] = {
 	{"getUID", mls_getUID},
 	{"getName", mls_getUID},
 	{"getKind", mls_getKind},
-	{"getDisabled", mls_getDisabled},
+	{"isEnabled", mls_isEnabled},
+//	{"isActive", mls_isActive},
 	{NULL, NULL}
 };
 
