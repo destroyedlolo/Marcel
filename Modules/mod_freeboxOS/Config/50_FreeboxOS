@@ -1,0 +1,14 @@
+# Publish FreeboxOS figures
+
+Needs=mod_freeboxOS
+
+*FreeboxOS=maFreebox
+	URL=http://mafreebox.freebox.fr
+	app_token=1RqKyoTOl1nnlfGyhJPwXEQm5aKJz06d6LWKBScHSI6q8fpkP\/\/iHNjNMGN3V5+0
+
+	Topic=Freebox
+	Sample=60
+
+	Keep
+	Immediate
+#	Disabled
