@@ -8,6 +8,8 @@
 #include "../Marcel/Version.h"
 #include "../Marcel/MQTT_tools.h"
 
+#include "mlSection.h"
+
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -73,8 +75,9 @@ static int lmCopyright(lua_State *L){
 
 static int lm_sinter(lua_State *L){
 	if(mod_Lua.psection){
-		lua_pushstring(L, mod_Lua.psection->uid);
-		mod_Lua.psection = mod_Lua.psection->uid;
+		mlSectionPush(L, mod_Lua.psection);
+/*		lua_pushstring(L, mod_Lua.psection->uid); */
+		mod_Lua.psection = mod_Lua.psection->next;
 
 		return 1;
 	} else

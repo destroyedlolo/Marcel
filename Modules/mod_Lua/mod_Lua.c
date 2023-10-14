@@ -9,6 +9,7 @@
  */
 
 #include "mod_Lua.h"	/* module's own stuffs */
+#include "mlSection.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,32 @@ static int exposeFunctions( const char *name, const struct luaL_Reg *funcs){
 
 	return 1;
 }
+
+int exposeObjFunctions( lua_State *L, const char *name, const struct luaL_Reg *funcs){
+	luaL_newmetatable(L, name);
+	lua_pushstring(L, "__index");
+	lua_pushvalue(L, -2);
+	lua_settable(L, -3);	/* metatable.__index = metatable */
+
+#if LUA_VERSION_NUM < 503
+	/* Insert __name field if Lua < 5.3
+	 * on 5.3+, it's provided out of the box
+	 */
+	lua_pushstring(L, name);
+	lua_setfield(L, -2, "__name");
+#endif
+
+	if(funcs){	/* May be NULL if we're creating an empty metatable */
+#if LUA_VERSION_NUM > 501
+		luaL_setfuncs( L, funcs, 0);
+#else
+		luaL_register(L, NULL, funcs);
+#endif
+	}
+
+	return 1;
+}
+
 
 	/**
 	 * @brief find user defined function
@@ -194,4 +221,5 @@ void InitModule( void ){
 
 		/* Expose some functions in Lua */
 	exposeFunctions("Marcel", MarcelLib);
+	mlSectionInit(mod_Lua.L);
 }

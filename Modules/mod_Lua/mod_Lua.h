@@ -55,5 +55,6 @@ struct module_Lua {
 
 extern struct module_Lua mod_Lua;
 extern const struct luaL_Reg MarcelLib [];
+extern int exposeObjFunctions( lua_State *, const char *, const struct luaL_Reg *);
 
 #endif
