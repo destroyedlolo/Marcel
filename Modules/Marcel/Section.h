@@ -47,10 +47,11 @@ struct Section {
 
 		/* Callback */
 	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */
+	const char *kind;	/* Section kind in clear text */
 };
 
 extern struct Section *sections;
 
 extern struct Section *findSectionByName(const char *name);
-extern void initSection( struct Section *sec, int8_t module_id, uint8_t section_id, const char *name);
+extern void initSection( struct Section *sec, int8_t module_id, uint8_t section_id, const char *name, const char *kind);
 #endif

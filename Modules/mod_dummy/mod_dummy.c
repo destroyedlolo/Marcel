@@ -102,7 +102,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_dummy *nsection = malloc(sizeof(struct section_dummy));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_DUMMY, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, ST_DUMMY, strdup(arg), "Dummy");	/* Initialize shared fields */
 
 			/* Custom fields may need to be initialized as well */
 		nsection->dummy = 0;
@@ -119,7 +119,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_echo *nsection = malloc(sizeof(struct section_echo));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_ECHO, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, ST_ECHO, strdup(arg), "Echo");	/* Initialize shared fields */
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = st_echo_postconfInit;	/* Subscribe */

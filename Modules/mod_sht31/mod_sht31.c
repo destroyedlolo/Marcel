@@ -178,7 +178,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_sht31 *nsection = malloc(sizeof(struct section_sht31));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_SHT31, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, ST_SHT31, strdup(arg), "SHT31");	/* Initialize shared fields */
 
 		nsection->device = NULL;
 		nsection->i2c_addr = 0x44;

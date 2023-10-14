@@ -264,7 +264,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 		}
 
 		struct section_freeboxV5 *nsection = malloc(sizeof(struct section_freeboxV5));
-		initSection( (struct Section *)nsection, mid, SFB_FREEBOXV5, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SFB_FREEBOXV5, strdup(arg), "FreeboxV5");
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering FreeboxV5 section '%s' (%04x)", nsection->section.uid, nsection->section.id);

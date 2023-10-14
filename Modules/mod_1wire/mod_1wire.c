@@ -96,7 +96,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_FFV *nsection = malloc(sizeof(struct section_FFV));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, S1_FFV, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, S1_FFV, strdup(arg), "FFV");	/* Initialize shared fields */
 
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
 		nsection->common.file = NULL;
@@ -116,7 +116,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_1wAlarm *nsection = malloc(sizeof(struct section_1wAlarm));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, S1_ALRM, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, S1_ALRM, strdup(arg), "1WAlarm");	/* Initialize shared fields */
 
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;

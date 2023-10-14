@@ -46,7 +46,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_unnamednotification *nsection = malloc(sizeof(struct section_unnamednotification));
-		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$unnamedNotification");
+		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$unnamedNotification", "unnamedNotification");
 
 		nsection->section.topic = "Notification/#";
 		nsection->actions.url = NULL;
@@ -98,7 +98,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_alert *nsection = malloc(sizeof(struct section_alert));
-		initSection( (struct Section *)nsection, mid, SA_ALERT, "$alert");
+		initSection( (struct Section *)nsection, mid, SA_ALERT, "$alert", "alert");
 
 			/* This section is processing MQTT messages */
 		nsection->section.topic = "Alert/#";
@@ -122,7 +122,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_raise *nsection = malloc(sizeof(struct section_raise));
-		initSection( (struct Section *)nsection, mid, SA_RAISE, strdup(arg));		
+		initSection( (struct Section *)nsection, mid, SA_RAISE, strdup(arg), "RaiseAlert");		
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = malert_postconfInit;	/* Subscribe */
@@ -145,7 +145,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_raise *nsection = malloc(sizeof(struct section_correct));
-		initSection( (struct Section *)nsection, mid, SA_CORRECT, strdup(arg));		
+		initSection( (struct Section *)nsection, mid, SA_CORRECT, strdup(arg), "CorrectAlert");		
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = malert_postconfInit;	/* Subscribe */

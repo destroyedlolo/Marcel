@@ -77,7 +77,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_OWMQuery *nsection = malloc(sizeof(struct section_OWMQuery));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, SM_DAILY, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, SM_DAILY, strdup(arg), "MeteoDaily");	/* Initialize shared fields */
 
 		nsection->section.sample = DEFAULT_WEATHER_SAMPLE;
 		nsection->city = NULL;
@@ -96,7 +96,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_OWMQuery *nsection = malloc(sizeof(struct section_OWMQuery));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, SM_3H, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, SM_3H, strdup(arg), "Meteo3H");	/* Initialize shared fields */
 
 		nsection->section.sample = DEFAULT_WEATHER_SAMPLE;
 		nsection->city = NULL;

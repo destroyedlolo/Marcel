@@ -44,14 +44,16 @@ struct Section *findSectionByName(const char *name){
  * @param module_id Module unique identifier
  * @param section_id Section's unique (to this module) identifier
  * @param name Section's name (its pointer is only copied)
+ * @param kind clear text for section kind
  */
-void initSection( struct Section *section, int8_t module_id, uint8_t section_id, const char *name){
+void initSection( struct Section *section, int8_t module_id, uint8_t section_id, const char *name, const char *akind){
 	assert( section );
 	assert( name );	/* as most of the time allocated by a strdup() */
 
 	section->next = sections;	/* Replace the head */
 	sections = section;
 	section->id = section_id << 8 | module_id;
+	section->kind = akind;
 	section->uid = name;
 	section->h = chksum(name);
 

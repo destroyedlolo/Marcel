@@ -49,7 +49,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_Look4Change *nsection = malloc(sizeof(struct section_Look4Change));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, SI_L4C, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, SI_L4C, strdup(arg), "LookForChanges");	/* Initialize shared fields */
 
 		nsection->dir = NULL;
 		nsection->flags = 0;

@@ -136,7 +136,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 		}
 
 		struct section_ups *nsection = malloc(sizeof(struct section_ups));
-		initSection( (struct Section *)nsection, mid, ST_UPS, strdup(arg));
+		initSection( (struct Section *)nsection, mid, ST_UPS, strdup(arg), "UPS");
 
 		nsection->host = NULL;
 		nsection->port = 0;

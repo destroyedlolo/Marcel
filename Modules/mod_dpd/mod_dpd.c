@@ -232,7 +232,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_dpd *nsection = malloc(sizeof(struct section_dpd));
-		initSection( (struct Section *)nsection, mid, SD_DPD, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SD_DPD, strdup(arg), "DPD");
 
 		nsection->notiftopic = NULL;
 		nsection->rcv = -1;

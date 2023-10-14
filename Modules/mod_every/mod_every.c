@@ -205,7 +205,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_every *nsection = malloc(sizeof(struct section_every));
-		initSection( (struct Section *)nsection, mid, SE_EVERY, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SE_EVERY, strdup(arg), "Every");
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Every section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -219,7 +219,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_at *nsection = malloc(sizeof(struct section_at));
-		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg), "At");
 		nsection->runIfOver = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */

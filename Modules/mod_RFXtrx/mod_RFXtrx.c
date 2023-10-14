@@ -56,7 +56,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_RFXCom *nsection = malloc(sizeof(struct section_RFXCom));
-		initSection( (struct Section *)nsection, mid, ST_CMD, strdup(arg));
+		initSection( (struct Section *)nsection, mid, ST_CMD, strdup(arg), "RTSCmd");
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = sr_postconfInit;	/* Subscribe */

@@ -128,7 +128,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_outfile *nsection = malloc(sizeof(struct section_outfile));
-		initSection( (struct Section *)nsection, mid, SOF_OUTFILE, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SOF_OUTFILE, strdup(arg), "OutFile");
 
 		nsection->file = NULL;
 		nsection->section.postconfInit = so_postconfInit;
