@@ -33,7 +33,7 @@ static int exposeFunctions( const char *name, const struct luaL_Reg *funcs){
 	return 1;
 }
 
-int exposeObjFunctions( lua_State *L, const char *name, const struct luaL_Reg *funcs){
+static int exposeObjMethods( lua_State *L, const char *name, const struct luaL_Reg *funcs){
 	luaL_newmetatable(L, name);
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
@@ -211,6 +211,7 @@ void InitModule( void ){
 	mod_Lua.pop = ml_pop;
 	mod_Lua.getStringFromStack = getStringFromStack;
 	mod_Lua.getBooleanFromStack = getBooleanFromStack;
+	mod_Lua.exposeObjMethods = exposeObjMethods;
 
 	registerModule( (struct Module *)&mod_Lua );	/* Register the module */
 

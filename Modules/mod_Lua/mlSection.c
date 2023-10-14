@@ -30,7 +30,7 @@ static const struct luaL_Reg mlSectionM[] = {
 
 /* Initialize Lua's sections exposition */
 void mlSectionInit(lua_State *L){
-	exposeObjFunctions(L, "mlSection", mlSectionM);
+	mod_Lua.exposeObjMethods(L, "mlSection", mlSectionM);
 }
 
 /* Create a Lua's section object */

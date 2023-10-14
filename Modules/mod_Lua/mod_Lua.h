@@ -51,10 +51,11 @@ struct module_Lua {
 	const char *(*getStringFromStack)(int idx);
 		/* get a boolean from stack */
 	bool (*getBooleanFromStack)(int idx);
+		/* expose methods to an object */
+	int (*exposeObjMethods)( lua_State *, const char *, const struct luaL_Reg *);
 };
 
 extern struct module_Lua mod_Lua;
 extern const struct luaL_Reg MarcelLib [];
-extern int exposeObjFunctions( lua_State *, const char *, const struct luaL_Reg *);
 
 #endif
