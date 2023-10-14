@@ -479,6 +479,7 @@ void InitModule( void ){
 
 			/* Expose mod_alert's own function */
 		mod_alert.mod_Lua->exposeFunctions("Marcel", ModAlertLib);
-	}
+	} else
+		mod_alert.mod_Lua = NULL;
 #endif
 }

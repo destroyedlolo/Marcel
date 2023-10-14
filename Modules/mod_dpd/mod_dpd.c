@@ -10,9 +10,6 @@
  */
 
 #include "mod_dpd.h"
-#ifdef LUA
-#	include "../mod_Lua/mod_Lua.h"
-#endif
 #include "../Marcel/MQTT_tools.h"
 
 #include <stdlib.h>
@@ -43,25 +40,20 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 
 		bool ret = true;
 #ifdef LUA
-		struct module_Lua *mod_Lua = NULL;
-		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-
-		if(mod_Lua_id != (uint8_t)-1){
+		if(mod_dpd.mod_Lua){
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-
-				mod_Lua->lockState();
-				mod_Lua->pushFunctionId( s->section.funcid );
-				mod_Lua->pushString( s->section.uid );
-				mod_Lua->pushString( s->section.topic );
-				mod_Lua->pushString( payload );
-				if(mod_Lua->exec(3, 1)){
-					publishLog('E', "[%s] DPD : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
-					mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_Lua->pop(1);	/* pop NIL from the stack */
+				mod_dpd.mod_Lua->lockState();
+				mod_dpd.mod_Lua->pushFunctionId( s->section.funcid );
+				mod_dpd.mod_Lua->pushString( s->section.uid );
+				mod_dpd.mod_Lua->pushString( s->section.topic );
+				mod_dpd.mod_Lua->pushString( payload );
+				if(mod_dpd.mod_Lua->exec(3, 1)){
+					publishLog('E', "[%s] DPD : %s", s->section.uid, mod_dpd.mod_Lua->getStringFromStack(-1));
+					mod_dpd.mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_dpd.mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else
-					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_Lua->unlockState();
+					ret = mod_dpd.mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+				mod_dpd.mod_Lua->unlockState();
 			}
 		}
 #endif
@@ -92,12 +84,9 @@ static void *processDPD(void *asec){
 
 #ifdef LUA
 		/* User function */
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id != (uint8_t)-1){
+	if(mod_dpd.mod_Lua){
 		if(s->section.funcname){	/* if an user function defined ? */
-			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+			if( (s->section.funcid = mod_dpd.mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 				pthread_exit(NULL);
 			}
@@ -306,4 +295,14 @@ void InitModule( void ){
 	mod_dpd.module.getSlaveFunction = md_getSlaveFunction;
 
 	registerModule( (struct Module *)&mod_dpd );	/* Register the module */
+
+#ifdef LUA
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
+		mod_dpd.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+			/* Expose mod_alert's own function */
+	} else
+		mod_dpd.mod_Lua = NULL;
+#endif
 }

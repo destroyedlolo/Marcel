@@ -15,8 +15,16 @@
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
 
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
+
 struct module_dpd {
 	struct Module module;
+
+#ifdef LUA
+	struct module_Lua *mod_Lua;
+#endif
 };
 
 struct section_dpd {

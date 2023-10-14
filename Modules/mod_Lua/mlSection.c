@@ -56,7 +56,6 @@ static const struct luaL_Reg mlSectionM[] = {
 	{"getName", mls_getUID},
 	{"getKind", mls_getKind},
 	{"isEnabled", mls_isEnabled},
-//	{"isActive", mls_isActive},
 	{NULL, NULL}
 };
 
