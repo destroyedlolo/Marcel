@@ -6,18 +6,47 @@
  * license rules (see LICENSE file)
  *
  * 14/10/2023 - LF - First version
+ *
+ *	Notez-bien : We don't have to check the section kind as methods are
+ * common to all sections.
  */
 
 #include "mod_Lua.h"
 #include "mlSection.h"
 
 static int mls_getUID(lua_State *L){
+/*
 	struct Section **s = luaL_testudata(L, 1, "mlSection");
 
 	if(!s)
 		luaL_error(L, "Not a Section");
+*/
 
+	struct Section **s = lua_touserdata(L,1);
+	if(!s)
+		luaL_error(L, "Not a Section");
+	
 	lua_pushstring(L, (*s)->uid);
+
+	return 1;
+}
+
+static int mls_getKind(lua_State *L){
+	struct Section **s = lua_touserdata(L,1);
+	if(!s)
+		luaL_error(L, "Not a Section");
+	
+	lua_pushstring(L, (*s)->kind);
+
+	return 1;
+}
+
+static int mls_getDisabled(lua_State *L){
+	struct Section **s = lua_touserdata(L,1);
+	if(!s)
+		luaL_error(L, "Not a Section");
+	
+	lua_pushstring(L, (*s)->disabled ? "Disabled" : "Enabled");
 
 	return 1;
 }
@@ -25,6 +54,8 @@ static int mls_getUID(lua_State *L){
 static const struct luaL_Reg mlSectionM[] = {
 	{"getUID", mls_getUID},
 	{"getName", mls_getUID},
+	{"getKind", mls_getKind},
+	{"getDisabled", mls_getDisabled},
 	{NULL, NULL}
 };
 

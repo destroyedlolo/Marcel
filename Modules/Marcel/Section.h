@@ -21,6 +21,7 @@ struct Section {
 		/* Section technicals */
 	struct Section *next;	/* next section */
 	uint16_t id;			/* section identifier */
+	const char *kind;	/* Section kind in clear text */
 	const char *uid;		/* unique identifier (name) */
 	int h;					/* hash code for this id */
 	pthread_t thread;		/* Child to handle this section */
@@ -47,7 +48,6 @@ struct Section {
 
 		/* Callback */
 	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */
-	const char *kind;	/* Section kind in clear text */
 };
 
 extern struct Section *sections;
