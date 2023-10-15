@@ -318,12 +318,18 @@ static ThreadedFunctionPtr md_getSlaveFunction(uint8_t sid){
 }
 
 #ifdef LUA
-static int md_getNotificationTopic(lua_State *L){
-	return 0;
+static int md_inError(lua_State *L){
+	struct section_dpd **s = lua_touserdata(L,1);
+	if(!s)
+		luaL_error(L, "Not a Section");
+
+	lua_pushboolean(mod_dpd.mod_Lua->L, (*s)->inerror);
+
+	return 1;
 }
 
 static const struct luaL_Reg mdM[] = {
-	{"getNotificationTopic", md_getNotificationTopic},
+	{"inError", md_inError},
 	{NULL, NULL}
 };
 #endif

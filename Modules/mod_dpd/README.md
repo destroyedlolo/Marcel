@@ -20,12 +20,16 @@ But in such case, it will continue in DEGRADED way, with notifying when a messag
 
 At least one of `Timeout=` and `Func=` must be present, otherwise the section is useless and will die.
 
-### Lua function arguments
+#### Lua function arguments
 
 1. Section ID
 2. Topic
 3. MQTT message value
 
-### Lua function return
+#### Lua function return
 
 1. `true` if the value is accepted and the watchdog reset. `false`, value rejected.
+
+### Lua specific method
+
+* **inError()** - returns if DPD is in error state (boolean)
