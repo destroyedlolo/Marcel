@@ -42,6 +42,30 @@ enum {
 };
 
 /**
+ * @brief get all customs figures for Dummy section
+ *
+ * @param section pointer to a section instance
+ *
+ * @return array of custom figures
+ */
+static int publishCustomFiguresDummy(struct Section *asection){
+#ifdef LUA
+	if(mod_dummy.mod_Lua){
+		struct section_dummy *s = (struct section_dummy *)asection;
+
+		lua_newtable(mod_dummy.mod_Lua->L);	/* Create a new table */
+
+		lua_pushstring(mod_dummy.mod_Lua->L, "Dummy variable");			/* Push the index */
+		lua_pushnumber(mod_dummy.mod_Lua->L, s->dummy);	/* the value */
+		lua_rawset(mod_dummy.mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
+/**
  * @brief Callback called for each and every line of configuration files
  *
  * @param mid Module id
@@ -104,6 +128,11 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_dummy *nsection = malloc(sizeof(struct section_dummy));	/* Allocate a new section */
 		initSection( (struct Section *)nsection, mid, ST_DUMMY, strdup(arg), "Dummy");	/* Initialize shared fields */
 
+			/* Some section field may be initialised. Here, the callback
+			 * to expose custom figure in Lua
+			 */
+		nsection->section.publishCustomFigures = publishCustomFiguresDummy;
+	
 			/* Custom fields may need to be initialized as well */
 		nsection->dummy = 0;
 
@@ -217,14 +246,14 @@ void InitModule( void ){
 	mod_dummy.flag = false;
 
 #ifdef LUA
+		/* Find out mod_Lua */
 	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
 	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
-		struct module_Lua *mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+		mod_dummy.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 
 			/* Expose shared methods */
-		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Dummy");
-		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Echo");
+		mod_dummy.mod_Lua->initSectionSharedMethods(mod_dummy.mod_Lua->L, "Dummy");
+		mod_dummy.mod_Lua->initSectionSharedMethods(mod_dummy.mod_Lua->L, "Echo");
 	}
 #endif
-
 }
