@@ -217,6 +217,34 @@ ThreadedFunctionPtr mt_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+	/* ***
+	 * Methods attached to Lua's objects
+	 * Here, only to liked to "Dummy"
+	 */
+
+#ifdef LUA
+
+/* getDummy() will return (push on the stack) the value of
+ * "dummy" variable.
+ *
+ * At Lua side, can be called as following
+ *	print(section:getDummy())
+ */
+static int md_getDummy(lua_State *L){
+	struct section_dummy **s = luaL_testudata(L, 1, "Dummy");
+	luaL_argcheck(L, s != NULL, 1, "'DPD' expected");
+
+	lua_pushinteger(mod_dummy.mod_Lua->L, (*s)->dummy);
+
+	return 1;
+}
+
+static const struct luaL_Reg mdM[] = {
+	{"getDummy", md_getDummy},
+	{NULL, NULL}
+};
+#endif
+
 /* ***
  * InitModule() - Module's initialisation function
  *
@@ -251,9 +279,16 @@ void InitModule( void ){
 	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
 		mod_dummy.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 
-			/* Expose shared methods */
+			/* Expose shared methods
+			 * Here, we're exposing methods common to all sections
+			 */
 		mod_dummy.mod_Lua->initSectionSharedMethods(mod_dummy.mod_Lua->L, "Dummy");
 		mod_dummy.mod_Lua->initSectionSharedMethods(mod_dummy.mod_Lua->L, "Echo");
+
+			/* Expose mod_dummy's own function
+			 * Here Dummy section only
+			 */
+		mod_dummy.mod_Lua->exposeObjMethods(mod_dummy.mod_Lua->L, "Dummy", mdM);
 	}
 #endif
 }
