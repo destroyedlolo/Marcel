@@ -249,4 +249,16 @@ void InitModule( void ){
 	mod_1wire.OwAlarmKeep = false;
 
 	registerModule( (struct Module *)&mod_1wire );	/* Register the module */
+
+#ifdef LUA
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
+		struct module_Lua *mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FFV");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "1WAlarm");
+	}
+#endif
+
 }
