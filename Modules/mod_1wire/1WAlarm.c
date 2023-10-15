@@ -22,11 +22,7 @@
 	/* ***
 	 * Process one probe
 	 * ***/
-static void processProbe( struct section_1wAlarm *s
-#ifdef LUA
-	, struct module_Lua *mod_Lua 
-#endif
-){
+static void processProbe( struct section_1wAlarm *s){
 	if(s->common.section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)
@@ -69,42 +65,38 @@ static void processProbe( struct section_1wAlarm *s
 			mqttpublish(cfg.client, l, strlen(msg), msg, 0);
 		}
 
-#ifdef LUA
-		if(s->common.failfuncid != LUA_REFNIL){
-			mod_Lua->lockState();
-			mod_Lua->pushFunctionId( s->common.failfuncid );
-			mod_Lua->pushString( s->common.section.uid );
-			mod_Lua->pushString( emsg );
-			if(mod_Lua->exec(2, 0)){
-				publishLog('E', "[%s] 1WAlarm failfunction : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
-				mod_Lua->pop(1);	/* pop error message from the stack */
-				mod_Lua->pop(1);
+		if(mod_1wire.mod_Lua && s->common.failfuncid != LUA_REFNIL){
+			mod_1wire.mod_Lua->lockState();
+			mod_1wire.mod_Lua->pushFunctionId( s->common.failfuncid );
+			mod_1wire.mod_Lua->pushString( s->common.section.uid );
+			mod_1wire.mod_Lua->pushString( emsg );
+			if(mod_1wire.mod_Lua->exec(2, 0)){
+				publishLog('E', "[%s] 1WAlarm failfunction : %s", s->common.section.uid, mod_1wire.mod_Lua->getStringFromStack(-1));
+				mod_1wire.mod_Lua->pop(1);	/* pop error message from the stack */
+				mod_1wire.mod_Lua->pop(1);
 			}
-			mod_Lua->unlockState();
+			mod_1wire.mod_Lua->unlockState();
 		}
-#endif
 	} else {
 		if(!fgets(l, MAXLINE, f))
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
 		else {
 			bool publish = true;
 
-#ifdef LUA
-			if(s->common.section.funcid != LUA_REFNIL){
-				mod_Lua->lockState();
-				mod_Lua->pushFunctionId( s->common.section.funcid );
-				mod_Lua->pushString( s->common.section.uid );
-				mod_Lua->pushString( s->common.section.topic );
-				mod_Lua->pushString( l );
-				if(mod_Lua->exec(3, 1)){
-					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
-					mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_Lua->pop(1);	/* pop NIL from the stack */
+			if(mod_1wire.mod_Lua && s->common.section.funcid != LUA_REFNIL){
+				mod_1wire.mod_Lua->lockState();
+				mod_1wire.mod_Lua->pushFunctionId( s->common.section.funcid );
+				mod_1wire.mod_Lua->pushString( s->common.section.uid );
+				mod_1wire.mod_Lua->pushString( s->common.section.topic );
+				mod_1wire.mod_Lua->pushString( l );
+				if(mod_1wire.mod_Lua->exec(3, 1)){
+					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_1wire.mod_Lua->getStringFromStack(-1));
+					mod_1wire.mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_1wire.mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else
-					publish = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_Lua->unlockState();
+					publish = mod_1wire.mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+				mod_1wire.mod_Lua->unlockState();
 			}
-#endif
 
 			if(publish){
 				publishLog('T', "[%s] -> %s", s->common.section.uid, l);
@@ -124,15 +116,6 @@ void *scanAlertDir(void *amod){
 	struct module_1wire *mod_1wire = (struct module_1wire *)amod;
 	uint16_t sid = S1_ALRM << 8 | mod_1wire->module.module_index;
 
-		/* mod_lua */
-#ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	struct module_Lua *mod_Lua = NULL;
-
-	if(mod_Lua_id != (uint8_t)-1)
-		 mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-#endif
-
 	for(;;){
 		struct dirent *de;
 		DIR *d = opendir( mod_1wire->OwAlarm );
@@ -147,11 +130,7 @@ void *scanAlertDir(void *amod){
 
 					for(struct section_1wAlarm *s = (struct section_1wAlarm *)sections; s; s = (struct section_1wAlarm *)s->common.section.next){
 						if( s->common.section.id == sid && strstr(s->common.file, de->d_name)){
-							processProbe(s
-#ifdef LUA
-								, mod_Lua
-#endif
-							);
+							processProbe(s);
 						}
 					}
 				}
@@ -190,14 +169,6 @@ void start1WAlarm( uint8_t mid ){
 		exit(EXIT_FAILURE);
 	}
 
-		/* mod_lua */
-#ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	struct module_Lua *mod_Lua = NULL;
-
-	if(mod_Lua_id != (uint8_t)-1)
-		 mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-#endif
 
 		/* As section identifier is part of the common Section structure, 
 		 * it's harmless to directly use section_1wAlarm pointer
@@ -222,54 +193,47 @@ void start1WAlarm( uint8_t mid ){
 #endif
 			}
 
-#ifdef LUA
-			if(s->common.section.funcname){
-				assert(mod_Lua_id != (uint8_t)-1);
+			if(mod_1wire->mod_Lua && s->common.section.funcname){
 				
-				if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
+				if( (s->common.section.funcid = mod_1wire->mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined", s->common.section.uid, s->common.section.funcname);
 					exit(EXIT_FAILURE);
 				}
 			}
 
 			if(s->common.failfunc){
-				assert(mod_Lua_id != (uint8_t)-1);
+				assert(mod_1wire->mod_Lua);
 				
-				if( (s->common.failfuncid = mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
+				if( (s->common.failfuncid = mod_1wire->mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : Fail function \"%s\" is not defined", s->common.section.uid, s->common.failfunc);
 					exit(EXIT_FAILURE);
 				}
 			}
 
 			if(s->initfunc){	/* Initialise all 1wAlarm */
-				assert(mod_Lua_id != (uint8_t)-1);
+				assert(mod_1wire->mod_Lua);
 
 				int funcid;
-				if( (funcid = mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
+				if( (funcid = mod_1wire->mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
 					publishLog('E', "[%s] configuration error : Init function \"%s\" is not defined. Dying.", s->common.section.uid, s->initfunc);
 					exit(EXIT_FAILURE);
 				}
 
-				mod_Lua->lockState();
-				mod_Lua->pushFunctionId( funcid );
-				mod_Lua->pushString( s->common.section.uid );
-				mod_Lua->pushString( s->common.file );
-				if(mod_Lua->exec(2, 0)){
-					publishLog('E', "[%s] Init function : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
-					mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_Lua->pop(1);
+				mod_1wire->mod_Lua->lockState();
+				mod_1wire->mod_Lua->pushFunctionId( funcid );
+				mod_1wire->mod_Lua->pushString( s->common.section.uid );
+				mod_1wire->mod_Lua->pushString( s->common.file );
+				if(mod_1wire->mod_Lua->exec(2, 0)){
+					publishLog('E', "[%s] Init function : %s", s->common.section.uid, mod_1wire->mod_Lua->getStringFromStack(-1));
+					mod_1wire->mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_1wire->mod_Lua->pop(1);
 				}
-				mod_Lua->unlockState();
+				mod_1wire->mod_Lua->unlockState();
 			}
-#endif
 
 			/* First reading if Immediate */
 			if(s->common.section.immediate)
-				processProbe(s
-#ifdef LUA
-				, mod_Lua
-#endif
-				);
+				processProbe(s);
 		}
 	}
 
