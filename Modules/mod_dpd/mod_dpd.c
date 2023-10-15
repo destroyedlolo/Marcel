@@ -319,9 +319,8 @@ static ThreadedFunctionPtr md_getSlaveFunction(uint8_t sid){
 
 #ifdef LUA
 static int md_inError(lua_State *L){
-	struct section_dpd **s = lua_touserdata(L,1);
-	if(!s)
-		luaL_error(L, "Not a Section");
+	struct section_dpd **s = luaL_testudata(L, 1, "DPD");
+	luaL_argcheck(L, s != NULL, 1, "'DPD' expected");
 
 	lua_pushboolean(mod_dpd.mod_Lua->L, (*s)->inerror);
 
@@ -351,7 +350,7 @@ void InitModule( void ){
 			/* Expose shared methods */
 		mod_dpd.mod_Lua->initSectionSharedMethods(mod_dpd.mod_Lua->L, "DPD");
 
-			/* Expose mod_alert's own function */
+			/* Expose mod_dpd's own function */
 		mod_dpd.mod_Lua->exposeObjMethods(mod_dpd.mod_Lua->L, "DPD", mdM);
 	} else
 		mod_dpd.mod_Lua = NULL;
