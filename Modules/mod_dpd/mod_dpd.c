@@ -26,6 +26,35 @@ enum {
 	SD_DPD = 0
 };
 
+static int publishCustomFiguresDPD(struct Section *asection){
+#ifdef LUA
+	if(mod_dpd.mod_Lua){
+		struct section_dpd *s = (struct section_dpd *)asection;
+
+		lua_newtable(mod_dpd.mod_Lua->L);
+
+		lua_pushstring(mod_dpd.mod_Lua->L, "Topic");			/* Push the index */
+		lua_pushstring(mod_dpd.mod_Lua->L, s->section.topic);	/* the value */
+		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_dpd.mod_Lua->L, "Timeout");			/* Push the index */
+		lua_pushnumber(mod_dpd.mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_dpd.mod_Lua->L, "NotificationTopic");			/* Push the index */
+		lua_pushstring(mod_dpd.mod_Lua->L, s->notiftopic);	/* the value */
+		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_dpd.mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_dpd.mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static bool sd_processMQTT(struct Section *asec, const char *topic, char *payload){
 	struct section_dpd *s = (struct section_dpd *)asec;
 
@@ -223,6 +252,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_dpd *nsection = malloc(sizeof(struct section_dpd));
 		initSection( (struct Section *)nsection, mid, SD_DPD, strdup(arg), "DPD");
 
+		nsection->section.publishCustomFigures = publishCustomFiguresDPD;
 		nsection->notiftopic = NULL;
 		nsection->rcv = -1;
 		nsection->inerror = false;
