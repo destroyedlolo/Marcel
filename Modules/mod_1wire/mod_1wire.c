@@ -47,6 +47,29 @@ static int publishCustomFiguresFFV(struct Section *asection){
 	return 0;
 }
 
+static int publishCustomFigures1WAlrm(struct Section *asection){
+#ifdef LUA
+	if(mod_1wire.mod_Lua){
+		struct section_1wAlarm *s = (struct section_1wAlarm *)asection;
+
+		lua_newtable(mod_1wire.mod_Lua->L);
+
+		lua_pushstring(mod_1wire.mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_1wire.mod_Lua->L, s->common.file);	/* the value */
+		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+
+		if(s->latch){
+			lua_pushstring(mod_1wire.mod_Lua->L, "Latch");			/* Push the index */
+			lua_pushstring(mod_1wire.mod_Lua->L, s->latch);	/* the value */
+			lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+		}
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -144,6 +167,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_1wAlarm *nsection = malloc(sizeof(struct section_1wAlarm));	/* Allocate a new section */
 		initSection( (struct Section *)nsection, mid, S1_ALRM, strdup(arg), "1WAlarm");	/* Initialize shared fields */
 
+		nsection->common.section.publishCustomFigures = publishCustomFigures1WAlrm;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
 		nsection->initfunc = NULL;
