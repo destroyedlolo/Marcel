@@ -287,6 +287,17 @@ static ThreadedFunctionPtr md_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int md_getNotificationTopic(lua_State *L){
+	return 0;
+}
+
+static const struct luaL_Reg mdM[] = {
+	{"getNotificationTopic", md_getNotificationTopic},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_dpd, "mod_dpd");
 
@@ -301,7 +312,11 @@ void InitModule( void ){
 	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
 		mod_dpd.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 
+			/* Expose shared methods */
+		mod_dpd.mod_Lua->initSectionSharedMethods(mod_dpd.mod_Lua->L, "DPD");
+
 			/* Expose mod_alert's own function */
+		mod_dpd.mod_Lua->exposeObjMethods(mod_dpd.mod_Lua->L, "DPD", mdM);
 	} else
 		mod_dpd.mod_Lua = NULL;
 #endif

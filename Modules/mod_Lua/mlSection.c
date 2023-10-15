@@ -60,18 +60,18 @@ static const struct luaL_Reg mlSectionM[] = {
 };
 
 /* Initialize Lua's sections exposition */
-void mlSectionInit(lua_State *L){
-	mod_Lua.exposeObjMethods(L, "mlSection", mlSectionM);
+void initSectionSharedMethods(lua_State *L, const char *objName){
+	mod_Lua.exposeObjMethods(L, objName, mlSectionM);
 }
 
 /* Create a Lua's section object */
-void mlSectionPush(lua_State *L, struct Section *obj){
+void pushSectionObject(lua_State *L, struct Section *obj){
 	struct Section **s = (struct Section **)lua_newuserdata(L, sizeof(struct Section *));
 	if(!s)
 		luaL_error(L, "No memory");
 
 	*s = obj;
 
-	luaL_getmetatable(L, "mlSection");
+	luaL_getmetatable(L, obj->kind);
 	lua_setmetatable(L, -2);
 }

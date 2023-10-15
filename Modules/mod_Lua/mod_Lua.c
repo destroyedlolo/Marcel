@@ -212,6 +212,8 @@ void InitModule( void ){
 	mod_Lua.getStringFromStack = getStringFromStack;
 	mod_Lua.getBooleanFromStack = getBooleanFromStack;
 	mod_Lua.exposeObjMethods = exposeObjMethods;
+	mod_Lua.initSectionSharedMethods = initSectionSharedMethods;
+	mod_Lua.pushSectionObject = pushSectionObject;
 
 	registerModule( (struct Module *)&mod_Lua );	/* Register the module */
 
@@ -222,5 +224,4 @@ void InitModule( void ){
 
 		/* Expose some functions in Lua */
 	exposeFunctions("Marcel", MarcelLib);
-	mlSectionInit(mod_Lua.L);
 }

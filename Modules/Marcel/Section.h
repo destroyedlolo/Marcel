@@ -40,7 +40,7 @@ struct Section {
 	bool immediate;			/* run it immediately */
 	bool quiet;				/* this section will not produce log */
 
-		/* Lua callbacks
+		/* Lua user function
 		 * (only applicable to some sections)
 		 */
 	const char *funcname;	/* User function to call on data arrival */

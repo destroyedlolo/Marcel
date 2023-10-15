@@ -73,4 +73,15 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->funcid = LUA_REFNIL;
 
 	section->postconfInit = NULL;
+
+#ifdef LUA
+	struct module_Lua *mod_Lua;
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
+		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+		mod_Lua->initSectionSharedMethods(akind);	/* Declare Lua object and attach default methods */
+	}
+#endif
+
 }

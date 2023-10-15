@@ -52,7 +52,11 @@ struct module_Lua {
 		/* get a boolean from stack */
 	bool (*getBooleanFromStack)(int idx);
 		/* expose methods to an object */
-	int (*exposeObjMethods)( lua_State *, const char *, const struct luaL_Reg *);
+	int (*exposeObjMethods)(lua_State *, const char *, const struct luaL_Reg *);
+
+		/* Expose section shared methods to a Lua's object */
+	void (*initSectionSharedMethods)(lua_State *, const char *);
+	void (*pushSectionObject)(lua_State *, struct Section *);
 };
 
 extern struct module_Lua mod_Lua;
