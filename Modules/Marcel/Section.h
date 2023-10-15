@@ -48,6 +48,7 @@ struct Section {
 
 		/* Callback */
 	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */
+	int (*publishCustomFigures)(struct Section *);	/* Publish figures specific to this section kind */
 };
 
 extern struct Section *sections;

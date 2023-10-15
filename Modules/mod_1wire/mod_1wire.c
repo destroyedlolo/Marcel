@@ -22,6 +22,31 @@
 
 struct module_1wire mod_1wire;
 
+static int publishCustomFiguresFFV(struct Section *asection){
+#ifdef LUA
+	if(mod_1wire.mod_Lua){
+		struct section_FFV *s = (struct section_FFV *)asection;
+
+		lua_newtable(mod_1wire.mod_Lua->L);
+
+		lua_pushstring(mod_1wire.mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_1wire.mod_Lua->L, s->common.file);	/* the value */
+		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_1wire.mod_Lua->L, "Offset");			/* Push the index */
+		lua_pushnumber(mod_1wire.mod_Lua->L, s->offset);	/* the value */
+		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_1wire.mod_Lua->L, "safe85");			/* Push the index */
+		lua_pushboolean(mod_1wire.mod_Lua->L, s->safe85);	/* the value */
+		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+	
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -98,6 +123,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_FFV *nsection = malloc(sizeof(struct section_FFV));	/* Allocate a new section */
 		initSection( (struct Section *)nsection, mid, S1_FFV, strdup(arg), "FFV");	/* Initialize shared fields */
 
+		nsection->common.section.publishCustomFigures = publishCustomFiguresFFV;
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;

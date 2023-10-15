@@ -51,11 +51,23 @@ static int mls_isEnabled(lua_State *L){
 	return 1;
 }
 
+static int mls_getCustomFigures(lua_State *L){
+	struct Section **s = lua_touserdata(L,1);
+	if(!s)
+		luaL_error(L, "Not a Section");
+
+	if((*s)->publishCustomFigures)
+		return ((*s)->publishCustomFigures(*s));
+	else
+		return 0;
+}
+
 static const struct luaL_Reg mlSectionM[] = {
 	{"getUID", mls_getUID},
 	{"getName", mls_getUID},
 	{"getKind", mls_getKind},
 	{"isEnabled", mls_isEnabled},
+	{"getCustomFigures", mls_getCustomFigures},
 	{NULL, NULL}
 };
 
