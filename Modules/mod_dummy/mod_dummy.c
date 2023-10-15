@@ -215,4 +215,16 @@ void InitModule( void ){
 		 */
 	mod_dummy.test = 0;
 	mod_dummy.flag = false;
+
+#ifdef LUA
+	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
+	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
+		struct module_Lua *mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Dummy");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Echo");
+	}
+#endif
+
 }
