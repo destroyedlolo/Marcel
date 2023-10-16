@@ -65,6 +65,13 @@ extern const char *getSubstitutionVar( struct _VarSubstitution *lookup, const ch
 	 * Utilities
 	 * **/
 
+	/* As Lua is used in EVERY module, this pointer is defined globally */
+#ifdef LUA
+extern struct module_Lua *mod_Lua;
+#else
+extern void *mod_Lua;
+#endif
+
 extern void publishLog( char l, const char *msg, ...);
 extern const char *striKWcmp( const char *s, const char *kw );
 extern char *removeLF(char *s);

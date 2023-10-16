@@ -59,7 +59,6 @@ struct module_Lua {
 	void (*pushSectionObject)(lua_State *, struct Section *);
 };
 
-extern struct module_Lua mod_Lua;
 extern const struct luaL_Reg MarcelLib [];
 
 #endif

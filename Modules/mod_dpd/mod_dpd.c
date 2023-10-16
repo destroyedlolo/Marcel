@@ -28,26 +28,26 @@ enum {
 
 static int publishCustomFiguresDPD(struct Section *asection){
 #ifdef LUA
-	if(mod_dpd.mod_Lua){
+	if(mod_Lua){
 		struct section_dpd *s = (struct section_dpd *)asection;
 
-		lua_newtable(mod_dpd.mod_Lua->L);
+		lua_newtable(mod_Lua->L);
 
-		lua_pushstring(mod_dpd.mod_Lua->L, "Topic");			/* Push the index */
-		lua_pushstring(mod_dpd.mod_Lua->L, s->section.topic);	/* the value */
-		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "Topic");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->section.topic);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
-		lua_pushstring(mod_dpd.mod_Lua->L, "Timeout");			/* Push the index */
-		lua_pushnumber(mod_dpd.mod_Lua->L, s->section.sample);	/* the value */
-		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "Timeout");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
-		lua_pushstring(mod_dpd.mod_Lua->L, "NotificationTopic");			/* Push the index */
-		lua_pushstring(mod_dpd.mod_Lua->L, s->notiftopic);	/* the value */
-		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "NotificationTopic");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->notiftopic);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
-		lua_pushstring(mod_dpd.mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_dpd.mod_Lua->L, s->inerror);	/* the value */
-		lua_rawset(mod_dpd.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
 	} else
@@ -69,20 +69,20 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 
 		bool ret = true;
 #ifdef LUA
-		if(mod_dpd.mod_Lua){
+		if(mod_Lua){
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-				mod_dpd.mod_Lua->lockState();
-				mod_dpd.mod_Lua->pushFunctionId( s->section.funcid );
-				mod_dpd.mod_Lua->pushString( s->section.uid );
-				mod_dpd.mod_Lua->pushString( s->section.topic );
-				mod_dpd.mod_Lua->pushString( payload );
-				if(mod_dpd.mod_Lua->exec(3, 1)){
-					publishLog('E', "[%s] DPD : %s", s->section.uid, mod_dpd.mod_Lua->getStringFromStack(-1));
-					mod_dpd.mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_dpd.mod_Lua->pop(1);	/* pop NIL from the stack */
+				mod_Lua->lockState();
+				mod_Lua->pushFunctionId( s->section.funcid );
+				mod_Lua->pushString( s->section.uid );
+				mod_Lua->pushString( s->section.topic );
+				mod_Lua->pushString( payload );
+				if(mod_Lua->exec(3, 1)){
+					publishLog('E', "[%s] DPD : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else
-					ret = mod_dpd.mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_dpd.mod_Lua->unlockState();
+					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+				mod_Lua->unlockState();
 			}
 		}
 #endif
@@ -113,9 +113,9 @@ static void *processDPD(void *asec){
 
 #ifdef LUA
 		/* User function */
-	if(mod_dpd.mod_Lua){
+	if(mod_Lua){
 		if(s->section.funcname){	/* if an user function defined ? */
-			if( (s->section.funcid = mod_dpd.mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 				pthread_exit(NULL);
 			}
@@ -322,7 +322,7 @@ static int md_inError(lua_State *L){
 	struct section_dpd **s = luaL_testudata(L, 1, "DPD");
 	luaL_argcheck(L, s != NULL, 1, "'DPD' expected");
 
-	lua_pushboolean(mod_dpd.mod_Lua->L, (*s)->inerror);
+	lua_pushboolean(mod_Lua->L, (*s)->inerror);
 
 	return 1;
 }
@@ -343,16 +343,13 @@ void InitModule( void ){
 	registerModule( (struct Module *)&mod_dpd );	/* Register the module */
 
 #ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
-		mod_dpd.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
 			/* Expose shared methods */
-		mod_dpd.mod_Lua->initSectionSharedMethods(mod_dpd.mod_Lua->L, "DPD");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "DPD");
 
 			/* Expose mod_dpd's own function */
-		mod_dpd.mod_Lua->exposeObjMethods(mod_dpd.mod_Lua->L, "DPD", mdM);
-	} else
-		mod_dpd.mod_Lua = NULL;
+		mod_Lua->exposeObjMethods(mod_Lua->L, "DPD", mdM);
+	}
 #endif
 }

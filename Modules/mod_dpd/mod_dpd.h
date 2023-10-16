@@ -21,10 +21,6 @@
 
 struct module_dpd {
 	struct Module module;
-
-#ifdef LUA
-	struct module_Lua *mod_Lua;
-#endif
 };
 
 struct section_dpd {

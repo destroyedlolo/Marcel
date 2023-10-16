@@ -50,14 +50,14 @@ enum {
  */
 static int publishCustomFiguresDummy(struct Section *asection){
 #ifdef LUA
-	if(mod_dummy.mod_Lua){
+	if(mod_Lua){
 		struct section_dummy *s = (struct section_dummy *)asection;
 
-		lua_newtable(mod_dummy.mod_Lua->L);	/* Create a new table */
+		lua_newtable(mod_Lua->L);	/* Create a new table */
 
-		lua_pushstring(mod_dummy.mod_Lua->L, "Dummy variable");			/* Push the index */
-		lua_pushnumber(mod_dummy.mod_Lua->L, s->dummy);	/* the value */
-		lua_rawset(mod_dummy.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "Dummy variable");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->dummy);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
 	} else
@@ -234,7 +234,7 @@ static int md_getDummy(lua_State *L){
 	struct section_dummy **s = luaL_testudata(L, 1, "Dummy");
 	luaL_argcheck(L, s != NULL, 1, "'DPD' expected");
 
-	lua_pushinteger(mod_dummy.mod_Lua->L, (*s)->dummy);
+	lua_pushinteger(mod_Lua->L, (*s)->dummy);
 
 	return 1;
 }
@@ -274,21 +274,18 @@ void InitModule( void ){
 	mod_dummy.flag = false;
 
 #ifdef LUA
-		/* Find out mod_Lua */
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
-		mod_dummy.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
 			/* Expose shared methods
 			 * Here, we're exposing methods common to all sections
 			 */
-		mod_dummy.mod_Lua->initSectionSharedMethods(mod_dummy.mod_Lua->L, "Dummy");
-		mod_dummy.mod_Lua->initSectionSharedMethods(mod_dummy.mod_Lua->L, "Echo");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Dummy");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Echo");
 
 			/* Expose mod_dummy's own function
 			 * Here Dummy section only
 			 */
-		mod_dummy.mod_Lua->exposeObjMethods(mod_dummy.mod_Lua->L, "Dummy", mdM);
+		mod_Lua->exposeObjMethods(mod_Lua->L, "Dummy", mdM);
 	}
 #endif
 }

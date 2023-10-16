@@ -39,11 +39,8 @@ void *processDummy(void *actx){
 
 		/* Handle Lua functions */
 #ifdef LUA
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	if(mod_Lua_id != (uint8_t)-1){
+	if(mod_Lua){
 		if(s->section.funcname){	/* if an user function defined ? */
-			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 				pthread_exit(NULL);

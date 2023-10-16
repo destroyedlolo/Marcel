@@ -36,9 +36,6 @@ struct module_dummy {
 	bool flag;
 
 		/* to avoid multiple lookups, we storing mod_Lua once here */
-#ifdef LUA
-	struct module_Lua *mod_Lua;
-#endif
 };
 
 

@@ -24,22 +24,22 @@ struct module_1wire mod_1wire;
 
 static int publishCustomFiguresFFV(struct Section *asection){
 #ifdef LUA
-	if(mod_1wire.mod_Lua){
+	if(mod_Lua){
 		struct section_FFV *s = (struct section_FFV *)asection;
 
-		lua_newtable(mod_1wire.mod_Lua->L);
+		lua_newtable(mod_Lua->L);
 
-		lua_pushstring(mod_1wire.mod_Lua->L, "File");			/* Push the index */
-		lua_pushstring(mod_1wire.mod_Lua->L, s->common.file);	/* the value */
-		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->common.file);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
-		lua_pushstring(mod_1wire.mod_Lua->L, "Offset");			/* Push the index */
-		lua_pushnumber(mod_1wire.mod_Lua->L, s->offset);	/* the value */
-		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "Offset");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->offset);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 	
-		lua_pushstring(mod_1wire.mod_Lua->L, "safe85");			/* Push the index */
-		lua_pushboolean(mod_1wire.mod_Lua->L, s->safe85);	/* the value */
-		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "safe85");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->safe85);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 	
 		return 1;
 	} else
@@ -49,19 +49,19 @@ static int publishCustomFiguresFFV(struct Section *asection){
 
 static int publishCustomFigures1WAlrm(struct Section *asection){
 #ifdef LUA
-	if(mod_1wire.mod_Lua){
+	if(mod_Lua){
 		struct section_1wAlarm *s = (struct section_1wAlarm *)asection;
 
-		lua_newtable(mod_1wire.mod_Lua->L);
+		lua_newtable(mod_Lua->L);
 
-		lua_pushstring(mod_1wire.mod_Lua->L, "File");			/* Push the index */
-		lua_pushstring(mod_1wire.mod_Lua->L, s->common.file);	/* the value */
-		lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+		lua_pushstring(mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->common.file);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		if(s->latch){
-			lua_pushstring(mod_1wire.mod_Lua->L, "Latch");			/* Push the index */
-			lua_pushstring(mod_1wire.mod_Lua->L, s->latch);	/* the value */
-			lua_rawset(mod_1wire.mod_Lua->L, -3);	/* Add it in the table */
+			lua_pushstring(mod_Lua->L, "Latch");			/* Push the index */
+			lua_pushstring(mod_Lua->L, s->latch);	/* the value */
+			lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 		}
 
 		return 1;
@@ -301,15 +301,11 @@ void InitModule( void ){
 	registerModule( (struct Module *)&mod_1wire );	/* Register the module */
 
 #ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
-		mod_1wire.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
 			/* Expose shared methods */
-		mod_1wire.mod_Lua->initSectionSharedMethods(mod_1wire.mod_Lua->L, "FFV");
-		mod_1wire.mod_Lua->initSectionSharedMethods(mod_1wire.mod_Lua->L, "1WAlarm");
-	} else
-		mod_1wire.mod_Lua = NULL;
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FFV");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "1WAlarm");
+	}
 #endif
-
 }

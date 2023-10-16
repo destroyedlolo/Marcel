@@ -65,17 +65,17 @@ static void processProbe( struct section_1wAlarm *s){
 			mqttpublish(cfg.client, l, strlen(msg), msg, 0);
 		}
 
-		if(mod_1wire.mod_Lua && s->common.failfuncid != LUA_REFNIL){
-			mod_1wire.mod_Lua->lockState();
-			mod_1wire.mod_Lua->pushFunctionId( s->common.failfuncid );
-			mod_1wire.mod_Lua->pushString( s->common.section.uid );
-			mod_1wire.mod_Lua->pushString( emsg );
-			if(mod_1wire.mod_Lua->exec(2, 0)){
-				publishLog('E', "[%s] 1WAlarm failfunction : %s", s->common.section.uid, mod_1wire.mod_Lua->getStringFromStack(-1));
-				mod_1wire.mod_Lua->pop(1);	/* pop error message from the stack */
-				mod_1wire.mod_Lua->pop(1);
+		if(mod_Lua && s->common.failfuncid != LUA_REFNIL){
+			mod_Lua->lockState();
+			mod_Lua->pushFunctionId( s->common.failfuncid );
+			mod_Lua->pushString( s->common.section.uid );
+			mod_Lua->pushString( emsg );
+			if(mod_Lua->exec(2, 0)){
+				publishLog('E', "[%s] 1WAlarm failfunction : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
+				mod_Lua->pop(1);	/* pop error message from the stack */
+				mod_Lua->pop(1);
 			}
-			mod_1wire.mod_Lua->unlockState();
+			mod_Lua->unlockState();
 		}
 	} else {
 		if(!fgets(l, MAXLINE, f))
@@ -83,19 +83,19 @@ static void processProbe( struct section_1wAlarm *s){
 		else {
 			bool publish = true;
 
-			if(mod_1wire.mod_Lua && s->common.section.funcid != LUA_REFNIL){
-				mod_1wire.mod_Lua->lockState();
-				mod_1wire.mod_Lua->pushFunctionId( s->common.section.funcid );
-				mod_1wire.mod_Lua->pushString( s->common.section.uid );
-				mod_1wire.mod_Lua->pushString( s->common.section.topic );
-				mod_1wire.mod_Lua->pushString( l );
-				if(mod_1wire.mod_Lua->exec(3, 1)){
-					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_1wire.mod_Lua->getStringFromStack(-1));
-					mod_1wire.mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_1wire.mod_Lua->pop(1);	/* pop NIL from the stack */
+			if(mod_Lua && s->common.section.funcid != LUA_REFNIL){
+				mod_Lua->lockState();
+				mod_Lua->pushFunctionId( s->common.section.funcid );
+				mod_Lua->pushString( s->common.section.uid );
+				mod_Lua->pushString( s->common.section.topic );
+				mod_Lua->pushString( l );
+				if(mod_Lua->exec(3, 1)){
+					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else
-					publish = mod_1wire.mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_1wire.mod_Lua->unlockState();
+					publish = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+				mod_Lua->unlockState();
 			}
 
 			if(publish){
@@ -193,42 +193,42 @@ void start1WAlarm( uint8_t mid ){
 #endif
 			}
 
-			if(mod_1wire->mod_Lua && s->common.section.funcname){
+			if(mod_Lua && s->common.section.funcname){
 				
-				if( (s->common.section.funcid = mod_1wire->mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
+				if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined", s->common.section.uid, s->common.section.funcname);
 					exit(EXIT_FAILURE);
 				}
 			}
 
 			if(s->common.failfunc){
-				assert(mod_1wire->mod_Lua);
+				assert(mod_Lua);
 				
-				if( (s->common.failfuncid = mod_1wire->mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
+				if( (s->common.failfuncid = mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : Fail function \"%s\" is not defined", s->common.section.uid, s->common.failfunc);
 					exit(EXIT_FAILURE);
 				}
 			}
 
 			if(s->initfunc){	/* Initialise all 1wAlarm */
-				assert(mod_1wire->mod_Lua);
+				assert(mod_Lua);
 
 				int funcid;
-				if( (funcid = mod_1wire->mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
+				if( (funcid = mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
 					publishLog('E', "[%s] configuration error : Init function \"%s\" is not defined. Dying.", s->common.section.uid, s->initfunc);
 					exit(EXIT_FAILURE);
 				}
 
-				mod_1wire->mod_Lua->lockState();
-				mod_1wire->mod_Lua->pushFunctionId( funcid );
-				mod_1wire->mod_Lua->pushString( s->common.section.uid );
-				mod_1wire->mod_Lua->pushString( s->common.file );
-				if(mod_1wire->mod_Lua->exec(2, 0)){
-					publishLog('E', "[%s] Init function : %s", s->common.section.uid, mod_1wire->mod_Lua->getStringFromStack(-1));
-					mod_1wire->mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_1wire->mod_Lua->pop(1);
+				mod_Lua->lockState();
+				mod_Lua->pushFunctionId( funcid );
+				mod_Lua->pushString( s->common.section.uid );
+				mod_Lua->pushString( s->common.file );
+				if(mod_Lua->exec(2, 0)){
+					publishLog('E', "[%s] Init function : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+					mod_Lua->pop(1);
 				}
-				mod_1wire->mod_Lua->unlockState();
+				mod_Lua->unlockState();
 			}
 
 			/* First reading if Immediate */

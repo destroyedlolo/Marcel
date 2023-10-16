@@ -15,16 +15,8 @@
 #include "mlSection.h"
 
 static int mls_getUID(lua_State *L){
-/*
-	struct Section **s = luaL_testudata(L, 1, "mlSection");
-
-	if(!s)
-		luaL_error(L, "Not a Section");
-*/
-
 	struct Section **s = lua_touserdata(L,1);
-	if(!s)
-		luaL_error(L, "Not a Section");
+	luaL_argcheck(L, s != NULL, 1, "Not a Section");
 	
 	lua_pushstring(L, (*s)->uid);
 
@@ -73,7 +65,7 @@ static const struct luaL_Reg mlSectionM[] = {
 
 /* Initialize Lua's sections exposition */
 void initSectionSharedMethods(lua_State *L, const char *objName){
-	mod_Lua.exposeObjMethods(L, objName, mlSectionM);
+	mod_Lua->exposeObjMethods(L, objName, mlSectionM);
 }
 
 /* Create a Lua's section object */

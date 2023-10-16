@@ -28,10 +28,6 @@ struct module_1wire {
 	float OwAlarmSample;	/* Delay b/w 2 sample on alarm directory */
 	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
 	pthread_t thread;		/* Slave thread reading alert directory */
-
-#ifdef LUA
-	struct module_Lua *mod_Lua;
-#endif
 };
 
 extern struct module_1wire mod_1wire;
