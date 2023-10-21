@@ -38,10 +38,27 @@ static int publishCustomFiguresL4C(struct Section *asection){
 		lua_pushstring(mod_Lua->L, s->dir);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
-		lua_pushstring(mod_Lua->L, "Flags");	/* Push the index */
+		lua_pushstring(mod_Lua->L, "FlagsV");	/* Push the index */
 		lua_pushnumber(mod_Lua->L, s->flags);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 	
+		lua_pushstring(mod_Lua->L, "Flags");
+		lua_newtable(mod_Lua->L);
+		int i = 1;
+		if(s->flags & IN_CREATE){
+			lua_pushstring(mod_Lua->L, "create");
+			lua_rawseti(mod_Lua->L, -2, i++);
+		}
+		if(s->flags & IN_DELETE){
+			lua_pushstring(mod_Lua->L, "remove");
+			lua_rawseti(mod_Lua->L, -2, i++);
+		}
+		if(s->flags & IN_ATTRIB){
+			lua_pushstring(mod_Lua->L, "modify");
+			lua_rawseti(mod_Lua->L, -2, i++);
+		}
+		lua_rawset(mod_Lua->L, -3);	/* Add the sub table in the main table */
+
 		return 1;
 	} else
 #endif
