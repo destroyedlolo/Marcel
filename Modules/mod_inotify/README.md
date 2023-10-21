@@ -21,6 +21,7 @@ Send notification when a directory content changes. Also applicable to a single 
 
 * **Topic=** Topic to publish to
 * **On=** Directory (or file) to watch
+* **Dir=** alias for **On=**
 * **For=** *Actions* we are looking for
   * **create** File creation
   * **remove** File removal

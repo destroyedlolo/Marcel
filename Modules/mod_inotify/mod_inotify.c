@@ -27,6 +27,27 @@
 
 static struct module_inotify mod_inotify;
 
+static int publishCustomFiguresL4C(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_Look4Change *s = (struct section_Look4Change *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Directory");	/* Push the index */
+		lua_pushstring(mod_Lua->L, s->dir);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Flags");	/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->flags);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -51,6 +72,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_Look4Change *nsection = malloc(sizeof(struct section_Look4Change));	/* Allocate a new section */
 		initSection( (struct Section *)nsection, mid, SI_L4C, strdup(arg), "LookForChanges");	/* Initialize shared fields */
 
+		nsection->section.publishCustomFigures = publishCustomFiguresL4C;
 		nsection->dir = NULL;
 		nsection->flags = 0;
 	
@@ -61,7 +83,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		mod_inotify.first_section = nsection;	/* Add it in the module list as well */
 		return ACCEPTED;
 	} else if(*section){
-		if((arg = striKWcmp(l,"On="))){
+		if((arg = striKWcmp(l,"On=")) || (arg = striKWcmp(l,"Dir="))){
 			acceptSectionDirective(*section, "On=");
 			assert(( (*(struct section_Look4Change **)section)->dir = strdup(arg) ));
 
@@ -123,14 +145,6 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 
 static void *handleNotification(void *amod){
 	struct module_inotify *mod_inotify = (struct module_inotify *)amod;
-
-#ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	struct module_Lua *mod_Lua = NULL;
-
-	if(mod_Lua_id != (uint8_t)-1)
-		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-#endif
 
 	char buf[ INOTIFY_BUF_LEN ];
 
@@ -235,14 +249,6 @@ static void startNotif( uint8_t mid ){
 			exit(EXIT_FAILURE);
 		}
 
-#ifdef LUA
-		uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-		struct module_Lua *mod_Lua = NULL;
-
-		if(mod_Lua_id != (uint8_t)-1)
-			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-#endif
-
 		/* Sanity checks */
 		for(struct section_Look4Change *s = mod_inotify.first_section; s; s = (struct section_Look4Change *)s->section.next){
 			if(s->section.id != mod_inotify.first_section->section.id){	/* Not a L4C section anymore */
@@ -273,7 +279,7 @@ static void startNotif( uint8_t mid ){
 
 			/* Look for Lua functions */		
 #ifdef LUA
-			if(mod_Lua_id != (uint8_t)-1){
+			if(mod_Lua){
 				if(s->section.funcname){
 					if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 						publishLog('F', "[%s] configuration error : user function \"%s\" is not defined", s->section.uid, s->section.funcname);
@@ -308,4 +314,12 @@ void InitModule( void ){
 	mod_inotify.first_section = NULL;
 
 	registerModule( (struct Module *)&mod_inotify );	/* Register the module */
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "LookForChanges");
+	}
+#endif
 }
