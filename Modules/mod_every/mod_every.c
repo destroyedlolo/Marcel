@@ -37,12 +37,42 @@ enum {
 /* ***
  * Processing
  * ***/
+
+static int publishCustomFiguresEvery(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_every *s = (struct section_every *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Sample");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "Immediate");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->section.immediate);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static int publishCustomFiguresAt(struct Section *asection){
 #ifdef LUA
 	if(mod_Lua){
 		struct section_at *s = (struct section_at *)asection;
 
 		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "At");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "Immediate");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->section.immediate);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		lua_pushstring(mod_Lua->L, "runIfOver");	/* Push the index */
 		lua_pushboolean(mod_Lua->L, s->runIfOver);	/* the value */
@@ -217,6 +247,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		struct section_every *nsection = malloc(sizeof(struct section_every));
 		initSection( (struct Section *)nsection, mid, SE_EVERY, strdup(arg), "Every");
+
+		nsection->section.publishCustomFigures = publishCustomFiguresEvery;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Every section '%s' (%04x)", nsection->section.uid, nsection->section.id);
