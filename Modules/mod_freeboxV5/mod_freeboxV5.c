@@ -5,12 +5,19 @@
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)
  *
+ * THIS MODULE IS DEPRECATING : Free is phasing out these old devices
+ * and I haven't one anymore.
+ *
  * 01/10/2022 - LF - First version
  * 20/09/2023 - LF - Rename to V5
  */
 
 #include "mod_freeboxV5.h"
 #include "../Marcel/MQTT_tools.h"
+
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -308,4 +315,12 @@ void InitModule( void ){
 	mod_freeboxV5.module.getSlaveFunction = mfb_getSlaveFunction;
 
 	registerModule( (struct Module *)&mod_freeboxV5 );
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FreeboxV5");
+	}
+#endif
 }
