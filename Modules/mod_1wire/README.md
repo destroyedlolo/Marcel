@@ -51,6 +51,14 @@ Like FFV but value is read only when the probe is in alarm status
 * **Retained** submitted as retained message
 * **Immediate** Read and publish value at launching
 
+## Error condition
+
+An error condition is associated to each section, individually. It is raised if :
+- a technical issue prevents to read the probe
+- if the probe is under powered and **safe85** is set. But in such case, **FailFunc** is not called.
+
+The error condition is cleared as soon as a successful attempt to read the probe.
+
 ## Lua interface
 ### Func
 #### Arguments

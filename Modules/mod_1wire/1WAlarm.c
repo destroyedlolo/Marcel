@@ -36,6 +36,8 @@ static void processProbe( struct section_1wAlarm *s){
 
 	if(!(f = fopen( s->common.file, "r" ))){	/* probe is not reachable */
 		char *emsg = strerror(errno);
+		s->common.inerror = true;
+
 		publishLog('E', "[%s] %s : %s", s->common.section.uid, s->common.file, emsg);
 
 		if(strlen(s->common.section.topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
@@ -78,10 +80,12 @@ static void processProbe( struct section_1wAlarm *s){
 			mod_Lua->unlockState();
 		}
 	} else {
-		if(!fgets(l, MAXLINE, f))
+		if(!fgets(l, MAXLINE, f)){
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
-		else {
+			s->common.inerror = true;
+		} else {
 			bool publish = true;
+			s->common.inerror = false;
 
 			if(mod_Lua && s->common.section.funcid != LUA_REFNIL){
 				mod_Lua->lockState();
@@ -182,7 +186,7 @@ void start1WAlarm( uint8_t mid ){
 			}
 
 			if(!s->common.file){
-				publishLog('E', "[%s] File must be set. Dying ...", s->common.section.uid);
+				publishLog('F', "[%s] File must be set. Dying ...", s->common.section.uid);
 				exit(EXIT_FAILURE);
 			}
 

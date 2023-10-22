@@ -41,6 +41,10 @@ static int publishCustomFiguresFFV(struct Section *asection){
 		lua_pushboolean(mod_Lua->L, s->safe85);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 	
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->common.inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
 		return 1;
 	} else
 #endif
@@ -150,6 +154,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
+		nsection->common.inerror = false;
 		nsection->offset = 0.0;
 		nsection->safe85 = false;
 
@@ -170,6 +175,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->common.section.publishCustomFigures = publishCustomFigures1WAlrm;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
+		nsection->common.inerror = false;
 		nsection->initfunc = NULL;
 		nsection->latch = NULL;
 
@@ -177,6 +183,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('C', "\tEntering 1-wire Alarm section '%s' (%04x)", nsection->common.section.uid, nsection->common.section.id);
 
 		mod_1wire.alarm_in_use = false;
+		mod_1wire.alerm_in_error = false;
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
 	} else if(*section){
@@ -282,6 +289,24 @@ static ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int m1_inError(lua_State *L){
+	struct OwCommon **s = luaL_testudata(L, 1, "FFV");
+	if(!s)
+		s = luaL_testudata(L, 1, "1WAlarm");
+	luaL_argcheck(L, s != NULL, 1, "'FFV' expected");
+
+	lua_pushboolean(mod_Lua->L, (*s)->inerror);
+
+	return 1;
+}
+
+static const struct luaL_Reg m1M[] = {
+	{"inError", m1_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_1wire, "mod_1wire");
 
@@ -306,6 +331,10 @@ void InitModule( void ){
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FFV");
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "1WAlarm");
+
+			/* Expose mod_dpd's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "FFV", m1M);
+		mod_Lua->exposeObjMethods(mod_Lua->L, "1WAlarm", m1M);
 	}
 #endif
 }
