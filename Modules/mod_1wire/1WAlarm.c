@@ -67,6 +67,7 @@ static void processProbe( struct section_1wAlarm *s){
 			mqttpublish(cfg.client, l, strlen(msg), msg, 0);
 		}
 
+#ifdef LUA
 		if(mod_Lua && s->common.failfuncid != LUA_REFNIL){
 			mod_Lua->lockState();
 			mod_Lua->pushFunctionId( s->common.failfuncid );
@@ -79,6 +80,7 @@ static void processProbe( struct section_1wAlarm *s){
 			}
 			mod_Lua->unlockState();
 		}
+#endif
 	} else {
 		if(!fgets(l, MAXLINE, f)){
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
@@ -87,6 +89,7 @@ static void processProbe( struct section_1wAlarm *s){
 			bool publish = true;
 			s->common.inerror = false;
 
+#ifdef LUA
 			if(mod_Lua && s->common.section.funcid != LUA_REFNIL){
 				mod_Lua->lockState();
 				mod_Lua->pushFunctionId( s->common.section.funcid );
@@ -101,6 +104,7 @@ static void processProbe( struct section_1wAlarm *s){
 					publish = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
 				mod_Lua->unlockState();
 			}
+#endif
 
 			if(publish){
 				publishLog('T', "[%s] -> %s", s->common.section.uid, l);
@@ -197,6 +201,7 @@ void start1WAlarm( uint8_t mid ){
 #endif
 			}
 
+#ifdef LUA
 			if(mod_Lua && s->common.section.funcname){
 				
 				if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
@@ -205,18 +210,14 @@ void start1WAlarm( uint8_t mid ){
 				}
 			}
 
-			if(s->common.failfunc){
-				assert(mod_Lua);
-				
+			if(mod_Lua && s->common.failfunc){
 				if( (s->common.failfuncid = mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : Fail function \"%s\" is not defined", s->common.section.uid, s->common.failfunc);
 					exit(EXIT_FAILURE);
 				}
 			}
 
-			if(s->initfunc){	/* Initialise all 1wAlarm */
-				assert(mod_Lua);
-
+			if(mod_Lua && s->initfunc){	/* Initialise all 1wAlarm */
 				int funcid;
 				if( (funcid = mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
 					publishLog('E', "[%s] configuration error : Init function \"%s\" is not defined. Dying.", s->common.section.uid, s->initfunc);
@@ -234,6 +235,7 @@ void start1WAlarm( uint8_t mid ){
 				}
 				mod_Lua->unlockState();
 			}
+#endif
 
 			/* First reading if Immediate */
 			if(s->common.section.immediate)
