@@ -104,7 +104,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		return ACCEPTED;	
 	} else if((arg = striKWcmp(l,"1wire-Alarm-directory="))){
 		if(*section){
-			publishLog('F', "TestFlag can't be part of a section");
+			publishLog('F', "1wire-Alarm-directory can't be part of a section");
 			exit(EXIT_FAILURE);
 		}
 
@@ -135,7 +135,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		mod_1wire.randomize = true;
+		mod_1wire.OwAlarmKeep = true;
 
 		if(cfg.verbose)
 			publishLog('C', "\t1-wire Technical errors are not fatal");
