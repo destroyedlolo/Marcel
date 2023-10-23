@@ -118,7 +118,7 @@ static void processProbe( struct section_1wAlarm *s){
 }
 
 	/* ***
-	 * Scan Alert directory
+	 * Slave thread to scan Alert directory
 	 * ***/
 void *scanAlertDir(void *amod){
 	struct module_1wire *mod_1wire = (struct module_1wire *)amod;
@@ -128,14 +128,17 @@ void *scanAlertDir(void *amod){
 		struct dirent *de;
 		DIR *d = opendir( mod_1wire->OwAlarm );
 		if( !d ){
+			mod_1wire->alerm_in_error = true;
 			publishLog(mod_1wire->OwAlarmKeep ? 'E' : 'F', "[1-wire Alarm] : %s", strerror(errno));
 			if(!mod_1wire->OwAlarmKeep)
 				pthread_exit(0);
 		} else {
+			mod_1wire->alerm_in_error = false;
 			while(( de = readdir(d) )){
 				if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
 					publishLog('T', "%s : in alert", de->d_name);
 
+						/* Look for corresponding section */
 					for(struct section_1wAlarm *s = (struct section_1wAlarm *)sections; s; s = (struct section_1wAlarm *)s->common.section.next){
 						if( s->common.section.id == sid && strstr(s->common.file, de->d_name)){
 							processProbe(s);

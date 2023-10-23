@@ -290,19 +290,28 @@ static ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
 }
 
 #ifdef LUA
-static int m1_inError(lua_State *L){
+static int s1_inError(lua_State *L){
 	struct OwCommon **s = luaL_testudata(L, 1, "FFV");
 	if(!s)
 		s = luaL_testudata(L, 1, "1WAlarm");
 	luaL_argcheck(L, s != NULL, 1, "'FFV' expected");
 
-	lua_pushboolean(mod_Lua->L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
 
+static const struct luaL_Reg s1M[] = {
+	{"inError", s1_inError},
+	{NULL, NULL}
+};
+
+static int m1_inError(lua_State *L){
+	lua_pushboolean(L, mod_1wire.alerm_in_error);
 	return 1;
 }
 
 static const struct luaL_Reg m1M[] = {
-	{"inError", m1_inError},
+	{"AlarmInError", m1_inError},
 	{NULL, NULL}
 };
 #endif
@@ -333,8 +342,11 @@ void InitModule( void ){
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "1WAlarm");
 
 			/* Expose mod_dpd's own function */
-		mod_Lua->exposeObjMethods(mod_Lua->L, "FFV", m1M);
-		mod_Lua->exposeObjMethods(mod_Lua->L, "1WAlarm", m1M);
+		mod_Lua->exposeObjMethods(mod_Lua->L, "FFV", s1M);
+		mod_Lua->exposeObjMethods(mod_Lua->L, "1WAlarm", s1M);
+
+			/* Expose mod_alert's own function */
+		mod_Lua->exposeFunctions("mod_1wire", m1M);
 	}
 #endif
 }

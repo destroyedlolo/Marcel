@@ -83,3 +83,8 @@ The error condition is cleared as soon as a successful attempt to read the probe
 
 1. Section id
 2. error message
+
+## Objects exposed to Lua
+### Exposed functions
+
+- **mod_1wire.AlarmInError()** - (boolean) return if 1-wire Alarm is facing a technical error (like alarm directory missing).
