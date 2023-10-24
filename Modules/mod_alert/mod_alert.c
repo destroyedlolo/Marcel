@@ -473,13 +473,16 @@ void InitModule( void ){
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 
 #ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
-		mod_alert.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "unnamedNotification");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "alert");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "RaiseAlert");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "CorrectAlert");
 
 			/* Expose mod_alert's own function */
-		mod_alert.mod_Lua->exposeFunctions("Marcel", ModAlertLib);
-	} else
-		mod_alert.mod_Lua = NULL;
+		mod_Lua->exposeFunctions("mod_alert", ModAlertLib);
+	}
 #endif
 }
