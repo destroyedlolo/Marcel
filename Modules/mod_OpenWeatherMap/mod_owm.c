@@ -20,6 +20,49 @@
 
 struct module_owm mod_owm;
 
+static int publishCustomFiguresOWM(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_OWMQuery *s = (struct section_OWMQuery *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Topic");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->section.topic);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Sample");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "City");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->city);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "Units");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->units);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "lang");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->lang);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Immediate");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->section.immediate);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+#if 0
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->common.inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+#endif
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 	/* Convert weather condition to accurate code */
 int convWCode( int code, int dayornight ){
 	if( code >=200 && code < 300 )
@@ -83,6 +126,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		initSection( (struct Section *)nsection, mid, SM_DAILY, strdup(arg), "MeteoDaily");	/* Initialize shared fields */
 
 		nsection->section.sample = DEFAULT_WEATHER_SAMPLE;
+		nsection->section.publishCustomFigures = publishCustomFiguresOWM;
 		nsection->city = NULL;
 		nsection->units = "metric";
 		nsection->lang = "en";
@@ -102,6 +146,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		initSection( (struct Section *)nsection, mid, SM_3H, strdup(arg), "Meteo3H");	/* Initialize shared fields */
 
 		nsection->section.sample = DEFAULT_WEATHER_SAMPLE;
+		nsection->section.publishCustomFigures = publishCustomFiguresOWM;
 		nsection->city = NULL;
 		nsection->units = "metric";
 		nsection->lang = "en";
