@@ -9,6 +9,9 @@
  */
 
 #include "mod_owm.h"
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -180,4 +183,13 @@ void InitModule( void ){
 	mod_owm.apikey = NULL;
 
 	registerModule( (struct Module *)&mod_owm );	/* Register the module */
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "MeteoDaily");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Meteo3H");
+	}
+#endif
 }
