@@ -117,7 +117,7 @@ Limitations :
 ## Objects exposed to Lua
 ### Exposed functions
 
-| :warning:WARNING:warning: : As of of Marcel v8.0, this API break upward compatibility. Exposing methods to Marcel object is not compatible with recent Lua version. |
+| :warning:WARNING:warning: : As of of Marcel v8.1, this API break upward compatibility. Exposing methods to Marcel object is not compatible with recent Lua version. |
 | --- |
 
 #### Legacy reporting
