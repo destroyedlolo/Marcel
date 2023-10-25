@@ -9,7 +9,7 @@ cc=cc
 opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA $(shell pkg-config --cflags json-c ) -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_owm.o : mod_owm.c mod_owm.h ../Marcel/Module.h ../Marcel/Section.h \
-  Makefile 
+  ../mod_Lua/mod_Lua.h Makefile 
 	$(cc) -c -o mod_owm.o mod_owm.c $(opts) 
 
 Weather3H.o : Weather3H.c mod_owm.h ../Marcel/Module.h \

@@ -51,11 +51,9 @@ static int publishCustomFiguresOWM(struct Section *asection){
 		lua_pushboolean(mod_Lua->L, s->section.immediate);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
-#if 0
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->common.inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
-#endif
 
 		return 1;
 	} else
@@ -215,6 +213,23 @@ static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_OWMQuery **s = luaL_testudata(L, 1, "MeteoDaily");
+	if(!s)
+		s = luaL_testudata(L, 1, "Meteo3H");
+	luaL_argcheck(L, s != NULL, 1, "'Meteo' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_owm, "mod_owm");	/* Identify the module */
 
@@ -235,6 +250,10 @@ void InitModule( void ){
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "MeteoDaily");
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Meteo3H");
+
+			/* Expose mod_owm's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "MeteoDaily", soM);
+		mod_Lua->exposeObjMethods(mod_Lua->L, "Meteo3H", soM);
 	}
 #endif
 }

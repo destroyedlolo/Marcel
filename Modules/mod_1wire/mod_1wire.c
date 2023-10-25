@@ -341,7 +341,7 @@ void InitModule( void ){
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FFV");
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "1WAlarm");
 
-			/* Expose mod_dpd's own function */
+			/* Expose mod_1wire's own function */
 		mod_Lua->exposeObjMethods(mod_Lua->L, "FFV", s1M);
 		mod_Lua->exposeObjMethods(mod_Lua->L, "1WAlarm", s1M);
 
