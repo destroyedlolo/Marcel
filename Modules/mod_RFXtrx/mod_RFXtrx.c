@@ -8,6 +8,9 @@
  */
 
 #include "mod_RFXtrx.h"
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 #include "../Marcel/MQTT_tools.h"
 
 #include <stdlib.h>
@@ -22,6 +25,30 @@
 #include <errno.h>
 
 static struct module_RFXtrx mod_RFXtrx;
+
+static int publishCustomFiguresRFXCmd(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_RFXCom *s = (struct section_RFXCom *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "DeviceID");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->did);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		char t[9];
+		sprintf(t, "%04x", s->did);
+
+		lua_pushstring(mod_Lua->L, "DeviceID Hexa");
+		lua_pushstring(mod_Lua->L, t);
+		lua_rawset(mod_Lua->L, -3);
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
 
 static void sr_postconfInit(struct Section *);
 static bool sr_processMQTT(struct Section *, const char *, char *);
@@ -57,6 +84,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		struct section_RFXCom *nsection = malloc(sizeof(struct section_RFXCom));
 		initSection( (struct Section *)nsection, mid, ST_CMD, strdup(arg), "RTSCmd");
+
+		nsection->section.publishCustomFigures = publishCustomFiguresRFXCmd;
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = sr_postconfInit;	/* Subscribe */
@@ -378,4 +407,13 @@ void InitModule( void ){
 		 * Do internal initialization
 		 */
 	mod_RFXtrx.RFXdevice = NULL;
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "RTSCmd");
+
+	}
+#endif
 }
