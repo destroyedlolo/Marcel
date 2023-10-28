@@ -27,7 +27,7 @@ Needs=mod_sht31
 	func=DisplayTH
 
 	# Offset : Calibration offset to apply to the temperature value
-	Offset=-3.25
+	OffsetT=-3.25
 	OffsetH=1.5
 
 #	Disable

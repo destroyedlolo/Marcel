@@ -17,7 +17,7 @@ none
 * **Immediate** Launch the 1st sample at startup
 * **Keep** Don't abort in case of technical error
 * **func=** Acceptation function (*see bellow*, **mod_Lua** needed)
-* **Offset=** offset to add to temperature value
+* **OffsetT=** offset to add to temperature value
 * **OffsetH=** offset to add to humidity value
 * **Disabled** Start this section disabled
 
