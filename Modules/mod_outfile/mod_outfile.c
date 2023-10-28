@@ -25,6 +25,23 @@ enum {
 	SOF_OUTFILE = 0
 };
 
+static int publishCustomFiguresOF(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_outfile *s = (struct section_outfile *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->file);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static void so_postconfInit(struct Section *asec){
 	struct section_outfile *s = (struct section_outfile *)asec;	/* avoid lot of casting */
 
@@ -40,11 +57,8 @@ static void so_postconfInit(struct Section *asec){
 	}
 
 #ifdef LUA
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	if(mod_Lua_id != (uint8_t)-1){
+	if(mod_Lua){
 		if(s->section.funcname){	/* if an user function defined ? */
-			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 					pthread_exit(NULL);
@@ -74,12 +88,8 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 
 		bool ret = true;
 #ifdef LUA
-		struct module_Lua *mod_Lua = NULL;
-		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-		if(mod_Lua_id != (uint8_t)-1){
+		if(mod_Lua){
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-
 				mod_Lua->lockState();
 				mod_Lua->pushFunctionId( s->section.funcid );
 				mod_Lua->pushString( s->section.uid );
@@ -130,6 +140,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_outfile *nsection = malloc(sizeof(struct section_outfile));
 		initSection( (struct Section *)nsection, mid, SOF_OUTFILE, strdup(arg), "OutFile");
 
+		nsection->section.publishCustomFigures = publishCustomFiguresOF;
 		nsection->file = NULL;
 		nsection->section.postconfInit = so_postconfInit;
 		nsection->section.processMsg = so_processMQTT;
@@ -176,4 +187,12 @@ void InitModule( void ){
 	mod_outfile.module.acceptSDirective = mo_acceptSDirective;
 
 	registerModule( (struct Module *)&mod_outfile );
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "OutFile");
+	}
+#endif
 }
