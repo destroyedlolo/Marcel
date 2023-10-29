@@ -26,4 +26,4 @@ An example is provided in `Config` sub directory of the current one
 
 An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
 
-Error condition is exposed to Lua by **FreeboxV5.inError()** method.
+Error condition is exposed to Lua by **FreeboxV5:inError()** method.
