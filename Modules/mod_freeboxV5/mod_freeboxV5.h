@@ -21,5 +21,7 @@ struct module_freeboxV5 {
 
 struct section_freeboxV5 {
 	struct Section section;
+
+	bool inerror;
 };
 #endif
