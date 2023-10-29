@@ -71,3 +71,9 @@ and for today :
 * `.../sunrise/GMT`
 * `.../sunset`
 * `.../sunset/GMT`
+
+## Error condition
+
+An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
+
+Error condition is exposed to Lua by **MeteoDaily.inError()** and **Meteo3H..inError()** methods.
