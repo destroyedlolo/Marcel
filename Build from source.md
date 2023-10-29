@@ -17,7 +17,7 @@ Have a look on your distribution documentation :smirk:
 * If you need to modify some compilation options ; [LFMakeMaker](http://destroyedlolo.info/Developpement/LFMakeMaker/).<br>
 I strongly suggest to modify then launch **remake.sh** instead of tedious Makefile changes.
 
-:warning: **Notez-bien : if your experimenting include file not found, but the corresponding dependencies are already installed ... rerun `remake.sh`**.
+:warning: **Notez-bien : if you're experimenting include file not found, but the corresponding dependencies are already installed ... rerun `remake.sh`**.
 It's probably because there are not in the same place compared to my system when I generated the Makefiles.
 
 ## Helpers libraries
