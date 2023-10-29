@@ -59,6 +59,12 @@ static int publishCustomFiguresL4C(struct Section *asection){
 		}
 		lua_rawset(mod_Lua->L, -3);	/* Add the sub table in the main table */
 
+#if 0	/* Section can't be in error on themselves */
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+#endif
+
 		return 1;
 	} else
 #endif
@@ -173,7 +179,8 @@ static void *handleNotification(void *amod){
 			if(errno == EAGAIN)	/* Nothing to read */
 				continue;
 			publishLog('F', "[mod_inotify] read() : %s", strerror(errno));
-			exit(EXIT_FAILURE);
+			mod_inotify->inerror = true;
+			pthread_exit(0);
 		}
 
 		for(char *ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len){
@@ -320,6 +327,18 @@ static void startNotif( uint8_t mid ){
 		publishLog('I', "No file system notification configured");
 }
 
+#ifdef LUA
+static int m_inError(lua_State *L){
+	lua_pushboolean(L, mod_inotify.inerror);
+	return 1;
+}
+
+static const struct luaL_Reg mM[] = {
+	{"inError", m_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_inotify, "mod_inotify");	/* Identify the module */
 
@@ -329,14 +348,20 @@ void InitModule( void ){
 
 	mod_inotify.grouped = false;
 	mod_inotify.first_section = NULL;
+	mod_inotify.inerror = false;
 
 	registerModule( (struct Module *)&mod_inotify );	/* Register the module */
 
 #ifdef LUA
 	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
+#if 0	/* Section can't be on error on their own */
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "LookForChanges");
+#endif
+
+			/* Expose mod_1wire's own function */
+		mod_Lua->exposeFunctions("mod_inotify", mM);
 	}
 #endif
 }
