@@ -364,7 +364,7 @@ void InitModule( void ){
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FreeboxV5");
 
-			/* Expose mod_owm's own function */
+			/* Expose module's own function */
 		mod_Lua->exposeObjMethods(mod_Lua->L, "FreeboxV5", sM);
 	}
 #endif
