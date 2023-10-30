@@ -59,7 +59,7 @@ An error condition is associated to each section, individually. It is raised if 
 
 The error condition is cleared as soon as a successful attempt to read the probe.
 
-Error condition is exposed to Lua by **FFV.inError()** and **1WAlarm..inError()** methods.
+Error condition is exposed to Lua by **FFV:inError()** and **1WAlarm:inError()** methods.
 
 ## Lua interface
 ### Func
