@@ -36,6 +36,10 @@ static int publishCustomFiguresOF(struct Section *asection){
 		lua_pushstring(mod_Lua->L, s->file);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
 		return 1;
 	} else
 #endif
@@ -106,6 +110,8 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 #endif
 
 		if(ret){
+			s->inerror = true;	/* By default, we're falling */
+
 			FILE *f=fopen( s->file, "w" );
 			if(!f){
 				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
@@ -117,6 +123,7 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 				fclose(f);
 				return true;
 			}
+			s->inerror = false;
 			publishLog('T', "[%s] '%s' written in '%s'", s->section.uid, payload, s->file);
 			fclose(f);
 		} else 
@@ -180,6 +187,21 @@ static bool mo_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_outfile **s = luaL_testudata(L, 1, "OutFile");
+	luaL_argcheck(L, s != NULL, 1, "'OutFile' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_outfile, "mod_outfile");
 
@@ -193,6 +215,9 @@ void InitModule( void ){
 
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "OutFile");
+
+			/* Expose module's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "OutFile", soM);
 	}
 #endif
 }
