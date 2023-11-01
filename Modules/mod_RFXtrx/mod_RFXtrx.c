@@ -44,6 +44,14 @@ static int publishCustomFiguresRFXCmd(struct Section *asection){
 		lua_pushstring(mod_Lua->L, t);
 		lua_rawset(mod_Lua->L, -3);
 
+		lua_pushstring(mod_Lua->L, "Topic");
+		lua_pushstring(mod_Lua->L, s->section.topic);
+		lua_rawset(mod_Lua->L, -3);
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
 		return 1;
 	} else
 #endif
@@ -216,6 +224,8 @@ static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 			return true;	/* We understood the command but nothing is done */
 		}
 
+		s->inerror = true;	/* by default, we're in trouble */
+
 		BYTE cmd;
 		int fd;
 
@@ -255,6 +265,8 @@ static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 
 		pthread_mutex_unlock( &oneTRXcmd );
 		close(fd);
+
+		s->inerror = false;
 
 		publishLog('T', "[%s] Sending '%s' (%d) command to %04x", s->section.uid, msg, cmd, s->did);
 
@@ -392,6 +404,22 @@ static void init_RFX( uint8_t mid ){
 	pthread_mutex_init( &oneTRXcmd, NULL );
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_RFXCom **s = luaL_testudata(L, 1, "RTSCmd");
+	luaL_argcheck(L, s != NULL, 1, "'RTSCmd' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_RFXtrx, "mod_RFXtrx"); /* Identify the module */
 
@@ -414,6 +442,8 @@ void InitModule( void ){
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "RTSCmd");
 
+			/* Expose mod_owm's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "RTSCmd", soM);
 	}
 #endif
 }
