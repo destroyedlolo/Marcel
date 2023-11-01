@@ -52,11 +52,9 @@ static int publishCustomFiguresSHT31(struct Section *asection){
 		lua_pushnumber(mod_Lua->L, s->offsetH);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
-#if 0	
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->common.inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
-#endif
 
 		return 1;
 	} else
@@ -66,6 +64,8 @@ static int publishCustomFiguresSHT31(struct Section *asection){
 
 static void *processSHT31(void *actx){
 	struct section_sht31 *s = (struct section_sht31 *)actx;
+
+	s->inerror = true;	/* Bye default, we're in trouble */
 
 		/* Sanity checks */
 	if(!s->section.topic){
@@ -115,6 +115,8 @@ static void *processSHT31(void *actx){
 	publishLog('I', "[%s] Humidity : '%s'", s->section.uid, humtopic);
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
+		s->inerror = true;	/* Bye default, we're in trouble */
+
 		if(s->section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)
@@ -149,6 +151,8 @@ static void *processSHT31(void *actx){
 					close(fd);
 					publishLog('E', "[%s] I/O error", s->section.uid);
 				} else {	/* Conversion formulas took from SHT31 datasheet */
+					s->inerror = false;
+
 					close(fd);	/* Release the bus as soon as possible */
 
 					double valt, valh;
@@ -293,6 +297,21 @@ ThreadedFunctionPtr mh_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_sht31 **s = luaL_testudata(L, 1, "SHT31");
+	luaL_argcheck(L, s != NULL, 1, "'SHT31' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_sht31, "mod_sht31");	/* Identify the module */
 
@@ -310,6 +329,8 @@ void InitModule( void ){
 
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "SHT31");
-	}
+
+			/* Expose mod_owm's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "SHT31", soM);	}
 #endif
 }

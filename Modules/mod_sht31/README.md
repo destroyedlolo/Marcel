@@ -30,3 +30,9 @@ none
 ### Lua function return
 
 1. `true` if values are accepted and so, published
+
+## Error condition
+
+An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
+
+Error condition is exposed to Lua by **SHT31:inError()**.
