@@ -21,6 +21,7 @@ Send notification when a directory content changes. Also applicable to a single 
 
 * **Topic=** Topic to publish to
 * **On=** Directory (or file) to watch
+* **Dir=** alias for **On=**
 * **For=** *Actions* we are looking for
   * **create** File creation
   * **remove** File removal
@@ -46,3 +47,12 @@ With `action` as defined by [Linux' INotify's](https://man7.org/linux/man-pages/
 
 * `true` the notification will be published
 * `false` the notification will not be published
+
+## Error condition
+
+Unlike other modules, there is no error condition associated to section handled by mod_inotify but a global error state at module itself.
+
+It can be tested using following code :
+```
+mod_inotify:inError()
+```

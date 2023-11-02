@@ -51,6 +51,16 @@ Like FFV but value is read only when the probe is in alarm status
 * **Retained** submitted as retained message
 * **Immediate** Read and publish value at launching
 
+## Error condition
+
+An error condition is associated to each section, individually. It is raised if :
+- a technical issue prevents to read the probe
+- if the probe is under powered and **safe85** is set. But in such case, **FailFunc** is not called.
+
+The error condition is cleared as soon as a successful attempt to read the probe.
+
+Error condition is exposed to Lua by **FFV:inError()** and **1WAlarm:inError()** methods.
+
 ## Lua interface
 ### Func
 #### Arguments
@@ -75,3 +85,8 @@ Like FFV but value is read only when the probe is in alarm status
 
 1. Section id
 2. error message
+
+## Objects exposed to Lua
+### Exposed functions
+
+- **mod_1wire.AlarmInError()** - (boolean) return if 1-wire Alarm is facing a technical error (like alarm directory missing).

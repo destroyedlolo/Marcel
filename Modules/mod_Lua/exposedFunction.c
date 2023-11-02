@@ -74,10 +74,9 @@ static int lmCopyright(lua_State *L){
 }
 
 static int lm_sinter(lua_State *L){
-	if(mod_Lua.psection){
-		mlSectionPush(L, mod_Lua.psection);
-/*		lua_pushstring(L, mod_Lua.psection->uid); */
-		mod_Lua.psection = mod_Lua.psection->next;
+	if(mod_Lua->psection){
+		mod_Lua->pushSectionObject(L, mod_Lua->psection);
+		mod_Lua->psection = mod_Lua->psection->next;
 
 		return 1;
 	} else
@@ -85,7 +84,7 @@ static int lm_sinter(lua_State *L){
 }
 
 static int lmSections(lua_State *L){
-	mod_Lua.psection = sections;
+	mod_Lua->psection = sections;
 
 	lua_pushcclosure(L, lm_sinter, 1);
 

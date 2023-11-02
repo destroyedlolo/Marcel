@@ -25,6 +25,27 @@ enum {
 	SOF_OUTFILE = 0
 };
 
+static int publishCustomFiguresOF(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_outfile *s = (struct section_outfile *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->file);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static void so_postconfInit(struct Section *asec){
 	struct section_outfile *s = (struct section_outfile *)asec;	/* avoid lot of casting */
 
@@ -40,11 +61,8 @@ static void so_postconfInit(struct Section *asec){
 	}
 
 #ifdef LUA
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	if(mod_Lua_id != (uint8_t)-1){
+	if(mod_Lua){
 		if(s->section.funcname){	/* if an user function defined ? */
-			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 					pthread_exit(NULL);
@@ -74,12 +92,8 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 
 		bool ret = true;
 #ifdef LUA
-		struct module_Lua *mod_Lua = NULL;
-		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-		if(mod_Lua_id != (uint8_t)-1){
+		if(mod_Lua){
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-
 				mod_Lua->lockState();
 				mod_Lua->pushFunctionId( s->section.funcid );
 				mod_Lua->pushString( s->section.uid );
@@ -96,6 +110,8 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 #endif
 
 		if(ret){
+			s->inerror = true;	/* By default, we're falling */
+
 			FILE *f=fopen( s->file, "w" );
 			if(!f){
 				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
@@ -107,6 +123,7 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 				fclose(f);
 				return true;
 			}
+			s->inerror = false;
 			publishLog('T', "[%s] '%s' written in '%s'", s->section.uid, payload, s->file);
 			fclose(f);
 		} else 
@@ -128,8 +145,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_outfile *nsection = malloc(sizeof(struct section_outfile));
-		initSection( (struct Section *)nsection, mid, SOF_OUTFILE, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SOF_OUTFILE, strdup(arg), "OutFile");
 
+		nsection->section.publishCustomFigures = publishCustomFiguresOF;
 		nsection->file = NULL;
 		nsection->section.postconfInit = so_postconfInit;
 		nsection->section.processMsg = so_processMQTT;
@@ -169,6 +187,21 @@ static bool mo_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_outfile **s = luaL_testudata(L, 1, "OutFile");
+	luaL_argcheck(L, s != NULL, 1, "'OutFile' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_outfile, "mod_outfile");
 
@@ -176,4 +209,15 @@ void InitModule( void ){
 	mod_outfile.module.acceptSDirective = mo_acceptSDirective;
 
 	registerModule( (struct Module *)&mod_outfile );
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "OutFile");
+
+			/* Expose module's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "OutFile", soM);
+	}
+#endif
 }

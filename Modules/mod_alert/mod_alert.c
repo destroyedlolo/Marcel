@@ -46,7 +46,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_unnamednotification *nsection = malloc(sizeof(struct section_unnamednotification));
-		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$unnamedNotification");
+		initSection( (struct Section *)nsection, mid, SA_NOTIF, "$unnamedNotification", "unnamedNotification");
 
 		nsection->section.topic = "Notification/#";
 		nsection->actions.url = NULL;
@@ -98,7 +98,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_alert *nsection = malloc(sizeof(struct section_alert));
-		initSection( (struct Section *)nsection, mid, SA_ALERT, "$alert");
+		initSection( (struct Section *)nsection, mid, SA_ALERT, "$alert", "alert");
 
 			/* This section is processing MQTT messages */
 		nsection->section.topic = "Alert/#";
@@ -122,7 +122,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_raise *nsection = malloc(sizeof(struct section_raise));
-		initSection( (struct Section *)nsection, mid, SA_RAISE, strdup(arg));		
+		initSection( (struct Section *)nsection, mid, SA_RAISE, strdup(arg), "RaiseAlert");		
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = malert_postconfInit;	/* Subscribe */
@@ -145,7 +145,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_raise *nsection = malloc(sizeof(struct section_correct));
-		initSection( (struct Section *)nsection, mid, SA_CORRECT, strdup(arg));		
+		initSection( (struct Section *)nsection, mid, SA_CORRECT, strdup(arg), "CorrectAlert");		
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = malert_postconfInit;	/* Subscribe */
@@ -473,12 +473,16 @@ void InitModule( void ){
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 
 #ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id != (uint8_t)-1){ /* Is mod_Lua loaded ? */
-		mod_alert.mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "unnamedNotification");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "alert");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "RaiseAlert");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "CorrectAlert");
 
 			/* Expose mod_alert's own function */
-		mod_alert.mod_Lua->exposeFunctions("Marcel", ModAlertLib);
+		mod_Lua->exposeFunctions("mod_alert", ModAlertLib);
 	}
 #endif
 }

@@ -5,12 +5,19 @@
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)
  *
+ * THIS MODULE IS DEPRECATING : Free is phasing out these old devices
+ * and I haven't one anymore.
+ *
  * 01/10/2022 - LF - First version
  * 20/09/2023 - LF - Rename to V5
  */
 
 #include "mod_freeboxV5.h"
 #include "../Marcel/MQTT_tools.h"
+
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -35,11 +42,30 @@ enum {
 	SFB_FREEBOXV5= 0
 };
 
+static int publishCustomFiguresFbV5(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_freeboxV5 *s = (struct section_freeboxV5 *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static void *process_freeboxV5(void *actx){
 	struct section_freeboxV5 *ctx = (struct section_freeboxV5 *)actx;
 	char l[MAXLINE];
 	struct hostent *server;
 	struct sockaddr_in serv_addr;
+
+	ctx->inerror = true;	/* By default, we're in trouble */
 
 	if(!ctx->section.topic){
 		publishLog('E', "[FreeboxV5] configuration error : no topic specified, ignoring this section");
@@ -62,11 +88,14 @@ static void *process_freeboxV5(void *actx){
 
 	for(bool first=true;; first=false){
 		if(ctx->section.disabled){
+			ctx->inerror = false;
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", ctx->section.uid);
 #endif
 		} else if( !first || ctx->section.immediate ){
+			ctx->inerror = true;
+
 			int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 			if(sockfd < 0){
 				publishLog('E', "[%s] Can't create socket : %s", ctx->section.uid, strerror( errno ));
@@ -80,6 +109,8 @@ static void *process_freeboxV5(void *actx){
 				else if( send(sockfd, FBX_REQ, strlen(FBX_REQ), 0) == -1 )
 					publishLog('E', "[%s] Sending : %s", ctx->section.uid, strerror( errno ));
 				else while( socketreadline(sockfd, l, sizeof(l)) != -1 ){
+					ctx->inerror = false;
+
 					if(strstr(l, "ATM")){
 						int u, d, lm;
 						if(sscanf(l+25,"%d", &d) != 1) d=-1;
@@ -264,7 +295,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 		}
 
 		struct section_freeboxV5 *nsection = malloc(sizeof(struct section_freeboxV5));
-		initSection( (struct Section *)nsection, mid, SFB_FREEBOXV5, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SFB_FREEBOXV5, strdup(arg), "FreeboxV5");
+
+		nsection->section.publishCustomFigures = publishCustomFiguresFbV5;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering FreeboxV5 section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -300,6 +333,22 @@ static ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int s_inError(lua_State *L){
+	struct section_freeboxV5 **s = luaL_testudata(L, 1, "FreeboxV5");
+	luaL_argcheck(L, s != NULL, 1, "'FreeboxV5' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg sM[] = {
+	{"inError", s_inError},
+	{NULL, NULL}
+};
+#endif
+
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_freeboxV5, "mod_freeboxV5");
 
@@ -308,4 +357,15 @@ void InitModule( void ){
 	mod_freeboxV5.module.getSlaveFunction = mfb_getSlaveFunction;
 
 	registerModule( (struct Module *)&mod_freeboxV5 );
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FreeboxV5");
+
+			/* Expose module's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "FreeboxV5", sM);
+	}
+#endif
 }

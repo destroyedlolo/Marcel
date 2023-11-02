@@ -19,6 +19,7 @@
 
 void *processFFV(void *actx){
 	struct section_FFV *s = (struct section_FFV *)actx;
+	s->common.inerror = true;	/* in case of issue during the initialisation */
 
 		/* Sanity checks */
 	if(!s->common.section.topic){
@@ -58,6 +59,8 @@ void *processFFV(void *actx){
 	}
 #endif
 
+	s->common.inerror = false;	/* Initialisation completed */
+
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
 		if(s->common.section.disabled){
 #ifdef DEBUG
@@ -70,6 +73,8 @@ void *processFFV(void *actx){
 
 			if(!(f = fopen( s->common.file, "r" ))){	/* probe is not reachable */
 				char *emsg = strerror(errno);
+				s->common.inerror = true;
+
 				publishLog('E', "[%s] %s : %s", s->common.section.uid, s->common.file, emsg);
 
 				if(strlen(s->common.section.topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
@@ -115,15 +120,18 @@ void *processFFV(void *actx){
 #endif
 			} else {
 				float val;
-				if(!fscanf(f, "%f", &val))
+				if(!fscanf(f, "%f", &val)){
 					publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
-				else {	/* Only to normalize the response */
+					s->common.inerror = true;
+				} else {	/* Only to normalize the response */
 					bool publish = true;
+					s->common.inerror = false;
 					float compensated = val + s->offset;
 
-					if(s->safe85 && val == 85.0)
+					if(s->safe85 && val == 85.0){
 						publishLog('E', "[%s] The probe replied 85° implying powering issue.", s->common.section.uid);
-					else {
+						s->common.inerror = true;
+					} else {
 #ifdef LUA
 						if(s->common.section.funcid != LUA_REFNIL){
 							mod_Lua->lockState();
@@ -133,6 +141,7 @@ void *processFFV(void *actx){
 							mod_Lua->pushNumber( val );
 							mod_Lua->pushNumber( compensated );
 							if(mod_Lua->exec(4, 1)){
+								s->common.inerror = true;
 								publishLog('E', "[%s] FFV : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
 								mod_Lua->pop(1);	/* pop NIL from the stack */

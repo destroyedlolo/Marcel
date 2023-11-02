@@ -68,6 +68,11 @@
 struct Config cfg;
 bool configtest = false;
 
+#ifdef LUA
+struct module_Lua *mod_Lua;
+#else
+void *mod_Lua;
+#endif
 
 	/* ***
 	 * Read configuration directory
@@ -218,6 +223,8 @@ int main(int ac, char **av){
 	cfg.debug = false;
 	cfg.verbose = false;
 	cfg.sublast = false;
+
+	mod_Lua = NULL;
 
 	while((c = getopt(ac, av, "hvtdf:")) != EOF) switch(c){
 #ifdef DEBUG

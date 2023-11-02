@@ -42,6 +42,30 @@ enum {
 };
 
 /**
+ * @brief get all customs figures for Dummy section
+ *
+ * @param section pointer to a section instance
+ *
+ * @return array of custom figures
+ */
+static int publishCustomFiguresDummy(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_dummy *s = (struct section_dummy *)asection;
+
+		lua_newtable(mod_Lua->L);	/* Create a new table */
+
+		lua_pushstring(mod_Lua->L, "Dummy variable");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->dummy);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
+/**
  * @brief Callback called for each and every line of configuration files
  *
  * @param mid Module id
@@ -102,8 +126,13 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_dummy *nsection = malloc(sizeof(struct section_dummy));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_DUMMY, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, ST_DUMMY, strdup(arg), "Dummy");	/* Initialize shared fields */
 
+			/* Some section field may be initialised. Here, the callback
+			 * to expose custom figure in Lua
+			 */
+		nsection->section.publishCustomFigures = publishCustomFiguresDummy;
+	
 			/* Custom fields may need to be initialized as well */
 		nsection->dummy = 0;
 
@@ -119,7 +148,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_echo *nsection = malloc(sizeof(struct section_echo));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_ECHO, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, ST_ECHO, strdup(arg), "Echo");	/* Initialize shared fields */
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = st_echo_postconfInit;	/* Subscribe */
@@ -188,6 +217,34 @@ ThreadedFunctionPtr mt_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+	/* ***
+	 * Methods attached to Lua's objects
+	 * Here, only to liked to "Dummy"
+	 */
+
+#ifdef LUA
+
+/* getDummy() will return (push on the stack) the value of
+ * "dummy" variable.
+ *
+ * At Lua side, can be called as following
+ *	print(section:getDummy())
+ */
+static int md_getDummy(lua_State *L){
+	struct section_dummy **s = luaL_testudata(L, 1, "Dummy");
+	luaL_argcheck(L, s != NULL, 1, "'DPD' expected");
+
+	lua_pushinteger(mod_Lua->L, (*s)->dummy);
+
+	return 1;
+}
+
+static const struct luaL_Reg mdM[] = {
+	{"getDummy", md_getDummy},
+	{NULL, NULL}
+};
+#endif
+
 /* ***
  * InitModule() - Module's initialisation function
  *
@@ -215,4 +272,20 @@ void InitModule( void ){
 		 */
 	mod_dummy.test = 0;
 	mod_dummy.flag = false;
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods
+			 * Here, we're exposing methods common to all sections
+			 */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Dummy");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Echo");
+
+			/* Expose mod_dummy's own function
+			 * Here Dummy section only
+			 */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "Dummy", mdM);
+	}
+#endif
 }

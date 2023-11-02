@@ -21,6 +21,7 @@ struct Section {
 		/* Section technicals */
 	struct Section *next;	/* next section */
 	uint16_t id;			/* section identifier */
+	const char *kind;	/* Section kind in clear text */
 	const char *uid;		/* unique identifier (name) */
 	int h;					/* hash code for this id */
 	pthread_t thread;		/* Child to handle this section */
@@ -39,7 +40,7 @@ struct Section {
 	bool immediate;			/* run it immediately */
 	bool quiet;				/* this section will not produce log */
 
-		/* Lua callbacks
+		/* Lua user function
 		 * (only applicable to some sections)
 		 */
 	const char *funcname;	/* User function to call on data arrival */
@@ -47,10 +48,11 @@ struct Section {
 
 		/* Callback */
 	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */
+	int (*publishCustomFigures)(struct Section *);	/* Publish figures specific to this section kind */
 };
 
 extern struct Section *sections;
 
 extern struct Section *findSectionByName(const char *name);
-extern void initSection( struct Section *sec, int8_t module_id, uint8_t section_id, const char *name);
+extern void initSection( struct Section *sec, int8_t module_id, uint8_t section_id, const char *name, const char *kind);
 #endif

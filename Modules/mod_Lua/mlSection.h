@@ -15,7 +15,7 @@
 
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 
-extern void mlSectionInit(lua_State *L);
-extern void mlSectionPush(lua_State *L, struct Section *);
+extern void initSectionSharedMethods(lua_State *, const char *);
+extern void pushSectionObject(lua_State *, struct Section *);
 
 #endif

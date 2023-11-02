@@ -15,6 +15,12 @@
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
 
+/* Optionally include Lua's */
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
+
+
 /* Custom structure to store module's configuration */
 struct module_dummy {
 		/* The first field MUST BE a "struct Module" which is containing
@@ -28,6 +34,8 @@ struct module_dummy {
 		 */
 	int test;	/* variable containing interesting stuffs for the module */
 	bool flag;
+
+		/* to avoid multiple lookups, we storing mod_Lua once here */
 };
 
 

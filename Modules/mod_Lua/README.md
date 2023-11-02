@@ -45,6 +45,9 @@ The main interface to Marcel internals. Following functions are exposed :
 Generic Interface to Marcel's section.
 
   * **getName()** and **getUID()** - Returns sections name.
+  * **getKind()** - return section's kind
+  * **isEnabled()** - return if the section is enabled (*disable* flag)
+  * **getCustomFigures()** - return a table containing section's specifics figures
 
 Simple code example : list sections by names
 ```Lua

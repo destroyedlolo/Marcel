@@ -29,8 +29,43 @@ enum {
 	ST_SHT31= 0,
 };
 
+static int publishCustomFiguresSHT31(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_sht31 *s = (struct section_sht31 *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Device");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->device);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Address");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->i2c_addr);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "offsetT");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->offset);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "offsetH");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->offsetH);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static void *processSHT31(void *actx){
 	struct section_sht31 *s = (struct section_sht31 *)actx;
+
+	s->inerror = true;	/* Bye default, we're in trouble */
 
 		/* Sanity checks */
 	if(!s->section.topic){
@@ -50,11 +85,8 @@ static void *processSHT31(void *actx){
 
 		/* Handle Lua functions */
 #ifdef LUA
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	if(mod_Lua_id != (uint8_t)-1){
+	if(mod_Lua){
 		if(s->section.funcname){	/* if an user function defined ? */
-			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 				pthread_exit(NULL);
@@ -83,6 +115,8 @@ static void *processSHT31(void *actx){
 	publishLog('I', "[%s] Humidity : '%s'", s->section.uid, humtopic);
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
+		s->inerror = true;	/* Bye default, we're in trouble */
+
 		if(s->section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)
@@ -117,6 +151,8 @@ static void *processSHT31(void *actx){
 					close(fd);
 					publishLog('E', "[%s] I/O error", s->section.uid);
 				} else {	/* Conversion formulas took from SHT31 datasheet */
+					s->inerror = false;
+
 					close(fd);	/* Release the bus as soon as possible */
 
 					double valt, valh;
@@ -129,7 +165,7 @@ static void *processSHT31(void *actx){
 
 					bool ret = true;
 #ifdef LUA
-					if(mod_Lua_id != (uint8_t)-1){
+					if(mod_Lua){
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
 							mod_Lua->lockState();
 							mod_Lua->pushFunctionId( s->section.funcid );
@@ -178,8 +214,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_sht31 *nsection = malloc(sizeof(struct section_sht31));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_SHT31, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, ST_SHT31, strdup(arg), "SHT31");	/* Initialize shared fields */
 
+		nsection->section.publishCustomFigures = publishCustomFiguresSHT31;
 		nsection->device = NULL;
 		nsection->i2c_addr = 0x44;
 		nsection->offset = 0.0;
@@ -205,12 +242,12 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tI2c address: 0x%02x", (*(struct section_sht31 **)section)->i2c_addr);
 			return ACCEPTED;
-		} else if((arg = striKWcmp(l,"Offset="))){
-			acceptSectionDirective(*section, "Offset=");
+		} else if((arg = striKWcmp(l,"OffsetT="))){
+			acceptSectionDirective(*section, "OffsetT=");
 			(*(struct section_sht31 **)section)->offset = strtof(arg, NULL);
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tOffset: %f", (*(struct section_sht31 **)section)->offset);
+				publishLog('C', "\t\tOffsetT: %f", (*(struct section_sht31 **)section)->offset);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"OffsetH="))){
 			acceptSectionDirective(*section, "OffsetH=");
@@ -243,7 +280,7 @@ static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Address=") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Offset=") )
+		else if( !strcmp(directive, "OffsetT=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "OffsetH=") )
 			return true;	/* Accepted */
@@ -260,6 +297,21 @@ ThreadedFunctionPtr mh_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_sht31 **s = luaL_testudata(L, 1, "SHT31");
+	luaL_argcheck(L, s != NULL, 1, "'SHT31' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_sht31, "mod_sht31");	/* Identify the module */
 
@@ -271,4 +323,15 @@ void InitModule( void ){
 	mod_sht31.module.getSlaveFunction = mh_getSlaveFunction;
 
 	registerModule( (struct Module *)&mod_sht31 );	/* Register the module */
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "SHT31");
+
+			/* Expose mod_owm's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "SHT31", soM);
+	}
+#endif
 }

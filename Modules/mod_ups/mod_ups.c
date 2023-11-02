@@ -32,11 +32,50 @@ enum {
 	ST_UPS= 0
 };
 
+static int publishCustomFiguresUPS(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_ups *s = (struct section_ups *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "host");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->host);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "port");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->port);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Sample");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Topic");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->section.topic);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Keep");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->section.keep);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 void *process_UPS(void *actx){
 	struct section_ups *ctx = (struct section_ups *)actx;
 	char l[MAXLINE];
 	struct hostent *server;
 	struct sockaddr_in serv_addr;
+
+	ctx->inerror = true;	/* by default, we're in trouble */
 
 		/* Sanity checks */
 	if(!ctx->section.topic){
@@ -68,6 +107,8 @@ void *process_UPS(void *actx){
 		publishLog('I', "Launching a processing flow for UPS/%s", ctx->section.uid);
 
 	for(;;){	/* Infinite loop to process data */
+		ctx->inerror = true;
+
 		if(ctx->section.disabled){
 			publishLog('T', "Reading UPS/%s is disabled", ctx->section.uid);
 		} else {
@@ -96,6 +137,8 @@ void *process_UPS(void *actx){
 								pthread_exit(0);
 							}
 						} else {
+							ctx->inerror = false;
+
 							char *ps, *pe;
 							socketreadline(sockfd, l, sizeof(l));
 							if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') ))
@@ -136,8 +179,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 		}
 
 		struct section_ups *nsection = malloc(sizeof(struct section_ups));
-		initSection( (struct Section *)nsection, mid, ST_UPS, strdup(arg));
+		initSection( (struct Section *)nsection, mid, ST_UPS, strdup(arg), "UPS");
 
+		nsection->section.publishCustomFigures = publishCustomFiguresUPS;
 		nsection->host = NULL;
 		nsection->port = 0;
 		nsection->var_list = NULL;
@@ -212,6 +256,21 @@ ThreadedFunctionPtr mu_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_ups **s = luaL_testudata(L, 1, "UPS");
+	luaL_argcheck(L, s != NULL, 1, "'UPS' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_ups, "mod_ups");
 
@@ -220,4 +279,15 @@ void InitModule( void ){
 	mod_ups.module.getSlaveFunction = mu_getSlaveFunction;
 
 	registerModule( (struct Module *)&mod_ups );
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "UPS");
+
+			/* Expose mod_owm's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "UPS", soM);
+	}
+#endif
 }

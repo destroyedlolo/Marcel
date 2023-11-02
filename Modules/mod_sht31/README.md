@@ -17,7 +17,7 @@ none
 * **Immediate** Launch the 1st sample at startup
 * **Keep** Don't abort in case of technical error
 * **func=** Acceptation function (*see bellow*, **mod_Lua** needed)
-* **Offset=** offset to add to temperature value
+* **OffsetT=** offset to add to temperature value
 * **OffsetH=** offset to add to humidity value
 * **Disabled** Start this section disabled
 
@@ -30,3 +30,9 @@ none
 ### Lua function return
 
 1. `true` if values are accepted and so, published
+
+## Error condition
+
+An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
+
+Error condition is exposed to Lua by **SHT31:inError()**.

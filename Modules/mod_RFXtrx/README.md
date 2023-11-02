@@ -28,3 +28,9 @@ Control àn RTS shutter.
 - **Up** : open a shutter
 - **Down** : close a shutter
 - **Program** : associate a shutter with corresponding address (hardly untested)
+
+## Error condition
+
+An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
+
+Error condition is exposed to Lua by **RTSCmd:inError()**.
