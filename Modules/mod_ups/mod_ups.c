@@ -75,6 +75,8 @@ void *process_UPS(void *actx){
 	struct hostent *server;
 	struct sockaddr_in serv_addr;
 
+	ctx->inerror = true;	/* by default, we're in trouble */
+
 		/* Sanity checks */
 	if(!ctx->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", ctx->section.uid);
@@ -105,6 +107,8 @@ void *process_UPS(void *actx){
 		publishLog('I', "Launching a processing flow for UPS/%s", ctx->section.uid);
 
 	for(;;){	/* Infinite loop to process data */
+		ctx->inerror = true;
+
 		if(ctx->section.disabled){
 			publishLog('T', "Reading UPS/%s is disabled", ctx->section.uid);
 		} else {
@@ -133,6 +137,8 @@ void *process_UPS(void *actx){
 								pthread_exit(0);
 							}
 						} else {
+							ctx->inerror = false;
+
 							char *ps, *pe;
 							socketreadline(sockfd, l, sizeof(l));
 							if(!( ps = strchr(l, '"')) || !( pe = strchr(ps+1, '"') ))
@@ -250,6 +256,21 @@ ThreadedFunctionPtr mu_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_ups **s = luaL_testudata(L, 1, "UPS");
+	luaL_argcheck(L, s != NULL, 1, "'UPS' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_ups, "mod_ups");
 
@@ -266,7 +287,7 @@ void InitModule( void ){
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "UPS");
 
 			/* Expose mod_owm's own function */
-//		mod_Lua->exposeObjMethods(mod_Lua->L, "SHT31", UPS);
+		mod_Lua->exposeObjMethods(mod_Lua->L, "UPS", soM);
 	}
 #endif
 }
