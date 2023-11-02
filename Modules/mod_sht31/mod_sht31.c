@@ -331,6 +331,7 @@ void InitModule( void ){
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "SHT31");
 
 			/* Expose mod_owm's own function */
-		mod_Lua->exposeObjMethods(mod_Lua->L, "SHT31", soM);	}
+		mod_Lua->exposeObjMethods(mod_Lua->L, "SHT31", soM);
+	}
 #endif
 }
