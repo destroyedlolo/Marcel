@@ -42,7 +42,12 @@ The main interface to Marcel internals. Following functions are exposed :
 
 ### Sections
 
-Generic Interface to Marcel's section.
+#### Marcel's methods related to sections
+
+  * **Marcel.Sections()** - Return an iterator to sections
+  * **Marcel.FindSection( *name* )** - Find a section by its name. Returns **nil** if not found
+
+#### Generic Interface to Marcel's section.
 
   * **getName()** and **getUID()** - Returns sections name.
   * **getKind()** - return section's kind
