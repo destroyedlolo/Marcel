@@ -194,7 +194,7 @@ static void ml_postconfInit( uint8_t mid ){
 }
 
 void InitModule( void ){
-	initModule((struct Module *)&mod_Lua_storage, "mod_Lua_storage");
+	initModule((struct Module *)&mod_Lua_storage, "mod_Lua");
 
 	mod_Lua_storage.module.readconf = ml_readconf;
 	mod_Lua_storage.module.postconfInit = ml_postconfInit;
