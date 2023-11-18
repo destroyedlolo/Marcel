@@ -22,11 +22,7 @@
 	/* ***
 	 * Process one probe
 	 * ***/
-static void processProbe( struct section_1wAlarm *s
-#ifdef LUA
-	, struct module_Lua *mod_Lua 
-#endif
-){
+static void processProbe( struct section_1wAlarm *s){
 	if(s->common.section.disabled){
 #ifdef DEBUG
 			if(cfg.debug)
@@ -40,6 +36,8 @@ static void processProbe( struct section_1wAlarm *s
 
 	if(!(f = fopen( s->common.file, "r" ))){	/* probe is not reachable */
 		char *emsg = strerror(errno);
+		s->common.inerror = true;
+
 		publishLog('E', "[%s] %s : %s", s->common.section.uid, s->common.file, emsg);
 
 		if(strlen(s->common.section.topic) + 7 < MAXLINE){  /* "/Alarm" +1 */
@@ -70,7 +68,7 @@ static void processProbe( struct section_1wAlarm *s
 		}
 
 #ifdef LUA
-		if(s->common.failfuncid != LUA_REFNIL){
+		if(mod_Lua && s->common.failfuncid != LUA_REFNIL){
 			mod_Lua->lockState();
 			mod_Lua->pushFunctionId( s->common.failfuncid );
 			mod_Lua->pushString( s->common.section.uid );
@@ -84,13 +82,15 @@ static void processProbe( struct section_1wAlarm *s
 		}
 #endif
 	} else {
-		if(!fgets(l, MAXLINE, f))
+		if(!fgets(l, MAXLINE, f)){
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
-		else {
+			s->common.inerror = true;
+		} else {
 			bool publish = true;
+			s->common.inerror = false;
 
 #ifdef LUA
-			if(s->common.section.funcid != LUA_REFNIL){
+			if(mod_Lua && s->common.section.funcid != LUA_REFNIL){
 				mod_Lua->lockState();
 				mod_Lua->pushFunctionId( s->common.section.funcid );
 				mod_Lua->pushString( s->common.section.uid );
@@ -118,40 +118,30 @@ static void processProbe( struct section_1wAlarm *s
 }
 
 	/* ***
-	 * Scan Alert directory
+	 * Slave thread to scan Alert directory
 	 * ***/
 void *scanAlertDir(void *amod){
 	struct module_1wire *mod_1wire = (struct module_1wire *)amod;
 	uint16_t sid = S1_ALRM << 8 | mod_1wire->module.module_index;
 
-		/* mod_lua */
-#ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	struct module_Lua *mod_Lua = NULL;
-
-	if(mod_Lua_id != (uint8_t)-1)
-		 mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-#endif
-
 	for(;;){
 		struct dirent *de;
 		DIR *d = opendir( mod_1wire->OwAlarm );
 		if( !d ){
+			mod_1wire->alerm_in_error = true;
 			publishLog(mod_1wire->OwAlarmKeep ? 'E' : 'F', "[1-wire Alarm] : %s", strerror(errno));
 			if(!mod_1wire->OwAlarmKeep)
 				pthread_exit(0);
 		} else {
+			mod_1wire->alerm_in_error = false;
 			while(( de = readdir(d) )){
 				if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
 					publishLog('T', "%s : in alert", de->d_name);
 
+						/* Look for corresponding section */
 					for(struct section_1wAlarm *s = (struct section_1wAlarm *)sections; s; s = (struct section_1wAlarm *)s->common.section.next){
 						if( s->common.section.id == sid && strstr(s->common.file, de->d_name)){
-							processProbe(s
-#ifdef LUA
-								, mod_Lua
-#endif
-							);
+							processProbe(s);
 						}
 					}
 				}
@@ -190,14 +180,6 @@ void start1WAlarm( uint8_t mid ){
 		exit(EXIT_FAILURE);
 	}
 
-		/* mod_lua */
-#ifdef LUA
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");	/* Is mod_Lua loaded ? */
-	struct module_Lua *mod_Lua = NULL;
-
-	if(mod_Lua_id != (uint8_t)-1)
-		 mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-#endif
 
 		/* As section identifier is part of the common Section structure, 
 		 * it's harmless to directly use section_1wAlarm pointer
@@ -211,7 +193,7 @@ void start1WAlarm( uint8_t mid ){
 			}
 
 			if(!s->common.file){
-				publishLog('E', "[%s] File must be set. Dying ...", s->common.section.uid);
+				publishLog('F', "[%s] File must be set. Dying ...", s->common.section.uid);
 				exit(EXIT_FAILURE);
 			}
 
@@ -223,8 +205,7 @@ void start1WAlarm( uint8_t mid ){
 			}
 
 #ifdef LUA
-			if(s->common.section.funcname){
-				assert(mod_Lua_id != (uint8_t)-1);
+			if(mod_Lua && s->common.section.funcname){
 				
 				if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined", s->common.section.uid, s->common.section.funcname);
@@ -232,18 +213,14 @@ void start1WAlarm( uint8_t mid ){
 				}
 			}
 
-			if(s->common.failfunc){
-				assert(mod_Lua_id != (uint8_t)-1);
-				
+			if(mod_Lua && s->common.failfunc){
 				if( (s->common.failfuncid = mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : Fail function \"%s\" is not defined", s->common.section.uid, s->common.failfunc);
 					exit(EXIT_FAILURE);
 				}
 			}
 
-			if(s->initfunc){	/* Initialise all 1wAlarm */
-				assert(mod_Lua_id != (uint8_t)-1);
-
+			if(mod_Lua && s->initfunc){	/* Initialise all 1wAlarm */
 				int funcid;
 				if( (funcid = mod_Lua->findUserFunc(s->initfunc)) == LUA_REFNIL ){
 					publishLog('E', "[%s] configuration error : Init function \"%s\" is not defined. Dying.", s->common.section.uid, s->initfunc);
@@ -265,11 +242,7 @@ void start1WAlarm( uint8_t mid ){
 
 			/* First reading if Immediate */
 			if(s->common.section.immediate)
-				processProbe(s
-#ifdef LUA
-				, mod_Lua
-#endif
-				);
+				processProbe(s);
 		}
 	}
 

@@ -1,0 +1,11 @@
+# Publish Marcel sections status
+
+Needs=mod_dpd
+Needs=mod_Lua
+
+# this DPD publishes the real-time status of each defined section
+
+*DPD=Marcel status
+	topic=%ClientID%/Status
+	Func=PublishMarcelStatus
+

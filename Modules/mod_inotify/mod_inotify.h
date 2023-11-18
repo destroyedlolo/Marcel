@@ -25,6 +25,8 @@ struct module_inotify {
 	int infd;
 
 	struct section_Look4Change *first_section;	/* Pointer to the first section handled by mod_inotify */
+
+	bool inerror;
 };
 
 	/* Section identifiers */
@@ -38,6 +40,8 @@ struct section_Look4Change {
 	const char *dir;	/* Directory (or file) to monitor */
 	uint32_t flags;		/* What to survey */
 	int wd;
+
+	bool inerror;
 };
 
 #endif

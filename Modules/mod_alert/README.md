@@ -117,23 +117,26 @@ Limitations :
 ## Objects exposed to Lua
 ### Exposed functions
 
-#### Legacy reporting
-- **Marcel.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Only `OSCmd=` is triggered.
-- **Marcel.RiseAlertREST( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
-- **Marcel.ClearAlert( *AlertID*, *Message to send* )** - Clear an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+| :warning:WARNING:warning: : As of of Marcel v8.1, this API break upward compatibility. Exposing methods to Marcel object is not compatible with recent Lua version. |
+| --- |
 
-- **Marcel.SendNotification( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Only `OSCmd=` is triggered.
-- **Marcel.SendNotificationREST( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+#### Legacy reporting
+- **mod_alert.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Only `OSCmd=` is triggered.
+- **mod_alert.RiseAlertREST( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+- **mod_alert.ClearAlert( *AlertID*, *Message to send* )** - Clear an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+
+- **mod_alert.SendNotification( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Only `OSCmd=` is triggered.
+- **mod_alert.SendNotificationREST( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
 
 #### Named reporting
 
-- **Marcel.RiseAlert( *AlertID*, *Message to send*, *name* )** - Raise an alert as it was received on *name* `\*RaiseAlert=` topic.
-- **Marcel.ClearAlert( *AlertID*, *Message to send*, *name* )** - Clear an alert as it was received on *name* `\*CorrectAlert=` topic.
-- **Marcel.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per provided names
+- **mod_alert.RiseAlert( *AlertID*, *Message to send*, *name* )** - Raise an alert as it was received on *name* `\*RaiseAlert=` topic.
+- **mod_alert.ClearAlert( *AlertID*, *Message to send*, *name* )** - Clear an alert as it was received on *name* `\*CorrectAlert=` topic.
+- **mod_alert.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per provided names
 
 #### Misc
-- **Marcel.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined
-- **Marcel.ListAlert()** - Generate a list of all alerts' name.
+- **mod_alert.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined
+- **mod_alert.ListAlert()** - Generate a list of all alerts' name.
 
 Notez-bien : ListAlert() is pushing a string per alert, which is not the best way to handle a large amount (but we are not expecting zillion alerts at a time, do we ?). The reason not to use an iterator is it would need to lock alerts list during iterating. It may lead to alert in race condition. 
 Have a look in `Config/scripts` directory for an example how to save/restore alerts list.

@@ -1,11 +1,14 @@
 /* mod_Lua - Exposed functions
  *
  * 24/09/2022 - LF - First version
+ * 11/09/2023 - LF - Add Sections
  */
 
 #include "mod_Lua.h"	/* module's own stuffs */
 #include "../Marcel/Version.h"
 #include "../Marcel/MQTT_tools.h"
+
+#include "mlSection.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -70,6 +73,35 @@ static int lmCopyright(lua_State *L){
 	return 1;
 }
 
+static int lm_sinter(lua_State *L){
+	if(mod_Lua->psection){
+		mod_Lua->pushSectionObject(L, mod_Lua->psection);
+		mod_Lua->psection = mod_Lua->psection->next;
+
+		return 1;
+	} else
+		return 0;
+}
+
+static int lmSections(lua_State *L){
+	mod_Lua->psection = sections;
+
+	lua_pushcclosure(L, lm_sinter, 1);
+
+	return 1;
+}
+
+static int lmFindSection(lua_State *L){
+	const char *sname = luaL_checkstring(L, 1);
+
+	struct Section *s = findSectionByName(sname);
+	if(!s)
+		return 0;
+
+	mod_Lua->pushSectionObject(L, s);
+	return 1;
+}
+
 const struct luaL_Reg MarcelLib [] = {
 	{"MQTTPublish", lmPublish},
 	{"Shutdown", lmShutdown},
@@ -78,6 +110,9 @@ const struct luaL_Reg MarcelLib [] = {
 	{"ClientID", lmClientID},
 	{"Version", lmVersion},
 	{"Copyright", lmCopyright},
+
+	{"Sections", lmSections},
+	{"FindSection", lmFindSection},
 	{NULL, NULL}
 };
 

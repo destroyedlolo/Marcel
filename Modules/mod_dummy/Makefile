@@ -1,12 +1,12 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.4 (May  1 2018 12:31:45) (c)LFSoft 1997
+# LFMakeMaker 1.6 (May  7 2022 20:46:23) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA  
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_dummy.o : mod_dummy.c mod_dummy.h ../Marcel/Module.h \
   ../Marcel/Section.h ../mod_Lua/mod_Lua.h Makefile 
@@ -17,7 +17,8 @@ processStructDummy.o : processStructDummy.c mod_dummy.h \
 	$(cc) -c -o processStructDummy.o processStructDummy.c $(opts) 
 
 sectionEcho.o : sectionEcho.c mod_dummy.h ../Marcel/Module.h \
-  ../Marcel/Section.h ../Marcel/MQTT_tools.h Makefile 
+  ../Marcel/Section.h ../mod_Lua/mod_Lua.h ../Marcel/MQTT_tools.h \
+  Makefile 
 	$(cc) -c -o sectionEcho.o sectionEcho.c $(opts) 
 
 ../../mod_dummy.so : sectionEcho.o processStructDummy.o mod_dummy.o \

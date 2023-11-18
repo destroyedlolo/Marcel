@@ -43,12 +43,13 @@
  * 			-----------
  * 06/09/2022	- LF - v8.00 - redesign for modularity
  * 							 - Sample can be a float
+ * 14/10/2023	- LF - v8.01 - Improve Lua support
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0021"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0107"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

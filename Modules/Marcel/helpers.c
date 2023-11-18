@@ -124,7 +124,7 @@ void publishLog( char l, const char *msg, ...){
 		va_end(args);
 	}
 
-	if(cfg.client){
+	if(cfg.client && MQTTClient_isConnected(cfg.client)){
 		va_start(args, msg);
 
 		char *sub;

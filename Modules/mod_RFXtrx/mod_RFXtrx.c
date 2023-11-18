@@ -8,6 +8,9 @@
  */
 
 #include "mod_RFXtrx.h"
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 #include "../Marcel/MQTT_tools.h"
 
 #include <stdlib.h>
@@ -22,6 +25,38 @@
 #include <errno.h>
 
 static struct module_RFXtrx mod_RFXtrx;
+
+static int publishCustomFiguresRFXCmd(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_RFXCom *s = (struct section_RFXCom *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "DeviceID");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->did);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		char t[9];
+		sprintf(t, "%04x", s->did);
+
+		lua_pushstring(mod_Lua->L, "DeviceID Hexa");
+		lua_pushstring(mod_Lua->L, t);
+		lua_rawset(mod_Lua->L, -3);
+
+		lua_pushstring(mod_Lua->L, "Topic");
+		lua_pushstring(mod_Lua->L, s->section.topic);
+		lua_rawset(mod_Lua->L, -3);
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
 
 static void sr_postconfInit(struct Section *);
 static bool sr_processMQTT(struct Section *, const char *, char *);
@@ -56,7 +91,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_RFXCom *nsection = malloc(sizeof(struct section_RFXCom));
-		initSection( (struct Section *)nsection, mid, ST_CMD, strdup(arg));
+		initSection( (struct Section *)nsection, mid, ST_CMD, strdup(arg), "RTSCmd");
+
+		nsection->section.publishCustomFigures = publishCustomFiguresRFXCmd;
 
 			/* This section is processing MQTT messages */
 		nsection->section.postconfInit = sr_postconfInit;	/* Subscribe */
@@ -187,6 +224,8 @@ static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 			return true;	/* We understood the command but nothing is done */
 		}
 
+		s->inerror = true;	/* by default, we're in trouble */
+
 		BYTE cmd;
 		int fd;
 
@@ -226,6 +265,8 @@ static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 
 		pthread_mutex_unlock( &oneTRXcmd );
 		close(fd);
+
+		s->inerror = false;
 
 		publishLog('T', "[%s] Sending '%s' (%d) command to %04x", s->section.uid, msg, cmd, s->did);
 
@@ -363,6 +404,22 @@ static void init_RFX( uint8_t mid ){
 	pthread_mutex_init( &oneTRXcmd, NULL );
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_RFXCom **s = luaL_testudata(L, 1, "RTSCmd");
+	luaL_argcheck(L, s != NULL, 1, "'RTSCmd' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_RFXtrx, "mod_RFXtrx"); /* Identify the module */
 
@@ -378,4 +435,15 @@ void InitModule( void ){
 		 * Do internal initialization
 		 */
 	mod_RFXtrx.RFXdevice = NULL;
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "RTSCmd");
+
+			/* Expose mod_owm's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "RTSCmd", soM);
+	}
+#endif
 }

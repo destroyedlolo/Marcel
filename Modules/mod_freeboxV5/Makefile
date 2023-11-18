@@ -8,13 +8,13 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
-mod_inotify.o : mod_inotify.c mod_inotify.h ../Marcel/Module.h \
+mod_freeboxV5.o : mod_freeboxV5.c mod_freeboxV5.h ../Marcel/Module.h \
   ../Marcel/Section.h ../Marcel/MQTT_tools.h ../mod_Lua/mod_Lua.h \
   Makefile 
-	$(cc) -c -o mod_inotify.o mod_inotify.c $(opts) 
+	$(cc) -c -o mod_freeboxV5.o mod_freeboxV5.c $(opts) 
 
-../../mod_inotify.so : mod_inotify.o Makefile 
-	 $(cc) -shared -o ../../mod_inotify.so mod_inotify.o $(opts) \
-  
+../../mod_freeboxV5.so : mod_freeboxV5.o Makefile 
+	 $(cc) -shared -o ../../mod_freeboxV5.so mod_freeboxV5.o \
+  $(opts) 
 
-all: ../../mod_inotify.so 
+all: ../../mod_freeboxV5.so 

@@ -10,9 +10,6 @@
  */
 
 #include "mod_dpd.h"
-#ifdef LUA
-#	include "../mod_Lua/mod_Lua.h"
-#endif
 #include "../Marcel/MQTT_tools.h"
 
 #include <stdlib.h>
@@ -29,6 +26,35 @@ enum {
 	SD_DPD = 0
 };
 
+static int publishCustomFiguresDPD(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_dpd *s = (struct section_dpd *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Topic");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->section.topic);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Timeout");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "NotificationTopic");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->notiftopic);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static bool sd_processMQTT(struct Section *asec, const char *topic, char *payload){
 	struct section_dpd *s = (struct section_dpd *)asec;
 
@@ -43,13 +69,8 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 
 		bool ret = true;
 #ifdef LUA
-		struct module_Lua *mod_Lua = NULL;
-		uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-
-		if(mod_Lua_id != (uint8_t)-1){
+		if(mod_Lua){
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-				mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
-
 				mod_Lua->lockState();
 				mod_Lua->pushFunctionId( s->section.funcid );
 				mod_Lua->pushString( s->section.uid );
@@ -92,11 +113,8 @@ static void *processDPD(void *asec){
 
 #ifdef LUA
 		/* User function */
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id != (uint8_t)-1){
+	if(mod_Lua){
 		if(s->section.funcname){	/* if an user function defined ? */
-			mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 				pthread_exit(NULL);
@@ -232,8 +250,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_dpd *nsection = malloc(sizeof(struct section_dpd));
-		initSection( (struct Section *)nsection, mid, SD_DPD, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SD_DPD, strdup(arg), "DPD");
 
+		nsection->section.publishCustomFigures = publishCustomFiguresDPD;
 		nsection->notiftopic = NULL;
 		nsection->rcv = -1;
 		nsection->inerror = false;
@@ -298,6 +317,22 @@ static ThreadedFunctionPtr md_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int md_inError(lua_State *L){
+	struct section_dpd **s = luaL_testudata(L, 1, "DPD");
+	luaL_argcheck(L, s != NULL, 1, "'DPD' expected");
+
+	lua_pushboolean(mod_Lua->L, (*s)->inerror);
+
+	return 1;
+}
+
+static const struct luaL_Reg mdM[] = {
+	{"inError", md_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_dpd, "mod_dpd");
 
@@ -306,4 +341,15 @@ void InitModule( void ){
 	mod_dpd.module.getSlaveFunction = md_getSlaveFunction;
 
 	registerModule( (struct Module *)&mod_dpd );	/* Register the module */
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "DPD");
+
+			/* Expose mod_dpd's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "DPD", mdM);
+	}
+#endif
 }

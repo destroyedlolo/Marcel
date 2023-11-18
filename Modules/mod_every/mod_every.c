@@ -37,6 +37,53 @@ enum {
 /* ***
  * Processing
  * ***/
+
+static int publishCustomFiguresEvery(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_every *s = (struct section_every *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Sample");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "Immediate");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->section.immediate);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
+static int publishCustomFiguresAt(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_at *s = (struct section_at *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "At");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->section.sample);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "Immediate");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->section.immediate);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "runIfOver");	/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->runIfOver);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static void *processEvery(void *actx){
 	struct section_every *s = (struct section_every *)actx;	/* Only to avoid multiple cast */
 
@@ -46,16 +93,13 @@ static void *processEvery(void *actx){
 		pthread_exit(0);
 	}
 
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id == (uint8_t)-1){
+	if(!mod_Lua){
 		publishLog('E', "[%s] Every without Lua support is useless. This thread is dying.", s->section.uid);
 		pthread_exit(NULL);
 	}
 
 #ifdef LUA
 	if(s->section.funcname){	/* if an user function defined ? */
-		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 		if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 			pthread_exit(NULL);
@@ -145,16 +189,13 @@ static void waitNextQuery( struct Section *s, bool first, bool runIfOver ){
 static void *processAt(void *actx){
 	struct section_at *s = (struct section_at *)actx;	/* Only to avoid multiple cast */
 
-	struct module_Lua *mod_Lua = NULL;
-	uint8_t mod_Lua_id = findModuleByName("mod_Lua");
-	if(mod_Lua_id == (uint8_t)-1){
+	if(!mod_Lua){
 		publishLog('E', "[%s] Every without Lua support is useless. This thread is dying.", s->section.uid);
 		pthread_exit(NULL);
 	}
 
 #ifdef LUA
 	if(s->section.funcname){	/* if an user function defined ? */
-		mod_Lua = (struct module_Lua *)modules[mod_Lua_id];
 		if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
 			pthread_exit(NULL);
@@ -205,7 +246,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_every *nsection = malloc(sizeof(struct section_every));
-		initSection( (struct Section *)nsection, mid, SE_EVERY, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SE_EVERY, strdup(arg), "Every");
+
+		nsection->section.publishCustomFigures = publishCustomFiguresEvery;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Every section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -219,7 +262,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_at *nsection = malloc(sizeof(struct section_at));
-		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg));
+		initSection( (struct Section *)nsection, mid, SE_AT, strdup(arg), "At");
+		nsection->section.publishCustomFigures = publishCustomFiguresAt;
 		nsection->runIfOver = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */
@@ -310,4 +354,13 @@ void InitModule( void ){
 	mod_every.module.getSlaveFunction = me_getSlaveFunction;
 
 	registerModule( (struct Module *)&mod_every );
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "Every");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "At");
+	}
+#endif
 }

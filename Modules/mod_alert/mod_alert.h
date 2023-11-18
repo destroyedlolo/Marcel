@@ -74,10 +74,6 @@ struct module_alert {
 	struct DList alerts;				/* Alerts' list */
 
 	const char *countertopic;			/* Topic to send counter too */
-
-#ifdef LUA
-	struct module_Lua *mod_Lua;
-#endif
 };
 
 extern struct module_alert mod_alert;

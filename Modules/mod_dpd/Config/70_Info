@@ -1,6 +1,7 @@
 # Publish Marcel info
 
 Needs=mod_dpd
+Needs=mod_Lua
 
 # DPD can be used to ask Marcel to do some action
 # here, publish version and copyright

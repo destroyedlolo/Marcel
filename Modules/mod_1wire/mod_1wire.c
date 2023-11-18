@@ -22,6 +22,58 @@
 
 struct module_1wire mod_1wire;
 
+static int publishCustomFiguresFFV(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_FFV *s = (struct section_FFV *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->common.file);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Offset");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->offset);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "safe85");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->safe85);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->common.inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+	
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
+static int publishCustomFigures1WAlrm(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_1wAlarm *s = (struct section_1wAlarm *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "File");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->common.file);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		if(s->latch){
+			lua_pushstring(mod_Lua->L, "Latch");			/* Push the index */
+			lua_pushstring(mod_Lua->L, s->latch);	/* the value */
+			lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+		}
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -52,7 +104,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		return ACCEPTED;	
 	} else if((arg = striKWcmp(l,"1wire-Alarm-directory="))){
 		if(*section){
-			publishLog('F', "TestFlag can't be part of a section");
+			publishLog('F', "1wire-Alarm-directory can't be part of a section");
 			exit(EXIT_FAILURE);
 		}
 
@@ -83,7 +135,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		mod_1wire.randomize = true;
+		mod_1wire.OwAlarmKeep = true;
 
 		if(cfg.verbose)
 			publishLog('C', "\t1-wire Technical errors are not fatal");
@@ -96,11 +148,13 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_FFV *nsection = malloc(sizeof(struct section_FFV));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, S1_FFV, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, S1_FFV, strdup(arg), "FFV");	/* Initialize shared fields */
 
+		nsection->common.section.publishCustomFigures = publishCustomFiguresFFV;
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
+		nsection->common.inerror = false;
 		nsection->offset = 0.0;
 		nsection->safe85 = false;
 
@@ -116,10 +170,12 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_1wAlarm *nsection = malloc(sizeof(struct section_1wAlarm));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, S1_ALRM, strdup(arg));	/* Initialize shared fields */
+		initSection( (struct Section *)nsection, mid, S1_ALRM, strdup(arg), "1WAlarm");	/* Initialize shared fields */
 
+		nsection->common.section.publishCustomFigures = publishCustomFigures1WAlrm;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
+		nsection->common.inerror = false;
 		nsection->initfunc = NULL;
 		nsection->latch = NULL;
 
@@ -127,6 +183,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('C', "\tEntering 1-wire Alarm section '%s' (%04x)", nsection->common.section.uid, nsection->common.section.id);
 
 		mod_1wire.alarm_in_use = false;
+		mod_1wire.alerm_in_error = false;
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
 	} else if(*section){
@@ -232,6 +289,33 @@ static ThreadedFunctionPtr m1_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int s1_inError(lua_State *L){
+	struct OwCommon **s = luaL_testudata(L, 1, "FFV");
+	if(!s)
+		s = luaL_testudata(L, 1, "1WAlarm");
+	luaL_argcheck(L, s != NULL, 1, "'FFV' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg s1M[] = {
+	{"inError", s1_inError},
+	{NULL, NULL}
+};
+
+static int m1_inError(lua_State *L){
+	lua_pushboolean(L, mod_1wire.alerm_in_error);
+	return 1;
+}
+
+static const struct luaL_Reg m1M[] = {
+	{"AlarmInError", m1_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_1wire, "mod_1wire");
 
@@ -249,4 +333,20 @@ void InitModule( void ){
 	mod_1wire.OwAlarmKeep = false;
 
 	registerModule( (struct Module *)&mod_1wire );	/* Register the module */
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FFV");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "1WAlarm");
+
+			/* Expose mod_1wire's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "FFV", s1M);
+		mod_Lua->exposeObjMethods(mod_Lua->L, "1WAlarm", s1M);
+
+			/* Expose mod_1wire's own function */
+		mod_Lua->exposeFunctions("mod_1wire", m1M);
+	}
+#endif
 }

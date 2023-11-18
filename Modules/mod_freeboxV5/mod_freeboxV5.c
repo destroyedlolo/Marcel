@@ -5,11 +5,19 @@
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)
  *
+ * THIS MODULE IS DEPRECATING : Free is phasing out these old devices
+ * and I haven't one anymore.
+ *
  * 01/10/2022 - LF - First version
+ * 20/09/2023 - LF - Rename to V5
  */
 
-#include "mod_freebox.h"
+#include "mod_freeboxV5.h"
 #include "../Marcel/MQTT_tools.h"
+
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -28,26 +36,45 @@
 
 #define FBX_REQ "GET "FBX_URI" HTTP/1.0\n\n"
 
-static struct module_freebox mod_freebox;
+static struct module_freeboxV5 mod_freeboxV5;
 
 enum {
-	SFB_FREEBOX= 0
+	SFB_FREEBOXV5= 0
 };
 
-void *process_freebox(void *actx){
-	struct section_freebox *ctx = (struct section_freebox *)actx;
+static int publishCustomFiguresFbV5(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_freeboxV5 *s = (struct section_freeboxV5 *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
+static void *process_freeboxV5(void *actx){
+	struct section_freeboxV5 *ctx = (struct section_freeboxV5 *)actx;
 	char l[MAXLINE];
 	struct hostent *server;
 	struct sockaddr_in serv_addr;
 
+	ctx->inerror = true;	/* By default, we're in trouble */
+
 	if(!ctx->section.topic){
-		publishLog('E', "[Freebox] configuration error : no topic specified, ignoring this section");
+		publishLog('E', "[FreeboxV5] configuration error : no topic specified, ignoring this section");
 		pthread_exit(0);
 	}
 
 	if(!(server = gethostbyname( FBX_HOST ))){
-		publishLog('E', "[Freebox] %s : %s", FBX_HOST, strerror( errno ));
-		publishLog('F', "[Freebox] Dying");
+		publishLog('E', "[FreeboxV5] %s : %s", FBX_HOST, strerror( errno ));
+		publishLog('F', "[FreeboxV5] Dying");
 		pthread_exit(0);
 	}
 
@@ -57,15 +84,18 @@ void *process_freebox(void *actx){
 	memcpy(&serv_addr.sin_addr.s_addr,*server->h_addr_list,server->h_length);
 
 	if(cfg.verbose)
-		publishLog('I', "Launching a processing flow for Freebox");
+		publishLog('I', "Launching a processing flow for FreeboxV5");
 
 	for(bool first=true;; first=false){
 		if(ctx->section.disabled){
+			ctx->inerror = false;
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", ctx->section.uid);
 #endif
 		} else if( !first || ctx->section.immediate ){
+			ctx->inerror = true;
+
 			int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 			if(sockfd < 0){
 				publishLog('E', "[%s] Can't create socket : %s", ctx->section.uid, strerror( errno ));
@@ -79,6 +109,8 @@ void *process_freebox(void *actx){
 				else if( send(sockfd, FBX_REQ, strlen(FBX_REQ), 0) == -1 )
 					publishLog('E', "[%s] Sending : %s", ctx->section.uid, strerror( errno ));
 				else while( socketreadline(sockfd, l, sizeof(l)) != -1 ){
+					ctx->inerror = false;
+
 					if(strstr(l, "ATM")){
 						int u, d, lm;
 						if(sscanf(l+25,"%d", &d) != 1) d=-1;
@@ -88,13 +120,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadATM", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  Marge de bruit")){
 						float u, d; 
 						int lm;
@@ -106,13 +138,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%.2f", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadMarge", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%.2f", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  FEC")){
 						unsigned long u, d;
 						int lm;
@@ -124,13 +156,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadFEC", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  CRC")){
 						unsigned long u, d;
 						int lm;
@@ -142,13 +174,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadCRC", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  HEC")){
 						unsigned long u, d;
 						int lm;
@@ -160,13 +192,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadHEC", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%lu", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  WAN")){
 						int u, d, lm;
 
@@ -177,13 +209,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadWAN", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  Ethernet")){
 						int u, d, lm;
 
@@ -194,13 +226,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadTV", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  USB")){
 						int u, d, lm;
 
@@ -211,13 +243,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadUSB", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					} else if(striKWcmp(l, "  Switch")){
 						int u, d, lm;
 
@@ -228,13 +260,13 @@ void *process_freebox(void *actx){
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", d );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 
 						lm = sprintf(l, "%s/UploadLan", ctx->section.topic) + 2;
 						assert( lm+1 < MAXLINE-10 );	/* Enough space for the response ? */
 						sprintf( l+lm, "%d", u );
 						mqttpublish( cfg.client, l, strlen(l+lm), l+lm, ctx->section.retained );
-						publishLog('T', "Freebox : %s -> %s", l, l+lm);
+						publishLog('T', "FreeboxV5 : %s -> %s", l, l+lm);
 					}
 				}
 
@@ -251,22 +283,24 @@ void *process_freebox(void *actx){
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **asection ){
-	struct section_freebox **section = (struct section_freebox **)asection;
+	struct section_freeboxV5 **section = (struct section_freeboxV5 **)asection;
 	const char *arg;
 
-	if(!strcmp(l,"*Freebox")){	/* Starting a section definition */
-		arg = "Freebox";
+	if(!strcmp(l,"*FreeboxV5")){	/* Starting a section definition */
+		arg = "FreeboxV5";
 
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_freebox *nsection = malloc(sizeof(struct section_freebox));
-		initSection( (struct Section *)nsection, mid, SFB_FREEBOX, strdup(arg));
+		struct section_freeboxV5 *nsection = malloc(sizeof(struct section_freeboxV5));
+		initSection( (struct Section *)nsection, mid, SFB_FREEBOXV5, strdup(arg), "FreeboxV5");
+
+		nsection->section.publishCustomFigures = publishCustomFiguresFbV5;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering Freebox section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering FreeboxV5 section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = nsection;	/* we're now in a section */
 		return ACCEPTED;
@@ -276,7 +310,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 }
 
 static bool mfb_acceptSDirective( uint8_t sec_id, const char *directive ){
-	if(sec_id == SFB_FREEBOX){
+	if(sec_id == SFB_FREEBOXV5){
 		if( !strcmp(directive, "Disabled") )
 			return true;
 		else if( !strcmp(directive, "Sample=") )
@@ -292,19 +326,46 @@ static bool mfb_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
-ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
-	if(sid == SFB_FREEBOX)
-		return process_freebox;
+static ThreadedFunctionPtr mfb_getSlaveFunction(uint8_t sid){
+	if(sid == SFB_FREEBOXV5)
+		return process_freeboxV5;
 
 	return NULL;
 }
 
+#ifdef LUA
+static int s_inError(lua_State *L){
+	struct section_freeboxV5 **s = luaL_testudata(L, 1, "FreeboxV5");
+	luaL_argcheck(L, s != NULL, 1, "'FreeboxV5' expected");
+
+	lua_pushboolean(L, (*s)->inerror);
+	return 1;
+}
+
+static const struct luaL_Reg sM[] = {
+	{"inError", s_inError},
+	{NULL, NULL}
+};
+#endif
+
+
 void InitModule( void ){
-	initModule((struct Module *)&mod_freebox, "mod_freebox");
+	initModule((struct Module *)&mod_freeboxV5, "mod_freeboxV5");
 
-	mod_freebox.module.readconf = readconf;
-	mod_freebox.module.acceptSDirective = mfb_acceptSDirective;
-	mod_freebox.module.getSlaveFunction = mfb_getSlaveFunction;
+	mod_freeboxV5.module.readconf = readconf;
+	mod_freeboxV5.module.acceptSDirective = mfb_acceptSDirective;
+	mod_freeboxV5.module.getSlaveFunction = mfb_getSlaveFunction;
 
-	registerModule( (struct Module *)&mod_freebox );
+	registerModule( (struct Module *)&mod_freeboxV5 );
+
+#ifdef LUA
+	if(mod_Lua){ /* Is mod_Lua loaded ? */
+
+			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "FreeboxV5");
+
+			/* Expose module's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "FreeboxV5", sM);
+	}
+#endif
 }

@@ -31,6 +31,8 @@ struct section_ups {
 	uint16_t port;		/* NUT server */
 
 	struct var *var_list;	/* List of variables to read */
+
+	bool inerror;
 };
 
 #endif
