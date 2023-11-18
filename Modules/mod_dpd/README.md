@@ -33,3 +33,27 @@ At least one of `Timeout=` and `Func=` must be present, otherwise the section is
 ### Lua specific method
 
 * **inError()** - returns if DPD is in error state (boolean)
+
+# Provided examples
+
+In addition to the basic `70_dpd` example, 2 usefull DPDs are provided (I'm using them for my dashboard)
+
+### 70_Info
+If a message is received on `%ClientID%/About` topic, Marcel's version and copyright.
+```
+Marcel's version 8.0107
+Marcel v8.0107 (c) L.Faillie 2015-2023
+```
+### 70_Status
+If a message is received on `%ClientID%/Status` topic, the real-time status of sections are issued to `%ClientID%/Status/response`
+```
+Marcel status	DPD	1	0
+Marcel info	DPD	1	0
+onduleur	UPS	0	1
+```
+
+Fields are :
+
+- Section's name
+- Is section enabled (1) or not (0)
+- optionaly, is section in error

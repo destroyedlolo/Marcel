@@ -91,6 +91,17 @@ static int lmSections(lua_State *L){
 	return 1;
 }
 
+static int lmFindSection(lua_State *L){
+	const char *sname = luaL_checkstring(L, 1);
+
+	struct Section *s = findSectionByName(sname);
+	if(!s)
+		return 0;
+
+	mod_Lua->pushSectionObject(L, s);
+	return 1;
+}
+
 const struct luaL_Reg MarcelLib [] = {
 	{"MQTTPublish", lmPublish},
 	{"Shutdown", lmShutdown},
@@ -101,6 +112,7 @@ const struct luaL_Reg MarcelLib [] = {
 	{"Copyright", lmCopyright},
 
 	{"Sections", lmSections},
+	{"FindSection", lmFindSection},
 	{NULL, NULL}
 };
 

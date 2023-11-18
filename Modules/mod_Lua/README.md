@@ -42,17 +42,44 @@ The main interface to Marcel internals. Following functions are exposed :
 
 ### Sections
 
-Generic Interface to Marcel's section.
+#### Marcel's methods related to sections
+
+  * **Marcel.Sections()** - Return an iterator to sections
+  * **Marcel.FindSection( *name* )** - Find a section by its name. Returns **nil** if not found
+
+#### Generic Interface to Marcel's section.
 
   * **getName()** and **getUID()** - Returns sections name.
   * **getKind()** - return section's kind
   * **isEnabled()** - return if the section is enabled (*disable* flag)
   * **getCustomFigures()** - return a table containing section's specifics figures
 
-Simple code example : list sections by names
+Simple code example : list sections and exposed figures
 ```Lua
 for s in Marcel.Sections()
 do 
-	print(s:getName()) 
+	print('"' .. s:getName() .. '"', s:getKind(), s:isEnabled() )
+
+	local cust = s:getCustomFigures()
+	if cust then
+		for k,v in pairs(cust) do
+			if type(v) == 'table' then
+				for _, vv in pairs(v)
+				do
+					print('\t\t', vv)
+				end
+			else
+				print('\t', k .. ':', v)
+			end
+		end
+	end
+
+        -- Access a field by a dedicated function
+    if s.inError then
+	    print("\tinError()", s:inError())
+    end
 end
+
+print ""
+
 ```
