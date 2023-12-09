@@ -329,6 +329,9 @@ static void startNotif( uint8_t mid ){
 
 #ifdef LUA
 static int m_inError(lua_State *L){
+	struct section_dpd **s = luaL_testudata(L, 1, "LookForChanges");
+	luaL_argcheck(L, s != NULL, 1, "'LookForChanges' expected");
+
 	lua_pushboolean(L, mod_inotify.inerror);
 	return 1;
 }
@@ -355,10 +358,8 @@ void InitModule( void ){
 #ifdef LUA
 	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
-#if 0	/* Section can't be on error on their own */
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "LookForChanges");
-#endif
 
 			/* Expose mod_1wire's own function */
 		mod_Lua->exposeFunctions("mod_inotify", mM);
