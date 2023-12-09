@@ -17,6 +17,7 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
+
 struct module_Lua {
 	struct Module module;
 
@@ -57,8 +58,16 @@ struct module_Lua {
 		/* Expose section shared methods to a Lua's object */
 	void (*initSectionSharedMethods)(lua_State *, const char *);
 	void (*pushSectionObject)(lua_State *, struct Section *);
+
+		/* Compatibility */
+#	if LUA_VERSION_NUM <= 501
+	void *(*testudata)(lua_State *, int, const char *);
+#	endif
 };
 
 extern const struct luaL_Reg MarcelLib [];
 
+#	if LUA_VERSION_NUM <= 501
+#		define	luaL_testudata (mod_Lua->testudata)
+#	endif
 #endif
