@@ -1,12 +1,12 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.6 (May  7 2022 20:46:23) (c)LFSoft 1997
+# LFMakeMaker 1.4 (May  1 2018 12:31:45) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua5.3 ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --libs lua5.3 )
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --libs lua )
 
 exposedFunction.o : exposedFunction.c mod_Lua.h ../Marcel/Module.h \
   ../Marcel/Section.h ../Marcel/Version.h ../Marcel/MQTT_tools.h \
