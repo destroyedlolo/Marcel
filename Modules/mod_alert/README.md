@@ -133,6 +133,7 @@ Limitations :
 - **mod_alert.RiseAlert( *AlertID*, *Message to send*, *name* )** - Raise an alert as it was received on *name* `\*RaiseAlert=` topic.
 - **mod_alert.ClearAlert( *AlertID*, *Message to send*, *name* )** - Clear an alert as it was received on *name* `\*CorrectAlert=` topic.
 - **mod_alert.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per provided names
+- **mod_alert.NamedNotifications()** - Return an iterator to Named Notifications (have a look on mod_lua about an example)
 
 #### Misc
 - **mod_alert.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined
