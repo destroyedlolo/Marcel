@@ -69,7 +69,8 @@ struct module_alert {
 	struct Module module;
 
 	struct namednotification *nnotif, 	/* named notification list */
-		*current;						/* current named */
+		*current,						/* current named */
+		*pnotif;						/* notification iterator */
 
 	struct DList alerts;				/* Alerts' list */
 
