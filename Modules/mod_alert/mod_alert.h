@@ -75,6 +75,11 @@ struct module_alert {
 	struct DList alerts;				/* Alerts' list */
 
 	const char *countertopic;			/* Topic to send counter too */
+
+	/* ***
+	 * Callbacks
+	 * ***/
+	struct namednotification *(*findNamedNotificationByName)(char);
 };
 
 extern struct module_alert mod_alert;

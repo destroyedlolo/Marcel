@@ -467,6 +467,18 @@ static int amNNotifs(lua_State *L){
 	return 1;
 }
 
+static int amFNNotifs(lua_State *L){
+	const char *nname = luaL_checkstring(L, 1);
+
+	struct namednotification *s = findNamed(*nname);
+	if(!s)
+		return 0;
+
+	pushNamedNObject(L, s);
+	return 1;
+}
+
+
 static const struct luaL_Reg ModAlertLib [] = {
 	{"RiseAlert", amRiseAlert},
 	{"RiseAlertSMS", amRiseAlertREST},	/* compatibility only */
@@ -482,6 +494,8 @@ static const struct luaL_Reg ModAlertLib [] = {
 	{"ListAlert", amListAlert},
 
 	{"NamedNotifications", amNNotifs},
+	{"FindNamedNotifications", amFNNotifs},
+
 	{NULL, NULL}
 };
 
@@ -527,6 +541,8 @@ void InitModule( void ){
 	DLListInit(&mod_alert.alerts);
 
 	mod_alert.countertopic = NULL;
+
+	mod_alert.findNamedNotificationByName = findNamed;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 
