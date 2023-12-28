@@ -137,7 +137,7 @@ Limitations :
 - **mod_alert.FindNamedNotifications( *name* )** - find a Named Notification by its name.
 
 ##### Named notification own methods
-`mod_alert.NamedNotifications()` returns NamedNotification objects having following methods :
+`mod_alert.NamedNotifications()` and `FindNamedNotifications()` return NamedNotification objects having following methods :
 - **getName()** - Returns NamedNotification's name.
 - **isEnabled()** - returns if the NamedNotification is enabled (disable flag)
 
