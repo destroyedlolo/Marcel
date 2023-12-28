@@ -134,6 +134,8 @@ Limitations :
 - **mod_alert.ClearAlert( *AlertID*, *Message to send*, *name* )** - Clear an alert as it was received on *name* `\*CorrectAlert=` topic.
 - **mod_alert.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per provided names
 - **mod_alert.NamedNotifications()** - Return an iterator to Named Notifications (have a look on mod_lua about an example)
+- **mod_alert.FindNamedNotifications( *name* )** - find a Named Notification by its name.
+
 ##### Named notification own methods
 `mod_alert.NamedNotifications()` returns NamedNotification objects having following methods :
 - **getName()** - Returns NamedNotification's name.
