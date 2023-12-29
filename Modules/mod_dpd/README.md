@@ -57,3 +57,17 @@ Fields are :
 - Section's name
 - Is section enabled (1) or not (0)
 - optionaly, is section in error
+
+### 70_namedNotificationStatus
+If a message is received on `%ClientID%/NamedNotificationsStatus` topic, the real-time status of sections are issued to `%ClientID%/NamedNotificationsStatus/response`
+```
+Name	Enable
+------
+i	0
+E	1
+```
+
+Fields are :
+
+- Named Notification's name
+- Is it enabled (1) or not (0)
