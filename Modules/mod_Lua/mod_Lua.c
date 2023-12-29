@@ -59,7 +59,7 @@ static int exposeObjMethods( lua_State *L, const char *name, const struct luaL_R
 }
 
 
-#if LUA_VERSION_NAUM <= 501
+#if LUA_VERSION_NUM <= 501
 	/* from lua-compat library */
 static void *testudata(lua_State *L, int i, const char *tname){
 	void *p = lua_touserdata(L, i);
