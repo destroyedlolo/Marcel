@@ -54,7 +54,7 @@ The main interface to Marcel internals. Following functions are exposed :
   * **isEnabled()** - return if the section is enabled (*disable* flag)
   * **getCustomFigures()** - return a table containing section's specifics figures
 
-Simple code example : list sections and exposed figures
+Simple code example : lists sections, namedNotification and exposes related figures
 ```Lua
 for s in Marcel.Sections()
 do 
@@ -82,4 +82,16 @@ end
 
 print ""
 
+if mod_alert then	-- Only if mod_alert is loaded
+	print ""
+	print "Defined Named notifications"
+	print "---------------------------"
+
+	for n in mod_alert.NamedNotifications()
+	do
+		print('"' .. n:getName() .. '"', n:isEnabled() )
+	end
+end
+
+print ""
 ```

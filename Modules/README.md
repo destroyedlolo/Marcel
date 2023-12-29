@@ -1,8 +1,11 @@
 # modules documentation
 
 **Marcel** is composed of many modules to implement new interfaces and features. 
-It's wise to avoid intermodule dependancies with the exception of **mod_core** components and **mod_lua**.
+It's wise to avoid intermodule dependencies with the exception of **mod_core** components and **mod_lua**.
 Each of the modules are documented in their own directory.
+
+In case an intermodule dependence is mandatory, use `findModuleByName()` function to find out the module structure, to get access to some callbacks. Never forget **to check `findModuleByName()` returns**. If NULL, it's meaning the module is not loaded and so, can't be used.
+
 
 ## configuration
 

@@ -44,12 +44,14 @@
  * 06/09/2022	- LF - v8.00 - redesign for modularity
  * 							 - Sample can be a float
  * 14/10/2023	- LF - v8.01 - Improve Lua support
+ * 				- expose section status
+ * 27/12/2023	- LF - v8.02 - expose NamedNotification status
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0108"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0202"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

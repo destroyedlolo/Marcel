@@ -438,6 +438,47 @@ static int amListAlert(lua_State *L){
 	return n;
 }
 
+static void pushNamedNObject(lua_State *L, struct namednotification *obj){
+	struct namednotification **s = (struct namednotification **)lua_newuserdata(L, sizeof(struct namednotification *));
+	if(!s)
+		luaL_error(L, "No memory");
+
+	*s = obj;
+
+	luaL_getmetatable(L, "NamedNotification");
+	lua_setmetatable(L, -2);
+}
+
+static int am_ainter(lua_State *L){
+	if(mod_alert.pnotif){
+		pushNamedNObject(L, mod_alert.pnotif);
+		mod_alert.pnotif = mod_alert.pnotif->next;
+
+		return 1;
+	} else
+		return 0;
+}
+
+static int amNNotifs(lua_State *L){
+	mod_alert.pnotif = mod_alert.nnotif;
+
+	lua_pushcclosure(L, am_ainter, 1);
+
+	return 1;
+}
+
+static int amFNNotifs(lua_State *L){
+	const char *nname = luaL_checkstring(L, 1);
+
+	struct namednotification *s = findNamed(*nname);
+	if(!s)
+		return 0;
+
+	pushNamedNObject(L, s);
+	return 1;
+}
+
+
 static const struct luaL_Reg ModAlertLib [] = {
 	{"RiseAlert", amRiseAlert},
 	{"RiseAlertSMS", amRiseAlertREST},	/* compatibility only */
@@ -451,8 +492,39 @@ static const struct luaL_Reg ModAlertLib [] = {
 	{"SendNamedMessage", amSendNamedNotification},	/* compatibility only */
 	{"SendNamedNotification", amSendNamedNotification},
 	{"ListAlert", amListAlert},
+
+	{"NamedNotifications", amNNotifs},
+	{"FindNamedNotifications", amFNNotifs},
+
 	{NULL, NULL}
 };
+
+static int amn_getName(lua_State *L){
+	struct namednotification **s = luaL_testudata(L, 1, "NamedNotification");
+	luaL_argcheck(L, s != NULL, 1, "'NamedNotification' expected");
+
+	char name[] = { (*s)->name, 0 };
+	
+	lua_pushstring(L, name);
+
+	return 1;
+}
+
+static int amn_isEnabled(lua_State *L){
+	struct namednotification **s = luaL_testudata(L, 1, "NamedNotification");
+	luaL_argcheck(L, s != NULL, 1, "'NamedNotification' expected");
+
+	lua_pushboolean(L, !(*s)->disabled);
+
+	return 1;
+}
+
+static const struct luaL_Reg alNamedM[] = {
+	{"getName", amn_getName},
+	{"isEnabled", amn_isEnabled},
+	{NULL, NULL}
+};
+
 #endif
 
 void InitModule( void ){
@@ -470,6 +542,9 @@ void InitModule( void ){
 
 	mod_alert.countertopic = NULL;
 
+	mod_alert.findNamedNotificationByName = findNamed;
+	mod_alert.namedNNDisable = namedNNDisable;
+
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 
 #ifdef LUA
@@ -483,6 +558,9 @@ void InitModule( void ){
 
 			/* Expose mod_alert's own function */
 		mod_Lua->exposeFunctions("mod_alert", ModAlertLib);
+
+			/* Expose NamedNotification's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "NamedNotification", alNamedM);
 	}
 #endif
 }
