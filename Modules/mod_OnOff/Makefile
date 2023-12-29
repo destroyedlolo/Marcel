@@ -6,10 +6,11 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA  
 
 mod_OnOff.o : mod_OnOff.c mod_OnOff.h ../Marcel/Module.h \
-  ../Marcel/Section.h Makefile 
+  ../Marcel/Section.h ../mod_alert/mod_alert.h ../Marcel/DList.h \
+  ../mod_Lua/mod_Lua.h Makefile 
 	$(cc) -c -o mod_OnOff.o mod_OnOff.c $(opts) 
 
 ../../mod_OnOff.so : mod_OnOff.o Makefile 
