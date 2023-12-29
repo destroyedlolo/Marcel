@@ -69,11 +69,18 @@ struct module_alert {
 	struct Module module;
 
 	struct namednotification *nnotif, 	/* named notification list */
-		*current;						/* current named */
+		*current,						/* current named */
+		*pnotif;						/* notification iterator */
 
 	struct DList alerts;				/* Alerts' list */
 
 	const char *countertopic;			/* Topic to send counter too */
+
+	/* ***
+	 * Callbacks
+	 * ***/
+	struct namednotification *(*findNamedNotificationByName)(char);
+	bool (*namedNNDisable)(char, bool);
 };
 
 extern struct module_alert mod_alert;
@@ -83,6 +90,13 @@ extern struct module_alert mod_alert;
 	 * **/
 extern void notif_postconfInit(struct Section *);
 extern bool notif_unnamednotification_processMQTT(struct Section *, const char *, char *);
+
+	/* **
+	 * Named notification
+	 * **/
+extern struct namednotification *findNamed(const char );
+extern void pnNotify(const char *names, const char *title, const char *msg);
+extern bool namedNNDisable(char, bool);
 
 	/* **
 	 * Alerts
@@ -103,12 +117,6 @@ extern void sentAlertsCounter( void );
 	 * CorrectAlert
 	 * **/
 extern bool salrt_correctalert_processMQTT(struct Section *, const char *, char *);
-
-	/* **
-	 * Named notification
-	 * **/
-extern struct namednotification *findNamed(const char );
-extern void pnNotify(const char *names, const char *title, const char *msg);
 
 	/* **
 	 * Actions

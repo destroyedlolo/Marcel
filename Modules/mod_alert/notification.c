@@ -100,3 +100,24 @@ void pnNotify(const char *names, const char *title, const char *payload){
 		}
 	}
 }
+
+/* **
+ * Enable or disable a named notification
+ * <- false if the named can't be found
+ */
+bool namedNNDisable(char n, bool val){
+	struct namednotification *nn = findNamed(n);
+
+	if(!nn){
+		if(cfg.verbose)
+			publishLog('E', "Named notification \"%c\" doesn't exist", n);
+		return false;
+	}
+
+	nn->disabled = val;
+
+	if(cfg.verbose)
+		publishLog('I', "%s Named notification \"%c\"", val ? "Disabling":"Enabling", nn->name);
+
+	return true;
+}

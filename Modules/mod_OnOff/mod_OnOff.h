@@ -17,6 +17,7 @@ struct module_OnOff {
 	struct Module module;
 
 	char *topic;
+	char *NNtopic;
 };
 
 #endif
