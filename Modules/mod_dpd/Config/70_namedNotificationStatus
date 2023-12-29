@@ -2,6 +2,7 @@
 
 Needs=mod_dpd
 Needs=mod_Lua
+Needs=mod_alert
 
 # this DPD publishes the real-time status of each defined section
 
