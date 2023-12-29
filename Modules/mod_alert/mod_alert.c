@@ -543,6 +543,7 @@ void InitModule( void ){
 	mod_alert.countertopic = NULL;
 
 	mod_alert.findNamedNotificationByName = findNamed;
+	mod_alert.namedNNDisable = namedNNDisable;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 
