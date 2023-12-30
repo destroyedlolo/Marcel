@@ -35,8 +35,6 @@ struct section_OWMQuery {
 	const char *city;	/* CityName,Country (mandatory) */
 	const char *units;	/* metric (default), imperial or Standard */
 	const char *lang;	/* Language (almost) */
-
-	bool inerror;
 };
 
 #define DEFAULT_WEATHER_SAMPLE 600
