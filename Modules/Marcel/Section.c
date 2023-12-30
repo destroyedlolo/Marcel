@@ -59,7 +59,7 @@ void SectionOnOff(struct Section *s, bool v){
  */
 void SectionError(struct Section *s, bool v){
 	bool previous = s->inerror;
-	s->inerror = !v;
+	s->inerror = v;
 
 	if(s->inerror != previous)
 		publishSectionStatus(s);
