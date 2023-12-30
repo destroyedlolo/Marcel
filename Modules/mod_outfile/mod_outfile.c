@@ -37,7 +37,7 @@ static int publishCustomFiguresOF(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -110,20 +110,20 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 #endif
 
 		if(ret){
-			s->inerror = true;	/* By default, we're falling */
-
 			FILE *f=fopen( s->file, "w" );
 			if(!f){
 				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+				SectionError((struct Section *)s, true);
 				return true;
 			}
 			fputs(payload, f);
 			if(ferror(f)){
 				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+				SectionError((struct Section *)s, true);
 				fclose(f);
 				return true;
 			}
-			s->inerror = false;
+			SectionError((struct Section *)s, false);
 			publishLog('T', "[%s] '%s' written in '%s'", s->section.uid, payload, s->file);
 			fclose(f);
 		} else 
@@ -192,7 +192,7 @@ static int so_inError(lua_State *L){
 	struct section_outfile **s = luaL_testudata(L, 1, "OutFile");
 	luaL_argcheck(L, s != NULL, 1, "'OutFile' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 
