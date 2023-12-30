@@ -61,7 +61,7 @@ static int publishCustomFiguresL4C(struct Section *asection){
 
 #if 0	/* Section can't be in error on themselves */
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 #endif
 
