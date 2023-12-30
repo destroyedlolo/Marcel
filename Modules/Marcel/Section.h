@@ -54,5 +54,7 @@ struct Section {
 extern struct Section *sections;
 
 extern struct Section *findSectionByName(const char *name);
-extern void initSection( struct Section *sec, int8_t module_id, uint8_t section_id, const char *name, const char *kind);
+extern void initSection(struct Section *sec, int8_t module_id, uint8_t section_id, const char *name, const char *kind);
+extern void SectionOnOff(struct Section *, bool);
+extern void publishSectionStatus(struct Section *);
 #endif
