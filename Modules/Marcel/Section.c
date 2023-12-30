@@ -52,6 +52,18 @@ void SectionOnOff(struct Section *s, bool v){
 }
 
 /**
+ * @brief set error status of a section
+ *
+ * @param section section to manage
+ * @param new error status
+ */
+void SectionError(struct Section *s, bool v){
+	s->inerror = !v;
+
+	publishSectionStatus(s);
+}
+
+/**
  * @brief Publish the status of a section
  *
  * @param section section to publish
@@ -61,7 +73,7 @@ void publishSectionStatus(struct Section *s){
 	sprintf(ttopic, "%s/Change/%s", cfg.ClientID, s->uid);
 
 	char t[4];
-	sprintf(t, "%c,%c", s->disabled ? '0':'1', '0');
+	sprintf(t, "%c,%c", s->disabled ? '0':'1', s->inerror ? '1':'0');
 
 	mqttpublish(cfg.client, ttopic, 3, t, false);
 
@@ -91,6 +103,7 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->h = chksum(name);
 
 	section->thread = 0;
+	section->inerror = false;
 	section->disabled = false;
 	section->immediate = false;
 	section->quiet = false;

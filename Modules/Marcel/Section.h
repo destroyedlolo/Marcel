@@ -26,6 +26,8 @@ struct Section {
 	int h;					/* hash code for this id */
 	pthread_t thread;		/* Child to handle this section */
 
+	bool inerror;			/* This section is in error */
+
 		/* options */
 	bool disabled;			/* this section is currently disabled */
 
@@ -56,5 +58,6 @@ extern struct Section *sections;
 extern struct Section *findSectionByName(const char *name);
 extern void initSection(struct Section *sec, int8_t module_id, uint8_t section_id, const char *name, const char *kind);
 extern void SectionOnOff(struct Section *, bool);
+extern void SectionError(struct Section *, bool);
 extern void publishSectionStatus(struct Section *);
 #endif
