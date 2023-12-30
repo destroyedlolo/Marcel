@@ -49,7 +49,7 @@ static int publishCustomFiguresRFXCmd(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -224,8 +224,6 @@ static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 			return true;	/* We understood the command but nothing is done */
 		}
 
-		s->inerror = true;	/* by default, we're in trouble */
-
 		BYTE cmd;
 		int fd;
 
@@ -239,11 +237,13 @@ static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 			cmd = rfy_sProgram;
 		else {
 			publishLog('E', "[%s] RTS unsupported command : '%s'", s->section.uid, msg);
+			SectionError((struct Section *)s, true);
 			return true;
 		}
 		
 		if((fd = open (mod_RFXtrx.RFXdevice, O_RDWR | O_NOCTTY | O_SYNC)) < 0 ){
 			publishLog('E', "[%s] RFX open() : %s", s->section.uid, strerror(errno));
+			SectionError((struct Section *)s, true);
 			return true;
 		}
 
@@ -258,15 +258,21 @@ static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 		buff.RFY.unitcode = s->did & 0xff;
 		buff.RFY.cmnd = cmd;
 		dumpbuff();
-		if(writeRFX(fd) == -1)
+
+		bool inerror = false;
+
+		if(writeRFX(fd) == -1){
 			publishLog('E', "[%s] RFX Cmd write() : %s", s->section.uid, strerror(errno));
-		else if(!readRFX(fd))
+			inerror = true;
+		} else if(!readRFX(fd)){
 			publishLog('E', "[%s] RFX Reading status : %s", s->section.uid, strerror(errno));
+			inerror = true;
+		}
 
 		pthread_mutex_unlock( &oneTRXcmd );
 		close(fd);
 
-		s->inerror = false;
+		SectionError((struct Section *)s, inerror);
 
 		publishLog('T', "[%s] Sending '%s' (%d) command to %04x", s->section.uid, msg, cmd, s->did);
 
@@ -409,7 +415,7 @@ static int so_inError(lua_State *L){
 	struct section_RFXCom **s = luaL_testudata(L, 1, "RTSCmd");
 	luaL_argcheck(L, s != NULL, 1, "'RTSCmd' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 
