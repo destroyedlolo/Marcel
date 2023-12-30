@@ -27,7 +27,7 @@
  * @param t topic to be compared to
  * @param remain pointer to the remaining of the topic.
  *  If the topic ends by a '#', if set, points to the what the '"' wildcard replaces.
- * @return 0 : strings match, <- -1 : wildcard error, <- others : strings are different
+ * @return 0 : strings match, -1 : wildcard error, others : strings are different
  */
 extern int mqtttokcmp(register const char *s, register const char *t, const char **remain);
 
