@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA   $(shell pkg-config --libs lua )
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --libs lua )
 
 exposedFunction.o : exposedFunction.c mod_Lua.h ../Marcel/Module.h \
   ../Marcel/Section.h ../Marcel/Version.h ../Marcel/MQTT_tools.h \
