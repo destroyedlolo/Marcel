@@ -183,7 +183,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('C', "\tEntering 1-wire Alarm section '%s' (%04x)", nsection->common.section.uid, nsection->common.section.id);
 
 		mod_1wire.alarm_in_use = false;
-		mod_1wire.alerm_in_error = false;
+		mod_1wire.alarm_in_error = false;
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
 	} else if(*section){
@@ -306,7 +306,7 @@ static const struct luaL_Reg s1M[] = {
 };
 
 static int m1_inError(lua_State *L){
-	lua_pushboolean(L, mod_1wire.alerm_in_error);
+	lua_pushboolean(L, mod_1wire.alarm_in_error);
 	return 1;
 }
 

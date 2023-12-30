@@ -128,12 +128,12 @@ void *scanAlertDir(void *amod){
 		struct dirent *de;
 		DIR *d = opendir( mod_1wire->OwAlarm );
 		if( !d ){
-			mod_1wire->alerm_in_error = true;
+			mod_1wire->alarm_in_error = true;
 			publishLog(mod_1wire->OwAlarmKeep ? 'E' : 'F', "[1-wire Alarm] : %s", strerror(errno));
 			if(!mod_1wire->OwAlarmKeep)
 				pthread_exit(0);
 		} else {
-			mod_1wire->alerm_in_error = false;
+			mod_1wire->alarm_in_error = false;
 			while(( de = readdir(d) )){
 				if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
 					publishLog('T', "%s : in alert", de->d_name);

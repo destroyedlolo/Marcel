@@ -24,7 +24,7 @@ struct module_1wire {
 
 		/* Alarm handling */
 	bool alarm_in_use;		/* At last an alarm is defined */
-	bool alerm_in_error;	/* Error while trying to read alarm */
+	bool alarm_in_error;	/* Error while trying to read alarm */
 	const char *OwAlarm;	/* 1w alarm directory */
 	float OwAlarmSample;	/* Delay b/w 2 sample on alarm directory */
 	bool OwAlarmKeep;		/* Alarm thread doesn't die in case of error */
