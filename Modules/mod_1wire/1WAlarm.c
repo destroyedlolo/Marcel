@@ -36,7 +36,7 @@ static void processProbe( struct section_1wAlarm *s){
 
 	if(!(f = fopen( s->common.file, "r" ))){	/* probe is not reachable */
 		char *emsg = strerror(errno);
-		s->common.inerror = true;
+		SectionError((struct Section *)s, true);
 
 		publishLog('E', "[%s] %s : %s", s->common.section.uid, s->common.file, emsg);
 
@@ -84,10 +84,9 @@ static void processProbe( struct section_1wAlarm *s){
 	} else {
 		if(!fgets(l, MAXLINE, f)){
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
-			s->common.inerror = true;
+			SectionError((struct Section *)s, true);
 		} else {
 			bool publish = true;
-			s->common.inerror = false;
 
 #ifdef LUA
 			if(mod_Lua && s->common.section.funcid != LUA_REFNIL){
@@ -106,6 +105,7 @@ static void processProbe( struct section_1wAlarm *s){
 			}
 #endif
 
+			SectionError((struct Section *)s, false);
 			if(publish){
 				publishLog('T', "[%s] -> %s", s->common.section.uid, l);
 				mqttpublish(cfg.client, s->common.section.topic, strlen(l), l, s->common.section.retained );

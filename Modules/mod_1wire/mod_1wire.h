@@ -46,7 +46,6 @@ struct OwCommon {
 	const char *file;		/* File containing the data to read */
 	const char *failfunc;	/* User function to call on data arrival */
 	int failfuncid;			/* Function id in Lua registry */
-	bool inerror;			/* Last attempt failed */
 };
 
 /* Float value exposed as a file

@@ -55,12 +55,14 @@ void SectionOnOff(struct Section *s, bool v){
  * @brief set error status of a section
  *
  * @param section section to manage
- * @param new error status
+ * @param status new error status
  */
 void SectionError(struct Section *s, bool v){
+	bool previous = s->inerror;
 	s->inerror = !v;
 
-	publishSectionStatus(s);
+	if(s->inerror != previous)
+		publishSectionStatus(s);
 }
 
 /**

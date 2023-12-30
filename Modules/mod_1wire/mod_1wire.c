@@ -42,7 +42,7 @@ static int publishCustomFiguresFFV(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 	
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->common.inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->common.section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 	
 		return 1;
@@ -154,7 +154,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
-		nsection->common.inerror = false;
 		nsection->offset = 0.0;
 		nsection->safe85 = false;
 
@@ -175,7 +174,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->common.section.publishCustomFigures = publishCustomFigures1WAlrm;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
-		nsection->common.inerror = false;
 		nsection->initfunc = NULL;
 		nsection->latch = NULL;
 
@@ -296,7 +294,7 @@ static int s1_inError(lua_State *L){
 		s = luaL_testudata(L, 1, "1WAlarm");
 	luaL_argcheck(L, s != NULL, 1, "'FFV' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 
