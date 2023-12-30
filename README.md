@@ -60,6 +60,32 @@ As of version 7.07, following topics have been added (if **mod_alert** enabled) 
 * **%*MarcelID*%/Log/Corrected** : send corrected alerts
 * **%*MarcelID*%/AlertsCounter** : amount of active alerts
 
+## Status change
+### Section
+As of 8.3, Marcel reports sections status changes to topic<br>
+**%*MarcelID*%/Change/<Section ID>**<br>
+and the playload contains 2 fields:
+- Enabled(`1`) or Disabled (`0`)
+- face technical error
+
+As example if `Marcel/Change/Info` is published with
+```
+1,0
+```
+means, **Info** section is *Enabled* and *doesn't face any error*.
+
+### Named Notification (only if mod_alert is loaded)
+As of 8.3, Marcel reports Named Notification status changes to topic<br>
+**%*MarcelID*%/NamedNotificationChange/<Section ID>**<br>
+and the playload contains 1 field:
+- Enabled(`1`) or Disabled (`0`)
+
+As example if `Marcel/NamedNotificationChange/p` is published with
+```
+1
+```
+means, **p** named notification is *Enabled*.
+
 ## Modules
 
 `Modules` containes the documentation of each modules.<br>
