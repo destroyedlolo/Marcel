@@ -46,7 +46,7 @@ static int publishCustomFiguresDPD(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->dpdinerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -170,7 +170,7 @@ static void *processDPD(void *asec){
 #endif
 			} else {
 				publishLog('T', "timeout for DPD '%s'", s->section.uid);
-				if(!s->inerror){	/* Entering in error condition */
+				if(!s->dpdinerror){	/* Entering in error condition */
 					const char *msg_info = "%s data received after %d seconds";
 					char msg[ strlen(msg_info) + 16 ];	/* Some room for 'No' and number of seconds */
 					if(!s->notiftopic){		/* No notification topic defined : sending an alert */
@@ -179,13 +179,13 @@ static void *processDPD(void *asec){
 						strcat( topic, s->section.uid );
 						int msg_len = sprintf( msg, msg_info, "SNo", (int)s->section.sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
-							s->inerror = true;	/* otherwise let a chance for next run */
+							s->dpdinerror = true;	/* otherwise let a chance for next run */
 					} else {	/* Sending to custom topic */
 						char topic[ strlen(s->notiftopic) + strlen(s->section.uid) + 2];	/* + '/' + 0 */
 						sprintf( topic, "%s/%s", s->notiftopic, s->section.uid );
 						int msg_len = sprintf( msg, msg_info, "No", (int)s->section.sample );
 						if( mqttpublish( cfg.client, topic, msg_len, msg, 0 ) == MQTTCLIENT_SUCCESS )
-							s->inerror = true;	/* otherwise let a chance for next run */
+							s->dpdinerror = true;	/* otherwise let a chance for next run */
 					}
 
 					publishLog('T', "Alert raises for DPD '%s'", s->section.uid);
@@ -204,13 +204,13 @@ static void *processDPD(void *asec){
 						publishLog('d', "[%s] Disabled", s->section.uid);
 #endif
 				} else {
-					if(s->inerror){	/* Exiting error condition */
+					if(s->dpdinerror){	/* Exiting error condition */
 						if(!s->notiftopic){		/* No notification topic defined : sending an alert */
 							char topic[strlen(s->section.uid) + 7]; /* "Alert/" + 1 */
 							strcpy( topic, "Alert/" );
 							strcat( topic, s->section.uid );
 							if( mqttpublish( cfg.client, topic, 1, "E", 0 ) == MQTTCLIENT_SUCCESS )
-								s->inerror = false;
+								s->dpdinerror = false;
 						} else {	/* Error topic defined */
 							char topic[ strlen(s->notiftopic) + strlen(s->section.uid) + 2];	/* + '/' + 0 */
 								/* I duno if it's really needed to have a writable payload,
@@ -223,7 +223,7 @@ static void *processDPD(void *asec){
 
 							sprintf( topic, "%s/%s", s->notiftopic, s->section.uid );
 							if( mqttpublish( cfg.client, topic, msglen, tmsg, 0 ) == MQTTCLIENT_SUCCESS )
-								s->inerror = false;
+								s->dpdinerror = false;
 
 						}
 						publishLog('T', "Alert corrected for DPD '%s'", s->section.uid);
@@ -255,7 +255,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->section.publishCustomFigures = publishCustomFiguresDPD;
 		nsection->notiftopic = NULL;
 		nsection->rcv = -1;
-		nsection->inerror = false;
+		nsection->dpdinerror = false;
 
 		nsection->section.processMsg = sd_processMQTT;	/* process incoming messages */
 
@@ -322,7 +322,7 @@ static int md_inError(lua_State *L){
 	struct section_dpd **s = luaL_testudata(L, 1, "DPD");
 	luaL_argcheck(L, s != NULL, 1, "'DPD' expected");
 
-	lua_pushboolean(mod_Lua->L, (*s)->inerror);
+	lua_pushboolean(mod_Lua->L, (*s)->dpdinerror);
 
 	return 1;
 }
