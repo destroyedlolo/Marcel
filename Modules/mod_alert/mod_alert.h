@@ -97,6 +97,7 @@ extern bool notif_unnamednotification_processMQTT(struct Section *, const char *
 extern struct namednotification *findNamed(const char );
 extern void pnNotify(const char *names, const char *title, const char *msg);
 extern bool namedNNDisable(char, bool);
+extern void publishNNStatus(struct namednotification *);
 
 	/* **
 	 * Alerts

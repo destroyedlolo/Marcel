@@ -111,7 +111,7 @@ void pnNotify(const char *names, const char *title, const char *payload){
  * @brief Enable or disable a named notification
  *
  * @param name Name of the named notification
- * @param val new status
+ * @param val new status (true if disable)
  * @return false if the named can't be found
  */
 bool namedNNDisable(char n, bool val){
@@ -128,5 +128,29 @@ bool namedNNDisable(char n, bool val){
 	if(cfg.verbose)
 		publishLog('I', "%s Named notification \"%c\"", val ? "Disabling":"Enabling", nn->name);
 
+	publishNNStatus(nn);
+
 	return true;
 }
+
+/**
+ * @brief Publish the status of a NamedNotification
+ *
+ * @param nn Named notification to publish
+ */
+void publishNNStatus(struct namednotification *nn){
+	char ttopic[ strlen(cfg.ClientID) + 27 ];	/* + "/NamedNotificationChange/?" */
+	sprintf(ttopic, "%s/NamedNotificationChange/%c", cfg.ClientID, nn->name);
+
+	char t[2] = { 
+		nn->disabled ? '0':'1', 
+		0
+	};
+
+	mqttpublish(cfg.client, ttopic, 1, t, false);
+
+#ifdef DEBUG
+	publishLog('d', "Named Notification \"%c\" status is \"%s\"", nn->name, t);
+#endif
+}
+
