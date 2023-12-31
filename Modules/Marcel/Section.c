@@ -8,6 +8,9 @@
  */
 
 #include "Section.h"
+#include "Module.h"
+#include "../mod_alert/mod_alert.h"
+#include "MQTT_tools.h"
 
 #include <assert.h>
 
@@ -37,6 +40,57 @@ struct Section *findSectionByName(const char *name){
 	return NULL;	/* Not found */
 }
 
+
+/**
+ * @brief Enable or disable a section
+ *
+ * @param section section to manage
+ * @param status new status of this section (true = enabled)
+ */
+void SectionOnOff(struct Section *s, bool v){
+	s->disabled = !v;
+
+	publishSectionStatus(s);
+}
+
+/**
+ * @brief set error status of a section
+ *
+ * @param section section to manage
+ * @param status new error status
+ */
+void SectionError(struct Section *s, bool v){
+	bool previous = s->inerror;
+	s->inerror = v;
+
+	if(s->inerror != previous){
+		publishSectionStatus(s);
+
+		uint8_t mod_alertID = findModuleByName("mod_alert");
+		if(mod_alertID != (uint8_t)-1)
+			((struct module_alert *)modules[mod_alertID])->sentAlertsCounter();
+	}
+}
+
+/**
+ * @brief Publish the status of a section
+ *
+ * @param section section to publish
+ */
+void publishSectionStatus(struct Section *s){
+	char ttopic[ strlen(cfg.ClientID) + 9 + strlen(s->uid) ];	/* + "/Change/" */
+	sprintf(ttopic, "%s/Change/%s", cfg.ClientID, s->uid);
+
+	char t[4];
+	sprintf(t, "%c,%c", s->disabled ? '0':'1', s->inerror ? '1':'0');
+
+	mqttpublish(cfg.client, ttopic, 3, t, false);
+
+#ifdef DEBUG
+	publishLog('d', "\"%s\" status is \"%s\"", s->uid, t);
+#endif
+}
+
 /**
  * @brief Initialize mandatory (only) field of a structure
  *
@@ -58,6 +112,7 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->h = chksum(name);
 
 	section->thread = 0;
+	section->inerror = false;
 	section->disabled = false;
 	section->immediate = false;
 	section->quiet = false;

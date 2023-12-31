@@ -28,6 +28,11 @@ struct section_dpd {
 
 	const char *notiftopic;	/* Topic to publish error to */
 	int rcv;				/* Event for data receiving */
-	bool inerror;			/* true if this DPD is in error */
+
+		/* Notez-bien : this not the same needs as global section one.
+		 * this one doesn't reflect a technical issue but the fact no
+		 * data has been received.
+		 */
+	bool dpdinerror;			/* true if this DPD is in error */
 };
 #endif

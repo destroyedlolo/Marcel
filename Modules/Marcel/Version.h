@@ -46,12 +46,13 @@
  * 14/10/2023	- LF - v8.01 - Improve Lua support
  * 				- expose section status
  * 27/12/2023	- LF - v8.02 - expose NamedNotification status
+ * 30/12/2023	- LF - v8.03 - Notify when a status changes
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0202"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0302"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

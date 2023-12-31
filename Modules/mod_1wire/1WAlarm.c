@@ -36,7 +36,7 @@ static void processProbe( struct section_1wAlarm *s){
 
 	if(!(f = fopen( s->common.file, "r" ))){	/* probe is not reachable */
 		char *emsg = strerror(errno);
-		s->common.inerror = true;
+		SectionError((struct Section *)s, true);
 
 		publishLog('E', "[%s] %s : %s", s->common.section.uid, s->common.file, emsg);
 
@@ -84,10 +84,9 @@ static void processProbe( struct section_1wAlarm *s){
 	} else {
 		if(!fgets(l, MAXLINE, f)){
 			publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
-			s->common.inerror = true;
+			SectionError((struct Section *)s, true);
 		} else {
 			bool publish = true;
-			s->common.inerror = false;
 
 #ifdef LUA
 			if(mod_Lua && s->common.section.funcid != LUA_REFNIL){
@@ -106,6 +105,7 @@ static void processProbe( struct section_1wAlarm *s){
 			}
 #endif
 
+			SectionError((struct Section *)s, false);
 			if(publish){
 				publishLog('T', "[%s] -> %s", s->common.section.uid, l);
 				mqttpublish(cfg.client, s->common.section.topic, strlen(l), l, s->common.section.retained );
@@ -128,12 +128,12 @@ void *scanAlertDir(void *amod){
 		struct dirent *de;
 		DIR *d = opendir( mod_1wire->OwAlarm );
 		if( !d ){
-			mod_1wire->alerm_in_error = true;
+			mod_1wire->alarm_in_error = true;
 			publishLog(mod_1wire->OwAlarmKeep ? 'E' : 'F', "[1-wire Alarm] : %s", strerror(errno));
 			if(!mod_1wire->OwAlarmKeep)
 				pthread_exit(0);
 		} else {
-			mod_1wire->alerm_in_error = false;
+			mod_1wire->alarm_in_error = false;
 			while(( de = readdir(d) )){
 				if( de->d_type == 4 && *de->d_name != '.' ){	/* 4 : directory */
 					publishLog('T', "%s : in alert", de->d_name);

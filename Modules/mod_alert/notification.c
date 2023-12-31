@@ -66,6 +66,12 @@ bool notif_unnamednotification_processMQTT(struct Section *asec, const char *top
 	 * Named notification
 	 * ***/
 
+/**
+ * @brief Search for named notification by its name
+ *
+ * @param name of the notification to find
+ * @return pointer to the named notification or NULL if not found
+ */
 struct namednotification *findNamed(const char n){
 	for(struct namednotification *nnotif = mod_alert.nnotif; nnotif; nnotif = nnotif->next){
 		if(nnotif->name == n)
@@ -101,9 +107,12 @@ void pnNotify(const char *names, const char *title, const char *payload){
 	}
 }
 
-/* **
- * Enable or disable a named notification
- * <- false if the named can't be found
+/**
+ * @brief Enable or disable a named notification
+ *
+ * @param name Name of the named notification
+ * @param val new status (true if disable)
+ * @return false if the named can't be found
  */
 bool namedNNDisable(char n, bool val){
 	struct namednotification *nn = findNamed(n);
@@ -119,5 +128,29 @@ bool namedNNDisable(char n, bool val){
 	if(cfg.verbose)
 		publishLog('I', "%s Named notification \"%c\"", val ? "Disabling":"Enabling", nn->name);
 
+	publishNNStatus(nn);
+
 	return true;
 }
+
+/**
+ * @brief Publish the status of a NamedNotification
+ *
+ * @param nn Named notification to publish
+ */
+void publishNNStatus(struct namednotification *nn){
+	char ttopic[ strlen(cfg.ClientID) + 27 ];	/* + "/NamedNotificationChange/?" */
+	sprintf(ttopic, "%s/NamedNotificationChange/%c", cfg.ClientID, nn->name);
+
+	char t[2] = { 
+		nn->disabled ? '0':'1', 
+		0
+	};
+
+	mqttpublish(cfg.client, ttopic, 1, t, false);
+
+#ifdef DEBUG
+	publishLog('d', "Named Notification \"%c\" status is \"%s\"", nn->name, t);
+#endif
+}
+

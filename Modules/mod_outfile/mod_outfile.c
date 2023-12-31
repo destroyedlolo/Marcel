@@ -37,7 +37,7 @@ static int publishCustomFiguresOF(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -52,11 +52,13 @@ static void so_postconfInit(struct Section *asec){
 		/* Sanity checks */
 	if(!s->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->file){
 		publishLog('E', "[%s] File must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -65,6 +67,7 @@ static void so_postconfInit(struct Section *asec){
 		if(s->section.funcname){	/* if an user function defined ? */
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+					SectionError((struct Section *)s, true);
 					pthread_exit(NULL);
 				}
 			}
@@ -110,20 +113,20 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 #endif
 
 		if(ret){
-			s->inerror = true;	/* By default, we're falling */
-
 			FILE *f=fopen( s->file, "w" );
 			if(!f){
 				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+				SectionError((struct Section *)s, true);
 				return true;
 			}
 			fputs(payload, f);
 			if(ferror(f)){
 				publishLog('E', "[%s] '%s' : %s", s->section.uid, s->file, strerror(errno));
+				SectionError((struct Section *)s, true);
 				fclose(f);
 				return true;
 			}
-			s->inerror = false;
+			SectionError((struct Section *)s, false);
 			publishLog('T', "[%s] '%s' written in '%s'", s->section.uid, payload, s->file);
 			fclose(f);
 		} else 
@@ -192,7 +195,7 @@ static int so_inError(lua_State *L){
 	struct section_outfile **s = luaL_testudata(L, 1, "OutFile");
 	luaL_argcheck(L, s != NULL, 1, "'OutFile' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 

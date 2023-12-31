@@ -52,7 +52,7 @@ static int publishCustomFiguresOWM(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -220,7 +220,7 @@ static int so_inError(lua_State *L){
 		s = luaL_testudata(L, 1, "Meteo3H");
 	luaL_argcheck(L, s != NULL, 1, "'Meteo' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 

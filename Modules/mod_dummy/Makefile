@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA  
+opts=-Wall -O2 -fPIC $(shell pkg-config --cflags lua ) -DLUA -DDEBUG -DMCHECK="mcheck(NULL)"
 
 mod_dummy.o : mod_dummy.c mod_dummy.h ../Marcel/Module.h \
   ../Marcel/Section.h ../mod_Lua/mod_Lua.h Makefile 

@@ -40,8 +40,6 @@ struct section_Look4Change {
 	const char *dir;	/* Directory (or file) to monitor */
 	uint32_t flags;		/* What to survey */
 	int wd;
-
-	bool inerror;
 };
 
 #endif
