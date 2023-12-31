@@ -135,6 +135,7 @@ void *process_UPS(void *actx){
 
 							if(!ctx->section.keep){
 								publishLog('F', "[%s] Dying", ctx->section.uid);
+								SectionError((struct Section *)ctx, true);
 								pthread_exit(0);
 							}
 						} else {

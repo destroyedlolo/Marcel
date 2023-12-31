@@ -39,6 +39,18 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('C', "\tAlerts Counter's Topic set to \"%s\"", mod_alert.countertopic);
 
 		return ACCEPTED;
+	} else if((!strcmp(l,"ConsidersInternalErrors"))){
+		if(*section){
+			publishLog('F', "ConsidersInternalErrors can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		mod_alert.considerInternalErrors = true;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tThe amount of faulty sections are added to the counter");
+
+		return ACCEPTED;
 	} else if((!strcmp(l,"$unnamedNotification"))){
 		if(findSectionByName("$unnamedNotification")){
 			publishLog('F', "'$unnamedNotification' section is already defined");
@@ -541,9 +553,11 @@ void InitModule( void ){
 	DLListInit(&mod_alert.alerts);
 
 	mod_alert.countertopic = NULL;
+	mod_alert.considerInternalErrors = false;
 
 	mod_alert.findNamedNotificationByName = findNamed;
 	mod_alert.namedNNDisable = namedNNDisable;
+	mod_alert.sentAlertsCounter = sentAlertsCounter;
 
 	registerModule( (struct Module *)&mod_alert );	/* Register the module */
 

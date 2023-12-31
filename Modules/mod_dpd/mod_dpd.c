@@ -103,11 +103,13 @@ static void *processDPD(void *asec){
 		/* Sanity checks */
 	if(!s->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->section.sample &&!s->section.funcname){
 		publishLog('F', "[%s] sample time and function can't be both NULL", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -117,6 +119,7 @@ static void *processDPD(void *asec){
 		if(s->section.funcname){	/* if an user function defined ? */
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+				SectionError((struct Section *)s, true);
 				pthread_exit(NULL);
 			}
 		}
@@ -126,6 +129,7 @@ static void *processDPD(void *asec){
 		/* event */
 	if(( s->rcv = eventfd( 0, 0 )) == -1 ){
 		publishLog('E', "[%s] eventfd() : %s", s->section.uid, strerror(errno));
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -143,6 +147,7 @@ static void *processDPD(void *asec){
 		/* Subscribe */	
 	if(MQTTClient_subscribe( cfg.client, s->section.topic, 0 ) != MQTTCLIENT_SUCCESS ){
 		publishLog('E', "[%s] Can't subscribe to '%s'", s->section.uid, s->section.topic );
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -160,8 +165,10 @@ static void *processDPD(void *asec){
 			if(s->section.keep){
 				sleep(1);
 				continue;
-			} else
+			} else {
+				SectionError((struct Section *)s, true);
 				pthread_exit(0);
+			}
 		case 0:	/* Timeout */
 			if(s->section.disabled){
 #ifdef DEBUG

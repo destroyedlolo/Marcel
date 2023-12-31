@@ -52,11 +52,13 @@ static void so_postconfInit(struct Section *asec){
 		/* Sanity checks */
 	if(!s->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->file){
 		publishLog('E', "[%s] File must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -65,6 +67,7 @@ static void so_postconfInit(struct Section *asec){
 		if(s->section.funcname){	/* if an user function defined ? */
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+					SectionError((struct Section *)s, true);
 					pthread_exit(NULL);
 				}
 			}

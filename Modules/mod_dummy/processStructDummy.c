@@ -34,6 +34,7 @@ void *processDummy(void *actx){
 
 	if(!s->section.sample){
 		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -43,6 +44,7 @@ void *processDummy(void *actx){
 		if(s->section.funcname){	/* if an user function defined ? */
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+				SectionError((struct Section *)s, true);
 				pthread_exit(NULL);
 			}
 		}

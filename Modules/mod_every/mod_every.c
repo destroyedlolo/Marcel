@@ -90,11 +90,13 @@ static void *processEvery(void *actx){
 		/* Sanity checks */
 	if(s->section.sample <= 0){
 		publishLog('E', "[%s] Sample time can't be negative of null. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!mod_Lua){
 		publishLog('E', "[%s] Every without Lua support is useless. This thread is dying.", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(NULL);
 	}
 
@@ -102,6 +104,7 @@ static void *processEvery(void *actx){
 	if(s->section.funcname){	/* if an user function defined ? */
 		if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+			SectionError((struct Section *)s, true);
 			pthread_exit(NULL);
 		}
 	}
@@ -191,6 +194,7 @@ static void *processAt(void *actx){
 
 	if(!mod_Lua){
 		publishLog('E', "[%s] Every without Lua support is useless. This thread is dying.", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(NULL);
 	}
 
@@ -198,6 +202,7 @@ static void *processAt(void *actx){
 	if(s->section.funcname){	/* if an user function defined ? */
 		if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 			publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+			SectionError((struct Section *)s, true);
 			pthread_exit(NULL);
 		}
 	}

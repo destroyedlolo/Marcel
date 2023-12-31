@@ -48,6 +48,7 @@ void *processFFV(void *actx){
 		if(s->common.section.funcname){	/* if an user function defined ? */
 			if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->common.section.uid, s->common.section.funcname);
+				SectionError((struct Section *)s, true);
 				pthread_exit(NULL);
 			}
 		}
@@ -55,6 +56,7 @@ void *processFFV(void *actx){
 		if(s->common.failfunc){	/* if an user function defined ? */
 			if( (s->common.failfuncid = mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : fail function \"%s\" is not defined. This thread is dying.", s->common.section.uid, s->common.failfunc);
+				SectionError((struct Section *)s, true);
 				pthread_exit(NULL);
 			}
 		}
