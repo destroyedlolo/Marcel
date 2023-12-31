@@ -60,7 +60,7 @@ static int publishCustomFiguresUPS(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -75,26 +75,28 @@ void *process_UPS(void *actx){
 	struct hostent *server;
 	struct sockaddr_in serv_addr;
 
-	ctx->inerror = true;	/* by default, we're in trouble */
-
 		/* Sanity checks */
 	if(!ctx->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", ctx->section.uid);
+		SectionError((struct Section *)ctx, true);
 		pthread_exit(0);
 	}
 
 	if( !ctx->host || !ctx->port ){
 		publishLog('E', "[%s] NUT server missing. Dying ...", ctx->section.uid);
+		SectionError((struct Section *)ctx, true);
 		pthread_exit(0);
 	}
 
 	if( !ctx->section.sample ){
 		publishLog('E', "[%s] No sample time. Dying ...", ctx->section.uid);
+		SectionError((struct Section *)ctx, true);
 		pthread_exit(0);
 	}
 
 	if(!(server = gethostbyname( ctx->host ))){
 		publishLog('E', "[%s] %s : Don't know how to reach NUT. Dying", ctx->section.uid, strerror(errno));
+		SectionError((struct Section *)ctx, true);
 		pthread_exit(0);
 	}
 
@@ -107,24 +109,23 @@ void *process_UPS(void *actx){
 		publishLog('I', "Launching a processing flow for UPS/%s", ctx->section.uid);
 
 	for(;;){	/* Infinite loop to process data */
-		ctx->inerror = true;
+		bool inerror = true;
 
 		if(ctx->section.disabled){
+			inerror = false;
 			publishLog('T', "Reading UPS/%s is disabled", ctx->section.uid);
 		} else {
 			int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 			if(sockfd < 0){
 				publishLog('E', "[%s] Can't create socket : %s", ctx->section.uid, strerror( errno ));
 				if(!ctx->section.keep){
-					publishLog('F', "[%s] Dying", ctx->section.uid);
-					pthread_exit(0);
+					publishLog('E', "[%s] Dying", ctx->section.uid);
 				}
 			} else {
 				if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
 					publishLog('E', "[%s] Connecting : %s", ctx->section.uid, strerror( errno ));
 					if(!ctx->section.keep){
-						publishLog('F', "[%s] Dying", ctx->section.uid);
-						pthread_exit(0);
+						publishLog('E', "[%s] Dying", ctx->section.uid);
 					}
 				} else {
 					for(struct var *v = ctx->var_list; v; v = v->next){
@@ -134,10 +135,11 @@ void *process_UPS(void *actx){
 
 							if(!ctx->section.keep){
 								publishLog('F', "[%s] Dying", ctx->section.uid);
+								SectionError((struct Section *)ctx, true);
 								pthread_exit(0);
 							}
 						} else {
-							ctx->inerror = false;
+							inerror = false;
 
 							char *ps, *pe;
 							socketreadline(sockfd, l, sizeof(l));
@@ -156,6 +158,8 @@ void *process_UPS(void *actx){
 				close(sockfd);
 			}
 		}
+
+		SectionError((struct Section *)ctx, inerror);
 
 			/* Wait for next sample time */
 		struct timespec ts;
@@ -261,7 +265,7 @@ static int so_inError(lua_State *L){
 	struct section_ups **s = luaL_testudata(L, 1, "UPS");
 	luaL_argcheck(L, s != NULL, 1, "'UPS' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 

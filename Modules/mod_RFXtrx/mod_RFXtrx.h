@@ -27,8 +27,6 @@ struct section_RFXCom {
 	struct Section section;
 
 	uint32_t did;	/* Device ID */
-
-	bool inerror;
 };
 
 #endif

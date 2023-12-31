@@ -75,12 +75,14 @@ struct module_alert {
 	struct DList alerts;				/* Alerts' list */
 
 	const char *countertopic;			/* Topic to send counter too */
+	bool considerInternalErrors;		/* add the amount faulty sections to the counter */
 
 	/* ***
 	 * Callbacks
 	 * ***/
 	struct namednotification *(*findNamedNotificationByName)(char);
 	bool (*namedNNDisable)(char, bool);
+	void (*sentAlertsCounter)(void);
 };
 
 extern struct module_alert mod_alert;
@@ -97,6 +99,7 @@ extern bool notif_unnamednotification_processMQTT(struct Section *, const char *
 extern struct namednotification *findNamed(const char );
 extern void pnNotify(const char *names, const char *title, const char *msg);
 extern bool namedNNDisable(char, bool);
+extern void publishNNStatus(struct namednotification *);
 
 	/* **
 	 * Alerts
@@ -111,7 +114,7 @@ extern bool salrt_raisealert_processMQTT(struct Section *, const char *, char *)
 
 extern bool RiseAlert(const char *id, const char *msg, bool quiet);
 extern bool AlertIsOver(const char *id, const char *msg, bool quiet);
-extern void sentAlertsCounter( void );
+extern void sentAlertsCounter(void);
 
 	/* **
 	 * CorrectAlert

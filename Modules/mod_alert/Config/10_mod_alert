@@ -7,3 +7,6 @@ LoadModule=mod_alert.so
 # This topic is sent every time an alert is set or cleared
 # Can be unset if no counter has to be sent
 AlertsCounterTopic=%ClientID%/AlertsCounter
+
+# The amount of Marcel's sections in error is taken in account
+ConsidersInternalErrors

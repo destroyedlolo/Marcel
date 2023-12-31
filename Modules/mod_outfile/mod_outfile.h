@@ -21,8 +21,6 @@ struct section_outfile {
 	struct Section section;
 
 	const char *file;	/* File to write to */
-
-	bool inerror;
 };
 
 #endif

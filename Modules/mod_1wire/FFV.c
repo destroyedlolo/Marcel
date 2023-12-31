@@ -19,21 +19,23 @@
 
 void *processFFV(void *actx){
 	struct section_FFV *s = (struct section_FFV *)actx;
-	s->common.inerror = true;	/* in case of issue during the initialisation */
 
 		/* Sanity checks */
 	if(!s->common.section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", s->common.section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->common.section.sample){
-		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->common.section.uid);
+		publishLog('F', "[%s] Sample time can't be 0. Dying ...", s->common.section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->common.file){
-		publishLog('E', "[%s] File must be set. Dying ...", s->common.section.uid);
+		publishLog('F', "[%s] File must be set. Dying ...", s->common.section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -46,6 +48,7 @@ void *processFFV(void *actx){
 		if(s->common.section.funcname){	/* if an user function defined ? */
 			if( (s->common.section.funcid = mod_Lua->findUserFunc(s->common.section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->common.section.uid, s->common.section.funcname);
+				SectionError((struct Section *)s, true);
 				pthread_exit(NULL);
 			}
 		}
@@ -53,13 +56,14 @@ void *processFFV(void *actx){
 		if(s->common.failfunc){	/* if an user function defined ? */
 			if( (s->common.failfuncid = mod_Lua->findUserFunc(s->common.failfunc)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : fail function \"%s\" is not defined. This thread is dying.", s->common.section.uid, s->common.failfunc);
+				SectionError((struct Section *)s, true);
 				pthread_exit(NULL);
 			}
 		}
 	}
 #endif
 
-	s->common.inerror = false;	/* Initialisation completed */
+	SectionError((struct Section *)s, false); /* Initialisation completed */
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
 		if(s->common.section.disabled){
@@ -73,7 +77,7 @@ void *processFFV(void *actx){
 
 			if(!(f = fopen( s->common.file, "r" ))){	/* probe is not reachable */
 				char *emsg = strerror(errno);
-				s->common.inerror = true;
+				SectionError((struct Section *)s, true);
 
 				publishLog('E', "[%s] %s : %s", s->common.section.uid, s->common.file, emsg);
 
@@ -122,15 +126,14 @@ void *processFFV(void *actx){
 				float val;
 				if(!fscanf(f, "%f", &val)){
 					publishLog('E', "[%s] : %s -> Unable to read a float value.", s->common.section.uid, s->common.file);
-					s->common.inerror = true;
+					SectionError((struct Section *)s, true);
 				} else {	/* Only to normalize the response */
 					bool publish = true;
-					s->common.inerror = false;
 					float compensated = val + s->offset;
 
 					if(s->safe85 && val == 85.0){
 						publishLog('E', "[%s] The probe replied 85° implying powering issue.", s->common.section.uid);
-						s->common.inerror = true;
+						SectionError((struct Section *)s, true);
 					} else {
 #ifdef LUA
 						if(s->common.section.funcid != LUA_REFNIL){
@@ -141,7 +144,7 @@ void *processFFV(void *actx){
 							mod_Lua->pushNumber( val );
 							mod_Lua->pushNumber( compensated );
 							if(mod_Lua->exec(4, 1)){
-								s->common.inerror = true;
+								SectionError((struct Section *)s, true);
 								publishLog('E', "[%s] FFV : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
 								mod_Lua->pop(1);	/* pop NIL from the stack */
@@ -151,6 +154,7 @@ void *processFFV(void *actx){
 						}
 #endif
 
+						SectionError((struct Section *)s, false);
 						if(publish){
 							publishLog('T', "[%s] -> %f", s->common.section.uid, compensated);
 							sprintf(l,"%.1f", compensated);

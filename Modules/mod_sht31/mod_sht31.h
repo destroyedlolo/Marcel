@@ -31,8 +31,6 @@ struct section_sht31 {
 	uint8_t i2c_addr;	/* I2C address (default : 0x44) */
 	float offset;		/* Offset to apply to the raw temperature value */
 	float offsetH;		/* Offset to apply to the raw hydrometry value */
-
-	bool inerror;
 };
 
 #endif

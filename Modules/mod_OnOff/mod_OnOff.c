@@ -63,8 +63,8 @@ static bool processMsg(const char *topic, char *payload){
 				break;
 		}
 		if(s){
-			s->disabled = disable;
 			publishLog('T', "[OnOff] %s '%s'", disable ? "Disabling":"Enabling", sid);
+			SectionOnOff(s, !disable);
 		} else
 			publishLog('T', "[OnOff] No section matching '%s'", sid);
 		return true;

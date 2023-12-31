@@ -32,7 +32,6 @@ static void MeteoD(struct section_OWMQuery *ctx){
 	enum json_tokener_error jerr = json_tokener_success;
 
 	publishLog('T', "Querying Meteo Daily '%s'", ctx->section.uid);
-	ctx->inerror = true;	/* By default, something failed */
 
 	if((curl = curl_easy_init())){
 		char url[strlen(URLMETEOD) + strlen(ctx->city) + strlen(ctx->units) + strlen(ctx->lang) + strlen(mod_owm.apikey)];	/* Thanks to %s, Some room left for \0 */
@@ -50,13 +49,13 @@ static void MeteoD(struct section_OWMQuery *ctx){
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 
+		bool inerror = false;	/* ok, seems we succeeded */
 		if((res = curl_easy_perform(curl)) == CURLE_OK){	/* Processing data */
 			json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
-			if(jerr != json_tokener_success)
+			if(jerr != json_tokener_success){
 				publishLog('E', "[%s] Querying meteo daily: %s", ctx->section.uid, json_tokener_error_desc(jerr));
-			else {
+			} else {
 				struct json_object *wlist;
-				ctx->inerror = false;	/* ok, seems we succeeded */
 
 				if( json_object_object_get_ex( jobj, "list", &wlist) ){
 					int nbre = json_object_array_length(wlist);
@@ -71,7 +70,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 							mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 						} else {
 							publishLog('E', "[%s] Querying meteo : no dt", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 
 						if( json_object_object_get_ex( wo, "temp", &wod ) ){
@@ -83,7 +82,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 								mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 							} else {
 								publishLog('E', "[%s] Querying meteo : no temp/day", ctx->section.uid);
-								ctx->inerror = true;
+								inerror = true;
 							}
 
 							if( json_object_object_get_ex( wod, "night", &swod) ){
@@ -93,7 +92,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 								mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 							} else {
 								publishLog('E', "[%s] Querying meteo : no temp/night", ctx->section.uid);
-								ctx->inerror = true;
+								inerror = true;
 							}
 
 							if( json_object_object_get_ex( wod, "eve", &swod) ){
@@ -103,7 +102,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 								mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 							} else {
 								publishLog('E', "[%s] Querying meteo : no temp/eve", ctx->section.uid);
-								ctx->inerror = true;
+								inerror = true;
 							}
 
 							if( json_object_object_get_ex( wod, "morn", &swod) ){
@@ -113,11 +112,11 @@ static void MeteoD(struct section_OWMQuery *ctx){
 								mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 							} else {
 								publishLog('E', "[%s] Querying meteo : no temp/morn", ctx->section.uid);
-								ctx->inerror = true;
+								inerror = true;
 							}
 						} else {
 							publishLog('E', "[%s] Querying meteo : no temp", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 
 						if( json_object_object_get_ex( wo, "weather", &wod) ){
@@ -131,7 +130,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 								mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 							} else {
 								publishLog('E', "[%s] Querying meteo : no weather/description", ctx->section.uid);
-								ctx->inerror = true;
+								inerror = true;
 							}
 
 							if( json_object_object_get_ex( wod, "icon", &swod) ){
@@ -150,15 +149,15 @@ static void MeteoD(struct section_OWMQuery *ctx){
 									mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 								} else {
 									publishLog('E', "[%s] Querying meteo : no weather/id", ctx->section.uid);
-									ctx->inerror = true;
+									inerror = true;
 								}
 							} else {
 								publishLog('E', "[%s] Querying meteo : no weather/icon", ctx->section.uid);
-								ctx->inerror = true;
+								inerror = true;
 							}
 						} else {
 							publishLog('E', "[%s] Querying meteo : no weather", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 
 
@@ -169,7 +168,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 							mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 						} else {
 							publishLog('E', "[%s] Querying meteo : no pressure", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 
 						if( json_object_object_get_ex( wo, "clouds", &wod) ){
@@ -179,7 +178,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 							mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 						} else {
 							publishLog('E', "[%s] Querying meteo : no clouds", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 
 						if( json_object_object_get_ex( wo, "snow", &wod) ){
@@ -202,7 +201,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 							mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 						} else {
 							publishLog('E', "[%s] Querying meteo : no speed", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 
 						if( json_object_object_get_ex( wo, "deg", &wod) ){
@@ -212,18 +211,18 @@ static void MeteoD(struct section_OWMQuery *ctx){
 							mqttpublish( cfg.client, l, strlen(l+lm), l+lm, 1);
 						} else {
 							publishLog('E', "[%s] Querying meteo : no deg", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 					}
 				} else {
 					publishLog('E', "[%s] Querying meteo : no list", ctx->section.uid);
-					ctx->inerror = true;
+					inerror = true;
 				}
 			}
 			json_object_put(jobj);
 		} else {
 			publishLog('E', "[%s] Querying meteo : %s", ctx->section.uid, curl_easy_strerror(res));
-			ctx->inerror = true;
+			inerror = true;
 		}
 
 			/* Check if we switched to another day */
@@ -247,7 +246,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 				json_object * jobj = json_tokener_parse_verbose(chunk.memory, &jerr);
 				if(jerr != json_tokener_success){
 					publishLog('E', "[%s] Querying current meteo : %s", ctx->section.uid, json_tokener_error_desc(jerr));
-					ctx->inerror = true;
+					inerror = true;
 				} else {
 					struct json_object *wsys;
 					if( json_object_object_get_ex(jobj, "sys", &wsys) ){
@@ -271,7 +270,7 @@ static void MeteoD(struct section_OWMQuery *ctx){
 							publishLog('T', "[%s] sunrise published", ctx->section.uid);
 						} else {
 							publishLog('E', "[%s] Querying meteo : no sunrise", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 						
 						if( json_object_object_get_ex(wsys, "sunset", &wdt ) ){
@@ -291,20 +290,22 @@ static void MeteoD(struct section_OWMQuery *ctx){
 							publishLog('T', "[%s] sunset published", ctx->section.uid);
 						} else {
 							publishLog('E', "[%s] Querying meteo : no sunset", ctx->section.uid);
-							ctx->inerror = true;
+							inerror = true;
 						}
 					} else {
 						publishLog('E', "[%s] Querying meteo : Bad response from server (no sys object)", ctx->section.uid);
-						ctx->inerror = true;
+						inerror = true;
 					}
 				}
 				publishLog('T', "[%s] current meteo published", ctx->section.uid);
 				json_object_put(jobj);
 			} else {
 				publishLog('E', "[%s] Querying meteo : %s", ctx->section.uid, curl_easy_strerror(res));
-				ctx->inerror = true;
+				inerror = true;
 			}
 		}
+
+		SectionError((struct Section *)ctx, inerror);
 
 			/* Cleanup */
 		curl_easy_cleanup(curl);
@@ -314,21 +315,23 @@ static void MeteoD(struct section_OWMQuery *ctx){
 
 void *processWFDaily(void *actx){
 	struct section_OWMQuery *s = (struct section_OWMQuery *)actx;
-	s->inerror = true;
 
 		/* Sanity checks */
 	if(!s->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(s->section.sample < 600){
 		publishLog('E', "[%s] Sample time can't be less than 600. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->city){
 		publishLog('E', "[%s] City not specified. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -336,7 +339,6 @@ void *processWFDaily(void *actx){
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
 		if(s->section.disabled){
-			s->inerror = true;
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);

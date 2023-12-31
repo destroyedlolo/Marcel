@@ -40,6 +40,8 @@ A typical use case is a regular monitoring (*let say regarding a fridge temperat
 Example :
 `AlertsCounterTopic=%ClientID%/AlertsCounter`
 
+* **ConsidersInternalErrors** if set, the amount of Marcel's sections in error is taken in account for the counter 
+
 ### Additional topics
 
 Following topics are used as well when alerting :

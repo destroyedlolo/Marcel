@@ -34,6 +34,12 @@ void sentAlertsCounter( void ){
 		for(struct alert *an = (struct alert *)mod_alert.alerts.first; an; an = (struct alert *)an->node.next)
 			nbre++;
 
+		if(mod_alert.considerInternalErrors){
+			for(struct Section *s = sections; s; s=s->next)
+				if(s->inerror)
+					nbre++;
+		}
+
 		char tmsg[31];
 		sprintf(tmsg, "%u", nbre);
 

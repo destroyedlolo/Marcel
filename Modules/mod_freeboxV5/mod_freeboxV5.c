@@ -50,7 +50,7 @@ static int publishCustomFiguresFbV5(struct Section *asection){
 		lua_newtable(mod_Lua->L);
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -65,16 +65,16 @@ static void *process_freeboxV5(void *actx){
 	struct hostent *server;
 	struct sockaddr_in serv_addr;
 
-	ctx->inerror = true;	/* By default, we're in trouble */
-
 	if(!ctx->section.topic){
 		publishLog('E', "[FreeboxV5] configuration error : no topic specified, ignoring this section");
+		SectionError((struct Section *)ctx, true);
 		pthread_exit(0);
 	}
 
 	if(!(server = gethostbyname( FBX_HOST ))){
 		publishLog('E', "[FreeboxV5] %s : %s", FBX_HOST, strerror( errno ));
 		publishLog('F', "[FreeboxV5] Dying");
+		SectionError((struct Section *)ctx, true);
 		pthread_exit(0);
 	}
 
@@ -88,19 +88,20 @@ static void *process_freeboxV5(void *actx){
 
 	for(bool first=true;; first=false){
 		if(ctx->section.disabled){
-			ctx->inerror = false;
+			SectionError((struct Section *)ctx, false);
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", ctx->section.uid);
 #endif
 		} else if( !first || ctx->section.immediate ){
-			ctx->inerror = true;
+			bool inerror = true;
 
 			int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 			if(sockfd < 0){
 				publishLog('E', "[%s] Can't create socket : %s", ctx->section.uid, strerror( errno ));
 				if(!ctx->section.keep){
 					publishLog('F', "[%s] Dying", ctx->section.uid);
+					SectionError((struct Section *)ctx, true);
 					pthread_exit(0);
 				}
 			} else {
@@ -109,7 +110,7 @@ static void *process_freeboxV5(void *actx){
 				else if( send(sockfd, FBX_REQ, strlen(FBX_REQ), 0) == -1 )
 					publishLog('E', "[%s] Sending : %s", ctx->section.uid, strerror( errno ));
 				else while( socketreadline(sockfd, l, sizeof(l)) != -1 ){
-					ctx->inerror = false;
+					inerror = false;
 
 					if(strstr(l, "ATM")){
 						int u, d, lm;
@@ -272,6 +273,8 @@ static void *process_freeboxV5(void *actx){
 
 				close(sockfd);
 			}
+
+			SectionError((struct Section *)ctx, inerror);
 		}
 
 		struct timespec ts;
@@ -338,7 +341,7 @@ static int s_inError(lua_State *L){
 	struct section_freeboxV5 **s = luaL_testudata(L, 1, "FreeboxV5");
 	luaL_argcheck(L, s != NULL, 1, "'FreeboxV5' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 

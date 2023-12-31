@@ -53,7 +53,7 @@ static int publishCustomFiguresSHT31(struct Section *asection){
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
-		lua_pushboolean(mod_Lua->L, s->inerror);	/* the value */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
 		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
 
 		return 1;
@@ -65,21 +65,23 @@ static int publishCustomFiguresSHT31(struct Section *asection){
 static void *processSHT31(void *actx){
 	struct section_sht31 *s = (struct section_sht31 *)actx;
 
-	s->inerror = true;	/* Bye default, we're in trouble */
 
 		/* Sanity checks */
 	if(!s->section.topic){
 		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->section.sample){
 		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
 	if(!s->device){
 		publishLog('E', "[%s] I2c device must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
 
@@ -89,6 +91,7 @@ static void *processSHT31(void *actx){
 		if(s->section.funcname){	/* if an user function defined ? */
 			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
 				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+				SectionError((struct Section *)s, true);
 				pthread_exit(NULL);
 			}
 		}
@@ -115,9 +118,10 @@ static void *processSHT31(void *actx){
 	publishLog('I', "[%s] Humidity : '%s'", s->section.uid, humtopic);
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
-		s->inerror = true;	/* Bye default, we're in trouble */
+		bool inerror = true;	/* Bye default, we're in trouble */
 
 		if(s->section.disabled){
+			inerror = false;
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);
@@ -151,7 +155,7 @@ static void *processSHT31(void *actx){
 					close(fd);
 					publishLog('E', "[%s] I/O error", s->section.uid);
 				} else {	/* Conversion formulas took from SHT31 datasheet */
-					s->inerror = false;
+					inerror = false;
 
 					close(fd);	/* Release the bus as soon as possible */
 
@@ -194,6 +198,7 @@ static void *processSHT31(void *actx){
 			}
 		}
 
+		SectionError((struct Section *)s, inerror);
 		struct timespec ts;
 		ts.tv_sec = (time_t)s->section.sample;
 		ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
@@ -302,7 +307,7 @@ static int so_inError(lua_State *L){
 	struct section_sht31 **s = luaL_testudata(L, 1, "SHT31");
 	luaL_argcheck(L, s != NULL, 1, "'SHT31' expected");
 
-	lua_pushboolean(L, (*s)->inerror);
+	lua_pushboolean(L, (*s)->section.inerror);
 	return 1;
 }
 
