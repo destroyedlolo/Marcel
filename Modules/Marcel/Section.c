@@ -8,6 +8,8 @@
  */
 
 #include "Section.h"
+#include "Module.h"
+#include "../mod_alert/mod_alert.h"
 #include "MQTT_tools.h"
 
 #include <assert.h>
@@ -61,8 +63,13 @@ void SectionError(struct Section *s, bool v){
 	bool previous = s->inerror;
 	s->inerror = v;
 
-	if(s->inerror != previous)
+	if(s->inerror != previous){
 		publishSectionStatus(s);
+
+		uint8_t mod_alertID = findModuleByName("mod_alert");
+		if(mod_alertID != (uint8_t)-1)
+			((struct module_alert *)modules[mod_alertID])->sentAlertsCounter();
+	}
 }
 
 /**

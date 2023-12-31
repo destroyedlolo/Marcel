@@ -24,7 +24,9 @@ Marcel.o : Marcel.c Marcel.h Version.h Module.h Section.h mod_core.h \
 Module.o : Module.c Module.h Marcel.h Section.h Makefile 
 	$(cc) -c -o Module.o Module.c $(opts) 
 
-Section.o : Section.c Section.h Marcel.h MQTT_tools.h Makefile 
+Section.o : Section.c Section.h Marcel.h Module.h \
+  ../mod_alert/mod_alert.h ../Marcel/Module.h ../Marcel/Section.h \
+  ../Marcel/DList.h ../mod_Lua/mod_Lua.h MQTT_tools.h Makefile 
 	$(cc) -c -o Section.o Section.c $(opts) 
 
 helpers.o : helpers.c Marcel.h MQTT_tools.h Makefile 
