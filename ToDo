@@ -21,8 +21,3 @@ Improve Lua by adding API to manage sections themselves
 
 Test alarm1W
 
------
-
-**** How to
-
-mod_alert add Lua function from module
