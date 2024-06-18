@@ -222,11 +222,12 @@ int main(int ac, char **av){
 		/* Default values */
 	cfg.debug = false;
 	cfg.verbose = false;
+	cfg.simulate = false;
 	cfg.sublast = false;
 
 	mod_Lua = NULL;
 
-	while((c = getopt(ac, av, "hvtdf:")) != EOF) switch(c){
+	while((c = getopt(ac, av, "hvtdf:S")) != EOF) switch(c){
 #ifdef DEBUG
 	case 'd':
 		cfg.debug = true;
@@ -234,6 +235,9 @@ int main(int ac, char **av){
 		cfg.verbose = true;
 		break;
 #endif
+	case 'S':
+		cfg.simulate = true;
+		break;
 	case 't':
 		configtest = true;
 	case 'v':
@@ -260,6 +264,7 @@ int main(int ac, char **av){
 #ifdef DEBUG
 			"\t-d : enable debug messages\n"
 #endif
+			"\t-S : runs in Simulation mode\n"
 			"\t-f<file> : read <file> for configuration\n"
 			"\t\t(default is '%s')\n"
 			"\t-t : test configuration file and exit\n",
