@@ -30,6 +30,7 @@ struct Section {
 
 		/* options */
 	bool disabled;			/* this section is currently disabled */
+	bool dontSimulate;		/* disabled if we're in simulation mode */
 
 		/* MQTT */
 	const char *topic;

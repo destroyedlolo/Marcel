@@ -114,6 +114,7 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->thread = 0;
 	section->inerror = false;
 	section->disabled = false;
+	section->dontSimulate = false;
 	section->immediate = false;
 	section->quiet = false;
 
