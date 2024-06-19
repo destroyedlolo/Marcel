@@ -82,13 +82,17 @@ void publishSectionStatus(struct Section *s){
 	sprintf(ttopic, "%s/Change/%s", cfg.ClientID, s->uid);
 
 	char t[4];
-	sprintf(t, "%c,%c", s->disabled ? '0':'1', s->inerror ? '1':'0');
+	sprintf(t, "%c,%c", isDisabled(s) ? '0':'1', s->inerror ? '1':'0');
 
 	mqttpublish(cfg.client, ttopic, 3, t, false);
 
 #ifdef DEBUG
 	publishLog('d', "\"%s\" status is \"%s\"", s->uid, t);
 #endif
+}
+
+bool isDisabled(struct Section *s){
+	return(s->disabled || (s->dontSimulate && cfg.simulate));
 }
 
 /**
