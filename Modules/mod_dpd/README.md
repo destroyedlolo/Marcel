@@ -17,6 +17,7 @@ none
 *  **Disabled** Section is disabled at startup [optional]
 *  **Keep** using `Keep` prevents Marcel to crash in case of technical error. 
 But in such case, it will continue in DEGRADED way, with notifying when a message is received.
+*  **DoNotSimulate** disables this section when running in simulation mode.
 
 At least one of `Timeout=` and `Func=` must be present, otherwise the section is useless and will die.
 

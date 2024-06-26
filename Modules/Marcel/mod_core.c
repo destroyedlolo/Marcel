@@ -131,7 +131,7 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tStarting DISABLED");
 
 			return ACCEPTED;
-		} else if(strcmp(l, "DoNotSimulate")){
+		} else if(!strcmp(l, "DoNotSimulate")){
 			acceptSectionDirective( *section, l);
 
 			(*section)->dontSimulate = true;
