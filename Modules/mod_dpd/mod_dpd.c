@@ -59,7 +59,7 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 	struct section_dpd *s = (struct section_dpd *)asec;
 
 	if(!mqtttokcmp(s->section.topic, topic, NULL)){
-		if(s->section.disabled){
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);
@@ -170,7 +170,7 @@ static void *processDPD(void *asec){
 				pthread_exit(0);
 			}
 		case 0:	/* Timeout */
-			if(s->section.disabled){
+			if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 				if(cfg.debug)
 					publishLog('d', "[%s] Alerting is disabled", s->section.uid);
@@ -205,7 +205,7 @@ static void *processDPD(void *asec){
 				if(read(s->rcv, &v, sizeof( uint64_t )) == -1)
 					publishLog('E', "[%s] eventfd() : %s - reading notification", s->section.uid, strerror(errno));
 
-				if(s->section.disabled){
+				if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 					if(cfg.debug)
 						publishLog('d', "[%s] Disabled", s->section.uid);
