@@ -95,6 +95,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nnamed->actions.cmd = NULL;
 		nnamed->name = *arg;
 		nnamed->disabled = false;
+		nnamed->dontSimulate = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering $namedNotification '%c'", *arg);
@@ -220,6 +221,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				publishLog('C', "\t\tDisabled");
 
 			return ACCEPTED;
+		} else if(!strcmp(l,"DoNotSimulate") && mod_alert.current){
+				/* Needed as alerts/notifications are stored alone and not
+				 * considered as sections.
+				 */
+			mod_alert.current->dontSimulate = true;
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tDisabled if in simulation mode");
+
+			return ACCEPTED;
 		}
 	}
 	return REJECTED;
@@ -233,12 +244,16 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 	} else if(sec_id == SA_RAISE || sec_id == SA_CORRECT){
 		if( !strcmp(directive, "RESTUrl=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "OSCmd=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
@@ -304,7 +319,7 @@ static int amRiseAlert(lua_State *L){
 	} else if(s->section.id != (type << 8 | mod_alert.module.module_index)){
 		publishLog('E', "RaiseAlert() : A section is named '%s' but it's not an %s definition", sname, type == SA_ALERT ? "alert" : "RaiseAlert");
 		return 0;
-	} else if(!s->section.disabled){
+	} else if(!isDisabled((struct Section *)s)){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = luaL_checkstring(L, 2);
 		if(RiseAlert(id, msg, s->section.quiet)){
@@ -327,7 +342,7 @@ static int amRiseAlertREST(lua_State *L){
 	struct section_alert *s = (struct section_alert *)findSectionByName("$alert");
 	if(!s)
 		publishLog('E', "No $alert defined");
-	else if(!s->section.disabled){
+	else if(!isDisabled((struct Section *)s)){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = luaL_checkstring(L, 2);
 		if(RiseAlert(id, msg, s->section.quiet)){
@@ -366,7 +381,7 @@ static int amClearAlert(lua_State *L){
 	} else if(s->section.id != (type << 8 | mod_alert.module.module_index)){
 		publishLog('E', "ClearAlert() : A section is named '%s' but it's not an %s definition", sname, type == SA_ALERT ? "alert" : "CorrectAlert");
 		return 0;
-	} else if(!s->section.disabled){
+	} else if(!isDisabled((struct Section *)s)){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = lua_tostring(L, 2);
 		if(AlertIsOver(id, msg, s->section.quiet)){
@@ -394,7 +409,7 @@ static int amSendNotification(lua_State *L){
 	struct section_alert *s = (struct section_alert *)findSectionByName("$unnamedNotification");
 	if(!s)
 		publishLog('E', "No $unnamedNotification defined");
-	else if(!s->section.disabled){
+	else if(!isDisabled((struct Section *)s)){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = luaL_checkstring(L, 2);
 		execOSCmd(s->actions.cmd, id, msg);
@@ -413,7 +428,7 @@ static int amSendNotificationREST(lua_State *L){
 	struct section_alert *s = (struct section_alert *)findSectionByName("$unnamedNotification");
 	if(!s)
 		publishLog('E', "No $unnamedNotification defined");
-	else if(!s->section.disabled){
+	else if(!isDisabled((struct Section *)s)){
 		const char *id = luaL_checkstring(L, 1);
 		const char *msg = luaL_checkstring(L, 2);
 		execOSCmd(s->actions.cmd, id, msg);
@@ -526,7 +541,7 @@ static int amn_isEnabled(lua_State *L){
 	struct namednotification **s = luaL_testudata(L, 1, "NamedNotification");
 	luaL_argcheck(L, s != NULL, 1, "'NamedNotification' expected");
 
-	lua_pushboolean(L, !(*s)->disabled);
+	lua_pushboolean(L, !((*s)->disabled || ((*s)->dontSimulate && cfg.simulate)));
 
 	return 1;
 }

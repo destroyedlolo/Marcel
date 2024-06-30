@@ -43,7 +43,7 @@ bool notif_unnamednotification_processMQTT(struct Section *asec, const char *top
 	const char *aid;
 
 	if(!mqtttokcmp(s->section.topic, topic, &aid)){
-		if(s->section.disabled){
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);
@@ -91,7 +91,7 @@ void pnNotify(const char *names, const char *title, const char *payload){
 		publishLog('T', "Received named notification \"%c\" (%s) title \"%s\"", sec, n ? "found":"unknown", title);
 
 		if(n){
-			if(n->disabled){
+			if(n->disabled || (n->dontSimulate && cfg.simulate)){
 #ifdef DEBUG
 				if(cfg.debug)
 					publishLog('d', "Named notification \"%c\" is disabled", n->name);
@@ -143,7 +143,7 @@ void publishNNStatus(struct namednotification *nn){
 	sprintf(ttopic, "%s/NamedNotificationChange/%c", cfg.ClientID, nn->name);
 
 	char t[2] = { 
-		nn->disabled ? '0':'1', 
+		(nn->disabled || (nn->dontSimulate && cfg.simulate))? '0':'1', 
 		0
 	};
 
