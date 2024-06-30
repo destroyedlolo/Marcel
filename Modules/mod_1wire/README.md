@@ -35,6 +35,8 @@ the probe is underpowered
   * missing : takes the last `DefaultSampleDelay=`
   * **-1** run only once
 * **Immediate** Launch the 1st sample at startup
+*  **Disabled** Section is disabled at startup [optional]
+*  **DoNotSimulate** disables this section when running in simulation mode.
 
 ## Section 1WAlarm
 
