@@ -24,6 +24,7 @@ Example :
 ### Other
 
 * **Disabled** : This section starts disabled (see *mod_OnOff*)
+*  **DoNotSimulate** disables this section when running in simulation mode.
 
 ## Alerts
 
@@ -93,8 +94,10 @@ A message is sent for every **notification** received. So, if not correctly conf
 If the payload starts with a '**S**', both `OSCmd=` and `RESTUrl=` are used ; Without 'S', only `OSCmd=` is triggered.
 
 Example :
+```
 - topic : `Notification/My Example`
 - payload : `SI want to tell you`
+```
 
 will send "*I want to tell you*" on both `OSCmd=` and `RESTUrl=` channels with the title "*My Example*".
 
@@ -107,20 +110,22 @@ Unlike unnamed notification, both `OSCmd=` and `RESTUrl=` are triggered if prese
 **Named notification** are received from `nNotification/<names>/<title>` topic where the argument is the list of notification to be considered.
 
 Example : 
+```
 - topic `nNotification/abc/my title`
 - payload : `Seems ok`
+```
 
 will send "*Seems ok*" to notifications **a**, **b** and **c** with "*my title*" as ... title.
 
 Limitations :
 - `$namedNotification=` argument is the section name and can be only 1 character long.
-- `$namedNotification=` are not considered as sections and consequently can't be disabled by **OnOff** module (yet ?)
+- `$namedNotification=` are not considered as sections and consequently can't be disabled by **OnOff** module (yet ?). Nevertheless, **Disabled** and **DoNotSimulate** directive can be used.
 
 ## Objects exposed to Lua
 ### Exposed functions
 
-| :warning:WARNING:warning: : As of of Marcel v8.1, this API break upward compatibility. Exposing methods to Marcel's own object is not compatible with recent Lua version. |
-| --- |
+> [!WARNING] 
+> As of of Marcel v8.1, this API break upward compatibility. Exposing methods to Marcel's own object is not compatible with recent Lua version.
 
 #### Legacy reporting
 - **mod_alert.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Only `OSCmd=` is triggered.
@@ -147,5 +152,6 @@ Limitations :
 - **mod_alert.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined
 - **mod_alert.ListAlert()** - Generate a list of all alerts' name.
 
-Notez-bien : ListAlert() is pushing a string per alert, which is not the best way to handle a large amount (but we are not expecting zillion alerts at a time, do we ?). The reason not to use an iterator is it would need to lock alerts list during iterating. It may lead to alert in race condition. 
-Have a look in `Config/scripts` directory for an example how to save/restore alerts list.
+> [!NOTE]
+> Notez-bien : ListAlert() is pushing a string per alert, which is not the best way to handle a large amount (but we are not expecting zillion alerts at a time, do we ?). The reason not to use an iterator is it would need to lock alerts list during iterating. It may lead to alert in race condition. 
+> Have a look in `Config/scripts` directory for an example how to save/restore alerts list.
