@@ -52,7 +52,8 @@ Following topics are used as well when alerting :
 
 ### Alert sections
 
-Notez-bien : there is no segregation between alerts created by $alert or \*RaiseAlert= , they are handled the same way internally (in other words, an $alert can be cleared by \*CorrectAlert= .
+> [!NOTE]  
+> there is no segregation between alerts created by $alert or \*RaiseAlert= , they are handled the same way internally (in other words, an $alert can be cleared by \*CorrectAlert= .
 
 #### $alert
 
