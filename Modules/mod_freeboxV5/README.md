@@ -3,8 +3,8 @@ mod_freeboxV5
 
 Publish Freebox v4/v5 figures (French Internet Service Provider)
 
-| :warning:WARNING:warning: : This module is not supported (as I don't have the suitable Freebox anymore) |
-| --- |
+> [!CAUTION]
+> This module is not supported (as I don't have the suitable Freebox anymore)
 
 ### Accepted global directives
 none
