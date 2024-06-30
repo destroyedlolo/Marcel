@@ -118,9 +118,10 @@ Example :
 
 will send "*Seems ok*" to notifications **a**, **b** and **c** with "*my title*" as ... title.
 
-Limitations :
-- `$namedNotification=` argument is the section name and can be only 1 character long.
-- `$namedNotification=` are not considered as sections and consequently can't be disabled by **OnOff** module (yet ?). Nevertheless, **Disabled** and **DoNotSimulate** directive can be used.
+> [!IMPORTANT]  
+> `$namedNotification=` argument is the section name and can be only 1 character long.
+
+**Disabled** and **DoNotSimulate** directive can be used with named notification.
 
 ## Objects exposed to Lua
 ### Exposed functions
