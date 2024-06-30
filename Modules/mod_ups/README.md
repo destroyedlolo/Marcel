@@ -8,7 +8,8 @@ none
 
 ## Section UPS
 
-:exclamation:Notez-bien:exclamation: : Section ID is the identifier of the UPS in NUT server.
+> [!IMPORTANT]  
+> Section ID is the identifier of the UPS in NUT server.
 
 ### Accepted directives
 * **Sample=** Number of seconds between samples, in seconds
