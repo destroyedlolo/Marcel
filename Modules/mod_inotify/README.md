@@ -29,6 +29,7 @@ Send notification when a directory content changes. Also applicable to a single 
 * **Func=** Acceptation function (**mod_Lua** needed)
 * **Retained** submitted as retained message
 * **Disabled** This section is disabled when Marcel's starting
+*  **DoNotSimulate** disables this section when running in simulation mode.
 
 ### Published content
 
