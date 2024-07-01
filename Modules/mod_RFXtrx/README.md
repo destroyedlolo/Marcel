@@ -23,6 +23,8 @@ Control àn RTS shutter.
 
 - **ID=** number identifying a device
 - **Topic=** Topic to send control commands to
+* **Disabled** start this section disabled
+* **DoNotSimulate** disables this section when running in simulation mode.
 
 ### Accepted commands
 

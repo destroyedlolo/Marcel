@@ -125,6 +125,8 @@ static bool mr_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == ST_CMD){
 		if( !strcmp(directive, "Disabled") )
 			return true;
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "ID=") )
 			return true;
 		else if( !strcmp(directive, "Topic=") )
@@ -219,7 +221,7 @@ static void sr_postconfInit(struct Section *asec){
 static bool sr_processMQTT(struct Section *asec, const char *topic, char *msg){
 	struct section_RFXCom *s = (struct section_RFXCom *)asec;	/* avoid lot of casting */
 	if(!mqtttokcmp(s->section.topic, topic, NULL)){
-		if(s->section.disabled || !mod_RFXtrx.RFXdevice){
+		if(isDisabled((struct Section *)s) || !mod_RFXtrx.RFXdevice){
 			publishLog('I', "[%s] or RFX is disabled", s->section.uid);
 			return true;	/* We understood the command but nothing is done */
 		}
