@@ -111,7 +111,7 @@ void *process_UPS(void *actx){
 	for(;;){	/* Infinite loop to process data */
 		bool inerror = true;
 
-		if(ctx->section.disabled){
+		if(isDisabled(&ctx->section)){
 			inerror = false;
 			publishLog('T', "Reading UPS/%s is disabled", ctx->section.uid);
 		} else {
@@ -236,6 +236,8 @@ static bool mu_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == ST_UPS){
 		if( !strcmp(directive, "Disabled") )
 			return true;
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Sample=") )
 			return true;
 		else if( !strcmp(directive, "Topic=") )

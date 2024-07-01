@@ -16,6 +16,7 @@ none
 * **Topic=** root of topics
 * **Keep** Do not die in case of error, sleep until next run [optional]
 * **Disabled** Section is disabled at startup [optional]
+* **DoNotSimulate** disables this section when running in simulation mode.
 
 
 ## Example
