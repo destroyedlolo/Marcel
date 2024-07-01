@@ -113,7 +113,7 @@ static void *processEvery(void *actx){
 		publishLog('I', "Launching a processing flow for Every/%s", s->section.uid);
 
 	for(bool first=true;; first=false){
-		if(s->section.disabled){
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);
@@ -213,7 +213,7 @@ static void *processAt(void *actx){
 	for(bool first=true;; first=false){
 		waitNextQuery((struct Section *)s, first, s->runIfOver);
 
-		if(s->section.disabled){
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);
@@ -310,6 +310,8 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == SE_EVERY){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
@@ -320,6 +322,8 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 	} else if(sec_id == SE_AT){
 		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
