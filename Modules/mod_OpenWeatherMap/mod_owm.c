@@ -186,6 +186,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == SM_DAILY || sec_id == SM_3H){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Retained") )

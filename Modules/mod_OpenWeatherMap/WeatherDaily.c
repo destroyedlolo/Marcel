@@ -338,7 +338,7 @@ void *processWFDaily(void *actx){
 	publishLog('I', "Launching a processing flow for Meteo Daily '%s'", s->section.uid);
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
-		if(s->section.disabled){
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);

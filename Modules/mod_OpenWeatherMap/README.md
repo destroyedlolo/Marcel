@@ -20,6 +20,7 @@ Get 3 hours forecast from Open Weather Map API 2.5
 * **Lang=** Languages (*i.e. `fr` for French*)
 * **Immediate** Launch the 1st sample at startup
 * **Disabled** Start this section disabled
+*  **DoNotSimulate** disables this section when running in simulation mode.
 
 ### Published topics
 
