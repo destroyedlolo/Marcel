@@ -17,6 +17,7 @@ none
 * **Keep** Do not die in case of error, sleep until next run [optional]
 * **Immediate** Execute at startup (or when the section is enabled) then wait for *sample* seconds [optional]
 * **Disabled** Section is disabled at startup [optional]
+*  **DoNotSimulate** disables this section when running in simulation mode.
 
 ## Example
 
