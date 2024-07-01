@@ -85,7 +85,7 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 	struct section_outfile *s = (struct section_outfile *)asec;	/* avoid lot of casting */
 
 	if(!mqtttokcmp(s->section.topic, topic, NULL)){
-		if(s->section.disabled){
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);
@@ -178,6 +178,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 static bool mo_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == SOF_OUTFILE){
 		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
