@@ -8,3 +8,6 @@ Needs=mod_Lua
 *DPD=Marcel info
 	topic=%ClientID%/About
 	Func=PublishMarcelInfo
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate

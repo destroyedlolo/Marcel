@@ -33,3 +33,6 @@ Func=func_Test
 
 # This section is disabled at startup
 #	Disabled
+
+# Disable it if running in simulation mode
+#	DoNotSimulate

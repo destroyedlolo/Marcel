@@ -149,6 +149,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == SI_L4C){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Retained") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
@@ -193,7 +195,7 @@ static void *handleNotification(void *amod){
 					else
 						continue;	/* skip to next section */
 				} else {
-					if( event->wd == s->wd && !s->section.disabled ){	/* Event's matching */
+					if( event->wd == s->wd && !isDisabled((struct Section *)s) ){	/* Event's matching */
 						char *amsg=NULL;
 						if(event->mask & IN_ACCESS)
 							amsg = stradd( amsg, ",ACCESS", true);

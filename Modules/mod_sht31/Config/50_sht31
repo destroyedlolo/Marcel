@@ -31,3 +31,4 @@ Needs=mod_sht31
 	OffsetH=1.5
 
 #	Disable
+#	DoNotSimulate

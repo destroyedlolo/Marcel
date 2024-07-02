@@ -15,6 +15,7 @@ Repeat a function *every* seconds.
 * **Topic=** passed as argument (see bellow) [optional]
 * **Immediate** Execute at startup (or when the section is enabled) then wait for *sample* seconds [optional]
 * **Disabled** Section is disabled at startup [optional]
+*  **DoNotSimulate** disables this section when running in simulation mode.
 
 ### Argument
 

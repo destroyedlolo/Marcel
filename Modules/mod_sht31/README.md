@@ -20,6 +20,7 @@ none
 * **OffsetT=** offset to add to temperature value
 * **OffsetH=** offset to add to humidity value
 * **Disabled** Start this section disabled
+* **DoNotSimulate** disables this section when running in simulation mode.
 
 ### Lua function arguments
 

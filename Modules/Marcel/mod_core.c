@@ -61,6 +61,11 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 		if(cfg.verbose)
 			publishLog('C', "\tBroker : '%s'", cfg.Broker);
 		return ACCEPTED;
+	} else if(!strcmp(l,"Simulation")){
+		cfg.simulate = true;
+		if(cfg.verbose)
+			publishLog('C', "\tRunning in Simulation mode");
+		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"LoadModule="))){
 		void *pgh;
 		char t[strlen(PLUGIN_DIR) + strlen(arg) + 2];
@@ -124,6 +129,15 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 
 			if(cfg.verbose)
 				publishLog('C', "\t\tStarting DISABLED");
+
+			return ACCEPTED;
+		} else if(!strcmp(l, "DoNotSimulate")){
+			acceptSectionDirective( *section, l);
+
+			(*section)->dontSimulate = true;
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tDISABLED if in simulation mode");
 
 			return ACCEPTED;
 		} else if(!strcmp(l, "Quiet")){

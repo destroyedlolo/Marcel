@@ -10,3 +10,7 @@
 # MQTT Broker's URL
 #Broker=tcp://localhost:1883
 
+# If set, put Marcel in "Simulation" mode.
+# All sections with "DoNotSimulate" flag set are considered as disabled.
+# A typical example is to avoid real mode interaction while simulating.
+# Simulation

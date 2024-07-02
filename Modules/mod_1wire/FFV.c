@@ -66,7 +66,7 @@ void *processFFV(void *actx){
 	SectionError((struct Section *)s, false); /* Initialisation completed */
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
-		if(s->common.section.disabled){
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->common.section.uid);

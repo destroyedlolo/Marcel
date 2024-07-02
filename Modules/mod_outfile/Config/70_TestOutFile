@@ -15,3 +15,6 @@ Needs=mod_outfile
 
 	# Section starting disabled
 	# Disabled
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate
