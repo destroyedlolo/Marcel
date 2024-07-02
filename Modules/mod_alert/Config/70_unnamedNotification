@@ -17,3 +17,4 @@ $unnamedNotification
 	OSCmd=echo "%t%"
 	RESTUrl=https://wirepusher.com/send?id=xxxxxcLWkmpsZa&title=Test:%t%&message=%m%&type=Test
 #	Disabled
+#	DoNotSimulate

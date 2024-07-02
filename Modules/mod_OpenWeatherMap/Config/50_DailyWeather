@@ -25,3 +25,6 @@ Needs=mod_owm
 
 	# Start disabled
 #	Disabled
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate

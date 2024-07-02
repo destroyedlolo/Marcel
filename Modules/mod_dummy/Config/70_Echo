@@ -8,3 +8,4 @@ Needs=mod_dummy
 	Topic=%ClientID%/echo
 
 #	Disable
+#	DoNotSimulate

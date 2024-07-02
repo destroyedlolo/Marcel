@@ -50,3 +50,6 @@ DefaultSampleDelay=60
 
 	# Start disabled
 #	Disabled
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate

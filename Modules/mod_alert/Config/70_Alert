@@ -27,12 +27,14 @@ $alert
 	OSCmd=echo 'raising "%t%"'
 	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Erreur
 #	Disabled
+#	DoNotSimulate
 
 *CorrectAlert=correcting
 	Topic=Corrected/#
 	OSCmd=echo '"%t%" corrected'
 	RESTUrl=https://wirepusher.com/send?id=xxxxxxx&title=Test:%t%&message=%m%&type=Corrected
 #	Disabled
+#	DoNotSimulate
 
 # This one is only used to load previously saved alert
 # but without sending any notification
