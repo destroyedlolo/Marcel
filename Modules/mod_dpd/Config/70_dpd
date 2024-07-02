@@ -23,3 +23,6 @@ Needs=mod_dpd
 	# error. But in such case, it will continue in DEGRADED way
 	# without notification when message is received.
 	Keep
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate

@@ -120,7 +120,7 @@ static void *processSHT31(void *actx){
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
 		bool inerror = true;	/* Bye default, we're in trouble */
 
-		if(s->section.disabled){
+		if(isDisabled((struct Section *)s)){
 			inerror = false;
 #ifdef DEBUG
 			if(cfg.debug)
@@ -270,6 +270,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == ST_SHT31){
 		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */

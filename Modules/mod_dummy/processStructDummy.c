@@ -55,8 +55,11 @@ void *processDummy(void *actx){
 		 * is an endless loop.
 		 */
 	for(;;){
-			/* 1st of all, checking if the section is active */
-		if(s->section.disabled){
+			/* 1st of all, checking if the section is active
+			 * Check if it is disabled or it has to be disabled as
+			 * we are simulating and this section won't.
+			 */
+		if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->section.uid);

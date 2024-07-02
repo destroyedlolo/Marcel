@@ -38,7 +38,7 @@ static int mls_isEnabled(lua_State *L){
 	if(!s)
 		luaL_error(L, "Not a Section");
 	
-	lua_pushboolean(L, !(*s)->disabled);
+	lua_pushboolean(L, !isDisabled(*s));
 
 	return 1;
 }

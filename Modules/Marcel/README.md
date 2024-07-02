@@ -6,7 +6,7 @@ This directory contains Marcel's core and shared mandatory utilities codes.
 ### Global directives
 
 * **ClientID=** ClientID to connect to the broker. 
-In case you have more than one Marcel connected to a single broker you MUST set an uniq ID per Marcel instance.<br>
+In case you have more than one Marcel connected to a single broker you MUST set an unique ID per Marcel instance.<br>
 If not set, a random identifier based on the host name and the process ID is used.
 
 * **Broker=** MQTT Broker's URL [Mandatory]<br>
@@ -22,8 +22,10 @@ are grouped at the end of the configuration.<br>
 It's an optimisation option : Marcel will scan subscriptions from
 the end of the configuration and will stop as soon as it found a section doesn't needing an MQTT subscription.
 
+* **Simulation** Run in simulation mode
+
 ### Directive understood by almost all configuration files
 
 * **Needs=** Ignore this configuration file is a module is not loaded.<br>
-Example : only considere this configuration if `mod_dummy` is loaded<br>
+Example : only consider this configuration if `mod_dummy` is loaded<br>
 `Needs=mod_dummy`

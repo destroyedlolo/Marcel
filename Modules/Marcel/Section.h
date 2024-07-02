@@ -30,6 +30,7 @@ struct Section {
 
 		/* options */
 	bool disabled;			/* this section is currently disabled */
+	bool dontSimulate;		/* disabled if we're in simulation mode */
 
 		/* MQTT */
 	const char *topic;
@@ -60,4 +61,6 @@ extern void initSection(struct Section *sec, int8_t module_id, uint8_t section_i
 extern void SectionOnOff(struct Section *, bool);
 extern void SectionError(struct Section *, bool);
 extern void publishSectionStatus(struct Section *);
+extern bool isDisabled(struct Section *);
+
 #endif

@@ -12,6 +12,7 @@ none
 * **File=** target file that where received data are written to
 * **Func=** user validation function (see below, **mod_Lua** needed))
 * **Disabled** start this section disabled
+* **DoNotSimulate** disables this section when running in simulation mode.
 
 ## User function
 ### Arguments

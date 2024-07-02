@@ -56,6 +56,7 @@ struct namednotification {
 	struct actions actions;
 	char name;
 	bool disabled;
+	bool dontSimulate;		/* disabled if we're in simulation mode */
 };
 
 	/* Active alert list */

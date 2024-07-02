@@ -87,7 +87,7 @@ static void *process_freeboxV5(void *actx){
 		publishLog('I', "Launching a processing flow for FreeboxV5");
 
 	for(bool first=true;; first=false){
-		if(ctx->section.disabled){
+		if(isDisabled(&ctx->section)){
 			SectionError((struct Section *)ctx, false);
 #ifdef DEBUG
 			if(cfg.debug)
@@ -316,6 +316,8 @@ static bool mfb_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == SFB_FREEBOXV5){
 		if( !strcmp(directive, "Disabled") )
 			return true;
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Sample=") )
 			return true;
 		else if( !strcmp(directive, "Topic=") )

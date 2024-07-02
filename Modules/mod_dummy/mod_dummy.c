@@ -181,14 +181,16 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == ST_DUMMY){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Sample=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
 		else {	
 				/* Custom error message.
-				 * Well it's only an example as it's the default message
-				 * raised.
+				 * (it's only an example as, here, it's the same
+				 * message as the default one)
 				 */
 			publishLog('F', "'%s' not allowed here", directive);
 			exit(EXIT_FAILURE);
@@ -196,8 +198,12 @@ static bool mt_acceptSDirective( uint8_t sec_id, const char *directive ){
 	} else if(sec_id == ST_ECHO){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
+
+		/* No custom message : we will use the default one */
 	}
 
 	return false;	/* Directive not handled by any of sections */

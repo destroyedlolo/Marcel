@@ -9,9 +9,11 @@ You can help to improve Marcel to support other devices by :
 
 ### Accepted global directives
 
-- **RFXtrx_Port=** "serial" port where RFXcom is plugged on.<br>
-I strongly suggest to use `by-id` or `by-path` mapping instead of `/dev/ttyUSB??` which depend on plugged devices.
-Consequently, a device can't be associated to a ttyUSB port in a predicted way.
+- **RFXtrx_Port=** "serial" port where RFXcom is plugged on.
+
+> [!IMPORTANT]  
+> The only way to access to a device is to use `by-id` or `by-path` mapping.
+> `/dev/ttyUSB??` depends on plugged devices and the order they are discovered. Consequently, a device can't be associated to a ttyUSB port in a predicted way.
 
 ## Section RTSCmd
 
@@ -21,6 +23,8 @@ Control àn RTS shutter.
 
 - **ID=** number identifying a device
 - **Topic=** Topic to send control commands to
+* **Disabled** start this section disabled
+* **DoNotSimulate** disables this section when running in simulation mode.
 
 ### Accepted commands
 

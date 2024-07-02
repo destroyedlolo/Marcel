@@ -23,7 +23,7 @@
 	 * Process one probe
 	 * ***/
 static void processProbe( struct section_1wAlarm *s){
-	if(s->common.section.disabled){
+	if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->common.section.uid);
@@ -197,7 +197,7 @@ void start1WAlarm( uint8_t mid ){
 				exit(EXIT_FAILURE);
 			}
 
-			if(s->common.section.disabled){
+			if(isDisabled((struct Section *)s)){
 #ifdef DEBUG
 				if(cfg.debug)
 					publishLog('d', "[%s] is disabled", s->common.section.uid);

@@ -44,8 +44,13 @@ In addition [json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https:
 Marcel knows the following options :
 * *-h* : online help
 * *-v* : verbose output
+* *-S* : runs in "Simulation" mode
 * *-f<file>* : loads <file> as configuration file. The default one is `/usr/local/etc/Marcel.conf`
 * *-t* : test configuration file and exit
+
+## Simulation mode
+
+When running in "**Simulation mode**", all sections with "`DoNotSimulate`" flag set are considered as disabled.
 
 ## Logging
 As of version 6.05, Marcel publishes its loggings to following topics : 

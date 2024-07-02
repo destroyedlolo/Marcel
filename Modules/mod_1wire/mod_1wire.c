@@ -239,6 +239,8 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == S1_FFV){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "Immediate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Retained") )
