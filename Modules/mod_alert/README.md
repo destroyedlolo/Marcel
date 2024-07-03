@@ -3,18 +3,18 @@ mod_alert
 
 Handles **alerts** and **notifications**.
 
-## Difference between alerts and notifications
+## Difference between Alerts and Notifications
 
-A message is sent for every **notification** received whereas Marcel keeps track of **alerts** state : 
-a message is only sent when an alert is raised or cleared, but it sent only once when an alert is signaled many time without being cleared.
+A message is sent for every **notification** received, whereas Marcel keeps track of **alerts** state : 
+a message is only sent when an alert is raised or cleared, but it sent only once when an alert is signaled many times without being cleared.
 
-## Directives accepted by all kind of sections handled by mod_alert
+## Directives accepted by all kinds of sections handled by mod_alert
 
 ### Actions directives
-* **RESTUrl=** call a REST webservice
+* **RESTUrl=** call a REST web service
 * **OSCmd=** issue an OS command
 
-In each command line, following replacement is done :
+In each command line, the following replacement is done :
 * `%t%` is replaced by the title
 * `%m%` is replaced by the message
 
@@ -30,13 +30,13 @@ Example :
 
 A message is sent only when an alert is **set** or **cleared**.
 
-A typical use case is a regular monitoring (*let say regarding a fridge temperature, every 5 minutes*) reporting an error condition (*temperature too high*). 
+A typical use case is regular monitoring (*let say regarding a fridge temperature, every 5 minutes*) reporting an error condition (*temperature too high*). 
 - If communicating through notifications, a message will be sent at every sample, *so every 5 minutes*. 
-- Using **alerts**, a message will be sent once when the temperature goes outside range, the alerts' counter will be increased, and another one when the temperature is corrected : alerts avoid being spammed by the same error condition.
+- Using **alerts**, a message will be sent once the temperature goes outside range, the alerts' counter will be increased, and another one will be sent when the temperature is corrected : Alerts avoid being spammed by the same error condition.
 
 ### Accepted global directives
 
-* **AlertsCounterTopic=** if set, send number of alerts every time an alert is raised or cleared.
+* **AlertsCounterTopic=** if set, send the number of alerts every time an alert is raised or cleared.
 
 Example :
 `AlertsCounterTopic=%ClientID%/AlertsCounter`
@@ -57,19 +57,19 @@ Following topics are used as well when alerting :
 
 #### $alert
 
-**$alert** is supported mostly for compatibility purposes with some of my ancient tools. It is suggested to use **\*RaiseAlert=** instead, which is more versatile and powerful. In the other hand, it can be used as *default alerting channel*.
+**$alert** is supported mostly for compatibility purposes with some of my ancient tools. It is suggested to use **\*RaiseAlert=** instead, which is more versatile and powerful. In the other hand, it can be used as the *default alerting channel*.
 
-**$alert** messages are received from `Alert/#` topic where the topic name's trailing part determines the *title*, the payload being the message. 
+**$alert** messages are received from `Alert/#` topic, where the topic name's trailing part determines the *title*, the payload being the message. 
 
-If the first character of the payload is a '**S**' or '**s**', the alert is raised, any other character means the alert is over.
-- With a '**S**' both `RESTUrl=` and `OSCommand=` are triggered called.
+If the first character of the payload is a '**S**' or '**s**', the alert is raised; any other character means the alert is over.
+- With a '**S**' both `RESTUrl=` and `OSCommand=` are triggered.
 - With a '**s**' only `OSCommand=` is called.
 
-Only one can exist and is impersonated by a "*$alert*" section (if needed to be disabled by **OnOff** module). 
+Only one can exist and is impersonated by a "*$alert*" section (if needed to be disabled by the **OnOff** module). 
 
 #### \*RaiseAlert= and \*CorrectAlert=
 
-Several \*RaiseAlert= and \*CorrectAlert= sections could coexist : it's allowing different actions to trigger, but again, there is no segregation between alerts, every \*CorrectAlert= can clear an alert raised by any \*RaiseAlert= or even $alert.
+Several \*RaiseAlert= and \*CorrectAlert= sections could coexist : it's allowing different actions to trigger, but again, there is no segregation between Alerts, every \*CorrectAlert= can clear an alert raised by any \*RaiseAlert= or even $alert.
 
 ##### Directives accepted by both \*RaiseAlert= and \*CorrectAlert=
 
@@ -77,20 +77,20 @@ Several \*RaiseAlert= and \*CorrectAlert= sections could coexist : it's allowing
 
 ##### Directives accepted only by \*RaiseAlert=
 
-- **Quiet** directive indicates it's a **special** section without topic and
-action commands defined. This section is useful to raise an alert (i.e. while loading a backup at restart) without sending messages.
+- **Quiet** directive indicates it's a **special** section without a topic, and
+action commands are defined. This section is useful to raise an alert (i.e. while loading a backup at restart) without sending messages.
 
 ## Notifications
 
-A message is sent for every **notification** received. So, if not correctly configured upstream, you may be spammed by zillion of message. Consequently, **notifications** aim is to report transitions' changes or punctual events.
+A message is sent for every **notification** received. So, if not correctly configured upstream, you may be spammed by zillions of messages. Consequently, **notifications** aim to report transitions' changes or punctual events.
 
 ### Notification sections
 
 #### $unnamedNotification
 
-**Unnamed Notification** is supported mostly for compatibility purposes with some of my ancient tools. It is suggested to use **[Named Notification](###$namednotification=)** instead which are more versatile and powerful. In the other hand, it can be used as *default notification channel*.
+**Unnamed Notification** is supported, mostly for compatibility purposes with some of my ancient tools. It is suggested to use **[Named Notification](###$namednotification=)** instead, which are more versatile and powerful. On the other hand, it can be used as a *default notification channel*.
 
-**Unnamed Notification** messages are received from `Notification/#` topic where the topic name's trailing part determines the *title*, the payload being the message. Only one can exist and is impersonated by a "*$unnamedNotification*" section (if needed to be disabled by **OnOff** module). 
+**Unnamed Notification** messages are received from the `Notification/#` topic where the topic name's trailing part determines the *title*, the payload being the message. Only one can exist and is impersonated by a "*$unnamedNotification*" section (if needed to be disabled by **OnOff** module). 
 
 If the payload starts with a '**S**', both `OSCmd=` and `RESTUrl=` are used ; Without 'S', only `OSCmd=` is triggered.
 
@@ -100,15 +100,15 @@ Example :
 - payload : `SI want to tell you`
 ```
 
-will send "*I want to tell you*" on both `OSCmd=` and `RESTUrl=` channels with the title "*My Example*".
+Will send "*I want to tell you*" on both `OSCmd=` and `RESTUrl=` channels with the title "*My Example*".
 
 ### $namedNotification=
 
-**Named notification** allows a more flexible in notification mechanism as each and every notification can communicate with a different channel. As example, I'm using [wirepusher](https://wirepusher.com/) to send notifications to my phone and each named notification targets a different message "type" that can be segregated at wirepusher's side.
+**Named notifications** allow a more flexible in notification mechanism, as each and every notification can communicate with a different channel. As an example, I'm using [wirepusher](https://wirepusher.com/) to send notifications to my phone, and each named notification targets a different message "type" that can be segregated at wirepusher's side.
 
-Unlike unnamed notification, both `OSCmd=` and `RESTUrl=` are triggered if present, whatever the payload's content.
+Unlike unnamed notifications, both `OSCmd=` and `RESTUrl=` are triggered if present, whatever the payload's content.
 
-**Named notification** are received from `nNotification/<names>/<title>` topic where the argument is the list of notification to be considered.
+**Named notification** are received from the `nNotification/<names>/<title>` topic, where the argument is the list of notification to be considered.
 
 Example : 
 ```
@@ -121,7 +121,7 @@ will send "*Seems ok*" to notifications **a**, **b** and **c** with "*my title*"
 > [!IMPORTANT]  
 > `$namedNotification=` argument is the section name and can be only 1 character long.
 
-**Disabled** and **DoNotSimulate** directive can be used with named notification.
+**Disabled** and **DoNotSimulate** directives can be used with named notifications.
 
 ## Objects exposed to Lua
 ### Exposed functions
@@ -130,30 +130,31 @@ will send "*Seems ok*" to notifications **a**, **b** and **c** with "*my title*"
 > As of of Marcel v8.1, this API break upward compatibility. Exposing methods to Marcel's own object is not compatible with recent Lua version.
 
 #### Legacy reporting
-- **mod_alert.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Only `OSCmd=` is triggered.
-- **mod_alert.RiseAlertREST( *AlertID*, *Message to send* )** - Raise an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
-- **mod_alert.ClearAlert( *AlertID*, *Message to send* )** - Clear an alert as it was received on `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+- **mod_alert.RiseAlert( *AlertID*, *Message to send* )** - Raise an alert as it was received on the `Alert/#` topic. Only `OSCmd=` is triggered.
+- **mod_alert.RiseAlertREST( *AlertID*, *Message to send* )** - Raise an alert as it was received on the `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+- **mod_alert.ClearAlert( *AlertID*, *Message to send* )** - Clear an alert as it was received on the `Alert/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
 
-- **mod_alert.SendNotification( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Only `OSCmd=` is triggered.
-- **mod_alert.SendNotificationREST( *AlertID*, *Message to send* )** - Send a notification as if was received on `Notification/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
+- **mod_alert.SendNotification( *AlertID*, *Message to send* )** - Send a notification as if it were received on the `Notification/#` topic. Only `OSCmd=` is triggered.
+- **mod_alert.SendNotificationREST( *AlertID*, *Message to send* )** - Send a notification as if it were received on a `Notification/#` topic. Both `OSCmd=` and `RESTUrl=` are triggered.
 
 #### Named reporting
 
-- **mod_alert.RiseAlert( *AlertID*, *Message to send*, *name* )** - Raise an alert as it was received on *name* `\*RaiseAlert=` topic.
-- **mod_alert.ClearAlert( *AlertID*, *Message to send*, *name* )** - Clear an alert as it was received on *name* `\*CorrectAlert=` topic.
-- **mod_alert.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per provided names
-- **mod_alert.NamedNotifications()** - Return an iterator to Named Notifications (have a look on mod_lua about an example)
+- **mod_alert.RiseAlert( *AlertID*, *Message to send*, *name* )** - Raise an alert as it was received on the *name* `\*RaiseAlert=` topic.
+- **mod_alert.ClearAlert( *AlertID*, *Message to send*, *name* )** - Clear an alert as it was received on the *name* `\*CorrectAlert=` topic.
+- **mod_alert.SendNamedNotification( *Notifications names*, *AlertID*, *Message to send* )** - Send notifications as per the provided names
+- **mod_alert.NamedNotifications()** - Return an iterator to Named Notifications (take a look at mod_lua for an example)
 - **mod_alert.FindNamedNotifications( *name* )** - find a Named Notification by its name.
 
-##### Named notification own methods
-`mod_alert.NamedNotifications()` and `FindNamedNotifications()` return NamedNotification objects having following methods :
-- **getName()** - Returns NamedNotification's name.
+##### Named notifications' own methods
+`mod_alert.NamedNotifications()` and `FindNamedNotifications()` return NamedNotification objects having the following methods :
+- **getName()** - Returns the NamedNotification's name.
 - **isEnabled()** - returns if the NamedNotification is enabled (disable flag)
 
 #### Misc
-- **mod_alert.SendAlertsCounter()** - Send alert counter if `AlertsCounterTopic=` is defined
-- **mod_alert.ListAlert()** - Generate a list of all alerts' name.
+- **mod_alert.SendAlertsCounter()** - Send an alert counter if `AlertsCounterTopic=` is defined
+- **mod_alert.ListAlert()** - Generate a list of all alerts' names.
 
 > [!NOTE]
 > Notez-bien : ListAlert() is pushing a string per alert, which is not the best way to handle a large amount (but we are not expecting zillion alerts at a time, do we ?). The reason not to use an iterator is it would need to lock alerts list during iterating. It may lead to alert in race condition. 
 > Have a look in `Config/scripts` directory for an example how to save/restore alerts list.
+
