@@ -1,7 +1,7 @@
 mod_outfile
 ====
 
-Allow to control external devices exposed as files by Unix kernel.
+Allow the Unix kernel to control external devices exposed as files by the Unix kernel.
 
 ### Accepted global directives
 none
@@ -9,8 +9,8 @@ none
 ## Section OutFile
 
 * **Topic=** Topic to listen to
-* **File=** target file that where received data are written to
-* **Func=** user validation function (see below, **mod_Lua** needed))
+* **File=** target file where received data is written to
+* **Func=** user validation function (see below; **mod_Lua** needed)
 * **Disabled** start this section disabled
 * **DoNotSimulate** disables this section when running in simulation mode.
 
@@ -28,6 +28,6 @@ none
 
 ## Error condition
 
-An error condition is associated to each section, individually. It is raised if a technical issue prevents to write data and is cleared as soon as an attempt succeed.
+An error condition is associated with each section, individually. It is raised if a technical issue prevents to write data and is cleared as soon as an attempt succeed.
 
-Error condition is exposed to Lua by **OutFile:inError()** methods.
+The error condition is exposed to Lua by the **OutFile:inError()** methods.
