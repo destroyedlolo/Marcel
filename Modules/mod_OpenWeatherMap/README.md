@@ -1,7 +1,7 @@
 mod_owm
 ===
 
-Publishes weather forecast from https://openweathermap.org
+Publishes weather forecasts from https://openweathermap.org
 
 ### Accepted global directives
 
@@ -9,7 +9,7 @@ Publishes weather forecast from https://openweathermap.org
 
 ## Section Meteo3H
 
-Get 3 hours forecast from Open Weather Map API 2.5
+Get a 3-hour forecast from the Open Weather Map API 2.5
 
 ### Accepted directives
 
@@ -18,7 +18,7 @@ Get 3 hours forecast from Open Weather Map API 2.5
 * **City=** City targeted by our request
 * **Units=** Value's units among `metric` (*default value*), `imperial` and `standard`
 * **Lang=** Languages (*i.e. `fr` for French*)
-* **Immediate** Launch the 1st sample at startup
+* **Immediate** Launch the first sample at startup
 * **Disabled** Start this section disabled
 *  **DoNotSimulate** disables this section when running in simulation mode.
 
@@ -36,7 +36,7 @@ Get 3 hours forecast from Open Weather Map API 2.5
 
 ## Section MeteoDaily
 
-Get daily forecast and today's sunrise/sunset from Open Weather Map API 2.5
+Get daily forecast and today's sunrise/sunset from the Open Weather Map API 2.5
 
 ### Accepted directives
 
@@ -50,7 +50,7 @@ Get daily forecast and today's sunrise/sunset from Open Weather Map API 2.5
 
 ### Published topics
 
-Per comming days :
+Per the coming days :
 
 * `.../*index*/time` Timestamp of the forecast
 * `.../*index*/temperature/day`
@@ -75,6 +75,6 @@ and for today :
 
 ## Error condition
 
-An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
+An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeeds.
 
-Error condition is exposed to Lua by **MeteoDaily:inError()** and **Meteo3H:inError()** methods.
+Error condition is exposed to Lua by the **MeteoDaily:inError()** and **Meteo3H:inError()** methods.
