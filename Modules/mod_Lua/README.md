@@ -16,7 +16,7 @@ Add Lua's plugins to Marcel, allowing user functions
 # Exposed objects to Lua's side
 
 **Marcel** exposes some objects to user's scripts.<br>
-Here the list of ones exposed by **mod_Lua** itself : other modules may expose additional objects, have a look on their own documentation.
+Here is the list of ones exposed by **mod_Lua** itself : other modules may expose additional objects, take a look at their own documentation.
 
 ## Exposed variables
 
@@ -29,12 +29,12 @@ Here the list of ones exposed by **mod_Lua** itself : other modules may expose a
 
 ### Marcel
 
-The main interface to Marcel internals. Following functions are exposed :
+The main interface to Marcel internals. The following functions are exposed :
 
   * **Marcel.Copyright()** - Returns Marcel's copyright string
   * **Marcel.Version()** - Returns Marcel's version
   * **Marcel.ClientID()** - Returns Marcel's MQTT client ID
-  * **Marcel.Hostname()** - Returns host's name
+  * **Marcel.Hostname()** - Returns the host's name
   * **Marcel.Log( *level*, *message* )** - Log a message with the provided level
   * **Marcel.MQTTPublish( *topic*, *payload* [, *retain* ] )** - Publish to MQTT
 
@@ -47,10 +47,10 @@ The main interface to Marcel internals. Following functions are exposed :
 
 #### Generic Interface to Marcel's section.
 
-  * **getName()** and **getUID()** - Returns sections name.
+  * **getName()** and **getUID()** return section name.
   * **getKind()** - return section's kind
   * **isEnabled()** - return if the section is enabled (*disable* flag)
-  * **getCustomFigures()** - return a table containing section's specifics figures
+  * **getCustomFigures()** - return a table containing the section's specifics figures
 
 Simple code example : lists sections, namedNotification and exposes related figures
 ```Lua
