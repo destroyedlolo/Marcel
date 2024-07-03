@@ -13,13 +13,13 @@ none
 *  **Topic=** Topic to listen to
 *  **Timeout=** Watchdog timeout in seconds (**Sample=** is also accepted)  [optional, *see below*]
 *  **NotificationTopic=** where to notify in case of watchdog
-*  **Func=** Acceptation function, if returns 'false', watchdog continue [optional, *see below*]
+*  **Func=** Acceptation function; if returns 'false', watchdog continues [optional, *see below*]
 *  **Disabled** Section is disabled at startup [optional]
-*  **Keep** using `Keep` prevents Marcel to crash in case of technical error. 
-But in such case, it will continue in DEGRADED way, with notifying when a message is received.
+*  **Keep** using `Keep` to prevent Marcel to crash in case of technical error. 
+But in such a case, it will continue in DEGRADED way, with notifying when a message is received.
 *  **DoNotSimulate** disables this section when running in simulation mode.
 
-At least one of `Timeout=` and `Func=` must be present, otherwise the section is useless and will die.
+At least one of `Timeout=` and `Func=` must be present; otherwise, the section is useless and will die.
 
 #### Lua function arguments
 
@@ -29,7 +29,7 @@ At least one of `Timeout=` and `Func=` must be present, otherwise the section is
 
 #### Lua function return
 
-1. `true` if the value is accepted and the watchdog reset. `false`, value rejected.
+1. `true` if the value is accepted and the watchdog is reset. `false`, value rejected.
 
 ### Lua specific method
 
@@ -37,7 +37,7 @@ At least one of `Timeout=` and `Func=` must be present, otherwise the section is
 
 # Provided examples
 
-In addition to the basic `70_dpd` example, 2 usefull DPDs are provided (I'm using them for my dashboard)
+In addition to the basic `70_dpd` example, 2 useful DPDs are provided (I'm using them for my dashboard)
 
 ### 70_Info
 If a message is received on `%ClientID%/About` topic, Marcel's version and copyright.
@@ -57,10 +57,10 @@ Fields are :
 
 - Section's name
 - Is section enabled (1) or not (0)
-- optionaly, is section in error
+- Optionally, is section in error ?
 
 ### 70_namedNotificationStatus
-If a message is received on `%ClientID%/NamedNotificationsStatus` topic, the real-time status of sections are issued to `%ClientID%/NamedNotificationsStatus/response`
+If a message is received on a `%ClientID%/NamedNotificationsStatus` topic, the real-time status of sections is issued to `%ClientID%/NamedNotificationsStatus/response`
 ```
 Name	Enable
 ------
@@ -72,3 +72,4 @@ Fields are :
 
 - Named Notification's name
 - Is it enabled (1) or not (0)
+

@@ -1,7 +1,7 @@
 mod_ups
 ====
 
-Get UPS informations from a NUT server
+Get UPS information from a NUT server
 
 ### Accepted global directives
 none
@@ -21,7 +21,7 @@ none
 
 ## Example
 
-An example is provided in `Config` sub directory of the current one
+An example is provided in `Config` subdirectory of the current one
 
 With configuration like
 ```
@@ -31,3 +31,4 @@ With configuration like
 ```
 
 current UPS load with be published as `onduleur.dev/ups.load`
+

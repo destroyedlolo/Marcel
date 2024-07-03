@@ -5,17 +5,15 @@ Notification for file system changes like file creation, modification or removal
 
 ### Accepted global directives
 
-* **LookForChangesGrouped** If set, all LookForChanges are grouped, meaning **Marcel** will
-look up for the 1st one in its configuration and stop L4C list as soon as it found a section
-with a different type.<br>
-It's for optimisation purpose.
+* **LookForChangesGrouped** If set, all LookForChanges are grouped, meaning **Marcel** will look up the first one in its configuration and stop L4C list as soon as it found a section  with a different type.<br>
+It's for optimization purposes.
 
 To do this, just **group all the LookForChanges section files at the same level** 
-(for example `55_???` while the classic sections are defined at the level `50_???`)
+(for example, `55_???` while the classic sections are defined at the level `50_???`)
 
 ## Section LookForChanges
 
-Send notification when a directory content changes. Also applicable to a single file.
+Send a notification when directory content changes. Also, applicable to a single file.
 
 ### Accepted directives
 
@@ -42,7 +40,7 @@ With `action` as defined by [Linux' INotify's](https://man7.org/linux/man-pages/
 
 1. Section ID
 2. File name
-3. comma separated `Action` list
+3. comma-separated `Action` list
 
 ### Lua function return
 
@@ -51,9 +49,9 @@ With `action` as defined by [Linux' INotify's](https://man7.org/linux/man-pages/
 
 ## Error condition
 
-Unlike other modules, there is no error condition associated to section handled by mod_inotify but a global error state at module itself.
+Unlike other modules, there is no error condition associated with a section handled by mod_inotify, but a global error state at the module itself.
 
-It can be tested using following code :
+It can be tested using the following code :
 ```
 mod_inotify:inError()
 ```

@@ -1,100 +1,100 @@
 Marcel
 ===
-**Marcel** is a lightweight versatile **MQTT data publisher**.
+**Marcel** is a lightweight, versatile **MQTT data publisher**.
 
-Focusing smart home automation (but not only), its optional modules publish : 
+Focusing on smart home automation (but not only), its optional modules publish : 
 - 1-wire probes environmental figures
 - weather forecast
 - UPS figures
 - external MQTT events
 - and many more
 
-Can raise some notifications, manage alerting and controle some devices. 
+Can raise some notifications, manage alerts, and control some devices. 
 
-**Lua user scripts** can be used to build simple automation, and/or, to validate incomming value.
+**Lua user scripts** can be used to build simple automation and/or, to validate incoming values.
 
 Thanks to its open and powerful module's API, it's *easy* to add new functionalities.
 
 `Build from source.md` contains technical information if you want to compile directly from its source code.
 
-# Dependancies
+# Dependencies
 
 As the communication is based on MQTT messages, you obviously need a ... **broker** :
 I personally use [Mosquitto](http://mosquitto.org/).
 
-## Global dependancy
+## Global dependency
 
 Install **PAHO** library for C ( https://eclipse.org/paho/clients/c/ )
 
-## Modules related runtime dependancies
+## Modules related runtime dependencies
 
 ### Lua (mod_Lua)
-If you want to had *user*'s functions : https://www.lua.org/
+If you want to have *user*'s functions : https://www.lua.org/
 
 ### 1-wire (mod_1wire)
-Recent linux kernel has *better than nothing* and *limited* 1-wire support. I strongly suggest to use [OWFS](https://www.owfs.org/) instead.
+Recent Linux kernel has *better than nothing* and *limited* 1-wire support. I strongly suggest using [OWFS](https://www.owfs.org/) instead.
 
 ### OpenWeatherMap (mod_OpenWeatherMap)
-You need to provide your own license key to query weather forecast, it's free for hobbyists usages.<br>
-Have a look on : https://openweathermap.org/
+You need to provide your own license key to query the weather forecast, it's free for hobbyist usage.<br>
+Take a look on : https://openweathermap.org/
 
-In addition [json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https://curl.se/libcurl/) are needed.
+In addition, [json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https://curl.se/libcurl/) are needed.
 
 ## Launch options :
 Marcel knows the following options :
 * *-h* : online help
 * *-v* : verbose output
 * *-S* : runs in "Simulation" mode
-* *-f<file>* : loads <file> as configuration file. The default one is `/usr/local/etc/Marcel.conf`
+* *-f<file>* : loads <file> as a configuration file. The default one is `/usr/local/etc/Marcel.conf`
 * *-t* : test configuration file and exit
 
 ## Simulation mode
 
-When running in "**Simulation mode**", all sections with "`DoNotSimulate`" flag set are considered as disabled.
+When running in "**Simulation mode**", all sections with the "`DoNotSimulate`" flag set are considered disabled.
 
 ## Logging
-As of version 6.05, Marcel publishes its loggings to following topics : 
+As of version 6.05, Marcel publishes its logs on the following topics : 
 * **%*MarcelID*%/Log/Fatal** : Failures causing Marcel to stop or major functionality loss
-* **%*MarcelID*%/Log/Error** : something went wrong but it didn't impacted Marcel's health
+* **%*MarcelID*%/Log/Error** : Something went wrong, but it didn't impact Marcel's health
 * **%*MarcelID*%/Log/Warning** : something you must be aware of 
-* **%*MarcelID*%/Log/Information** : Startup steps and running informations
-* **%*MarcelID*%/Log** : Trace information (incoming messages, decisions, etc ..)
+* **%*MarcelID*%/Log/Information** : Startup steps and running information
+* **%*MarcelID*%/Log** : Trace information (incoming messages, decisions, etc …)
 
-As of version 7.07, following topics have been added (if **mod_alert** enabled) :
+As of version 7.07, the following topics have been added (if **mod_alert** enabled) :
 * **%*MarcelID*%/Log/Error** : send raising alerts as well (*same as Marcel's own errors*)
 * **%*MarcelID*%/Log/Corrected** : send corrected alerts
 * **%*MarcelID*%/AlertsCounter** : amount of active alerts
 
 ## Status change
 ### Section
-As of 8.3, Marcel reports sections status changes to topic<br>
+As of 8.3, Marcel reports section status changes to topic<br>
 **%*MarcelID*%/Change/<Section ID>**<br>
-and the playload contains 2 fields:
+and the payload contains 2 fields:
 - Enabled(`1`) or Disabled (`0`)
 - face technical error
 
-As example if `Marcel/Change/Info` is published with
+As example, if `Marcel/Change/Info` is published with
 ```
 1,0
 ```
-means, **Info** section is *Enabled* and *doesn't face any error*.
+means, **Info** section is *enabled* and *doesn't face any errors*.
 
 ### Named Notification (only if mod_alert is loaded)
 As of 8.3, Marcel reports Named Notification status changes to topic<br>
 **%*MarcelID*%/NamedNotificationChange/<Section ID>**<br>
-and the playload contains 1 field:
+and the payload contains 1 field:
 - Enabled(`1`) or Disabled (`0`)
 
-As example if `Marcel/NamedNotificationChange/p` is published with
+As example, if `Marcel/NamedNotificationChange/p` is published with
 ```
 1
 ```
-means, **p** named notification is *Enabled*.
+means, **p** named notification is *enabled*.
 
 ## Modules
 
-`Modules` containes the documentation of each modules.<br>
-Having a look in `Modules/Marcel` is a *must read* about global directives.
+`Modules` contains the documentation for each module.<br>
+Taking a look in `Modules/Marcel` is a *must-read* about global directives.
   
 ## Side note
-The name is a tribute to my late rabbit that passed away some days before I did started this project : he stayed at home as keeper. RIP.
+The name is a tribute to my late rabbit, who passed away some days before I started this project : he stayed at home as a keeper. RIP.

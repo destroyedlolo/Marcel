@@ -6,7 +6,7 @@ This directory contains Marcel's core and shared mandatory utilities codes.
 ### Global directives
 
 * **ClientID=** ClientID to connect to the broker. 
-In case you have more than one Marcel connected to a single broker you MUST set an unique ID per Marcel instance.<br>
+In case you have more than one Marcel connected to a single broker you MUST set a unique ID per Marcel instance.<br>
 If not set, a random identifier based on the host name and the process ID is used.
 
 * **Broker=** MQTT Broker's URL [Mandatory]<br>
@@ -19,8 +19,8 @@ Example : loading Lua module.<br>
 
 * **SubLast** indicates that all sections doing MQTT subscription
 are grouped at the end of the configuration.<br>
-It's an optimisation option : Marcel will scan subscriptions from
-the end of the configuration and will stop as soon as it found a section doesn't needing an MQTT subscription.
+It's an optimization option : Marcel will scan subscriptions from
+the end of the configuration and will stop as soon as it found a section doesn't need an MQTT subscription.
 
 * **Simulation** Run in simulation mode
 
