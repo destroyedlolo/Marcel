@@ -14,17 +14,18 @@ none
 ### Accepted directives
 * **Sample=** Number of seconds between samples, in seconds
 * **Topic=** root of topics
-* **Keep** Do not die in case of error, sleep until next run [optional]
-* **Immediate** Execute at startup (or when the section is enabled) then wait for *sample* seconds [optional]
+* **Keep** Do not die in case of error; sleep until the next run [optional]
+* **Immediate** Execute at startup (or when the section is enabled), then wait for *sample* seconds [optional]
 * **Disabled** Section is disabled at startup [optional]
 *  **DoNotSimulate** disables this section when running in simulation mode.
 
 ## Example
 
-An example is provided in `Config` sub directory of the current one
+An example is provided in the `Config` subdirectory of the current one
 
 ## Error condition
 
-An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
+An error condition is associated to each section, individually. It is raised if a technical issue prevents reading data and is cleared as soon as an attempt succeeds.
 
-Error condition is exposed to Lua by **FreeboxV5:inError()** method.
+Error condition is exposed to Lua by the **FreeboxV5:inError()** method.
+

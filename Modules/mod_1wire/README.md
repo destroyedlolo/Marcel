@@ -7,16 +7,14 @@ Handles 1-wire probes (also suitable for any value exposed as a file).
 
 * **DefaultSampleDelay=** Sample value to apply when `Sample=` is absent. This directive is convenient to 
 provide the same sample value to many probes.<br>
-Many `DefaultSampleDelay=` can be present, in such case the last one before the section definition is
-taken into account.
+Many `DefaultSampleDelay=` can be present; in such cases, the last one before the section definition is taken into account.
 
-* **RandomizeProbes** FFV will be randomly delayed to avoid each probes to samples at the same time 
-(and then creates electricity consumption pick, really needed for very large network).
+* **RandomizeProbes** FFV will be randomly delayed to avoid sending each probes to samples at the same time (and then creates electricity consumption pick, really needed for very large network).
 
 ## Section FFV
 
 *Float value exposed as a file*.<br>
-Mostly provided for 1-wire probes but can be used for any value exposed as a file 
+Mostly provided for 1-wire probes, it can be used for any value exposed as a file 
 (like motherboard's health probes). In addition, a function
 callback can be used to parse complex files (needs **mod_Lua**).
 
@@ -27,20 +25,19 @@ callback can be used to parse complex files (needs **mod_Lua**).
 * **FailFunc=** Callback in case of technical failure (**mod_Lua** needed)
 * **Topic=** Topic to publish to
 * **Retained** submitted as retained message
-* **Offset=** offset to add to temperature value (*for calibration purpose*)
-* **Safe85** if the read value is 85, data is not published and an 'E' error
-is raised. Mostly applicable to 1-wire temperature probes where 85° means
+* **Offset=** offset to add to temperature value (*for calibration purposes*)
+* **Safe85** if the read value is 85, data is not published and an 'E' error is raised. Mostly applicable to 1-wire temperature probes where 85° means
 the probe is underpowered
 * **Sample=** Number of seconds between samples, in seconds. Special values are :
   * missing : takes the last `DefaultSampleDelay=`
   * **-1** run only once
-* **Immediate** Launch the 1st sample at startup
+* **Immediate** Launch the first sample at startup
 *  **Disabled** Section is disabled at startup [optional]
 *  **DoNotSimulate** disables this section when running in simulation mode.
 
 ## Section 1WAlarm
 
-Like FFV but value is read only when the probe is in alarm status
+Like FFV, but the value is read only when the probe is in alarm status
 
 ### Accepted directives
 
@@ -55,13 +52,13 @@ Like FFV but value is read only when the probe is in alarm status
 
 ## Error condition
 
-An error condition is associated to each section, individually. It is raised if :
-- a technical issue prevents to read the probe
+An error condition is associated with each section, individually. It is raised if :
+- a technical issue prevents from reading the probe
 - if the probe is under powered and **safe85** is set. But in such case, **FailFunc** is not called.
 
 The error condition is cleared as soon as a successful attempt to read the probe.
 
-Error condition is exposed to Lua by **FFV:inError()** and **1WAlarm:inError()** methods.
+Error condition is exposed to Lua by the **FFV:inError()** and **1WAlarm:inError()** methods.
 
 ## Lua interface
 ### Func
@@ -91,4 +88,4 @@ Error condition is exposed to Lua by **FFV:inError()** and **1WAlarm:inError()**
 ## Objects exposed to Lua
 ### Exposed functions
 
-- **mod_1wire.AlarmInError()** - (boolean) return if 1-wire Alarm is facing a technical error (like alarm directory missing).
+- **mod_1wire.AlarmInError()** - (boolean) return if 1-wire Alarm is facing a technical error (like an alarm directory missing).
