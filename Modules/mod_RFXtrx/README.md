@@ -1,9 +1,9 @@
 mod_RFXtrx
 ===
 
-Controle [RFXCom](http://www.rfxcom.com/en_GB) devices.<br>
+Control [RFXCom](http://www.rfxcom.com/en_GB) devices.<br>
 As of V8.0, only RTS Shutters are supported.
-You can help to improve Marcel to support other devices by :
+You can help improve Marcel's support for other devices by :
 - provide a patch request to add missing devices in Marcel's code
 - provide devices you want to be added
 
@@ -31,10 +31,11 @@ Control àn RTS shutter.
 - **Stop** or **My** : stop a shutter in motion or ask it to move to *my* preset position.
 - **Up** : open a shutter
 - **Down** : close a shutter
-- **Program** : associate a shutter with corresponding address (hardly untested)
+- **Program** : associate a shutter with the corresponding address (hardly untested)
 
 ## Error condition
 
-An error condition is associated to each section, individually. It is raised if a technical issue prevents to read data and is cleared as soon as an attempt succeed.
+An error condition is associated with each section, individually. It is raised if a technical issue prevents reading data and is cleared as soon as an attempt succeeds.
 
 Error condition is exposed to Lua by **RTSCmd:inError()**.
+
