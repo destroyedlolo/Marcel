@@ -110,6 +110,7 @@ void *processFFV(void *actx){
 
 #ifdef LUA
 				if(s->common.failfuncid != LUA_REFNIL){
+printf("fail : %d\n", s->common.failfuncid);
 					mod_Lua->lockState();
 					mod_Lua->pushFunctionId( s->common.failfuncid );
 					mod_Lua->pushString( s->common.section.uid );
