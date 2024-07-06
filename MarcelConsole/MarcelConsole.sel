@@ -1,0 +1,25 @@
+#!/usr/local/bin/Selene
+-- Marcel's textual console
+--
+-- (c) L.Faillie (Destroyedlolo) 2024
+--
+
+local title = " Marcel Console v0.1.0 "
+
+-- Load Selene modules
+
+Selene.Use("SelCurses")
+Selene.Use("SelSharedVar")
+Selene.Use("SelMQTT")
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- Load configuration
+require(SELENE_SCRIPT_DIR .. "/LocalConfig")
+title =  title .. ' [' .. string.match( MQTT_URL, '://(.-).chez') .. ']'
+
+local Brk, err = SelMQTT.Connect( MQTT_URL, { reliable=false } )
+if err then
+	print( "Broker", err )
+	return
+end
+
