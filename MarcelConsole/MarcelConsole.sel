@@ -31,11 +31,18 @@ if err then
 end
 
 Sections = {}
+nsections = 0	-- Number of sections
+ninactive = 0	-- Number of inactive sections
+nerrors = 0		-- Number of sections in errors
 
 function updSection()
 	local msg = SelSharedVar.Get(MARCEL ..'/Status/response')
 
 	Sections = {}
+	nsections = 0
+	ninactive = 0
+	nerrors = 0
+
 	for entry in msg:gmatch("([^\n]*)\n?") do
 		entry = entry .. '\t0'	-- $unnamedNotification doesn't have error field
 		local name, kind, enable, inerror =  entry:match("(.-)\t(.-)\t(%d)\t(%d)")
@@ -43,9 +50,18 @@ function updSection()
 			Sections[kind] = {}
 		end
 		Sections[kind][name] = {enable, inerror}
+SelLog.Log('D', "e: ".. enable .. " err: ".. inerror .." '".. name .."'" )
+
+		nsections = nsections + 1
+		if enable == '0' then
+			ninactive = ninactive + 1
+		end
+		if inerror == '1' then
+			nerrors = nerrors + 1
+		end
 	end
 
-	SelLog.Log('D', "Sections loaded")
+	SelLog.Log('D', nsections .." Sections loaded : ".. ninactive .. " inactive, ".. nerrors .." in error")
 end
 
 function rcvChange( topic, msg )
