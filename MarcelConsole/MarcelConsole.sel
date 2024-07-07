@@ -13,10 +13,11 @@ Selene.Use("SelSharedVar")
 Selene.Use("SelMQTT")
 Selene.LetsGo()	-- ensure late building dependencies
 
+SelLog.configure("/tmp/MCons.log")
 
 -- Load configuration
 require(SELENE_SCRIPT_DIR .. "/LocalConfig")
-title =  title .. ' [' .. string.match( MQTT_URL, '://(.-).chez') .. ']'
+title =  title .. ' [' .. string.match( MQTT_URL, '://(.-).chez') .. '] '
 
 require(SELENE_SCRIPT_DIR .. "/Helpers")
 
@@ -43,6 +44,8 @@ function updSection()
 		end
 		Sections[kind][name] = {enable, inerror}
 	end
+
+	SelLog.Log('D', "Sections loaded")
 end
 
 function rcvChange( topic, msg )
@@ -61,6 +64,23 @@ end
 
 -- Request current data
 Brk:Publish(MARCEL ..'/Status', '')
+
+--
+-- Initialize "graphical" environment
+--
+pwnd = SelCurses.init()
+w,h = pwnd:GetSize()
+
+pwnd:HLineAt(0,0,w,'=')
+pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
+pwnd:PrintAt(math.floor((w-title:len())/2),0, title)
+pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
+
+pwnd:refresh ()
+
+SelCurses.echo(false)
+SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )
+pwnd:keypad( true )
 
 --
 -- Waiting for data
