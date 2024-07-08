@@ -30,12 +30,61 @@ if err then
 	return
 end
 
+--
+-- Initialize "graphical" environment
+--
+pwnd = SelCurses.init()
+w,h = pwnd:GetSize()
+
+pwnd:HLineAt(0,0,w,'=')
+pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
+pwnd:PrintAt(math.floor((w-title:len())/2),0, title)
+pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
+
+pwnd:refresh ()
+
+SelCurses.echo(false)
+SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )
+pwnd:keypad( true )
+
+-- Sub windows
+StatLine = pwnd:DerWin(1,1,w-2,1)
+
+--
+-- Retrieves data
+--
+
 Sections = {}
 nsections = 0	-- Number of sections
 ninactive = 0	-- Number of inactive sections
-nerrors = 0		-- Number of sections in errors
+nerrors = 0		-- Number of sections in error
+
+function updStat()
+-- update statistics
+	local off = math.floor((w - string.len("??? sections loaded : ??? disabled, ??? in error"))/2)
+
+	StatLine:clear()
+	StatLine:Cursor(off, 0)
+	StatLine:attrset( SelCurses.CharAttrConst('BOLD') )
+	StatLine:print( string.format('%3d', nsections) )
+	StatLine:attrset( SelCurses.CharAttrConst('NORMAL') )
+	StatLine:print(" sections loaded : ")
+
+	StatLine:attrset( SelCurses.CharAttrConst('BOLD') )
+	StatLine:print( string.format('%3d', ninactive) )
+	StatLine:attrset( SelCurses.CharAttrConst('NORMAL') )
+	StatLine:print(" disabled, ")
+
+	StatLine:attrset( SelCurses.CharAttrConst('BOLD') )
+	StatLine:print( string.format('%3d', nerrors) )
+	StatLine:attrset( SelCurses.CharAttrConst('NORMAL') )
+	StatLine:print(" in error")
+
+	StatLine:refresh()
+end
 
 function updSection()
+-- Received sections list
 	local msg = SelSharedVar.Get(MARCEL ..'/Status/response')
 
 	Sections = {}
@@ -50,7 +99,7 @@ function updSection()
 			Sections[kind] = {}
 		end
 		Sections[kind][name] = {enable, inerror}
-SelLog.Log('D', "e: ".. enable .. " err: ".. inerror .." '".. name .."'" )
+-- SelLog.Log('D', "e: ".. enable .. " err: ".. inerror .." '".. name .."'" )
 
 		nsections = nsections + 1
 		if enable == '0' then
@@ -62,6 +111,7 @@ SelLog.Log('D', "e: ".. enable .. " err: ".. inerror .." '".. name .."'" )
 	end
 
 	SelLog.Log('D', nsections .." Sections loaded : ".. ninactive .. " inactive, ".. nerrors .." in error")
+	Selene.PushTask(updStat)
 end
 
 function rcvChange( topic, msg )
@@ -80,23 +130,6 @@ end
 
 -- Request current data
 Brk:Publish(MARCEL ..'/Status', '')
-
---
--- Initialize "graphical" environment
---
-pwnd = SelCurses.init()
-w,h = pwnd:GetSize()
-
-pwnd:HLineAt(0,0,w,'=')
-pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
-pwnd:PrintAt(math.floor((w-title:len())/2),0, title)
-pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
-
-pwnd:refresh ()
-
-SelCurses.echo(false)
-SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )
-pwnd:keypad( true )
 
 --
 -- Waiting for data
