@@ -1,54 +1,30 @@
 #!/usr/local/bin/Selene
--- Marcel's textual console
+-- Marcel's CLI
 --
 -- (c) L.Faillie (Destroyedlolo) 2024
 --
 
-local title = " Marcel Console v0.1.0 "
+local VERSION = "0.1.0"
 
 -- Load Selene modules
 
-Selene.Use("SelCurses")
 Selene.Use("SelSharedVar")
 Selene.Use("SelMQTT")
 Selene.LetsGo()	-- ensure late building dependencies
 
-SelLog.configure("/tmp/MCons.log")
+-- SelLog.configure("/tmp/MCtl.log")
 
 -- Load configuration
 require(SELENE_SCRIPT_DIR .. "/LocalConfig")
-title =  title .. ' [' .. string.match( MQTT_URL, '://(.-).chez') .. '] '
-
-require(SELENE_SCRIPT_DIR .. "/Helpers")
-
+prompt =  string.match( MQTT_URL, '://(.-).chez') .. '>  '
 
 -- Broker's
 
 local Brk, err = SelMQTT.Connect( MQTT_URL, { reliable=false } )
 if err then
-	print( "Broker", err )
+	SelLog.Log('E', "Brocker : ".. err)
 	return
 end
-
---
--- Initialize "graphical" environment
---
-pwnd = SelCurses.init()
-w,h = pwnd:GetSize()
-
-pwnd:HLineAt(0,0,w,'=')
-pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
-pwnd:PrintAt(math.floor((w-title:len())/2),0, title)
-pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
-
-pwnd:refresh ()
-
-SelCurses.echo(false)
-SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )
-pwnd:keypad( true )
-
--- Sub windows
-StatLine = pwnd:DerWin(1,1,w-2,1)
 
 --
 -- Retrieves data
@@ -58,30 +34,6 @@ Sections = {}
 nsections = 0	-- Number of sections
 ninactive = 0	-- Number of inactive sections
 nerrors = 0		-- Number of sections in error
-
-function updStat()
--- update statistics
-	local off = math.floor((w - string.len("??? sections loaded : ??? disabled, ??? in error"))/2)
-
-	StatLine:clear()
-	StatLine:Cursor(off, 0)
-	StatLine:attrset( SelCurses.CharAttrConst('BOLD') )
-	StatLine:print( string.format('%3d', nsections) )
-	StatLine:attrset( SelCurses.CharAttrConst('NORMAL') )
-	StatLine:print(" sections loaded : ")
-
-	StatLine:attrset( SelCurses.CharAttrConst('BOLD') )
-	StatLine:print( string.format('%3d', ninactive) )
-	StatLine:attrset( SelCurses.CharAttrConst('NORMAL') )
-	StatLine:print(" disabled, ")
-
-	StatLine:attrset( SelCurses.CharAttrConst('BOLD') )
-	StatLine:print( string.format('%3d', nerrors) )
-	StatLine:attrset( SelCurses.CharAttrConst('NORMAL') )
-	StatLine:print(" in error")
-
-	StatLine:refresh()
-end
 
 function updSection()
 -- Received sections list
@@ -110,8 +62,7 @@ function updSection()
 		end
 	end
 
-	SelLog.Log('D', nsections .." Sections loaded : ".. ninactive .. " inactive, ".. nerrors .." in error")
-	Selene.PushTask(updStat)
+	SelLog.Log(nsections .." Sections loaded : ".. ninactive .. " inactive, ".. nerrors .." in error")
 end
 
 function rcvChange( topic, msg )
@@ -124,7 +75,7 @@ Topics = {
 
 _, err = Brk:Subscribe( Topics )
 if err then
-	print( err )
+	SelLog.Log('E', "Subscribe : ".. err)
 	return
 end
 
