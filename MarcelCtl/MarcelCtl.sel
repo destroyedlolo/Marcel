@@ -86,6 +86,10 @@ Brk:Publish(MARCEL ..'/Status', '')
 -- Interactive commands
 --
 
+function cmd_status()
+	Brk:Publish(MARCEL ..'/Status', '')
+end
+	
 function cmd_lst()
 	local res = 'Known commands'
 
@@ -96,7 +100,13 @@ function cmd_lst()
 	SelLog.Log(res)
 end
 
+function cmd_quit()
+	os.exit()
+end
+
 cmd = {
+	['status'] = { cmd_status, 'Refresh the status from Marcel' },
+	['quit'] = { cmd_quit, 'exit from MarcelCtl' },
 	['?'] = { cmd_lst, 'List known commands' }
 }
 
