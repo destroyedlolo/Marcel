@@ -46,7 +46,11 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 			exit(EXIT_FAILURE);
 		}
 
-		assert(( cfg.ClientID = strdup( arg ) ));
+/* assert() not needed when using replaceVar()
+	assert(( cfg.ClientID = strdup( arg ) ));
+*/
+		cfg.ClientID = replaceVar(arg, vslookup);
+
 		setSubstitutionVar(vslookup, "%ClientID%", cfg.ClientID, true);
 		if(cfg.verbose)
 			publishLog('C', "\tMQTT Client ID : '%s'", cfg.ClientID);

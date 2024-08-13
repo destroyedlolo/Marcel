@@ -48,18 +48,19 @@
  * 27/12/2023	- LF - v8.02 - expose NamedNotification status
  * 30/12/2023	- LF - v8.03 - Notify when a status changes
  * 18/06/2024	- LF - v8.04 - Add "Simulate" flags
+ * 14/08/2024	- LF - v8.05 - Variable substituion working for ClientID
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0401"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0500"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
 							 */
 
-#define MARCEL_COPYRIGHT "Marcel v"MARCEL_VERSION" (c) L.Faillie 2015-2023"
+#define MARCEL_COPYRIGHT "Marcel v"MARCEL_VERSION" (c) L.Faillie 2015-2024"
 
 #ifdef DEBUG
 #	define DEFAULT_CONFIGURATION_FILE	"Config"
