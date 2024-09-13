@@ -78,13 +78,21 @@ void *mod_Lua;
 	 * Read configuration directory
 	 * ***/
 
-static void process_conffile(const char *fch){
+static void read_configuration( const char *, uint8_t );
+
+static void process_conffile(const char *fch, uint8_t level){
 	FILE *f;
 	char l[MAXLINE];
 	struct Section *sec = NULL;	/* Section's definition can't be spread among files */
 
-	if(cfg.verbose)
-		publishLog('C', "Reading configuration file : '%s'", fch);
+	if(cfg.verbose){
+		char tab[level*4+1];
+		*tab = 0;
+		for(uint8_t i=0; i<level; i++)
+			strcat(tab, "--\t");
+
+		publishLog('C', "%sReading configuration file : '%s'", tab, fch);
+	}
 
 	if(!(f=fopen(fch, "r"))){
 		publishLog('F', "%s : %s", fch, strerror( errno ));
@@ -107,6 +115,38 @@ static void process_conffile(const char *fch){
 		if((arg = striKWcmp(l,"Include="))){
 			if(cfg.verbose)
 				publishLog('C', "\tIncluding directory '%s'", arg);
+
+				/* keep the cwd */
+			char *cwd = realpath(".", NULL);
+			if(!cwd){
+				perror("current directory");
+				exit( EXIT_FAILURE );
+			}
+
+#if DEBUG
+			if(cfg.debug){
+				printf("*d* current directory : %s\n", cwd);
+				printf("*d* reading config from : %s\n", arg);
+			}
+#endif
+
+			if(chdir(arg)){	/* go to configuration directory */
+				perror(arg);
+				exit( EXIT_FAILURE );
+			}
+
+			read_configuration(arg, level+1);
+
+#if DEBUG
+			if(cfg.debug)
+				printf("*d* Leaving : %s\n", arg);
+#endif
+
+			if(chdir(cwd)){
+				perror(cwd);
+				exit( EXIT_FAILURE );
+			}
+			free(cwd);
 		} else {
 			/* Ask each module if it knows this configuration */
 			enum RC_readconf rc = REJECTED;
@@ -146,10 +186,12 @@ static int acceptfile(const struct dirent *entry){
 #else
 #	warning("scandir() doesn't identify file type, directory are not ignored")
 #endif
+	if(!strcasecmp(entry->d_name, "README.md"))
+		return 0;
 	return(*entry->d_name != '.');	/* ignore dot files */
 }
 
-static void read_configuration( const char *dir ){
+static void read_configuration( const char *dir, uint8_t level ){
 	int n;	/* read and sort files */
 	struct dirent **namelist;
 
@@ -159,7 +201,7 @@ static void read_configuration( const char *dir ){
 	}
 
 	for(int i=0; i<n; i++)
-		process_conffile(namelist[i]->d_name);
+		process_conffile(namelist[i]->d_name, level);
 
 		/* Cleanup */
 	while(n--)
@@ -317,7 +359,7 @@ int main(int ac, char **av){
 	}
 
 
-	read_configuration( conf_file );
+	read_configuration(conf_file, 0);
 
 	if(configtest){
 		publishLog('W', "Testing only the configuration ... leaving.");
