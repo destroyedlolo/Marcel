@@ -102,26 +102,33 @@ static void process_conffile(const char *fch){
 
 		line = replaceVar(removeLF(line), vslookup);
 
+			/* Local configuration */
+		const char *arg;
+		if((arg = striKWcmp(l,"Include="))){
+			if(cfg.verbose)
+				publishLog('C', "\tIncluding directory '%s'", arg);
+		} else {
 			/* Ask each module if it knows this configuration */
-		enum RC_readconf rc = REJECTED;
-		for(unsigned int i=0; i<number_of_loaded_modules; i++){
-			if(!modules[i]->readconf)
-				continue;
+			enum RC_readconf rc = REJECTED;
+			for(unsigned int i=0; i<number_of_loaded_modules; i++){
+				if(!modules[i]->readconf)
+					continue;
 
-			rc = modules[i]->readconf(i, line, &sec);
-			if(rc == ACCEPTED || rc == SKIP_FILE)
+				rc = modules[i]->readconf(i, line, &sec);
+				if(rc == ACCEPTED || rc == SKIP_FILE)
+					break;
+			}
+
+			if(rc == REJECTED){
+				publishLog('F', "'%s' is not recognized by any loaded module or outside section", line);
+				exit( EXIT_FAILURE );
+			}
+
+			free(line);
+
+			if(rc == SKIP_FILE)	/* remaining of the file is ignored */
 				break;
 		}
-
-		if(rc == REJECTED){
-			publishLog('F', "'%s' is not recognized by any loaded module or outside section", line);
-			exit( EXIT_FAILURE );
-		}
-
-		free(line);
-
-		if(rc == SKIP_FILE)	/* remaining of the file is ignored */
-			break;
 	}
 
 	fclose(f);
