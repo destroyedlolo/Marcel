@@ -49,12 +49,13 @@
  * 30/12/2023	- LF - v8.03 - Notify when a status changes
  * 18/06/2024	- LF - v8.04 - Add "Simulate" flags
  * 14/08/2024	- LF - v8.05 - Variable substituion working for ClientID
+ * 13/09/2024	- LF - v8.06 - Add Include
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0500"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0600"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
