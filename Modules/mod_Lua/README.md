@@ -8,10 +8,10 @@ Add Lua's plugins to Marcel, allowing user functions
 ### Accepted global directives
 * **UserFuncScript=** - script to be executed to define user functions.
 
-> [!WARNING]  
-> * only the last **UserFuncScript** is considered. If you want to load several scripts, provided **LoadAllScripts.lua** will load all scripts found in the same directory
+> [!WARNING]
+> * as of v8.6.1, all **UserFuncScript** are executed in sequence, after Marcel's own initialisation.
 > * callback functions are launched in the same Lua's state. Consequently, all objects are available to others but functions **have** to be as fast as possible (as they will block other one until completion)
-> * script is executed : it's a convenient way to do some initialisation
+> * scripts are fully executed : it's a convenient way to do some initialisation
 
 # Exposed objects to Lua's side
 
@@ -20,10 +20,14 @@ Here is the list of ones exposed by **mod_Lua** itself : other modules may expos
 
 ## Exposed variables
 
-  * **MARCEL_SCRIPT** - name of the script being executed (usually, always **LoadAllScripts.lua**, the only usage is internally to `LoadAllScripts`).
+  * **MARCEL_SCRIPT** - name of the script being executed.
   * **MARCEL_SCRIPT_DIR** - directory holding the script.
   * **MARCEL_VERBOSE** - Marcel is running in verbose mode.
   * **MARCEL_DEBUG** - Marcel is running in debug mode.
+
+> [!WARNING]
+> As sharing the same Lua state, **MARCEL_SCRIPT** and **MARCEL_SCRIPT_DIR** are
+> only accurate when scripts are loaded. Afterward, for example when functions are called, values are the ones of the last script.
 
 ## Exposed objects
 
