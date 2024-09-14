@@ -66,7 +66,6 @@
 #include <ctype.h>
 
 struct Config cfg;
-bool configtest = false;
 
 #ifdef LUA
 struct module_Lua *mod_Lua;
@@ -272,6 +271,7 @@ int main(int ac, char **av){
 	cfg.debug = false;
 	cfg.verbose = false;
 	cfg.simulate = false;
+	cfg.configtest = false;
 	cfg.sublast = false;
 
 	mod_Lua = NULL;
@@ -288,7 +288,7 @@ int main(int ac, char **av){
 		cfg.simulate = true;
 		break;
 	case 't':
-		configtest = true;
+		cfg.configtest = true;
 	case 'v':
 		puts(MARCEL_COPYRIGHT);
 		cfg.verbose = true;
@@ -361,7 +361,7 @@ int main(int ac, char **av){
 
 	read_configuration(conf_file, 0);
 
-	if(configtest){
+	if(cfg.configtest){
 		publishLog('W', "Testing only the configuration ... leaving.");
 
 		if(chdir(cwd)){
