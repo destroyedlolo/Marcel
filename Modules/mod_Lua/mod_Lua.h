@@ -17,6 +17,11 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
+	/* Store Lua scripts */
+struct lscript {
+	struct lscript *next;
+	const char *script;
+};
 
 struct module_Lua {
 	struct Module module;
@@ -24,7 +29,7 @@ struct module_Lua {
 	lua_State *L;
 	pthread_mutex_t onefunc;	/* As using a shared state, only one func can run at a time */
 
-	const char *script;			/* Script to load */
+	struct lscript *scripts, *last;			/* Script to load */
 
 	struct Section *psection;	/* section iterator */
 
