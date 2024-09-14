@@ -17,6 +17,8 @@ Example :
 Example : loading Lua module.<br>
 `LoadModule=mod_Lua.so`
 
+* **Include=** Load configuration files from provided directory.<br>
+
 * **SubLast** indicates that all sections doing MQTT subscription
 are grouped at the end of the configuration.<br>
 It's an optimization option : Marcel will scan subscriptions from
