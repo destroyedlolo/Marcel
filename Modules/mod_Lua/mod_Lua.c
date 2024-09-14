@@ -148,8 +148,15 @@ static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section *
 		struct lscript *n = malloc(sizeof(struct lscript));
 		assert(n);
 
-		n->script = strdup(arg);
+		char rp[PATH_MAX];
+		if( !realpath(arg, rp) ){
+			publishLog('F', "realpath(%s) : %s", arg, strerror( errno ));
+			exit(EXIT_FAILURE);
+		}
+		
+		n->script = strdup(rp);
 		assert(n->script);
+		n->next = NULL;
 
 			/* Links */
 		if(mod_Lua->last)
@@ -201,17 +208,22 @@ static void ml_postconfInit( uint8_t mid ){
 		}
 #endif
 		for(struct lscript *script = mod_Lua->scripts; script; script = script->next){
-			char rp[ PATH_MAX ];
-			if( realpath( script->script, rp ) ){
-				lua_pushstring(mod_Lua->L, basename(rp) );
-				lua_setglobal(mod_Lua->L, "MARCEL_SCRIPT");
+				/* dirname() may modify its argument.
+				 * So let's do our own copie.
+				 */
+			char rp[PATH_MAX];
+			strcpy(rp, script->script);
 
-				lua_pushstring(mod_Lua->L, dirname(rp) );
-				lua_setglobal(mod_Lua->L, "MARCEL_SCRIPT_DIR");
-			} else {
-				publishLog('F', "realpath(%s) : %s", script->script, strerror( errno ));
-				exit(EXIT_FAILURE);
-			}
+			lua_pushstring(mod_Lua->L, basename(rp) );
+			lua_setglobal(mod_Lua->L, "MARCEL_SCRIPT");
+
+			lua_pushstring(mod_Lua->L, dirname(rp) );
+			lua_setglobal(mod_Lua->L, "MARCEL_SCRIPT_DIR");
+
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "Executing '%s'", script->script);
+#endif
 
 			int err = luaL_loadfile(mod_Lua->L, script->script) || lua_pcall(mod_Lua->L, 0, 0, 0);
 			if(err){
