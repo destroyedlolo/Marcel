@@ -116,6 +116,10 @@ static void pushString(const char *val){
 	lua_pushstring( mod_Lua->L, val );
 }
 
+static void pushNil(){
+	lua_pushnil( mod_Lua->L );
+}
+
 static void pushFunctionId(int id){
 	lua_rawgeti( mod_Lua->L, LUA_REGISTRYINDEX, id );
 }
@@ -178,6 +182,16 @@ static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section *
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tFunction : %s", (*section)->funcname);
+
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l, "Arg="))){
+			acceptSectionDirective( *section, "Arg=" );
+
+			(*section)->arg = strdup(arg);
+			assert( (*section)->arg );
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tArgument : %s", (*section)->arg);
 
 			return ACCEPTED;
 		}
@@ -248,6 +262,7 @@ void InitModule( void ){
 	mod_Lua_storage.unlockState = unlockState;
 	mod_Lua_storage.pushNumber = pushNumber;
 	mod_Lua_storage.pushString = pushString;
+	mod_Lua_storage.pushNil = pushNil;
 	mod_Lua_storage.pushFunctionId = pushFunctionId;
 	mod_Lua_storage.exec = ml_exec;
 	mod_Lua_storage.pop = ml_pop;
