@@ -39,6 +39,7 @@ extern struct Config {
 	bool verbose;
 	bool debug;
 	bool simulate;
+	bool configtest;
 
 	bool sublast;	/* Subscribing sections are at the end */
 

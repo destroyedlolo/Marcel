@@ -175,6 +175,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->common.section.publishCustomFigures = publishCustomFigures1WAlrm;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
+		nsection->common.failfuncid = LUA_REFNIL;
 		nsection->initfunc = NULL;
 		nsection->latch = NULL;
 

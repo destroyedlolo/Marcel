@@ -145,11 +145,28 @@ static enum RC_readconf ml_readconf(uint8_t mid, const char *l, struct Section *
 			exit(EXIT_FAILURE);
 		}
 
-		mod_Lua->script = strdup(arg);
-		assert(mod_Lua->script);
+		struct lscript *n = malloc(sizeof(struct lscript));
+		assert(n);
+
+		char rp[PATH_MAX];
+		if( !realpath(arg, rp) ){
+			publishLog('F', "realpath(%s) : %s", arg, strerror( errno ));
+			exit(EXIT_FAILURE);
+		}
+		
+		n->script = strdup(rp);
+		assert(n->script);
+		n->next = NULL;
+
+			/* Links */
+		if(mod_Lua->last)
+			mod_Lua->last->next = n;
+		else
+			mod_Lua->scripts = n;
+		mod_Lua->last = n;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tUser functions definition script : %s", mod_Lua->script);
+			publishLog('C', "\tUser functions definition script : %s", n->script);
 
 		return ACCEPTED;
 	} else if(*section){
@@ -178,37 +195,42 @@ static void clean_lua(void){
 }
 
 static void ml_postconfInit( uint8_t mid ){
-	if(mod_Lua->script){
-		char rp[ PATH_MAX ];
-		if( realpath( mod_Lua->script, rp ) ){
+	if(mod_Lua->scripts){
+		if(cfg.verbose){
+			lua_pushinteger(mod_Lua->L, 1 );
+			lua_setglobal(mod_Lua->L, "MARCEL_VERBOSE");
+		}
+
+#ifdef DEBUG
+		if(cfg.debug){
+			lua_pushinteger(mod_Lua->L, 1 );
+			lua_setglobal(mod_Lua->L, "MARCEL_DEBUG");
+		}
+#endif
+		for(struct lscript *script = mod_Lua->scripts; script; script = script->next){
+				/* dirname() may modify its argument.
+				 * So let's do our own copie.
+				 */
+			char rp[PATH_MAX];
+			strcpy(rp, script->script);
+
 			lua_pushstring(mod_Lua->L, basename(rp) );
 			lua_setglobal(mod_Lua->L, "MARCEL_SCRIPT");
 
 			lua_pushstring(mod_Lua->L, dirname(rp) );
 			lua_setglobal(mod_Lua->L, "MARCEL_SCRIPT_DIR");
 
-			if(cfg.verbose){
-				lua_pushinteger(mod_Lua->L, 1 );
-				lua_setglobal(mod_Lua->L, "MARCEL_VERBOSE");
-			}
-
 #ifdef DEBUG
-			if(cfg.debug){
-				lua_pushinteger(mod_Lua->L, 1 );
-				lua_setglobal(mod_Lua->L, "MARCEL_DEBUG");
-			}
+			if(cfg.debug)
+				publishLog('d', "Executing '%s'", script->script);
 #endif
-		} else {
-			publishLog('F', "realpath(%s) : %s", mod_Lua->script, strerror( errno ));
-			exit(EXIT_FAILURE);
-		}
 
-		int err = luaL_loadfile(mod_Lua->L, mod_Lua->script) || lua_pcall(mod_Lua->L, 0, 0, 0);
-		if(err){
-			publishLog('F', "'%s' : %s", mod_Lua->script, lua_tostring(mod_Lua->L, -1));
-			exit(EXIT_FAILURE);
+			int err = luaL_loadfile(mod_Lua->L, script->script) || lua_pcall(mod_Lua->L, 0, 0, 0);
+			if(err){
+				publishLog('F', "'%s' : %s", script->script, lua_tostring(mod_Lua->L, -1));
+				exit(EXIT_FAILURE);
+			}
 		}
-
 	}
 }
 
@@ -218,7 +240,8 @@ void InitModule( void ){
 	mod_Lua_storage.module.readconf = ml_readconf;
 	mod_Lua_storage.module.postconfInit = ml_postconfInit;
 
-	mod_Lua_storage.script = NULL;
+	mod_Lua_storage.scripts = NULL;
+	mod_Lua_storage.last = NULL;
 	mod_Lua_storage.exposeFunctions = exposeFunctions;
 	mod_Lua_storage.findUserFunc = findUserFunc;
 	mod_Lua_storage.lockState = lockState;
