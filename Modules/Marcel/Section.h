@@ -48,6 +48,7 @@ struct Section {
 		 */
 	const char *funcname;	/* User function to call on data arrival */
 	int funcid;				/* Function id in Lua registry */
+	const char *arg;		/* Arguments to be passed to the function */
 
 		/* Callback */
 	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */

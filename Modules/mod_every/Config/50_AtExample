@@ -7,6 +7,7 @@ Needs=mod_every
 *At=Test
 	At=0203
 	Func=AtExample
+	Arg=AtArg
 	RunIfOver
 #	Immediate
 	Disabled

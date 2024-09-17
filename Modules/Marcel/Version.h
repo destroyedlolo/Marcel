@@ -50,12 +50,13 @@
  * 18/06/2024	- LF - v8.04 - Add "Simulate" flags
  * 14/08/2024	- LF - v8.05 - Variable substituion working for ClientID
  * 13/09/2024	- LF - v8.06 - Add Include, several userscripts can be used
+ * 17/09/2024	- LF - v8.07 - Add argument to functions
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0601"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0700"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
