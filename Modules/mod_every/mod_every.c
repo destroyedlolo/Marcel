@@ -125,8 +125,12 @@ static void *processEvery(void *actx){
 				mod_Lua->pushString( s->section.topic );
 			else
 				mod_Lua->pushString( s->section.uid );
+			if(s->section.arg)
+				mod_Lua->pushString( s->section.arg );
+			else
+				mod_Lua->pushNil();
 
-			if(mod_Lua->exec(1, 0)){
+			if(mod_Lua->exec(2, 0)){
 				publishLog('E', "[%s] Every : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 				mod_Lua->pop(1);	/* pop error message from the stack */
 				mod_Lua->pop(1);	/* pop NIL from the stack */
@@ -317,6 +321,8 @@ static bool me_acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "DoNotSimulate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Arg=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
