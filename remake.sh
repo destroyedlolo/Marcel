@@ -50,7 +50,7 @@ BUILD_METEOOWM=1
 # BUILD_FREEBOXOS=1
 
 # RFXcom handling
-BUIlD_RFXTRX=1
+BUILD_RFXTRX=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
@@ -212,7 +212,7 @@ fi
 if [ ${BUILD_FREEBOXOS+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_freeboxOS' >> Makefile
 fi
-if [ ${BUIlD_RFXTRX+x} ]; then
+if [ ${BUILD_RFXTRX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_RFXtrx' >> Makefile
 fi
 if [ ${BUILD_DUMMY+x} ]; then
@@ -301,7 +301,7 @@ if [ ${BUILD_FREEBOXOS+x} ]; then
 	cd ../..
 fi
 
-if [ ${BUIlD_RFXTRX+x} ]; then
+if [ ${BUILD_RFXTRX+x} ]; then
 	cd Modules/mod_RFXtrx
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_RFXtrx.so > Makefile
 	cd ../..
