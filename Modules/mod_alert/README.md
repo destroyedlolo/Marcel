@@ -24,7 +24,7 @@ Example :
 ### Other
 
 * **Disabled** : This section starts disabled (see *mod_OnOff*)
-*  **DoNotSimulate** disables this section when running in simulation mode.
+* **DoNotSimulate** disables this section when running in simulation mode.
 
 ## Alerts
 
@@ -53,11 +53,11 @@ Following topics are used as well when alerting :
 ### Alert sections
 
 > [!NOTE]  
-> there is no segregation between alerts created by $alert or \*RaiseAlert= , they are handled the same way internally (in other words, an $alert can be cleared by \*CorrectAlert= .
+> there is no segregation between alerts created by **$alert** or ***RaiseAlert=** , they are handled the same way internally (in other words, an **$alert** can be cleared by ***CorrectAlert=**) .
 
 #### $alert
 
-**$alert** is supported mostly for compatibility purposes with some of my ancient tools. It is suggested to use **\*RaiseAlert=** instead, which is more versatile and powerful. In the other hand, it can be used as the *default alerting channel*.
+**$alert** is supported mostly for compatibility purposes with some of my ancient tools. It is suggested to use ***RaiseAlert=** instead, which is more versatile and powerful. In the other hand, it can be used as the *default alerting channel*.
 
 **$alert** messages are received from `Alert/#` topic, where the topic name's trailing part determines the *title*, the payload being the message. 
 
