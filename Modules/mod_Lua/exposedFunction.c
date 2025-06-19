@@ -48,10 +48,7 @@ static int lmLog(lua_State *L){
 }
 
 static int lmHostname(lua_State *L){
-	char n[HOST_NAME_MAX];
-	gethostname(n, HOST_NAME_MAX);
-
-	lua_pushstring(L, n);
+	lua_pushstring(L, cfg.hostname);
 	return 1;
 }
 

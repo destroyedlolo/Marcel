@@ -47,6 +47,8 @@ extern struct Config {
 	const char *Broker;		/* Broker's URL */
 	const char *ClientID;	/* Marcel client id : must be unique among a broker clients */
 	MQTTClient client;
+
+	const char *hostname;	/* Force hostname */
 } cfg;
 
 extern struct _VarSubstitution {
