@@ -273,10 +273,11 @@ int main(int ac, char **av){
 	cfg.simulate = false;
 	cfg.configtest = false;
 	cfg.sublast = false;
+	cfg.hostname=NULL;
 
 	mod_Lua = NULL;
 
-	while((c = getopt(ac, av, "hvtdf:S")) != EOF) switch(c){
+	while((c = getopt(ac, av, "hvtdf:SN:")) != EOF) switch(c){
 #ifdef DEBUG
 	case 'd':
 		cfg.debug = true;
@@ -296,6 +297,9 @@ int main(int ac, char **av){
 	case 'f':
 		conf_file = optarg;
 		break;
+	case 'N':
+		cfg.hostname = optarg;
+		break;
 	case 'h':
 	default:
 		if( c != '?' && c != 'h'){
@@ -314,12 +318,23 @@ int main(int ac, char **av){
 			"\t-d : enable debug messages\n"
 #endif
 			"\t-S : runs in Simulation mode\n"
-			"\t-f<file> : read <file> for configuration\n"
+			"\t-N<name> : Force the hostname\n"
+			"\t-f<directory> : read <directory> for configuration\n"
 			"\t\t(default is '%s')\n"
 			"\t-t : test configuration file and exit\n",
 			conf_file
 		);
 		exit( c=='?' ? EXIT_FAILURE : EXIT_SUCCESS );
+	}
+
+	char hn[256];	/* Arbitrary size (larger is indecent).
+					 * As we're in the main() function, this variable will survive
+					 * during all this program life.
+					 */
+	if(!cfg.hostname){
+		gethostname(hn, HOST_NAME_MAX);
+		hn[HOST_NAME_MAX-1] = 0;		/* as gethostname() is not guaranteed to provide \0 string */
+		cfg.hostname = hn;
 	}
 
 	srand(time(NULL));	/* Initialize random generator */

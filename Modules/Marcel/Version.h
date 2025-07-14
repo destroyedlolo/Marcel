@@ -51,12 +51,13 @@
  * 14/08/2024	- LF - v8.05 - Variable substituion working for ClientID
  * 13/09/2024	- LF - v8.06 - Add Include, several userscripts can be used
  * 17/09/2024	- LF - v8.07 - Add argument to functions
+ * 19/06/2025	- LF - v8.08 - Add ForceHostname
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0700"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.0800"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

@@ -45,7 +45,7 @@ Marcel knows the following options :
 * *-h* : online help
 * *-v* : verbose output
 * *-S* : runs in "Simulation" mode
-* *-f<file>* : loads <file> as a configuration file. The default one is `/usr/local/etc/Marcel.conf`
+* *-f<directory>* : loads <directory> as a configuration files. The default one is `/usr/local/etc/Marcel`
 * *-t* : test configuration file and exit
 
 ## Simulation mode

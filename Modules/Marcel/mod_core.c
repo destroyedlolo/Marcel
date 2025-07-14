@@ -211,16 +211,10 @@ void init_module_core(){
 	registerModule( (struct Module *)&mod_Core );
 
 		/* initialize substitution variables */
-	
-	char t[256];	/* Arbitrary size (larger is indecent) */
-	gethostname(t, 256);
-	t[255] = 0;		/* as gethostname() is not guaranteed to provide \0 string */
+	setSubstitutionVar(vslookup, "%Hostname%", cfg.hostname, false);
 
-	char *hn = strdup(t);
-	assert(hn);
-	setSubstitutionVar(vslookup, "%Hostname%", hn, false);
-
-	snprintf(t, 255, "Marcel.%x.%s", getpid(),hn);
+	char t[256];
+	snprintf(t, 255, "Marcel.%x.%s", getpid(), cfg.hostname);
 
 		/* Default values */
 	
