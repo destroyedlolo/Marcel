@@ -31,6 +31,9 @@ BUILD_DPD=1
 # SHT31 local probe
 BUILD_SHT31=1
 
+# AXP20X local probe
+BUILD_AXP20X=1
+
 # 1 wire probes handling
 BUILD_1WIRE=1
 
@@ -194,6 +197,9 @@ fi
 if [ ${BUILD_SHT31+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_sht31' >> Makefile
 fi
+if [ ${BUILD_AXP20X+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_axp20x' >> Makefile
+fi
 if [ ${BUILD_1WIRE+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_1wire' >> Makefile
 fi
@@ -263,6 +269,12 @@ fi
 if [ ${BUILD_SHT31+x} ]; then
 	cd Modules/mod_sht31
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_sht31.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_AXP20X+x} ]; then
+	cd Modules/mod_axp20x
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_axp20x.so > Makefile
 	cd ../..
 fi
 
