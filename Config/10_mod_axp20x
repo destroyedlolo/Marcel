@@ -1,0 +1,4 @@
+# Load the module
+
+LoadModule=mod_axp20x.so
+

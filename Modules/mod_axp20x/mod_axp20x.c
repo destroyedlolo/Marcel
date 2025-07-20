@@ -85,6 +85,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 					(*(struct section_axp20x **)section)->bat = true;
 					if(cfg.verbose)	/* Be verbose if requested */
 						publishLog('C', "\t\t\tBAT");
+				} else {
+					publishLog('F', "Unknown figure '%s'", tok);
+					exit(EXIT_FAILURE);
 				}
 				tok = strtok(NULL, ",");
 			}
