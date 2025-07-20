@@ -31,6 +31,11 @@ struct section_axp20x {
 		/* Variables dedicated to this structure */
 	const char *device;	/* I2C device */
 	uint8_t i2c_addr;	/* I2C address (default : 0x34) */
+
+		/* Figures to publish */
+	bool ac;
+	bool vbus;
+	bool bat;
 };
 
 #endif

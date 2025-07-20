@@ -44,6 +44,9 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 #endif
 		nsection->device = NULL;
 		nsection->i2c_addr = 0x34;
+		nsection->ac = false;
+		nsection->vbus = false;
+		nsection->bat = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section axp20x '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -65,10 +68,58 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tI2c address: 0x%02x", (*(struct section_axp20x **)section)->i2c_addr);
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"Figures="))){
+			char *tok = strtok((char *)arg, ","); /* the cast is safe as 'l' is not a constant */
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tFigures :");
+			while(tok){
+				if(!strcmp(tok,"ac")){
+					(*(struct section_axp20x **)section)->ac = true;
+					if(cfg.verbose)	/* Be verbose if requested */
+						publishLog('C', "\t\t\tAC");
+				} else if(!strcmp(tok,"vbus")){
+					(*(struct section_axp20x **)section)->vbus = true;
+					if(cfg.verbose)	/* Be verbose if requested */
+						publishLog('C', "\t\t\tVBUS");
+				} else if(!strcmp(tok,"bat")){
+					(*(struct section_axp20x **)section)->bat = true;
+					if(cfg.verbose)	/* Be verbose if requested */
+						publishLog('C', "\t\t\tBAT");
+				}
+				tok = strtok(NULL, ",");
+			}
+			return ACCEPTED;
 		}
 	}
 
 	return REJECTED;
+}
+
+static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
+	if(sec_id == ST_AXP20X){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Immediate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Keep") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Sample=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Device=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Address=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Figures=") )
+			return true;	/* Accepted */
+	}
+
+	return false;
 }
 
 void InitModule( void ){
@@ -78,12 +129,12 @@ void InitModule( void ){
 		 * It's MANDATORY that all callbacks are initialised
 		 */
 	mod_axp20x.module.readconf = readconf;
-#if 0	/* ToDo */
 	mod_axp20x.module.acceptSDirective = mh_acceptSDirective;
+#if 0	/* ToDo */
 	mod_axp20x.module.getSlaveFunction = mh_getSlaveFunction;
+#endif
 
 	registerModule( (struct Module *)&mod_axp20x );	/* Register the module */
-#endif
 
 #ifdef LUAx
 	if(mod_Lua){ /* Is mod_Lua loaded ? */
