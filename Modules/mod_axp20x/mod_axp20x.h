@@ -36,6 +36,7 @@ struct section_axp20x {
 	bool ac;
 	bool vbus;
 	bool bat;
+	bool ips;
 };
 
 #endif

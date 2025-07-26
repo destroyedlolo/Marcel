@@ -13,8 +13,8 @@ Needs=mod_axp20x
 	Address=0x34
 
 	# Comma separated of figures to publish
-	# Can be : ac,vbus,bat
-	Figures=ac
+	# Can be : ac,vbus,bat,ips
+	Figures=ac,ips
 
 	#Sample : delay between sample in seconds
 	Sample=10

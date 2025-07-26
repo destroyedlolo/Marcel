@@ -50,6 +50,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->ac = false;
 		nsection->vbus = false;
 		nsection->bat = false;
+		nsection->ips = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section axp20x '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -88,6 +89,10 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 					(*(struct section_axp20x **)section)->bat = true;
 					if(cfg.verbose)	/* Be verbose if requested */
 						publishLog('C', "\t\t\tBAT");
+				} else if(!strcmp(tok,"ips")){
+					(*(struct section_axp20x **)section)->ips = true;
+					if(cfg.verbose)	/* Be verbose if requested */
+						publishLog('C', "\t\t\tIPS");
 				} else {
 					publishLog('F', "Unknown figure '%s'", tok);
 					exit(EXIT_FAILURE);
@@ -212,24 +217,89 @@ static void *processAXP20x(void *actx){
 			int fd = open(s->device, O_RDWR);	/* Opening I2C */
 			if(fd<0)
 				publishLog('F', "open(%s) : %s", s->device, strerror(errno));
-			else if(s->ac){
-				float volt, amp;
+			else {
+				if(s->ac){
+					float volt, amp;
 
-				strcat(t, "/ac/voltage");
-
-				volt = read_12bit(s, fd, 0x56) * 0.0017f;
-				if(cfg.verbose)
-					publishLog('I', "AXP209's ACIn Voltage : %.02f V", volt);
+					volt = read_12bit(s, fd, 0x56) * 0.0017f;
+					if(cfg.verbose)
+						publishLog('I', "AXP209's ACIn Voltage : %.02f V", volt);
 
 
-				amp = read_12bit(s, fd, 0x58) * 0.375f;
-				if(cfg.verbose)
-					publishLog('I', "AXP209's ACIn Current : %.02f mA", amp);
+					amp = read_12bit(s, fd, 0x58) * 0.375f;
+					if(cfg.verbose)
+						publishLog('I', "AXP209's ACIn Current : %.02f mA", amp);
 
-/*
-				char val[8];
-				sprintf(val, "%.02f", (volt = read_12bit(s, fd, 0x56) * 0.0017f));
-*/
+					bool ret = true;
+#ifdef LUA
+					if(mod_Lua){
+						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+							mod_Lua->lockState();
+							mod_Lua->pushFunctionId( s->section.funcid );
+							mod_Lua->pushString( s->section.uid );
+							mod_Lua->pushString( "AC" );
+							mod_Lua->pushNumber( volt );
+							mod_Lua->pushNumber( amp );
+							if(mod_Lua->exec(4, 1)){
+								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								mod_Lua->pop(1);	/* pop error message from the stack */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
+							} else
+								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							mod_Lua->unlockState();
+						}
+					}
+#endif
+
+					if(ret){
+						char val[8];
+
+						t[sep] = 0;
+						strcat(t, "/ac/voltage");
+						sprintf(val, "%.02f", volt);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
+
+						t[sep] = 0;
+						strcat(t, "/ac/current");
+						sprintf(val, "%.02f", amp);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
+					}
+				}
+
+				if(s->ips){
+					float volt = read_12bit(s, fd, 0x7E) * 0.0014f;
+					if(cfg.verbose)
+						publishLog('I', "AXP209's IPS Voltage : %.02f V", volt);
+				
+					bool ret = true;
+#ifdef LUA
+					if(mod_Lua){
+						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+							mod_Lua->lockState();
+							mod_Lua->pushFunctionId( s->section.funcid );
+							mod_Lua->pushString( s->section.uid );
+							mod_Lua->pushString( "IPS" );
+							mod_Lua->pushNumber( volt );
+							if(mod_Lua->exec(3, 1)){
+								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								mod_Lua->pop(1);	/* pop error message from the stack */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
+							} else
+								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							mod_Lua->unlockState();
+						}
+					}
+#endif
+
+					if(ret){
+						char val[8];
+
+						t[sep] = 0;
+						strcat(t, "/ips/voltage");
+						sprintf(val, "%.02f", volt);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
+					}
+				}
 			}
 
 			close(fd);
