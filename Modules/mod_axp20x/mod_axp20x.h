@@ -37,6 +37,7 @@ struct section_axp20x {
 	bool vbus;
 	bool bat;
 	bool ips;
+	bool temperature;
 };
 
 #endif

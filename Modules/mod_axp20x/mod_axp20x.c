@@ -51,6 +51,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->vbus = false;
 		nsection->bat = false;
 		nsection->ips = false;
+		nsection->temperature = false;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering section axp20x '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -88,11 +89,15 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				} else if(!strcmp(tok,"bat")){
 					(*(struct section_axp20x **)section)->bat = true;
 					if(cfg.verbose)	/* Be verbose if requested */
-						publishLog('C', "\t\t\tBAT");
+						publishLog('C', "\t\t\tBAT (not yet supported)");
 				} else if(!strcmp(tok,"ips")){
 					(*(struct section_axp20x **)section)->ips = true;
 					if(cfg.verbose)	/* Be verbose if requested */
 						publishLog('C', "\t\t\tIPS");
+				} else if(!strcmp(tok,"temp")){
+					(*(struct section_axp20x **)section)->temperature = true;
+					if(cfg.verbose)	/* Be verbose if requested */
+						publishLog('C', "\t\t\tTemperature");
 				} else {
 					publishLog('F', "Unknown figure '%s'", tok);
 					exit(EXIT_FAILURE);
@@ -266,6 +271,54 @@ static void *processAXP20x(void *actx){
 					}
 				}
 
+				if(s->vbus){
+					float volt, amp;
+
+					volt = read_12bit(s, fd, 0x5A) * 0.0017f;
+					if(cfg.verbose)
+						publishLog('I', "AXP209's VBus Voltage : %.02f V", volt);
+
+
+					amp = read_12bit(s, fd, 0x5C) * 0.375f;
+					if(cfg.verbose)
+						publishLog('I', "AXP209's VBus Current : %.02f mA", amp);
+
+					bool ret = true;
+#ifdef LUA
+					if(mod_Lua){
+						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+							mod_Lua->lockState();
+							mod_Lua->pushFunctionId( s->section.funcid );
+							mod_Lua->pushString( s->section.uid );
+							mod_Lua->pushString( "VBus" );
+							mod_Lua->pushNumber( volt );
+							mod_Lua->pushNumber( amp );
+							if(mod_Lua->exec(4, 1)){
+								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								mod_Lua->pop(1);	/* pop error message from the stack */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
+							} else
+								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							mod_Lua->unlockState();
+						}
+					}
+#endif
+
+					if(ret){
+						char val[8];
+
+						t[sep] = 0;
+						strcat(t, "/vbus/voltage");
+						sprintf(val, "%.02f", volt);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
+
+						t[sep] = 0;
+						strcat(t, "/vbus/current");
+						sprintf(val, "%.02f", amp);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
+					}
+				}
+
 				if(s->ips){
 					float volt = read_12bit(s, fd, 0x7E) * 0.0014f;
 					if(cfg.verbose)
@@ -300,6 +353,42 @@ static void *processAXP20x(void *actx){
 						mqttpublish(cfg.client, t, strlen(val), val, 0);
 					}
 				}
+
+				if(s->temperature){
+					float temp = read_12bit(s, fd, 0x5E) * 0.1f - 144.7;
+					if(cfg.verbose)
+						publishLog('I', "AXP209's Temperature : %.02f °C", temp);
+				
+					bool ret = true;
+#ifdef LUA
+					if(mod_Lua){
+						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+							mod_Lua->lockState();
+							mod_Lua->pushFunctionId( s->section.funcid );
+							mod_Lua->pushString( s->section.uid );
+							mod_Lua->pushString( "Temperature" );
+							mod_Lua->pushNumber( temp );
+							if(mod_Lua->exec(3, 1)){
+								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
+								mod_Lua->pop(1);	/* pop error message from the stack */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
+							} else
+								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							mod_Lua->unlockState();
+						}
+					}
+#endif
+
+					if(ret){
+						char val[8];
+
+						t[sep] = 0;
+						strcat(t, "/temperature");
+						sprintf(val, "%.02f", temp);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
+					}
+				}
+
 			}
 
 			close(fd);
