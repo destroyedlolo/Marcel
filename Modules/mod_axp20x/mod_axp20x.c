@@ -18,8 +18,11 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <linux/i2c.h>
 
 static struct module_axp20x mod_axp20x;
 
@@ -125,6 +128,131 @@ static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+static uint16_t read_12bit(struct section_axp20x *s, int fd, uint8_t reg) {
+    struct i2c_rdwr_ioctl_data packets;
+    struct i2c_msg messages[2];
+
+    uint8_t outbuf = reg;
+    uint8_t inbuf[2];
+
+    messages[0].addr  = s->i2c_addr;
+    messages[0].flags = 0;             // Writing the address
+    messages[0].len   = 1;
+    messages[0].buf   = &outbuf;
+
+    messages[1].addr  = s->i2c_addr;
+    messages[1].flags = I2C_M_RD;      // Reading the value
+    messages[1].len   = 2;
+    messages[1].buf   = inbuf;
+
+    packets.msgs = messages;
+    packets.nmsgs = 2;
+
+    if(ioctl(fd, I2C_RDWR, &packets) < 0){
+		publishLog('F', "I2C_RDWR (read_12bit) : %s", strerror(errno));
+        return 0xFFFF;
+    }
+
+    return ((inbuf[1] & 0x0f) | (inbuf[0] << 4));  // 12 bits : bits [11:0]
+}
+
+static void *processAXP20x(void *actx){
+	struct section_axp20x *s = (struct section_axp20x *)actx;
+
+		/* Sanity checks */
+	if(!s->section.topic){
+		publishLog('F', "[%s] Topic must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(0);
+	}
+
+	if(!s->section.sample){
+		publishLog('E', "[%s] Sample time can't be 0. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(0);
+	}
+
+	if(!s->device){
+		publishLog('E', "[%s] I2c device must be set. Dying ...", s->section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(0);
+	}
+
+		/* Handle Lua functions */
+#ifdef LUA
+	if(mod_Lua){
+		if(s->section.funcname){	/* if an user function defined ? */
+			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+				publishLog('E', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+				SectionError((struct Section *)s, true);
+				pthread_exit(NULL);
+			}
+		}
+	}
+#endif
+
+			/* For each "figures", following topics are published
+			 * .../<name>/current
+			 * .../<name>/voltage
+			 */
+					/* /vbus/voltage + 0 : 14 */
+	char t[ strlen(s->section.topic) + 14 ];
+	strcpy(t, s->section.topic);
+	size_t sep = strlen(t);
+
+	for(bool first=true;; first=false){	/* Infinite publishing loop */
+		bool inerror = true;	/* By default, we're in trouble */
+		if(isDisabled((struct Section *)s)){
+			inerror = false;
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+		} else if( !first || s->section.immediate ){	/* processing */
+			int fd = open(s->device, O_RDWR);	/* Opening I2C */
+			if(fd<0)
+				publishLog('F', "open(%s) : %s", s->device, strerror(errno));
+			else if(s->ac){
+				float volt, amp;
+
+				strcat(t, "/ac/voltage");
+
+				volt = read_12bit(s, fd, 0x56) * 0.0017f;
+				if(cfg.verbose)
+					publishLog('I', "AXP209's ACIn Voltage : %.02f V", volt);
+
+
+				amp = read_12bit(s, fd, 0x58) * 0.375f;
+				if(cfg.verbose)
+					publishLog('I', "AXP209's ACIn Current : %.02f mA", amp);
+
+/*
+				char val[8];
+				sprintf(val, "%.02f", (volt = read_12bit(s, fd, 0x56) * 0.0017f));
+*/
+			}
+
+			close(fd);
+		}
+
+		SectionError((struct Section *)s, inerror);
+		struct timespec ts;
+		ts.tv_sec = (time_t)s->section.sample;
+		ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
+
+		nanosleep( &ts, NULL );
+	}
+
+	pthread_exit(0);
+}
+
+ThreadedFunctionPtr mh_getSlaveFunction(uint8_t sid){
+	if(sid == ST_AXP20X)
+		return processAXP20x;
+
+	return NULL;
+}
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_axp20x, "mod_axp20x");	/* Identify the module */
 
@@ -133,13 +261,11 @@ void InitModule( void ){
 		 */
 	mod_axp20x.module.readconf = readconf;
 	mod_axp20x.module.acceptSDirective = mh_acceptSDirective;
-#if 0	/* ToDo */
 	mod_axp20x.module.getSlaveFunction = mh_getSlaveFunction;
-#endif
 
 	registerModule( (struct Module *)&mod_axp20x );	/* Register the module */
 
-#ifdef LUAx
+#ifdef LUAx	/* ToDo */
 	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
 			/* Expose shared methods */

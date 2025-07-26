@@ -118,7 +118,7 @@ static void *processSHT31(void *actx){
 	publishLog('I', "[%s] Humidity : '%s'", s->section.uid, humtopic);
 
 	for(bool first=true;; first=false){	/* Infinite publishing loop */
-		bool inerror = true;	/* Bye default, we're in trouble */
+		bool inerror = true;	/* By default, we're in trouble */
 
 		if(isDisabled((struct Section *)s)){
 			inerror = false;

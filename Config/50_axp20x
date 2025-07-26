@@ -5,11 +5,11 @@ Needs=mod_axp20x
 *AXP20x=PMU
 
 	# Topic : Topic to publish to
-	Topic=Marchines/%Hostname%
+	Topic=Machines/%Hostname%
 
 	# Device : I2C device
 	# Address : Probe I2C address (if not set : 0x44)
-	Device=/dev/i2c-2
+	Device=/dev/i2c-0
 	Address=0x34
 
 	# Comma separated of figures to publish
@@ -17,7 +17,7 @@ Needs=mod_axp20x
 	Figures=ac
 
 	#Sample : delay between sample in seconds
-	Sample=30
+	Sample=10
 
 	# Launch it immediately
 	Immediate
