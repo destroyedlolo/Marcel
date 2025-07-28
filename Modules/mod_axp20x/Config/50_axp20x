@@ -5,7 +5,7 @@ Needs=mod_axp20x
 *AXP20x=PMU
 
 	# Topic : Topic to publish to
-	Topic=Machines/%Hostname%
+	Topic=Machines/%Hostname%/PMU
 
 	# Device : I2C device
 	# Address : Probe I2C address (if not set : 0x44)
@@ -15,7 +15,7 @@ Needs=mod_axp20x
 	# Comma separated of figures to publish
 	# Can be : ac,vbus,ips,temp
 	# bat is not yet supported
-	Figures=ac,ips,temp
+	Figures=ac,vbus,ips,temp
 
 	#Sample : delay between sample in seconds
 	Sample=10
@@ -27,7 +27,7 @@ Needs=mod_axp20x
 	Keep
 
 	# Lua user function validation
-#	func=DisplayTH
+	func=ValideSource
 
 #	Disable
 #	DoNotSimulate

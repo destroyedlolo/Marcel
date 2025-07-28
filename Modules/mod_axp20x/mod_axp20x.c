@@ -249,8 +249,9 @@ static void *processAXP20x(void *actx){
 								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
 								mod_Lua->pop(1);	/* pop NIL from the stack */
-							} else
+							} else {
 								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+							}
 							mod_Lua->unlockState();
 						}
 					}
@@ -268,7 +269,8 @@ static void *processAXP20x(void *actx){
 						strcat(t, "/ac/current");
 						sprintf(val, "%.02f", amp);
 						mqttpublish(cfg.client, t, strlen(val), val, 0);
-					}
+					} else if(cfg.verbose)
+						publishLog('d', "[%s/AC] AXP20x : Callback rejected the data", s->section.uid);
 				}
 
 				if(s->vbus){
@@ -316,7 +318,8 @@ static void *processAXP20x(void *actx){
 						strcat(t, "/vbus/current");
 						sprintf(val, "%.02f", amp);
 						mqttpublish(cfg.client, t, strlen(val), val, 0);
-					}
+					} else if(cfg.verbose)
+						publishLog('d', "[%s/VBUS] AXP20x : Callback rejected the data", s->section.uid);
 				}
 
 				if(s->ips){
@@ -351,7 +354,8 @@ static void *processAXP20x(void *actx){
 						strcat(t, "/ips/voltage");
 						sprintf(val, "%.02f", volt);
 						mqttpublish(cfg.client, t, strlen(val), val, 0);
-					}
+					} else if(cfg.verbose)
+						publishLog('d', "[%s/IPS] AXP20x : Callback rejected the data", s->section.uid);
 				}
 
 				if(s->temperature){
@@ -386,7 +390,8 @@ static void *processAXP20x(void *actx){
 						strcat(t, "/temperature");
 						sprintf(val, "%.02f", temp);
 						mqttpublish(cfg.client, t, strlen(val), val, 0);
-					}
+					} else if(cfg.verbose)
+						publishLog('d', "[%s/Temperature] AXP20x : Callback rejected the data", s->section.uid);
 				}
 
 			}
