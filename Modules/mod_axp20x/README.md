@@ -7,7 +7,7 @@ Exposes AXP20x PMU (Power Management Unit) figures.
 
 none
 
-## Section SHT31
+## Section AXP20x
 ### Accepted directives
 
 * **Topic=** Topic to publish to. `%FIGURE%` will be replaced by Temperature and Humidity as per the submitted value.
