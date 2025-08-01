@@ -138,7 +138,7 @@ static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
-static uint16_t read_12bit(struct section_axp20x *s, int fd, uint8_t reg){
+static uint16_t read_12bit(struct section_axp20x *s, int fd, uint8_t reg, bool *inerror){
     struct i2c_rdwr_ioctl_data packets;
     struct i2c_msg messages[2];
 
@@ -159,6 +159,7 @@ static uint16_t read_12bit(struct section_axp20x *s, int fd, uint8_t reg){
     packets.nmsgs = 2;
 
     if(ioctl(fd, I2C_RDWR, &packets) < 0){
+		*inerror = true;
 		publishLog('F', "I2C_RDWR (read_12bit) : %s", strerror(errno));
         return 0xFFFF;
     }
@@ -223,11 +224,12 @@ static void *processAXP20x(void *actx){
 			if(fd<0)
 				publishLog('F', "open(%s) : %s", s->device, strerror(errno));
 			else {
+				inerror = false;	/* Everything seems ok */
 				if(s->ac){
 					float volt, amp;
 
-					volt = read_12bit(s, fd, 0x56) * 0.0017f;
-					amp = read_12bit(s, fd, 0x58) * 0.375f;
+					volt = read_12bit(s, fd, 0x56, &inerror) * 0.0017f;
+					amp = read_12bit(s, fd, 0x58, &inerror) * 0.375f;
 
 					if(cfg.verbose){
 						publishLog('I', "AXP209's ACIn Voltage : %.02f V", volt);
@@ -281,8 +283,8 @@ static void *processAXP20x(void *actx){
 				if(s->vbus){
 					float volt, amp;
 
-					volt = read_12bit(s, fd, 0x5A) * 0.0017f;
-					amp = read_12bit(s, fd, 0x5C) * 0.375f;
+					volt = read_12bit(s, fd, 0x5A, &inerror) * 0.0017f;
+					amp = read_12bit(s, fd, 0x5C, &inerror) * 0.375f;
 
 					if(cfg.verbose){
 						publishLog('I', "AXP209's VBus Voltage : %.02f V", volt);
@@ -333,7 +335,7 @@ static void *processAXP20x(void *actx){
 				}
 
 				if(s->ips){
-					float volt = read_12bit(s, fd, 0x7E) * 0.0014f;
+					float volt = read_12bit(s, fd, 0x7E, &inerror) * 0.0014f;
 					if(cfg.verbose)
 						publishLog('I', "AXP209's IPS Voltage : %.02f V", volt);
 				
@@ -369,7 +371,7 @@ static void *processAXP20x(void *actx){
 				}
 
 				if(s->temperature){
-					float temp = read_12bit(s, fd, 0x5E) * 0.1f - 144.7;
+					float temp = read_12bit(s, fd, 0x5E, &inerror) * 0.1f - 144.7;
 					if(cfg.verbose)
 						publishLog('I', "AXP209's Temperature : %.02f °C", temp);
 				
