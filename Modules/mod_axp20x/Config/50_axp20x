@@ -8,7 +8,7 @@ Needs=mod_axp20x
 	Topic=Machines/%Hostname%/PMU
 
 	# Device : I2C device
-	# Address : Probe I2C address (if not set : 0x44)
+	# Address : Probe I2C address (if not set : 0x34)
 	Device=/dev/i2c-0
 	Address=0x34
 
