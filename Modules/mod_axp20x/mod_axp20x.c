@@ -138,7 +138,7 @@ static bool mh_acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
-static uint16_t read_12bit(struct section_axp20x *s, int fd, uint8_t reg) {
+static uint16_t read_12bit(struct section_axp20x *s, int fd, uint8_t reg){
     struct i2c_rdwr_ioctl_data packets;
     struct i2c_msg messages[2];
 
@@ -427,6 +427,21 @@ ThreadedFunctionPtr mh_getSlaveFunction(uint8_t sid){
 	return NULL;
 }
 
+#ifdef LUA
+static int so_inError(lua_State *L){
+	struct section_axp20x **s = luaL_testudata(L, 1, "AXP20X");
+	luaL_argcheck(L, s != NULL, 1, "'AXP20X' expected");
+
+	lua_pushboolean(L, (*s)->section.inerror);
+	return 1;
+}
+
+static const struct luaL_Reg soM[] = {
+	{"inError", so_inError},
+	{NULL, NULL}
+};
+#endif
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_axp20x, "mod_axp20x");	/* Identify the module */
 
@@ -439,7 +454,7 @@ void InitModule( void ){
 
 	registerModule( (struct Module *)&mod_axp20x );	/* Register the module */
 
-#ifdef LUAx	/* ToDo */
+#ifdef LUA	/* ToDo */
 	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
 			/* Expose shared methods */
