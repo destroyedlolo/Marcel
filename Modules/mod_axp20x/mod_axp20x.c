@@ -227,13 +227,13 @@ static void *processAXP20x(void *actx){
 					float volt, amp;
 
 					volt = read_12bit(s, fd, 0x56) * 0.0017f;
-					if(cfg.verbose)
-						publishLog('I', "AXP209's ACIn Voltage : %.02f V", volt);
-
-
 					amp = read_12bit(s, fd, 0x58) * 0.375f;
-					if(cfg.verbose)
+
+					if(cfg.verbose){
+						publishLog('I', "AXP209's ACIn Voltage : %.02f V", volt);
 						publishLog('I', "AXP209's ACIn Current : %.02f mA", amp);
+						publishLog('I', "AXP209's ACIn Power   : %.02f W", volt * amp / 1000);
+					}
 
 					bool ret = true;
 #ifdef LUA
@@ -269,6 +269,11 @@ static void *processAXP20x(void *actx){
 						strcat(t, "/ac/current");
 						sprintf(val, "%.02f", amp);
 						mqttpublish(cfg.client, t, strlen(val), val, 0);
+
+						t[sep] = 0;
+						strcat(t, "/ac/power");
+						sprintf(val, "%.02f", volt * amp / 1000);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
 					} else if(cfg.verbose)
 						publishLog('d', "[%s/AC] AXP20x : Callback rejected the data", s->section.uid);
 				}
@@ -277,13 +282,13 @@ static void *processAXP20x(void *actx){
 					float volt, amp;
 
 					volt = read_12bit(s, fd, 0x5A) * 0.0017f;
-					if(cfg.verbose)
-						publishLog('I', "AXP209's VBus Voltage : %.02f V", volt);
-
-
 					amp = read_12bit(s, fd, 0x5C) * 0.375f;
-					if(cfg.verbose)
+
+					if(cfg.verbose){
+						publishLog('I', "AXP209's VBus Voltage : %.02f V", volt);
 						publishLog('I', "AXP209's VBus Current : %.02f mA", amp);
+						publishLog('I', "AXP209's VBus Power   : %.02f W", volt * amp / 1000);
+					}
 
 					bool ret = true;
 #ifdef LUA
@@ -317,6 +322,11 @@ static void *processAXP20x(void *actx){
 						t[sep] = 0;
 						strcat(t, "/vbus/current");
 						sprintf(val, "%.02f", amp);
+						mqttpublish(cfg.client, t, strlen(val), val, 0);
+
+						t[sep] = 0;
+						strcat(t, "/vbus/power");
+						sprintf(val, "%.02f", volt * amp / 1000);
 						mqttpublish(cfg.client, t, strlen(val), val, 0);
 					} else if(cfg.verbose)
 						publishLog('d', "[%s/VBUS] AXP20x : Callback rejected the data", s->section.uid);
