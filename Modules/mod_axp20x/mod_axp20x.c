@@ -30,6 +30,49 @@ enum {
 	ST_AXP20X= 0,
 };
 
+static int publishCustomFiguresAXP20x(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_axp20x *s = (struct section_axp20x *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Device");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->device);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Address");			/* Push the index */
+		lua_pushnumber(mod_Lua->L, s->i2c_addr);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "ac");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->ac);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "vbus");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->vbus);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "ips");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->ips);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "temperature");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->temperature);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+/* 'BAT' not supported */
+
+		lua_pushstring(mod_Lua->L, "Error state");			/* Push the index */
+		lua_pushboolean(mod_Lua->L, s->section.inerror);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -42,9 +85,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_axp20x *nsection = malloc(sizeof(struct section_axp20x));	/* Allocate a new section */
 		initSection( (struct Section *)nsection, mid, ST_AXP20X, strdup(arg), "AXP20X");	/* Initialize shared fields */
 
-#if 0	/* ToDo */
 		nsection->section.publishCustomFigures = publishCustomFiguresAXP20x;
-#endif
 		nsection->device = NULL;
 		nsection->i2c_addr = 0x34;
 		nsection->ac = false;
