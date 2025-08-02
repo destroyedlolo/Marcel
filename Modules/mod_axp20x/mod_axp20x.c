@@ -221,9 +221,14 @@ static void *processAXP20x(void *actx){
 #endif
 		} else if( !first || s->section.immediate ){	/* processing */
 			int fd = open(s->device, O_RDWR);	/* Opening I2C */
-			if(fd<0)
+			if(fd<0){
 				publishLog('F', "open(%s) : %s", s->device, strerror(errno));
-			else {
+				if(!s->section.keep){
+					publishLog('E', "[%s] Dying", s->section.uid);
+					SectionError((struct Section *)s, true);
+					pthread_exit(0);
+				}
+			} else {
 				inerror = false;	/* Everything seems ok */
 				if(s->ac){
 					float volt, amp;
