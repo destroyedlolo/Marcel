@@ -32,7 +32,7 @@ Send a notification when directory content changes. Also, applicable to a single
 ### Published content
 
 For each file modification, a notification is sent 
-`file:action,action...`wbr>
+`file:action,action...`<br>
 With `action` as defined by [Linux' INotify's](https://man7.org/linux/man-pages/man7/inotify.7.html) : 
 `ACCESS`, `ATTRIB`, `CLOSE_NOWRITE`, ...
 
