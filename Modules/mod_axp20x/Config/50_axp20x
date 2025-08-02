@@ -1,0 +1,33 @@
+# Declare local PMU
+
+Needs=mod_axp20x
+
+*AXP20x=PMU
+
+	# Topic : Topic to publish to
+	Topic=Machines/%Hostname%/PMU
+
+	# Device : I2C device
+	# Address : Probe I2C address (if not set : 0x34)
+	Device=/dev/i2c-0
+	Address=0x34
+
+	# Comma separated of figures to publish
+	# Can be : ac,vbus,ips,temp
+	# bat is not yet supported
+	Figures=ac,vbus,ips,temp
+
+	#Sample : delay between sample in seconds
+	Sample=10
+
+	# Launch it immediately
+	Immediate
+
+	# Stay in case of error
+	Keep
+
+	# Lua user function validation
+	func=ValideSource
+
+#	Disable
+#	DoNotSimulate
