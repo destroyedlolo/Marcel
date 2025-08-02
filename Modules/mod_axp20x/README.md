@@ -16,7 +16,7 @@ none
 * **Sample=** Number of seconds between samples, in seconds
 * **Figures=** can be `ac`, `vbus`, `ips`, `temp` (`bat` is not yet supported)
 * **Immediate** Launch the first sample at startup
-* **Keep** Don't abort in case of technical error
+* **Keep** Don't abort in case of technical error (only if the chip can't be reached, reading errors are always considered as non fatal)
 * **func=** Acceptation function (*see bellow*, **mod_Lua** needed)
 * **Disabled** Start this section disabled
 * **DoNotSimulate** disables this section when running in simulation mode.
@@ -25,8 +25,8 @@ none
 
 1. Section ID
 2. Figure's name (can be "AC", "VBus", "IPS" or "Temperature")
-3. Voltage (V)
-4. Current (mA), `nil` for IPS.
+3. Voltage (V) or temperature (°C)
+4. Current (mA), `nil` for IPS and temperature.
 
 ### Lua function return
 
