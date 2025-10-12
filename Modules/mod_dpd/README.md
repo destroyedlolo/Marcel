@@ -40,7 +40,7 @@ At least one of `Timeout=` and `Func=` must be present; otherwise, the section i
 In addition to the basic `70_dpd` example, 2 useful DPDs are provided (I'm using them for my dashboard)
 
 ### 70_Info
-If a message is received on `%ClientID%/About` topic, Marcel's version and copyright.
+If a message is received on `%ClientID%/About` topic, logs with **I**nformation level, Marcel's version and copyright.
 ```
 Marcel's version 8.0107
 Marcel v8.0107 (c) L.Faillie 2015-2023
