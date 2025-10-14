@@ -119,7 +119,7 @@ static void *processEvery(void *actx){
 				publishLog('d', "[%s] is disabled", s->section.uid);
 #endif
 		} else if( !first || s->section.immediate ){
-			mod_Lua->lockState();
+			mod_Lua->lockState("Every");
 			mod_Lua->pushFunctionId( s->section.funcid );
 			if(s->section.topic)
 				mod_Lua->pushString( s->section.topic );
@@ -136,7 +136,7 @@ static void *processEvery(void *actx){
 				mod_Lua->pop(1);	/* pop NIL from the stack */
 			}
 
-			mod_Lua->unlockState();
+			mod_Lua->unlockState("Every");
 		}
 
 		struct timespec ts;
@@ -223,7 +223,7 @@ static void *processAt(void *actx){
 				publishLog('d', "[%s] is disabled", s->section.uid);
 #endif
 		} else {
-			mod_Lua->lockState();
+			mod_Lua->lockState("At");
 			mod_Lua->pushFunctionId( s->section.funcid );
 			if(s->section.topic)
 				mod_Lua->pushString( s->section.topic );
@@ -240,7 +240,7 @@ static void *processAt(void *actx){
 				mod_Lua->pop(1);	/* pop NIL from the stack */
 			}
 
-			mod_Lua->unlockState();
+			mod_Lua->unlockState("At");
 		}
 	}
 #endif

@@ -55,7 +55,7 @@ static int publishCustomFiguresDPD(struct Section *asection){
 	return 0;
 }
 
-static bool sd_processMQTT(struct Section *asec, const char *topic, char *payload){
+static bool sd_processDPD(struct Section *asec, const char *topic, char *payload){
 	struct section_dpd *s = (struct section_dpd *)asec;
 
 	if(!mqtttokcmp(s->section.topic, topic, NULL)){
@@ -71,7 +71,7 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 #ifdef LUA
 		if(mod_Lua){
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-				mod_Lua->lockState();
+				mod_Lua->lockState("DPD");
 				mod_Lua->pushFunctionId( s->section.funcid );
 				mod_Lua->pushString( s->section.uid );
 				mod_Lua->pushString( s->section.topic );
@@ -80,9 +80,11 @@ static bool sd_processMQTT(struct Section *asec, const char *topic, char *payloa
 					publishLog('E', "[%s] DPD : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);	/* pop NIL from the stack */
-				} else
+				} else {
 					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_Lua->unlockState();
+					mod_Lua->pop(1);	/* Pop return code */
+				}
+				mod_Lua->unlockState("DPD");
 			}
 		}
 #endif
@@ -264,7 +266,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->rcv = -1;
 		nsection->dpdinerror = false;
 
-		nsection->section.processMsg = sd_processMQTT;	/* process incoming messages */
+		nsection->section.processMsg = sd_processDPD;	/* process incoming messages */
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering DPD section '%s' (%04x)", nsection->section.uid, nsection->section.id);

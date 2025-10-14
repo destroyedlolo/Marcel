@@ -130,6 +130,7 @@ static void *processSHT31(void *actx){
 			int fd;
 			if((fd = open(s->device, O_RDWR)) < 0){
 				publishLog('E', "[%s] i2c-bus open(%s) : %s", s->section.uid, s->device, strerror(errno));
+exit(EXIT_FAILURE); /* ToDo */
 				if(s->section.keep)
 					continue;
 				else
@@ -171,7 +172,7 @@ static void *processSHT31(void *actx){
 #ifdef LUA
 					if(mod_Lua){
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-							mod_Lua->lockState();
+							mod_Lua->lockState("SHT31");
 							mod_Lua->pushFunctionId( s->section.funcid );
 							mod_Lua->pushString( s->section.uid );
 							mod_Lua->pushNumber( valt );
@@ -180,9 +181,11 @@ static void *processSHT31(void *actx){
 								publishLog('E', "[%s] SHT31 : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
 								mod_Lua->pop(1);	/* pop NIL from the stack */
-							} else
+							} else {
 								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-							mod_Lua->unlockState();
+								mod_Lua->pop(1);
+							}
+							mod_Lua->unlockState("SHT31");
 						}
 					}
 #endif

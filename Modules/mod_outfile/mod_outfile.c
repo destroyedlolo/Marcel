@@ -81,7 +81,7 @@ static void so_postconfInit(struct Section *asec){
 	}
 }
 
-static bool so_processMQTT(struct Section *asec, const char *topic, char *payload ){
+static bool so_processOF(struct Section *asec, const char *topic, char *payload ){
 	struct section_outfile *s = (struct section_outfile *)asec;	/* avoid lot of casting */
 
 	if(!mqtttokcmp(s->section.topic, topic, NULL)){
@@ -97,7 +97,7 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 #ifdef LUA
 		if(mod_Lua){
 			if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-				mod_Lua->lockState();
+				mod_Lua->lockState("OutFile");
 				mod_Lua->pushFunctionId( s->section.funcid );
 				mod_Lua->pushString( s->section.uid );
 				mod_Lua->pushString( payload );
@@ -105,9 +105,11 @@ static bool so_processMQTT(struct Section *asec, const char *topic, char *payloa
 					publishLog('E', "[%s] Outfile : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);	/* pop NIL from the stack */
-				} else
+				} else {
 					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_Lua->unlockState();
+					mod_Lua->pop(1);
+				}
+				mod_Lua->unlockState("OutFile");
 			}
 		}
 #endif
@@ -153,7 +155,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->section.publishCustomFigures = publishCustomFiguresOF;
 		nsection->file = NULL;
 		nsection->section.postconfInit = so_postconfInit;
-		nsection->section.processMsg = so_processMQTT;
+		nsection->section.processMsg = so_processOF;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering OutFile section '%s' (%04x)", nsection->section.uid, nsection->section.id);

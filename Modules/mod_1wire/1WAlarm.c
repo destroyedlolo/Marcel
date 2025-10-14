@@ -69,7 +69,7 @@ static void processProbe( struct section_1wAlarm *s){
 
 #ifdef LUA
 		if(mod_Lua && s->common.failfuncid != LUA_REFNIL){
-			mod_Lua->lockState();
+			mod_Lua->lockState("1WAlarm");
 			mod_Lua->pushFunctionId( s->common.failfuncid );
 			mod_Lua->pushString( s->common.section.uid );
 			mod_Lua->pushString( emsg );
@@ -78,7 +78,7 @@ static void processProbe( struct section_1wAlarm *s){
 				mod_Lua->pop(1);	/* pop error message from the stack */
 				mod_Lua->pop(1);
 			}
-			mod_Lua->unlockState();
+			mod_Lua->unlockState("1WAlarm");
 		}
 #endif
 	} else {
@@ -90,7 +90,7 @@ static void processProbe( struct section_1wAlarm *s){
 
 #ifdef LUA
 			if(mod_Lua && s->common.section.funcid != LUA_REFNIL){
-				mod_Lua->lockState();
+				mod_Lua->lockState("1WAlarm");
 				mod_Lua->pushFunctionId( s->common.section.funcid );
 				mod_Lua->pushString( s->common.section.uid );
 				mod_Lua->pushString( s->common.section.topic );
@@ -99,9 +99,11 @@ static void processProbe( struct section_1wAlarm *s){
 					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);	/* pop NIL from the stack */
-				} else
+				} else {
 					publish = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_Lua->unlockState();
+					mod_Lua->pop(1);	/* pop NIL from the stack */
+				}
+				mod_Lua->unlockState("1WAlarm");
 			}
 #endif
 
@@ -227,7 +229,7 @@ void start1WAlarm( uint8_t mid ){
 					exit(EXIT_FAILURE);
 				}
 
-				mod_Lua->lockState();
+				mod_Lua->lockState("1WAlarm");
 				mod_Lua->pushFunctionId( funcid );
 				mod_Lua->pushString( s->common.section.uid );
 				mod_Lua->pushString( s->common.file );
@@ -236,7 +238,7 @@ void start1WAlarm( uint8_t mid ){
 					mod_Lua->pop(1);	/* pop error message from the stack */
 					mod_Lua->pop(1);
 				}
-				mod_Lua->unlockState();
+				mod_Lua->unlockState("1WAlarm");
 			}
 #endif
 

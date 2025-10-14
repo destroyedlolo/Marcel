@@ -42,8 +42,8 @@ struct module_Lua {
 		/* Find identifier of an user function */
 	int (*findUserFunc)(const char *name);
 		/* locking */
-	void (*lockState)(void);
-	void (*unlockState)(void);
+	void (*lockState)(const char *);
+	void (*unlockState)(const char *);
 		/* Push value on state */
 	void (*pushNumber)(const double val);
 	void (*pushString)(const char *val);
