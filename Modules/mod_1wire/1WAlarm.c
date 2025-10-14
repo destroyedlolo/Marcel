@@ -76,7 +76,6 @@ static void processProbe( struct section_1wAlarm *s){
 			if(mod_Lua->exec(2, 0)){
 				publishLog('E', "[%s] 1WAlarm failfunction : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 				mod_Lua->pop(1);	/* pop error message from the stack */
-				mod_Lua->pop(1);
 			}
 			mod_Lua->unlockState("1WAlarm");
 		}
@@ -98,10 +97,9 @@ static void processProbe( struct section_1wAlarm *s){
 				if(mod_Lua->exec(3, 1)){
 					publishLog('E', "[%s] 1WAlarm : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else {
 					publish = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-					mod_Lua->pop(1);	/* pop NIL from the stack */
+					mod_Lua->pop(1);
 				}
 				mod_Lua->unlockState("1WAlarm");
 			}
@@ -236,7 +234,6 @@ void start1WAlarm( uint8_t mid ){
 				if(mod_Lua->exec(2, 0)){
 					publishLog('E', "[%s] Init function : %s", s->common.section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_Lua->pop(1);
 				}
 				mod_Lua->unlockState("1WAlarm");
 			}

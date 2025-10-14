@@ -133,7 +133,6 @@ static void *processEvery(void *actx){
 			if(mod_Lua->exec(2, 0)){
 				publishLog('E', "[%s] Every : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 				mod_Lua->pop(1);	/* pop error message from the stack */
-				mod_Lua->pop(1);	/* pop NIL from the stack */
 			}
 
 			mod_Lua->unlockState("Every");
@@ -237,7 +236,6 @@ static void *processAt(void *actx){
 			if(mod_Lua->exec(2, 0)){
 				publishLog('E', "[%s] At : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 				mod_Lua->pop(1);	/* pop error message from the stack */
-				mod_Lua->pop(1);	/* pop NIL from the stack */
 			}
 
 			mod_Lua->unlockState("At");

@@ -89,7 +89,6 @@ void *processDummy(void *actx){
 				if(mod_Lua->exec(1, 1)){
 					publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_Lua->pop(1);	/* pop NIL from the stack */
 				} else {
 					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
 					mod_Lua->pop(1);	/* Pop return code */
