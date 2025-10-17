@@ -82,17 +82,18 @@ void *processDummy(void *actx){
 					 * to avoid race condition.
 					 * These stopped periods MUST be as short as possible
 					 */
-				mod_Lua->lockState();
+				mod_Lua->lockState("Dummy");
 
 				mod_Lua->pushFunctionId( s->section.funcid );	/* Push the function to be called */
 				mod_Lua->pushNumber( (double)s->dummy );	/* Push the argument */
 				if(mod_Lua->exec(1, 1)){
 					publishLog('E', "[%s] Dummy : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
-					mod_Lua->pop(1);	/* pop NIL from the stack */
-				} else
+				} else {
 					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-				mod_Lua->unlockState();
+					mod_Lua->pop(1);	/* Pop return code */
+				}
+				mod_Lua->unlockState("Dummy");
 			}
 #endif
 

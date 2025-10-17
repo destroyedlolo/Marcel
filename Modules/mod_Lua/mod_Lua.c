@@ -100,11 +100,17 @@ static int findUserFunc( const char *name ){
 	return ref;
 }
 
-static void lockState(void){
+static void lockState(const char *s){
 	pthread_mutex_lock( &mod_Lua->onefunc );
+
+	if(cfg.debug)
+		publishLog('D', "lock(%s) : %d (%p)", s, lua_gettop(mod_Lua->L), mod_Lua->L);
 }
 
-static void unlockState(void){
+static void unlockState(const char *s){
+	if(cfg.debug)
+		publishLog('D', "unlock(%s) : %d (%p)", s, lua_gettop(mod_Lua->L), mod_Lua->L);
+
 	pthread_mutex_unlock( &mod_Lua->onefunc );
 }
 

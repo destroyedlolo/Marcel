@@ -287,7 +287,7 @@ static void *processAXP20x(void *actx){
 #ifdef LUA
 					if(mod_Lua){
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-							mod_Lua->lockState();
+							mod_Lua->lockState("APX");
 							mod_Lua->pushFunctionId( s->section.funcid );
 							mod_Lua->pushString( s->section.uid );
 							mod_Lua->pushString( "AC" );
@@ -296,11 +296,11 @@ static void *processAXP20x(void *actx){
 							if(mod_Lua->exec(4, 1)){
 								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
-								mod_Lua->pop(1);	/* pop NIL from the stack */
 							} else {
 								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+								mod_Lua->pop(1);	/* pop NIL from the stack */
 							}
-							mod_Lua->unlockState();
+							mod_Lua->unlockState("AXP");
 						}
 					}
 #endif
@@ -342,7 +342,7 @@ static void *processAXP20x(void *actx){
 #ifdef LUA
 					if(mod_Lua){
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-							mod_Lua->lockState();
+							mod_Lua->lockState("AXP");
 							mod_Lua->pushFunctionId( s->section.funcid );
 							mod_Lua->pushString( s->section.uid );
 							mod_Lua->pushString( "VBus" );
@@ -351,10 +351,11 @@ static void *processAXP20x(void *actx){
 							if(mod_Lua->exec(4, 1)){
 								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
-								mod_Lua->pop(1);	/* pop NIL from the stack */
-							} else
+							} else {
 								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-							mod_Lua->unlockState();
+								mod_Lua->pop(1);
+							}
+							mod_Lua->unlockState("AXP");
 						}
 					}
 #endif
@@ -389,7 +390,7 @@ static void *processAXP20x(void *actx){
 #ifdef LUA
 					if(mod_Lua){
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-							mod_Lua->lockState();
+							mod_Lua->lockState("AXP");
 							mod_Lua->pushFunctionId( s->section.funcid );
 							mod_Lua->pushString( s->section.uid );
 							mod_Lua->pushString( "IPS" );
@@ -397,10 +398,11 @@ static void *processAXP20x(void *actx){
 							if(mod_Lua->exec(3, 1)){
 								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
-								mod_Lua->pop(1);	/* pop NIL from the stack */
-							} else
+							} else {
 								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-							mod_Lua->unlockState();
+								mod_Lua->pop(1);
+							}
+							mod_Lua->unlockState("AXP");
 						}
 					}
 #endif
@@ -425,7 +427,7 @@ static void *processAXP20x(void *actx){
 #ifdef LUA
 					if(mod_Lua){
 						if(s->section.funcid != LUA_REFNIL){	/* if an user function defined ? */
-							mod_Lua->lockState();
+							mod_Lua->lockState("AXP");
 							mod_Lua->pushFunctionId( s->section.funcid );
 							mod_Lua->pushString( s->section.uid );
 							mod_Lua->pushString( "Temperature" );
@@ -433,10 +435,11 @@ static void *processAXP20x(void *actx){
 							if(mod_Lua->exec(3, 1)){
 								publishLog('E', "[%s] AXP20x : %s", s->section.uid, mod_Lua->getStringFromStack(-1));
 								mod_Lua->pop(1);	/* pop error message from the stack */
-								mod_Lua->pop(1);	/* pop NIL from the stack */
-							} else
+							} else {
 								ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
-							mod_Lua->unlockState();
+								mod_Lua->pop(1);
+							}
+							mod_Lua->unlockState("AXP");
 						}
 					}
 #endif

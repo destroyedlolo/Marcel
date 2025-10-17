@@ -53,12 +53,13 @@
  * 17/09/2024	- LF - v8.07 - Add argument to functions
  * 19/06/2025	- LF - v8.08 - Add ForceHostname
  * 19/06/2025	- LF - v8.09 - Add AXP20x modules
+ * 12/10/2025	- LF - v8.10 - Correct Lua leak
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.0906"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.1000"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
