@@ -55,6 +55,9 @@ BUILD_METEOOWM=1
 # RFXcom handling
 BUILD_RFXTRX=1
 
+# TaHoma's local API
+BUILD_TAHOMA=1
+
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
 BUILD_DUMMY=1
@@ -220,6 +223,9 @@ fi
 if [ ${BUILD_RFXTRX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_RFXtrx' >> Makefile
 fi
+if [ ${BUILD_TAHOMA+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_TaHoma' >> Makefile
+fi
 if [ ${BUILD_DUMMY+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_dummy' >> Makefile
 fi
@@ -315,6 +321,12 @@ fi
 if [ ${BUILD_RFXTRX+x} ]; then
 	cd Modules/mod_RFXtrx
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_RFXtrx.so > Makefile
+	cd ../..
+fi
+
+if [ ${BUILD_TAHOMA+x} ]; then
+	cd Modules/mod_TaHoma
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $JSON $DEBUG $MCHECK" *.c -so=../../mod_TaHoma.so > Makefile
 	cd ../..
 fi
 
