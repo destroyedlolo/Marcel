@@ -1,0 +1,3 @@
+# Load TaHoma's module
+
+LoadModule=mod_TaHoma.so

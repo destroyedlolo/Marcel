@@ -13,6 +13,93 @@
 #	include "../mod_Lua/mod_Lua.h"
 #endif
 
+#include <stdlib.h>
+#include <assert.h>
+
+struct module_TaHoma mod_TaHoma;
+
+static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
+	const char *arg;
+
+	if((arg = striKWcmp(l,"*TaHoma="))){	/* Create a new gateway */
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_TaHoma *nsection = malloc(sizeof(struct section_TaHoma));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_TAHOMA, strdup(arg), "TaHoma");
+		nsection->hostname = NULL;
+		nsection->ip = NULL;
+		nsection->token = NULL;
+		nsection->port = 8443;
+		nsection->unsafe = false;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
+		return ACCEPTED;
+	} else if(*section){
+		if((arg = striKWcmp(l,"TaHoma_host="))){
+			acceptSectionDirective(*section, "TaHoma_host=");
+			assert(( (*(struct section_TaHoma **)section)->hostname = strdup(arg) ));
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tHostname : '%s'", (*(struct section_TaHoma **)section)->hostname);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"TaHoma_address="))){
+			acceptSectionDirective(*section, "TaHoma_address=");
+			assert(( (*(struct section_TaHoma **)section)->ip = strdup(arg) ));
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tAddress : '%s'", (*(struct section_TaHoma **)section)->ip);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"TaHoma_port="))){
+			acceptSectionDirective(*section, "TaHoma_port=");
+			assert(( (*(struct section_TaHoma **)section)->port = atol(arg) ));
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tPort : %d", (*(struct section_TaHoma **)section)->port);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"TaHoma_token="))){
+			acceptSectionDirective(*section, "TaHoma_token=");
+			assert(( (*(struct section_TaHoma **)section)->token = strdup(arg) ));
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tToken : '%s'", (*(struct section_TaHoma **)section)->token);
+			return ACCEPTED;
+		} else if((!strcmp(l,"DontVerifySSL"))){
+			(*(struct section_TaHoma **)section)->unsafe = true;
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tDon't check SSL chain (unsafe mode)");
+			return ACCEPTED;
+
+		}
+	}
+
+	return REJECTED;
+}
+
+static bool acceptSDirective( uint8_t sec_id, const char *directive ){
+	if(sec_id == ST_TAHOMA){
+		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "TaHoma_host=") )
+			return true;
+		else if( !strcmp(directive, "TaHoma_address=") )
+			return true;
+		else if( !strcmp(directive, "TaHoma_port=") )
+			return true;
+		else if( !strcmp(directive, "TaHoma_token=") )
+			return true;
+		else if( !strcmp(directive, "DontVerifySSL") )
+			return true;
+	}
+	return false;
+}
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_TaHoma, "mod_TaHoma");	/* Identify the module */
 
@@ -21,13 +108,9 @@ void InitModule( void ){
 		 */
 	mod_TaHoma.module.readconf = readconf;
 	mod_TaHoma.module.acceptSDirective = acceptSDirective;
+/*
 	mod_TaHoma.module.getSlaveFunction = getSlaveFunction;
-
-	mod_TaHoma.hostname = NULL;
-	mod_TaHoma.ip = NULL;
-	mod_TaHoma.token = NULL;
-	mod_TaHoma.port = 8443;
-	mod_TaHoma.unsafe = false;
+*/
 
 	registerModule( (struct Module *)&mod_TaHoma );	/* Register the module */
 

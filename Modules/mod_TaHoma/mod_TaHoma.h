@@ -17,8 +17,19 @@
 /* Custom structure to store module's configuration */
 struct module_TaHoma {
 	struct Module module;
+};
+
+extern struct module_TaHoma mod_TaHoma;
+
+/* Section identifiers */
+enum {
+	ST_TAHOMA = 0
+};
 
 		/* Gateway's */
+struct section_TaHoma {
+	struct Section section;
+
 	const char *hostname;
 	const char *ip;
 	const char *token;
@@ -27,6 +38,5 @@ struct module_TaHoma {
 	bool unsafe;	/* Don't verify SSL chain */
 };
 
-extern struct module_TaHoma mod_TaHoma;
 
 #endif
