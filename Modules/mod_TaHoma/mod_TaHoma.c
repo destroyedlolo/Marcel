@@ -21,7 +21,32 @@ struct module_TaHoma mod_TaHoma;
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
-	if((arg = striKWcmp(l,"*TaHoma="))){	/* Create a new gateway */
+	if(!strcmp(l, "RandomizeProbes")){
+		if(*section){
+			publishLog('F', "RandomizeProbes can't be part of a section");
+			exit(EXIT_FAILURE);
+		}
+
+		mod_TaHoma.randomize = true;
+
+		if(cfg.verbose)
+			publishLog('C', "\tProbes are randomized");
+
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"DefaultSampleDelay="))){
+		/* No need to check if we are on not inside a section :
+		 * despite this directive is a top level one, it can be placed
+		 * anywhere : we don't know when a section definition
+		 * is over
+		 */
+
+		mod_TaHoma.defaultsampletime = strtof(arg, NULL);
+
+		if(cfg.verbose)
+			publishLog('C', "\tDefault sample time : %f", mod_TaHoma.defaultsampletime);
+
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*TaHoma="))){	/* Create a new gateway */
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
 			exit(EXIT_FAILURE);
@@ -111,6 +136,9 @@ void InitModule( void ){
 /*
 	mod_TaHoma.module.getSlaveFunction = getSlaveFunction;
 */
+
+	mod_TaHoma.randomize = false;
+	mod_TaHoma.defaultsampletime = 0.0;
 
 	registerModule( (struct Module *)&mod_TaHoma );	/* Register the module */
 

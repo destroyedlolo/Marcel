@@ -17,6 +17,9 @@
 /* Custom structure to store module's configuration */
 struct module_TaHoma {
 	struct Module module;
+
+	bool randomize;		/* Randomize probes to avoid they are all launched at the same time */
+	float defaultsampletime;
 };
 
 extern struct module_TaHoma mod_TaHoma;
