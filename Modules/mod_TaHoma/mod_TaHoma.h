@@ -26,7 +26,8 @@ extern struct module_TaHoma mod_TaHoma;
 
 /* Section identifiers */
 enum {
-	ST_TAHOMA = 0
+	ST_TAHOMA = 0,
+	ST_STATE
 };
 
 		/* Gateway's */
@@ -41,5 +42,12 @@ struct section_TaHoma {
 	bool unsafe;	/* Don't verify SSL chain */
 };
 
+	/* Query a state */
+struct section_State {
+	struct Section section;
+
+	const char *url;	/* Probe's location */
+	const char *state;	/* State's name */
+};
 
 #endif

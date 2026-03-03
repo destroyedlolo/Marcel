@@ -1,0 +1,28 @@
+*State=AQBattery
+	url=zigbee://xxxx-xxxx-xxxx/58849/3
+	state=core:BatteryLevelState
+
+	# Lua validation user function
+	# Arguments :
+	# 	raw value
+	# 	compensated value
+#	Func=ValTProbe
+
+	# Topic to publish to.
+	Topic=maison/TestAirQualitySensor/BatteryLevel
+
+	# submitted as retained message
+	Retained
+
+	# Sample : Delay b/w sample
+	# if -1 : only once
+	Sample=120
+
+	# Launch it immediately
+	Immediate
+
+	# Start disabled
+	Disabled
+
+	# Disable it if running in simulation mode
+	DoNotSimulate

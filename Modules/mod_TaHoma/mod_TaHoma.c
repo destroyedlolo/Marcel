@@ -65,6 +65,22 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*State="))){	/* Create a new gateway */
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_State *nsection = malloc(sizeof(struct section_State));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_STATE, strdup(arg), "State");
+		nsection->url = NULL;
+		nsection->state = NULL;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
+		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"TaHoma_host="))){
 			acceptSectionDirective(*section, "TaHoma_host=");
@@ -95,12 +111,28 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				publishLog('C', "\t\tToken : '%s'", (*(struct section_TaHoma **)section)->token);
 			return ACCEPTED;
 		} else if((!strcmp(l,"DontVerifySSL"))){
+			acceptSectionDirective(*section, "DontVerifySSL");
 			(*(struct section_TaHoma **)section)->unsafe = true;
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tDon't check SSL chain (unsafe mode)");
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"url="))){
+			acceptSectionDirective(*section, "url=");
+			(*(struct section_State **)section)->url = strdup(arg);
+			assert((*(struct section_State **)section)->url);
 
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tURL : '%s'", (*(struct section_State **)section)->url);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"state="))){
+			acceptSectionDirective(*section, "state=");
+			(*(struct section_State **)section)->state = strdup(arg);
+			assert((*(struct section_State **)section)->state);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tState: '%s'", (*(struct section_State **)section)->state);
+			return ACCEPTED;
 		}
 	}
 
@@ -121,6 +153,25 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "DontVerifySSL") )
 			return true;
+	} else if(sec_id == ST_STATE){
+		if( !strcmp(directive, "Disabled") )
+			return true;
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Immediate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Retained") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Sample=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "url=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "state=") )
+			return true;	/* Accepted */
 	}
 	return false;
 }
