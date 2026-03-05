@@ -1,6 +1,10 @@
 *State=AQBattery
+	# Probe settings
 	url=zigbee://xxxx-xxxx-xxxx/58849/3
 	state=core:BatteryLevelState
+
+	# Gateway it belongs to
+	TaHoma=Boiboite
 
 	# Lua validation user function
 	# Arguments :

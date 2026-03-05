@@ -77,7 +77,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->state = NULL;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering State section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
@@ -116,6 +116,14 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tDon't check SSL chain (unsafe mode)");
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"TaHoma="))){
+			acceptSectionDirective(*section, "TaHoma=");
+			(*(struct section_State **)section)->TaHoma = strdup(arg);
+			assert((*(struct section_State **)section)->TaHoma);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_State **)section)->TaHoma);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"url="))){
 			acceptSectionDirective(*section, "url=");
@@ -168,12 +176,23 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "TaHoma=") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "url=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "state=") )
 			return true;	/* Accepted */
 	}
 	return false;
+}
+
+
+static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
+/*
+	if(sid == ST_STATE)
+		return processWFDaily;
+*/
+	return NULL;
 }
 
 void InitModule( void ){
@@ -184,9 +203,7 @@ void InitModule( void ){
 		 */
 	mod_TaHoma.module.readconf = readconf;
 	mod_TaHoma.module.acceptSDirective = acceptSDirective;
-/*
 	mod_TaHoma.module.getSlaveFunction = getSlaveFunction;
-*/
 
 	mod_TaHoma.randomize = false;
 	mod_TaHoma.defaultsampletime = 0.0;

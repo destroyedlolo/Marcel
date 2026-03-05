@@ -46,6 +46,7 @@ struct section_TaHoma {
 struct section_State {
 	struct Section section;
 
+	const char *TaHoma;	/* Gateway */
 	const char *url;	/* Probe's location */
 	const char *state;	/* State's name */
 };
