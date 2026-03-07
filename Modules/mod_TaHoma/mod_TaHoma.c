@@ -65,19 +65,19 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
-	} else if((arg = striKWcmp(l,"*State="))){	/* Create a new gateway */
+	} else if((arg = striKWcmp(l,"*Device="))){	/* Create a new Device */
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_State *nsection = malloc(sizeof(struct section_State));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_STATE, strdup(arg), "State");
+		struct section_Device *nsection = malloc(sizeof(struct section_Device));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_DEVICE, strdup(arg), "Device");
+		nsection->TaHoma= NULL;
 		nsection->url = NULL;
-		nsection->state = NULL;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering State section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering Device section '%s' (%04x)", nsection->section.uid, nsection->section.id);
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
@@ -119,20 +119,21 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"TaHoma="))){
 			acceptSectionDirective(*section, "TaHoma=");
-			(*(struct section_State **)section)->TaHoma = strdup(arg);
-			assert((*(struct section_State **)section)->TaHoma);
+			(*(struct section_Device **)section)->TaHoma = strdup(arg);
+			assert((*(struct section_Device **)section)->TaHoma);
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_State **)section)->TaHoma);
+				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_Device **)section)->TaHoma);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"url="))){
 			acceptSectionDirective(*section, "url=");
-			(*(struct section_State **)section)->url = strdup(arg);
-			assert((*(struct section_State **)section)->url);
+			(*(struct section_Device **)section)->url = strdup(arg);
+			assert((*(struct section_Device **)section)->url);
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tURL : '%s'", (*(struct section_State **)section)->url);
+				publishLog('C', "\t\tURL : '%s'", (*(struct section_Device **)section)->url);
 			return ACCEPTED;
+#if 0
 		} else if((arg = striKWcmp(l,"state="))){
 			acceptSectionDirective(*section, "state=");
 			(*(struct section_State **)section)->state = strdup(arg);
@@ -141,6 +142,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tState: '%s'", (*(struct section_State **)section)->state);
 			return ACCEPTED;
+#endif
 		}
 	}
 
@@ -161,7 +163,7 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "DontVerifySSL") )
 			return true;
-	} else if(sec_id == ST_STATE){
+	} else if(sec_id == ST_DEVICE){
 		if( !strcmp(directive, "Disabled") )
 			return true;
 		else if( !strcmp(directive, "DoNotSimulate") )
@@ -172,16 +174,18 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Sample=") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Topic=") )
-			return true;	/* Accepted */
-		else if( !strcmp(directive, "Func=") )
-			return true;	/* Accepted */
 		else if( !strcmp(directive, "TaHoma=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "url=") )
 			return true;	/* Accepted */
+#if 0
 		else if( !strcmp(directive, "state=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
+#endif
 	}
 	return false;
 }
