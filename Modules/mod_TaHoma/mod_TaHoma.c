@@ -151,6 +151,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				publishLog('C', "\t\tEntering State '%s'", nstate->state);
 
 			nstate->next = (*(struct section_Device **)section)->States;
+			(*(struct section_Device **)section)->States = nstate;
+
 			return ACCEPTED;
 #if 0
 		} else if((arg = striKWcmp(l,"state="))){
@@ -166,6 +168,13 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	}
 
 	return REJECTED;
+}
+
+static uint8_t customizePerSubSection( struct Section *section, uint8_t sec_id ){
+	if(sec_id == ST_DEVICE && !!((struct section_Device *)section)->States)
+		return ST_STATE;
+	
+	return sec_id;
 }
 
 static bool acceptSDirective( uint8_t sec_id, const char *directive ){
@@ -187,12 +196,12 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "DoNotSimulate") )
 			return true;	/* Accepted */
-		else if( !strcmp(directive, "Immediate") )
-			return true;	/* Accepted */
 		else if( !strcmp(directive, "Retained") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Immediate") )
+			return true;
 		else if( !strcmp(directive, "Sample=") )
-			return true;	/* Accepted */
+			return true;
 		else if( !strcmp(directive, "TaHoma=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "url=") )
@@ -225,6 +234,7 @@ void InitModule( void ){
 		 * It's MANDATORY that all callbacks are initialised
 		 */
 	mod_TaHoma.module.readconf = readconf;
+	mod_TaHoma.module.customeSID = customizePerSubSection;
 	mod_TaHoma.module.acceptSDirective = acceptSDirective;
 	mod_TaHoma.module.getSlaveFunction = getSlaveFunction;
 

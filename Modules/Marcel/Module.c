@@ -33,6 +33,14 @@ void acceptSectionDirective( struct Section *section, const char *directive ){
 		exit( EXIT_FAILURE );
 	}
 
+		/* Let a chance for the module to set a custom section id.
+		 * Typical use case : when a section has subsections and
+		 * a directive can be set a section and subsection level.
+		 * i.e : mod_TaHoma
+		 */
+	if(modules[mid]->customeSID)
+		sid = modules[mid]->customeSID(section, sid);
+
 	if( !(modules[mid]->acceptSDirective && modules[mid]->acceptSDirective(sid,directive)) ){
 		publishLog('F', "'%s' not allowed here", directive);
 		exit(EXIT_FAILURE);
@@ -66,6 +74,7 @@ uint8_t findModuleByName(const char *name){
 void initModule( struct Module *mod, const char *name){
 	mod->name = name;
 	mod->readconf = NULL;
+	mod->customeSID = NULL;
 	mod->acceptSDirective = NULL;
 	mod->getSlaveFunction = NULL;
 	mod->postconfInit = NULL;
