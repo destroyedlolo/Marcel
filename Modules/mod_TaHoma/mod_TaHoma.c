@@ -75,6 +75,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		initSection( (struct Section *)nsection, mid, ST_DEVICE, strdup(arg), "Device");
 		nsection->TaHoma= NULL;
 		nsection->url = NULL;
+		nsection->States = NULL;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Device section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -133,6 +134,24 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tURL : '%s'", (*(struct section_Device **)section)->url);
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"**State="))){	/* New state definition */
+			acceptSectionDirective(*section, "**State=");
+
+			struct State_definition *nstate = malloc(sizeof(struct State_definition));	/* Allocate a new state */
+			nstate->state = strdup(arg);
+			assert(nstate->state);
+			nstate->disabled = false;
+			nstate->dontSimulate = false;
+			nstate->topic = NULL;
+			nstate->retained = false;
+			nstate->funcname = NULL;
+			nstate->funcid = LUA_REFNIL;
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tEntering State '%s'", nstate->state);
+
+			nstate->next = (*(struct section_Device **)section)->States;
+			return ACCEPTED;
 #if 0
 		} else if((arg = striKWcmp(l,"state="))){
 			acceptSectionDirective(*section, "state=");
@@ -178,9 +197,9 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "url=") )
 			return true;	/* Accepted */
-#if 0
-		else if( !strcmp(directive, "state=") )
+		else if( !strcmp(directive, "**State=") )
 			return true;	/* Accepted */
+#if 0
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Func=") )

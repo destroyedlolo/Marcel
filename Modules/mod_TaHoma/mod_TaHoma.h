@@ -27,7 +27,8 @@ extern struct module_TaHoma mod_TaHoma;
 /* Section identifiers */
 enum {
 	ST_TAHOMA = 0,
-	ST_DEVICE
+	ST_DEVICE,
+	ST_STATE	/* Not really a section but used to validate options */
 };
 
 		/* Gateway's */
@@ -43,16 +44,34 @@ struct section_TaHoma {
 };
 
 	/* Device defintion */
+struct State_definition;
 struct section_Device {
 	struct Section section;
 
 	const char *TaHoma;	/* Gateway */
 	const char *url;	/* Probe's location */
+
+	struct State_definition *States;	/* States to extract */
 };
 
 	/* Query a state */
-struct section_State {
+struct State_definition {
+	struct State_definition *next;
+
 	const char *state;	/* State's name */
+
+		/* options */
+	bool disabled;			/* this section is currently disabled */
+	bool dontSimulate;		/* disabled if we're in simulation mode */
+
+		/* MQTT */
+	const char *topic;
+	bool retained;			/* send MQTT retained message */
+
+		/* Lua user function
+		 */
+	const char *funcname;	/* User function to call on data arrival */
+	int funcid;				/* Function id in Lua registry */
 };
 
 #endif
