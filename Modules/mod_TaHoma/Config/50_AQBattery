@@ -1,4 +1,4 @@
-*State=AQBattery
+*Device=AQBattery
 	####
 	# settings related to the device itself
 	####
@@ -37,21 +37,24 @@
 	####
 
 **State=core:BatteryLevelState
+	# Notez_bien : directives are prepended with a 
+	# 'state_' in order to avoid confusion with top
+	# level ones. Even if the goals are the same.
 
 	# Lua validation user function
 	# Arguments :
 	# 	raw value
 	# 	compensated value
-	# Func=ValTProbe
+	# state_Func=ValTProbe
 
 	# Topic to publish to.
-	Topic=maison/TestAirQualitySensor/BatteryLevel
+	state_Topic=maison/TestAirQualitySensor/BatteryLevel
 
 	# submitted as retained message
-	Retained
+	state_Retained
 
 	# Start this state disabled
-	Disabled
+	state_Disabled
 
 	# Disable this state if running in simulation mode
-	DoNotSimulate
+	state_DoNotSimulate

@@ -154,6 +154,25 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			(*(struct section_Device **)section)->States = nstate;
 
 			return ACCEPTED;
+		} else if((*(struct section_Device **)section)->States){
+			/* Handling states' specific directives
+			 * They MUST be refined here : mod_core's doesn't deal with
+			 * the same structure.
+			 */
+			 struct State_definition *state = (*(struct section_Device **)section)->States;
+
+			 if((arg = striKWcmp(l, "state_Topic="))){
+				acceptSectionDirective( *section, "state_Topic=" );
+
+				state->topic = strdup(arg);
+				assert(state->topic);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tTopic : '%s'", state->topic);
+
+				return ACCEPTED;
+			}
+
 #if 0
 		} else if((arg = striKWcmp(l,"state="))){
 			acceptSectionDirective(*section, "state=");
@@ -208,9 +227,15 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )
 			return true;	/* Accepted */
-#if 0
-		else if( !strcmp(directive, "Topic=") )
+	} else if(sec_id == ST_STATE){
+			/* Despite they're having same goal
+			 * I need to prepend with "state_"
+			 * otherwise, it will be take in account by
+			 * mod_core first (and then rejected).
+			 */
+		if( !strcmp(directive, "state_Topic=") )
 			return true;	/* Accepted */
+#if 0
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
 #endif
