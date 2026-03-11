@@ -36,25 +36,4 @@
 	# The goal is to minimize the gateway's load.
 	####
 
-**State=core:BatteryLevelState
-	# Notez_bien : directives are prepended with a 
-	# 'state_' in order to avoid confusion with top
-	# level ones. Even if the goals are the same.
 
-	# Lua validation user function
-	# Arguments :
-	# 	raw value
-	# 	compensated value
-	# state_Func=ValTProbe
-
-	# Topic to publish to.
-	state_Topic=maison/TestAirQualitySensor/BatteryLevel
-
-	# submitted as retained message
-	state_Retained
-
-	# Start this state disabled
-	state_Disabled
-
-	# Disable this state if running in simulation mode
-	state_DoNotSimulate

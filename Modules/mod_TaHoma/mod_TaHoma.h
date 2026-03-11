@@ -74,4 +74,5 @@ struct State_definition {
 	int funcid;				/* Function id in Lua registry */
 };
 
+extern void *processDevice(void *);
 #endif

@@ -272,10 +272,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 
 
 static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
-/*
-	if(sid == ST_STATE)
-		return processWFDaily;
-*/
+	if(sid == ST_DEVICE)
+		return processDevice;
 	return NULL;
 }
 
