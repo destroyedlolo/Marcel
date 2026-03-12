@@ -52,6 +52,7 @@ struct section_Device {
 	const char *url;	/* Probe's location */
 
 	struct State_definition *States;	/* States to extract */
+	struct section_TaHoma *gateway;		/* To whish TaHoma we are connected */
 };
 
 	/* Query a state */

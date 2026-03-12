@@ -20,6 +20,13 @@ void *processDevice(void *actx){
 		pthread_exit(0);
 	}
 
+	s->gateway = (struct section_TaHoma *)findSectionByName(s->TaHoma);
+	if(!s->gateway || strcmp(s->gateway->section.kind, "TaHoma")){
+		publishLog('F', "[%s] TaHoma \"%s\" not found. Dying ...", s->section.uid, s->TaHoma);
+		SectionError((struct Section *)s, true);
+		pthread_exit(0);
+	}
+
 	if(!s->url){
 		publishLog('F', "[%s] No URL defined. Dying ...", s->section.uid);
 		SectionError((struct Section *)s, true);
