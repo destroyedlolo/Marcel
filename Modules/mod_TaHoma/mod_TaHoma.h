@@ -13,6 +13,7 @@
 
 #include "../Marcel/Module.h"
 #include "../Marcel/Section.h"
+#include "../Marcel/CURL_helpers.h"
 
 /* Custom structure to store module's configuration */
 struct module_TaHoma {
@@ -39,11 +40,13 @@ struct section_TaHoma {
 	const char *ip;
 	const char *token;
 	uint16_t port;
-
 	bool unsafe;	/* Don't verify SSL chain */
+
+	char *baseurl;	/* How to reach the taHoma */
+	size_t url_len;	/* To avoid to recompute the url length */
 };
 
-	/* Device defintion */
+	/* Device definition */
 struct State_definition;
 struct section_Device {
 	struct Section section;
@@ -76,4 +79,6 @@ struct State_definition {
 };
 
 extern void *processDevice(void *);
+extern bool callAPI(struct section_Device *, struct section_TaHoma *, const char *, const char *, struct MemoryStruct *);
+
 #endif

@@ -1,4 +1,4 @@
-/* Request Devices from a TaHoma
+/* Query Devices from a TaHoma
  *
  * This file is part of Marcel project and is following the same
  * license rules (see LICENSE file)

@@ -59,6 +59,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->token = NULL;
 		nsection->port = 8443;
 		nsection->unsafe = false;
+		nsection->baseurl = NULL;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
