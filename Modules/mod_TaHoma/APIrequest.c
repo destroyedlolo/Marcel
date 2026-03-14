@@ -25,6 +25,10 @@ static void buildURL(struct section_TaHoma *gateway){
 
 	sprintf(gateway->baseurl, "https://%s:%u/enduser-mobile-web/1/enduserAPI/", gateway->ip, gateway->port);
 	gateway->url_len = strlen(gateway->baseurl);	/* Because the port length is unknown */
+
+	if(cfg.debug)
+		publishLog('d', "[%s] URL set to \"%s\"", gateway->section.uid, gateway->baseurl);
+		
 }
 
 /* Query the TaHoma
@@ -72,11 +76,46 @@ bool callAPI(struct section_Device *s, struct section_TaHoma *gateway, const cha
 		return false;
 	}
 
-	curl_easy_perform(curl);
+	char full_url[gateway->url_len + strlen(api) + 1];
+	strcpy(full_url, gateway->baseurl);
+	strcpy(full_url + gateway->url_len, api);
+	curl_easy_setopt(curl, CURLOPT_URL, full_url);
+	if(cfg.debug){
+		publishLog('d', "[%s] Calling \"%s\"", s->section.uid, full_url);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	}
+
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" MARCEL_VERSION);
+
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)buff);
+	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+
+	if(post){
+		curl_easy_setopt(curl, CURLOPT_POST, 1L);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)-1);
+	} else {
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, NULL);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0L);
+		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+	}
+
+	if((res = curl_easy_perform(curl)) != CURLE_OK)
+		publishLog('E', "[%s] curl_easy_perform() : %s", s->section.uid, curl_easy_strerror(res));
+	else {
+		long http_code = 0;
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+		if(http_code != 200){
+			publishLog('E', "[%s] HTTP return code : %ld", s->section.uid, http_code);
+			res += 1;	/* Just not to keep CURLE_OK */
+		}
+	}
 
 		/* Cleanup */
 	curl_easy_cleanup(curl);
 	curl_slist_free_all(headers);
 
-	return true;
+	return(res == CURLE_OK);
 }
