@@ -18,6 +18,10 @@
 
 struct module_TaHoma mod_TaHoma;
 
+static void initTaHoma(struct Section *asec){
+	printf("*** Init( '%s', '%s' )\n", asec->kind, asec->uid);
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -60,6 +64,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->port = 8443;
 		nsection->unsafe = false;
 		nsection->baseurl = NULL;
+		nsection->section.postconfInit = initTaHoma;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
