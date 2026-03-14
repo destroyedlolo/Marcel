@@ -15,6 +15,8 @@ struct MemoryStruct {
 	size_t size;
 };
 
-extern size_t WriteMemoryCallback(void *, size_t, size_t, void *);
+#define EMPTY_MEMCHUNK { NULL, 0 }
 
+extern size_t WriteMemoryCallback(void *, size_t, size_t, void *);
+extern void init_Curl(void);
 #endif

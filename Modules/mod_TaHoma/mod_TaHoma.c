@@ -302,4 +302,6 @@ void InitModule( void ){
 			/* Expose mod_owm's own function */
 	}
 #endif
+
+	init_Curl();
 }

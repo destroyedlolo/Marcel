@@ -46,6 +46,9 @@ BUILD_INOTIFY=1
 # Meteo forcast using OpenWeatherMap
 BUILD_METEOOWM=1
 
+# TaHoma's local API
+BUILD_TAHOMA=1
+
 # Freebox v4/v5 figures
 # BUILD_FREEBOXV5=1
 
@@ -54,9 +57,6 @@ BUILD_METEOOWM=1
 
 # RFXcom handling
 BUILD_RFXTRX=1
-
-# TaHoma's local API
-BUILD_TAHOMA=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
@@ -67,17 +67,17 @@ BUILD_DUMMY=1
 ###
 
 # Enable debugging messages
-#DEBUG=1
+DEBUG=1
 
 # MCHECK - check memory concistency (see glibc's mcheck())
-#MCHECK=1
+MCHECK=1
 
 # Where to generate ".so" plugins
 # ---
 # production's target directory
-PLUGIN_DIR=/usr/local/lib/Marcel
+#PLUGIN_DIR=/usr/local/lib/Marcel
 # During development, being clean and keep everything in our own directory
-#PLUGIN_DIR=$( pwd )
+PLUGIN_DIR=$( pwd )
 
 # -------------------------------------
 #      END OF CONFIGURATION AREA
@@ -135,8 +135,8 @@ else
 fi
 
 # Enable JSon-c for modules having to handle Json data as well as curl
-if [ ${BUILD_METEOOWM+x} ]; then
-	JSON="\$(shell pkg-config --cflags json-c )"
+if [[ -n "${BUILD_METEOOWM+x}" && -n "${BUILD_TAHOMA+x}" ]]; then
+	JSON="\$(shell pkg-config --cflags json-c ) -DUSE_CURL"
 	JSONLIB="\$(shell pkg-config --libs json-c ) -lcurl"
 else
 	echo 'No need for Curl and json'

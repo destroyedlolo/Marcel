@@ -9,6 +9,7 @@
  */
 
 #include "mod_owm.h"
+#include "../Marcel/CURL_helpers.h"
 #ifdef LUA
 #	include "../mod_Lua/mod_Lua.h"
 #endif
@@ -258,4 +259,6 @@ void InitModule( void ){
 		mod_Lua->exposeObjMethods(mod_Lua->L, "Meteo3H", soM);
 	}
 #endif
+
+	init_Curl();
 }

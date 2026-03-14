@@ -54,4 +54,22 @@ void *processDevice(void *actx){
 		SectionError((struct Section *)s, true);
 		pthread_exit(0);
 	}
+
+	for(bool first=true;; first=false){	/* Infinite publishing loop */
+		if(isDisabled((struct Section *)s)){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->section.uid);
+#endif
+		} else if( !first || s->section.immediate ){
+			struct MemoryStruct res = EMPTY_MEMCHUNK;
+printf("*** Querying %d\n", callAPI(s, s->gateway, s->url, NULL, &res));
+		}
+
+		struct timespec ts;
+		ts.tv_sec = (time_t)s->section.sample;
+		ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
+
+		nanosleep( &ts, NULL );
+	}
 }

@@ -280,7 +280,7 @@ static bool processMsg(const char *topic, char *payload){
 
 	/* processing named sessions */
 	if((arg = striKWcmp(topic, "nNotification/"))){	/* Mustn't include wildcard otherwise, use mqtttokcmp() */
-		char *title = strchr(arg, '/');
+		char *title = (char *)strchr(arg, '/');
 
 		if(!title)
 			publishLog('E', "Received named notification \"%s\" without title : ignoring", arg);

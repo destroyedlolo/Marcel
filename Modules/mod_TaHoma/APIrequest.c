@@ -7,6 +7,7 @@
  */
 
 #include "mod_TaHoma.h"
+#include "../Marcel/Version.h"
 
 #include <curl/curl.h>
 #include <assert.h>
@@ -86,6 +87,11 @@ bool callAPI(struct section_Device *s, struct section_TaHoma *gateway, const cha
 	}
 
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" MARCEL_VERSION);
+
+	if(gateway->unsafe){
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);	/* Don't verify SSL */
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	}
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)buff);
