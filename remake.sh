@@ -342,7 +342,7 @@ fi
 
 cd Modules/Marcel
 
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUALIB $JSONLIB \
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $JSON $LUALIB $JSONLIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread \
 	" *.c -t=../../Marcel > Makefile
