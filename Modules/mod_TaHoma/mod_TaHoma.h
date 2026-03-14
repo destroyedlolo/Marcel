@@ -20,7 +20,6 @@ struct module_TaHoma {
 	struct Module module;
 
 	bool randomize;		/* Randomize probes to avoid they are all launched at the same time */
-	float defaultsampletime;
 };
 
 extern struct module_TaHoma mod_TaHoma;
@@ -53,8 +52,7 @@ struct section_Device {
 
 	const char *TaHoma;		/* Gateway */
 	const char *url;		/* Probe's location */
-	const char *enc_url;	/* Encoded URL */
-	size_t enc_url_len;		/* Encoded URL lenght */
+	const char *target_url;	/* URL formating is done only once at startup */
 
 	struct State_definition *States;	/* States to extract */
 	struct section_TaHoma *gateway;		/* To whish TaHoma we are connected */
