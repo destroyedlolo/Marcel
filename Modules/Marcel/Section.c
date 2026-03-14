@@ -20,7 +20,7 @@
 #	define LUA_REFNIL	(-1)
 #endif
 
-struct Section *sections = NULL;
+struct Section *sections = NULL, *last_section = NULL;
 
 
 /**
@@ -108,8 +108,6 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	assert( section );
 	assert( name );	/* as most of the time allocated by a strdup() */
 
-	section->next = sections;	/* Replace the head */
-	sections = section;
 	section->id = section_id << 8 | module_id;
 	section->kind = akind;
 	section->uid = name;
@@ -146,4 +144,12 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	}
 #endif
 
+		/* Insert this new section */
+	section->next = NULL;
+	if(!sections)	/* It's the 1st one */
+		sections = section;
+	else
+		last_section->next = section;	/* update the previous last */
+
+	last_section = section;	/* We're now the last one */
 }

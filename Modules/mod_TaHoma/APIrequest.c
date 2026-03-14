@@ -13,25 +13,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-/* Initialize the gateway's URL
- *	All sanity checks are expected to be done before the call.
- */
-static void buildURL(struct section_TaHoma *gateway){
-	gateway->url_len = strlen("https://:/enduser-mobile-web/1/enduserAPI/");
-	gateway->url_len += strlen(gateway->ip);
-	gateway->url_len += 5; /* port: 65535 */
-
-	gateway->baseurl = malloc(gateway->url_len + 1);
-	assert(gateway->baseurl);
-
-	sprintf(gateway->baseurl, "https://%s:%u/enduser-mobile-web/1/enduserAPI/", gateway->ip, gateway->port);
-	gateway->url_len = strlen(gateway->baseurl);	/* Because the port length is unknown */
-
-	if(cfg.debug)
-		publishLog('d', "[%s] URL set to \"%s\"", gateway->section.uid, gateway->baseurl);
-		
-}
-
 /* Query the TaHoma
  * -> gateway : the TaHoma to query
  * -> api : API to query
@@ -39,8 +20,10 @@ static void buildURL(struct section_TaHoma *gateway){
  * -> buff : buffer to feed
  */
 bool callAPI(struct section_Device *s, struct section_TaHoma *gateway, const char *api, const char *post, struct MemoryStruct *buff){
+#if 0
 	if(!gateway->baseurl)	/* The gateway is not yet initialized */
 		buildURL(gateway);
+#endif
 
 	if(buff->memory){	/* Clean the result */
 		free(buff->memory);

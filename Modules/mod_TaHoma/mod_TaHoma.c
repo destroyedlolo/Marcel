@@ -19,7 +19,72 @@
 struct module_TaHoma mod_TaHoma;
 
 static void initTaHoma(struct Section *asec){
-	printf("*** Init( '%s', '%s' )\n", asec->kind, asec->uid);
+	struct section_TaHoma *s = (struct section_TaHoma *)asec;
+
+	s->section.inerror = true;	/* By default, we're in error */
+
+		/* Sanity check */
+	if(!s->hostname || !s->ip || !s->token){
+		publishLog('E', "[%s] TaHoma misses some parameters", s->section.uid);
+		return;
+	}
+
+		/* Build the url */
+	s->url_len = strlen("https://:/enduser-mobile-web/1/enduserAPI/");
+	s->url_len += strlen(s->ip);
+	s->url_len += 5; /* port: 65535 */
+
+	if(!(s->baseurl = malloc(s->url_len + 1))){
+		publishLog('E', "[%s] Out of memory", s->section.uid);
+		return;
+	}
+	sprintf(s->baseurl, "https://%s:%u/enduser-mobile-web/1/enduserAPI/", s->ip, s->port);
+	s->url_len = strlen(s->baseurl);	/* Because the port length is unknown */
+
+	if(cfg.debug)
+		publishLog('d', "[%s] URL set to \"%s\"", s->section.uid, s->baseurl);
+
+	s->section.inerror = false;	/* Initialisation completed */
+}
+
+static void initDevice(struct Section *asec){
+	struct section_Device *s = (struct section_Device *)asec;
+
+	s->section.inerror = true;	/* By default, we're in error */
+
+		/* Sanity check */
+	if(!s->TaHoma){
+		publishLog('E', "[%s] No TaHoma defined", s->section.uid);
+		return;
+	}
+	s->gateway = (struct section_TaHoma *)findSectionByName(s->TaHoma);
+	if(!s->gateway || strcmp(s->gateway->section.kind, "TaHoma")){
+		publishLog('E', "[%s] TaHoma \"%s\" not found", s->section.uid, s->TaHoma);
+		return;
+	}
+	if(s->gateway->section.inerror){
+		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->section.uid, s->TaHoma);
+		return;
+	}
+
+	if(!s->url){
+		publishLog('F', "[%s] No URL defined", s->section.uid);
+		return;
+	}
+
+	if(!s->States){
+		publishLog('F', "[%s] No state defined", s->section.uid);
+		return;
+	}
+
+	for(struct State_definition *st = s->States; st; st = st->next){ /* states' sanity */
+		if(!st->topic){
+			publishLog('F', "[%s] State \"%s\" has no topic defined", s->section.uid, st->state);
+			return;
+		}
+	}
+
+	s->section.inerror = false;	/* Initialisation completed */
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -63,7 +128,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->token = NULL;
 		nsection->port = 8443;
 		nsection->unsafe = false;
-		nsection->baseurl = NULL;
 		nsection->section.postconfInit = initTaHoma;
 
 		if(cfg.verbose)	/* Be verbose if requested */
@@ -82,6 +146,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->TaHoma= NULL;
 		nsection->url = NULL;
 		nsection->States = NULL;
+		nsection->section.postconfInit = initDevice;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Device section '%s' (%04x)", nsection->section.uid, nsection->section.id);
