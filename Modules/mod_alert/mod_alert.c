@@ -592,4 +592,6 @@ void InitModule( void ){
 		mod_Lua->exposeObjMethods(mod_Lua->L, "NamedNotification", alNamedM);
 	}
 #endif
+
+	init_Curl();
 }

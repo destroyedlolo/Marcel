@@ -135,7 +135,7 @@ else
 fi
 
 # Enable JSon-c for modules having to handle Json data as well as curl
-if [[ -n "${BUILD_METEOOWM+x}" && -n "${BUILD_TAHOMA+x}" ]]; then
+if [[ -n "${BUILD_METEOOWM+x}" && -n "${BUILD_TAHOMA+x}" && -n "${BUILD_ALERT+x}" ]]; then
 	JSON="\$(shell pkg-config --cflags json-c ) -DUSE_CURL"
 	JSONLIB="\$(shell pkg-config --libs json-c ) -lcurl"
 else
