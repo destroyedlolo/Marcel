@@ -102,6 +102,18 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('C', "\tProbes are randomized");
 
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"DefaultSampleDelay="))){
+		/* No need to check if we are on not inside a section :
+		 * despite this directive is a top level one, it can be placed
+		 * anywhere : we don't know when a section definition
+		 * is over
+		 */
+		mod_TaHoma.defaultsampletime = strtof(arg, NULL);
+
+		if(cfg.verbose)
+			publishLog('C', "\tDefault sample time : %f", mod_TaHoma.defaultsampletime);
+
+		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"*TaHoma="))){	/* Create a new gateway */
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
@@ -134,6 +146,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device.url = NULL;
 		nsection->States = NULL;
 		nsection->device.section.postconfInit = initProbe;
+		nsection->device.section.sample = mod_TaHoma.defaultsampletime;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
