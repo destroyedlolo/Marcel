@@ -27,7 +27,8 @@ extern struct module_TaHoma mod_TaHoma;
 /* Section identifiers */
 enum {
 	ST_TAHOMA = 0,
-	ST_DEVICE,
+	ST_PROBE,
+	ST_ACUATOR,
 	ST_STATE	/* Not really a section but used to validate options */
 };
 
@@ -46,16 +47,21 @@ struct section_TaHoma {
 };
 
 	/* Device definition */
-struct State_definition;
 struct section_Device {
 	struct Section section;
 
 	const char *TaHoma;		/* Gateway */
+	struct section_TaHoma *gateway;		/* To whish TaHoma we are connected */
 	const char *url;		/* Probe's location */
 	const char *target_url;	/* URL formating is done only once at startup */
+};
+
+	/* Probe definition */
+struct State_definition;
+struct section_Probe {
+	struct section_Device device;
 
 	struct State_definition *States;	/* States to extract */
-	struct section_TaHoma *gateway;		/* To whish TaHoma we are connected */
 };
 
 	/* Query a state */
@@ -78,7 +84,7 @@ struct State_definition {
 	int funcid;				/* Function id in Lua registry */
 };
 
-extern void *processDevice(void *);
+extern void *processProbe(void *);
 extern bool callAPI(struct section_Device *, struct section_TaHoma *, const char *, const char *, struct MemoryStruct *);
 
 #endif

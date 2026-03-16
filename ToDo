@@ -28,6 +28,10 @@ Tests DoNotSimulate
 mod_TaHoma.c/initDevice
 - Build target_url
 
+Device : general abstraction
+Probe : get values
+Acuator : trigger an action
+
 A device can be both a probe and an actuator.
 
 By default, sample = 0 -> Actuator only

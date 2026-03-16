@@ -1,4 +1,4 @@
-*Device=AQBattery
+*Probe=AQBattery
 	####
 	# settings related to the device itself
 	####

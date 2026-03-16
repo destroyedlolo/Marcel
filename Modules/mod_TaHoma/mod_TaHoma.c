@@ -47,44 +47,44 @@ static void initTaHoma(struct Section *asec){
 	s->section.inerror = false;	/* Initialisation completed */
 }
 
-static void initDevice(struct Section *asec){
-	struct section_Device *s = (struct section_Device *)asec;
+static void initProbe(struct Section *asec){
+	struct section_Probe *s = (struct section_Probe *)asec;
 
-	s->section.inerror = true;	/* By default, we're in error */
+	s->device.section.inerror = true;	/* By default, we're in error */
 
 		/* Sanity check */
-	if(!s->TaHoma){
-		publishLog('E', "[%s] No TaHoma defined", s->section.uid);
+	if(!s->device.TaHoma){
+		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
 		return;
 	}
-	s->gateway = (struct section_TaHoma *)findSectionByName(s->TaHoma);
-	if(!s->gateway || strcmp(s->gateway->section.kind, "TaHoma")){
-		publishLog('E', "[%s] TaHoma \"%s\" not found", s->section.uid, s->TaHoma);
+	s->device.gateway = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(!s->device.gateway || strcmp(s->device.gateway->section.kind, "TaHoma")){
+		publishLog('E', "[%s] TaHoma \"%s\" not found", s->device.section.uid, s->device.TaHoma);
 		return;
 	}
-	if(s->gateway->section.inerror){
-		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->section.uid, s->TaHoma);
+	if(s->device.gateway->section.inerror){
+		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->device.section.uid, s->device.TaHoma);
 		return;
 	}
 
-	if(!s->url){
-		publishLog('F', "[%s] No URL defined", s->section.uid);
+	if(!s->device.url){
+		publishLog('F', "[%s] No URL defined", s->device.section.uid);
 		return;
 	}
 
 	if(!s->States){
-		publishLog('F', "[%s] No state defined", s->section.uid);
+		publishLog('F', "[%s] No state defined", s->device.section.uid);
 		return;
 	}
 
 	for(struct State_definition *st = s->States; st; st = st->next){ /* states' sanity */
 		if(!st->topic){
-			publishLog('F', "[%s] State \"%s\" has no topic defined", s->section.uid, st->state);
+			publishLog('F', "[%s] State \"%s\" has no topic defined", s->device.section.uid, st->state);
 			return;
 		}
 	}
 
-	s->section.inerror = false;	/* Initialisation completed */
+	s->device.section.inerror = false;	/* Initialisation completed */
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -122,21 +122,21 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
-	} else if((arg = striKWcmp(l,"*Device="))){	/* Create a new Device */
+	} else if((arg = striKWcmp(l,"*Probe="))){	/* Create a new probe */
 		if(findSectionByName(arg)){
 			publishLog('F', "Section '%s' is already defined", arg);
 			exit(EXIT_FAILURE);
 		}
 
-		struct section_Device *nsection = malloc(sizeof(struct section_Device));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_DEVICE, strdup(arg), "Device");
-		nsection->TaHoma= NULL;
-		nsection->url = NULL;
+		struct section_Probe *nsection = malloc(sizeof(struct section_Probe));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_PROBE, strdup(arg), "Probe");
+		nsection->device.TaHoma= NULL;
+		nsection->device.url = NULL;
 		nsection->States = NULL;
-		nsection->section.postconfInit = initDevice;
+		nsection->device.section.postconfInit = initProbe;
 
 		if(cfg.verbose)	/* Be verbose if requested */
-			publishLog('C', "\tEntering Device section '%s' (%04x)", nsection->section.uid, nsection->section.id);
+			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
@@ -178,19 +178,19 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"TaHoma="))){
 			acceptSectionDirective(*section, "TaHoma=");
-			(*(struct section_Device **)section)->TaHoma = strdup(arg);
-			assert((*(struct section_Device **)section)->TaHoma);
+			(*(struct section_Probe **)section)->device.TaHoma = strdup(arg);
+			assert((*(struct section_Probe **)section)->device.TaHoma);
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_Device **)section)->TaHoma);
+				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_Probe **)section)->device.TaHoma);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"url="))){
 			acceptSectionDirective(*section, "url=");
-			(*(struct section_Device **)section)->url = strdup(arg);
-			assert((*(struct section_Device **)section)->url);
+			(*(struct section_Probe **)section)->device.url = strdup(arg);
+			assert((*(struct section_Probe **)section)->device.url);
 
 			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tURL : '%s'", (*(struct section_Device **)section)->url);
+				publishLog('C', "\t\tURL : '%s'", (*(struct section_Probe **)section)->device.url);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"**State="))){	/* New state definition */
 			acceptSectionDirective(*section, "**State=");
@@ -208,16 +208,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tEntering State '%s'", nstate->state);
 
-			nstate->next = (*(struct section_Device **)section)->States;
-			(*(struct section_Device **)section)->States = nstate;
+			nstate->next = (*(struct section_Probe **)section)->States;
+			(*(struct section_Probe **)section)->States = nstate;
 
 			return ACCEPTED;
-		} else if((*(struct section_Device **)section)->States){
+		} else if((*(struct section_Probe **)section)->States){
 			/* Handling states' specific directives
 			 * They MUST be refined here : mod_core's doesn't deal with
 			 * the same structure.
 			 */
-			struct State_definition *state = (*(struct section_Device **)section)->States;
+			struct State_definition *state = (*(struct section_Probe **)section)->States;
 
 			if((arg = striKWcmp(l, "state_Topic="))){
 				acceptSectionDirective( *section, "state_Topic=" );
@@ -251,17 +251,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 					publishLog('C', "\t\t\tDISABLED if in simulation mode");
 				return ACCEPTED;
 			}
-
-#if 0
-		} else if((arg = striKWcmp(l,"state="))){
-			acceptSectionDirective(*section, "state=");
-			(*(struct section_State **)section)->state = strdup(arg);
-			assert((*(struct section_State **)section)->state);
-
-			if(cfg.verbose)	/* Be verbose if requested */
-				publishLog('C', "\t\tState: '%s'", (*(struct section_State **)section)->state);
-			return ACCEPTED;
-#endif
 		}
 	}
 
@@ -269,7 +258,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 }
 
 static uint8_t customizePerSubSection( struct Section *section, uint8_t sec_id ){
-	if(sec_id == ST_DEVICE && !!((struct section_Device *)section)->States)
+	if(sec_id == ST_PROBE && !!((struct section_Probe *)section)->States)
 		return ST_STATE;
 	
 	return sec_id;
@@ -289,7 +278,7 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "DontVerifySSL") )
 			return true;
-	} else if(sec_id == ST_DEVICE){
+	} else if(sec_id == ST_PROBE){
 		if( !strcmp(directive, "Disabled") )
 			return true;
 		else if( !strcmp(directive, "DoNotSimulate") )
@@ -330,8 +319,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 
 
 static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
-	if(sid == ST_DEVICE)
-		return processDevice;
+	if(sid == ST_PROBE)
+		return processProbe;
 	return NULL;
 }
 
@@ -347,7 +336,6 @@ void InitModule( void ){
 	mod_TaHoma.module.getSlaveFunction = getSlaveFunction;
 
 	mod_TaHoma.randomize = false;
-	mod_TaHoma.defaultsampletime = 0.0;
 
 	registerModule( (struct Module *)&mod_TaHoma );	/* Register the module */
 
