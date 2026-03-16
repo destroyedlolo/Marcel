@@ -10,6 +10,8 @@
 #include "../Marcel/MQTT_tools.h"
 #include "../Marcel/CURL_helpers.h"
 
+#include <stdlib.h>
+
 void *processProbe (void *actx){
 	struct section_Probe *s = (struct section_Probe *)actx;
 
@@ -29,7 +31,15 @@ void *processProbe (void *actx){
 #endif
 		} else if( !first || s->device.section.immediate ){
 			struct MemoryStruct res = EMPTY_MEMCHUNK;
-printf("*** Querying %d\n", callAPI(&s->device, NULL, &res));
+			if(callAPI(&s->device, NULL, &res)){	/* Call succeeded */
+printf("**** OK : %s\n", res.memory);
+			} else if(cfg.debug){
+				if(res.memory)	/* We're in error but a response may have been provided */
+					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, res.memory);
+			}
+
+			if(res.memory)
+				free(res.memory);
 		}
 
 		struct timespec ts;
