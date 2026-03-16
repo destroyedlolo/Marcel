@@ -13,6 +13,7 @@
 #	include "../mod_Lua/mod_Lua.h"
 #endif
 
+#include <curl/curl.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -68,12 +69,12 @@ static void initProbe(struct Section *asec){
 	}
 
 	if(!s->device.url){
-		publishLog('F', "[%s] No URL defined", s->device.section.uid);
+		publishLog('E', "[%s] No URL defined", s->device.section.uid);
 		return;
 	}
 
 	if(!s->States){
-		publishLog('F', "[%s] No state defined", s->device.section.uid);
+		publishLog('E', "[%s] No state defined", s->device.section.uid);
 		return;
 	}
 
@@ -84,6 +85,41 @@ static void initProbe(struct Section *asec){
 		}
 	}
 
+		/* Building URL */
+	CURL *curl = curl_easy_init();
+	if(!curl){
+		publishLog('E', "[%s] Curl init failed", s->device.section.uid);
+		return;
+	}
+	
+	char *enc = curl_easy_escape(curl, s->device.url, 0);
+	if(!enc){
+		publishLog('E', "[%s] curl_easy_escape failed", s->device.section.uid);
+		curl_easy_cleanup(curl);
+		return;
+	}
+
+	s->device.target_url = malloc(
+		( 
+			s->device.gateway->url_len +
+			strlen("setup/devices//states") +
+			strlen(enc)
+		) +1);
+
+	if(!s->device.target_url){
+		publishLog('E', "[%s] No memory", s->device.section.uid);
+		curl_free(enc);
+		curl_easy_cleanup(curl);
+		return;
+	}
+	sprintf((char *)s->device.target_url, "%ssetup/devices/%s/states", s->device.gateway->baseurl, enc);
+
+	curl_free(enc);
+	curl_easy_cleanup(curl);
+
+	if(cfg.debug)
+		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
+		
 	s->device.section.inerror = false;	/* Initialisation completed */
 }
 

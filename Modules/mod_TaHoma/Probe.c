@@ -29,7 +29,7 @@ void *processProbe (void *actx){
 #endif
 		} else if( !first || s->device.section.immediate ){
 			struct MemoryStruct res = EMPTY_MEMCHUNK;
-// printf("*** Querying %d\n", callAPI(s, s->gateway, s->url, NULL, &res));
+printf("*** Querying %d\n", callAPI(&s->device, NULL, &res));
 		}
 
 		struct timespec ts;

@@ -19,17 +19,8 @@
  * -> post : payload to provide (if NULL, use GET method)
  * -> buff : buffer to feed
  */
-bool callAPI(struct section_Device *s, struct section_TaHoma *gateway, const char *api, const char *post, struct MemoryStruct *buff){
-#if 0
-	if(!gateway->baseurl)	/* The gateway is not yet initialized */
-		buildURL(gateway);
-#endif
-
-	if(buff->memory){	/* Clean the result */
-		free(buff->memory);
-		buff->memory = NULL;
-		buff->size = 0;
-	}
+bool callAPI(struct section_Device *s, const char *post, struct MemoryStruct *buff){
+	assert(!buff->memory);	/* Otherwise, it's meaning it hasn't been initialized */
 
 	CURL *curl = curl_easy_init();
 	if(!curl){
@@ -40,16 +31,16 @@ bool callAPI(struct section_Device *s, struct section_TaHoma *gateway, const cha
 
 	struct curl_slist *headers = NULL;
 
-	char host_header[6 + strlen(gateway->hostname) + 5 + 2]; /* Host: host:port + null */
-	sprintf(host_header, "Host: %s:%u", gateway->hostname, gateway->port);
+	char host_header[6 + strlen(s->gateway->hostname) + 5 + 2]; /* Host: host:port + null */
+	sprintf(host_header, "Host: %s:%u", s->gateway->hostname, s->gateway->port);
 	headers = curl_slist_append(headers, host_header);
 
 	headers = curl_slist_append(headers, "Content-Type: application/json");
 	headers = curl_slist_append(headers, "accept: application/json");
 
-	char auth_header[22 + strlen(gateway->token) + 1];
+	char auth_header[22 + strlen(s->gateway->token) + 1];
 	strcpy(auth_header, "Authorization: Bearer ");
-	strcat(auth_header, gateway->token);
+	strcat(auth_header, s->gateway->token);
 	headers = curl_slist_append(headers, auth_header);
 
 	int res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -60,18 +51,15 @@ bool callAPI(struct section_Device *s, struct section_TaHoma *gateway, const cha
 		return false;
 	}
 
-	char full_url[gateway->url_len + strlen(api) + 1];
-	strcpy(full_url, gateway->baseurl);
-	strcpy(full_url + gateway->url_len, api);
-	curl_easy_setopt(curl, CURLOPT_URL, full_url);
+	curl_easy_setopt(curl, CURLOPT_URL, s->target_url);
 	if(cfg.debug){
-		publishLog('d', "[%s] Calling \"%s\"", s->section.uid, full_url);
+		publishLog('d', "[%s] Calling \"%s\"", s->section.uid, s->target_url);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	}
 
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, "Marcel/" MARCEL_VERSION);
 
-	if(gateway->unsafe){
+	if(s->gateway->unsafe){
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);	/* Don't verify SSL */
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	}

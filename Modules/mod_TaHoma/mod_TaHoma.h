@@ -86,6 +86,6 @@ struct State_definition {
 };
 
 extern void *processProbe(void *);
-extern bool callAPI(struct section_Device *, struct section_TaHoma *, const char *, const char *, struct MemoryStruct *);
+extern bool callAPI(struct section_Device *, const char *, struct MemoryStruct *);
 
 #endif
