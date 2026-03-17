@@ -30,16 +30,39 @@ void *processProbe (void *actx){
 				publishLog('d', "[%s] is disabled", s->device.section.uid);
 #endif
 		} else if( !first || s->device.section.immediate ){
-			struct MemoryStruct res = EMPTY_MEMCHUNK;
-			if(callAPI(&s->device, NULL, &res)){	/* Call succeeded */
-printf("**** OK : %s\n", res.memory);
+			struct MemoryStruct buff = EMPTY_MEMCHUNK;
+			if(callAPI(&s->device, NULL, &buff)){	/* Call succeeded */
+printf("**** OK : %s\n", buff.memory);
+				struct json_object *res= json_tokener_parse(buff.memory);
+				if(json_object_is_type(res, json_type_array)){
+					size_t nbr = json_object_array_length(res);	/* get the number of sub objects */
+					for(size_t idx=0; idx < nbr; ++idx){
+						struct json_object *obj = json_object_array_get_idx(res, idx);
+						const char *n = getObjString(obj, OBJPATH( "name", NULL ));
+						int type = getObjInt(obj, OBJPATH( "type", NULL ));
+
+						if(!n || !type)	/* Bad formatted response */
+							continue;
+
+						for(struct State_definition *st = s->States; st; st = st->next){
+							if(!strcmp(n, st->state)){
+								struct json_object *val = getObj(obj,  OBJPATH( "value", NULL ) );
+								printf("*** Found '%s' : %s\n", n, json_object_to_json_string(val));
+							}
+						}
+					}
+				} else {
+					publishLog('E', "[%s] Incorrect response (not an array)", s->device.section.uid);
+					SectionError((struct Section *)s, true);
+				}
+				json_object_put(res);
 			} else if(cfg.debug){
-				if(res.memory)	/* We're in error but a response may have been provided */
-					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, res.memory);
+				if(buff.memory)	/* We're in error but a response may have been provided */
+					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
 			}
 
-			if(res.memory)
-				free(res.memory);
+			if(buff.memory)
+				free(buff.memory);
 		}
 
 		struct timespec ts;

@@ -9,6 +9,7 @@
  */
 
 #include "mod_alert.h"	/* module's own stuffs */
+#include "../Marcel/CURL_helpers.h"
 
 #include <stdlib.h>
 #include <string.h>

@@ -81,4 +81,80 @@ void function_needing_curl() {
 void init_Curl(void){
 	pthread_once(&curl_init_once, init_curl_global);
 }
+
+	/* Extract a JSon object per its path
+	 */
+struct json_object *getObj(struct json_object *parent, const char *path[]){
+	struct json_object *obj = parent;
+
+	for(int i=0; path[i]; ++i){
+#if 0	/* Remove uneeded noise */
+		if(debug)
+			printf("*D* %d: '%s'\n", i, path[i]);
+#endif
+
+		if(!obj){
+			if(cfg.debug)
+				publishLog('E', "JSon : Broken path at %dth\n", i);
+			return NULL;
+		}
+		obj = json_object_object_get(obj, path[i]);
+	}
+
+	return obj;
+}
+
+const char *getObjString(struct json_object *parent, const char *path[]){
+	struct json_object *obj = getObj(parent, path);
+	if(!obj)
+		return NULL;
+
+	if(json_object_is_type(obj, json_type_string))
+		return json_object_get_string(obj);
+	else if(cfg.debug)
+		publishLog('E', "JSon : Expecting a string");
+
+	return NULL;
+}
+
+int getObjInt(struct json_object *parent, const char *path[]){
+	struct json_object *obj = getObj(parent, path);
+	if(!obj)
+		return 0;
+
+	if(json_object_is_type(obj, json_type_int))
+		return json_object_get_int(obj);
+	else if(cfg.debug)
+		publishLog('E', "JSon : Expecting an integer");
+
+	return 0;
+}
+
+double getObjNumber(struct json_object *parent, const char *path[]){
+	struct json_object *obj = getObj(parent, path);
+	if(!obj)
+		return 0;
+
+	if(json_object_is_type(obj, json_type_double))
+		return json_object_get_double(obj);
+	else if(json_object_is_type(obj, json_type_int))	/* It seems some object are only integers */
+		return json_object_get_int(obj);
+	else if(cfg.debug)
+		publishLog('E', "JSon : Expecting a double or integer");
+
+	return 0;
+}
+
+bool getObjBool(struct json_object *parent, const char *path[]){
+	struct json_object *obj = getObj(parent, path);
+	if(!obj)
+		return false;
+
+	if(json_object_is_type(obj, json_type_boolean))
+		return json_object_get_boolean(obj);
+	else if(cfg.debug)
+		publishLog('E', "JSon : Expecting a boolean\n");
+
+	return false;
+}
 #endif /* USE_CURL */
