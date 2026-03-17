@@ -11,6 +11,7 @@
 
 #include <json-c/json.h>
 #include <sys/types.h>
+#include <stdbool.h>
 
 struct MemoryStruct {
 	char *memory;
