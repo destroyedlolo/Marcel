@@ -29,7 +29,7 @@ void *processProbe (void *actx){
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->device.section.uid);
 #endif
-		} else if( (!first || s->device.section.immediate) && isDisabled((struct Section *)s) ){
+		} else if( !first || s->device.section.immediate ){
 			struct MemoryStruct buff = EMPTY_MEMCHUNK;
 			if(callAPI(&s->device, NULL, &buff)){	/* Call succeeded */
 printf("**** OK : %s\n", buff.memory);
@@ -46,8 +46,11 @@ printf("**** OK : %s\n", buff.memory);
 
 						for(struct State_definition *st = s->States; st; st = st->next){
 							if(!strcmp(n, st->state)){
-								struct json_object *val = getObj(obj,  OBJPATH( "value", NULL ) );
-								printf("*** Found '%s' : %s\n", n, json_object_to_json_string(val));
+								if(! (st->disabled || (st->dontSimulate && cfg.simulate)) ){
+									struct json_object *val = getObj(obj,  OBJPATH( "value", NULL ) );
+									printf("*** Found '%s' : %s\n", n, json_object_to_json_string(val));
+								} else if(cfg.debug)
+									publishLog('d', "[%s][%s] is disabled", s->device.section.uid, st->state);
 								break;
 							}
 						}
