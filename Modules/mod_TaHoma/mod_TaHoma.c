@@ -358,6 +358,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "state_DoNotSimulate") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "**State=") )	/* To let starting a new state */
+			return true;	/* Accepted */
 #if 0
 		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
