@@ -25,22 +25,4 @@ Tests DoNotSimulate
 
 -----------
 
-mod_TaHoma.c/initDevice
-- Build target_url
-
-Device : general abstraction
-Probe : get values
-Acuator : trigger an action
-
-A device can be both a probe and an actuator.
-
-By default, sample = 0 -> Actuator only
-
-if sample not null ->
-	- States must be defined
-	- launch processDevice()
-
-APIRequest.c/callAPI
-	bool callAPI(struct section_Device *s, const char *api, const char *post, struct MemoryStruct *buff)
-
-	The gateway can be found from the section_Device
+TaHoma : lua function

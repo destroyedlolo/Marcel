@@ -32,7 +32,6 @@ void *processProbe (void *actx){
 		} else if( !first || s->device.section.immediate ){
 			struct MemoryStruct buff = EMPTY_MEMCHUNK;
 			if(callAPI(&s->device, NULL, &buff)){	/* Call succeeded */
-printf("**** OK : %s\n", buff.memory);
 				struct json_object *res= json_tokener_parse(buff.memory);
 				if(json_object_is_type(res, json_type_array)){
 					size_t nbr = json_object_array_length(res);	/* get the number of sub objects */
@@ -48,7 +47,11 @@ printf("**** OK : %s\n", buff.memory);
 							if(!strcmp(n, st->state)){
 								if(! (st->disabled || (st->dontSimulate && cfg.simulate)) ){
 									struct json_object *val = getObj(obj,  OBJPATH( "value", NULL ) );
-									printf("*** Found '%s' : %s\n", n, json_object_to_json_string(val));
+									const char *l = json_object_to_json_string(val);
+
+									mqttpublish(cfg.client, st->topic, strlen(l), (void *)l, st->retained );
+									if(cfg.debug)
+										publishLog('d', "[%s][%s] %s", s->device.section.uid, st->state, l);
 								} else if(cfg.debug)
 									publishLog('d', "[%s][%s] is disabled", s->device.section.uid, st->state);
 								break;
