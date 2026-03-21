@@ -30,6 +30,7 @@ enum {
 	ST_TAHOMA = 0,
 	ST_PROBE,
 	ST_ACUATOR,
+	ST_EVENT,
 	ST_STATE	/* Not really a section but used to validate options */
 };
 
@@ -63,6 +64,23 @@ struct section_Probe {
 	struct section_Device device;
 
 	struct State_definition *States;	/* States to extract */
+};
+
+	/* Event definition
+	 * 
+	 *	Event's Fields mapping :
+	 *
+	 *	name - Event
+	 *	deviceURL - device.url
+	 *	state
+	 *		name : state.state
+	 *	...
+	 */
+struct section_Event {
+	struct section_Device device;
+
+	const char *name;
+	struct State_definition *States;	/* States to consider */
 };
 
 	/* Query a state */

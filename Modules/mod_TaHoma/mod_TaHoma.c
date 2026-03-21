@@ -189,6 +189,25 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*Event="))){	/* Create a new Event */
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_Event *nsection = malloc(sizeof(struct section_Event));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_EVENT, strdup(arg), "Probe");
+		nsection->device.TaHoma= NULL;
+		nsection->device.url = NULL;
+		nsection->States = NULL;
+//		nsection->device.section.postconfInit = initProbe;
+		nsection->device.section.sample = 30;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
+		return ACCEPTED;
 	} else if(*section){
 		if((arg = striKWcmp(l,"TaHoma_host="))){
 			acceptSectionDirective(*section, "TaHoma_host=");
@@ -240,6 +259,14 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tURL : '%s'", (*(struct section_Probe **)section)->device.url);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"event="))){
+			acceptSectionDirective(*section, "event=");
+			(*(struct section_Event **)section)->name = strdup(arg);
+			assert((*(struct section_Event **)section)->name);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tEvent : '%s'", (*(struct section_Event **)section)->name);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"**State="))){	/* New state definition */
 			acceptSectionDirective(*section, "**State=");
@@ -307,7 +334,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 }
 
 static uint8_t customizePerSubSection( struct Section *section, uint8_t sec_id ){
-	if(sec_id == ST_PROBE && !!((struct section_Probe *)section)->States)
+	if((sec_id == ST_PROBE || sec_id == ST_EVENT) && !!((struct section_Probe *)section)->States)
 		return ST_STATE;
 	
 	return sec_id;
@@ -343,6 +370,19 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "url=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )
+			return true;	/* Accepted */
+	} else if(sec_id == ST_EVENT){
+puts("*** Gna");
+		if( !strcmp(directive, "TaHoma=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "url=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "event=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Sample=") ) {
+puts("*** ok");
+			return true;
+		} else if( !strcmp(directive, "**State=") )
 			return true;	/* Accepted */
 	} else if(sec_id == ST_STATE){
 			/* Despite they're having same goal
