@@ -73,10 +73,20 @@ void *processProbe (void *actx){
 				free(buff.memory);
 		}
 
-		struct timespec ts;
-		ts.tv_sec = (time_t)s->device.section.sample;
-		ts.tv_nsec = (unsigned long int)((s->device.section.sample - (time_t)s->device.section.sample) * 1e9);
+		if(s->device.section.sample > 0){
+			struct timespec ts;
+			ts.tv_sec = (time_t)s->device.section.sample;
+			ts.tv_nsec = (unsigned long int)((s->device.section.sample - (time_t)s->device.section.sample) * 1e9);
 
-		nanosleep( &ts, NULL );
+			nanosleep( &ts, NULL );
+		} else {
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is running only once", s->device.section.uid);
+#endif
+			break;
+		}
 	}
+
+	return NULL;
 }

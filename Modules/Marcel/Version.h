@@ -54,7 +54,7 @@
  * 19/06/2025	- LF - v8.08 - Add ForceHostname
  * 19/06/2025	- LF - v8.09 - Add AXP20x modules
  * 12/10/2025	- LF - v8.10 - Correct Lua leak
- * 14/03/2026	- LF - v8.11 - Add TaHoma module
+ * 14/03/2026	- LF - v8.11 - Add TaHoma module and its Probe section
  */
 
 #ifndef MARCEL_VERSION_H
