@@ -12,6 +12,9 @@
 #include <curl/curl.h>
 #include <assert.h>
 #include <stdlib.h>
+#ifdef MCHECK
+#include <malloc.h>
+#endif
 
 /* Query the TaHoma
  * -> gateway : the TaHoma to query
@@ -22,14 +25,20 @@
 bool callAPI(struct section_Device *s, const char *post, struct MemoryStruct *buff){
 	assert(!buff->memory);	/* Otherwise, it's meaning it hasn't been initialized */
 
+#ifdef MCHECK
+	/* Check if there is any memory leak */
+	struct mallinfo2 beg, end;
+	beg = mallinfo2();
+#endif
+
 	CURL *curl = curl_easy_init();
+	struct curl_slist *headers = NULL;
+
 	if(!curl){
 		publishLog('E', "[%s] curl_easy_init() failed", s->section.uid);
 		SectionError((struct Section *)s, true);
 		return false;
 	}
-
-	struct curl_slist *headers = NULL;
 
 	char host_header[6 + strlen(s->gateway->hostname) + 5 + 2]; /* Host: host:port + null */
 	sprintf(host_header, "Host: %s:%u", s->gateway->hostname, s->gateway->port);
@@ -47,6 +56,7 @@ bool callAPI(struct section_Device *s, const char *post, struct MemoryStruct *bu
 	if(res != CURLE_OK){
 		publishLog('E', "[%s] curl_easy_setopt() : %s", s->section.uid, curl_easy_strerror(res));
 		SectionError((struct Section *)s, true);
+		curl_easy_cleanup(curl);
 		curl_slist_free_all(headers);
 		return false;
 	}
@@ -93,6 +103,16 @@ bool callAPI(struct section_Device *s, const char *post, struct MemoryStruct *bu
 		/* Cleanup */
 	curl_easy_cleanup(curl);
 	curl_slist_free_all(headers);
+
+#ifdef MCHECK
+	/* Check if there is any memory leak */
+	end = mallinfo2();
+
+	if(end.uordblks != beg.uordblks)
+		publishLog('W', "[%s] (callAPI) %zu octets lost", s->section.uid, end.uordblks - beg.uordblks);
+	else
+		publishLog('W', "[%s] (callAPI) No octets lost", s->section.uid);
+#endif
 
 	return(res == CURLE_OK);
 }

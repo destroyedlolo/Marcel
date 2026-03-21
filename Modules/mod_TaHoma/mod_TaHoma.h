@@ -61,7 +61,7 @@ struct section_Device {
 	/* Probe definition */
 struct State_definition;
 struct section_Probe {
-	struct section_Device device;
+	struct section_Device device;	/* MUST BE the 1st field */
 
 	struct State_definition *States;	/* States to extract */
 };
@@ -77,7 +77,7 @@ struct section_Probe {
 	 *	...
 	 */
 struct section_Event {
-	struct section_Device device;
+	struct section_Device device;	/* MUST BE the 1st field */
 
 	const char *name;
 	struct State_definition *States;	/* States to consider */
