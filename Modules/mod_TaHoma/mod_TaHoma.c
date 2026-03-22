@@ -123,6 +123,51 @@ static void initProbe(struct Section *asec){
 	s->device.section.inerror = false;	/* Initialisation completed */
 }
 
+static void initEvent(struct Section *asec){
+	struct section_Event *s = (struct section_Event *)asec;
+
+	s->device.section.inerror = true;	/* By default, we're in error */
+
+		/* Sanity check */
+	if(!s->device.TaHoma){
+		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
+		return;
+	}
+	s->device.gateway = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(!s->device.gateway || strcmp(s->device.gateway->section.kind, "TaHoma")){
+		publishLog('E', "[%s] TaHoma \"%s\" not found", s->device.section.uid, s->device.TaHoma);
+		return;
+	}
+	if(s->device.gateway->section.inerror){
+		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->device.section.uid, s->device.TaHoma);
+		return;
+	}
+
+	if(!s->device.url){
+		publishLog('E', "[%s] No URL defined", s->device.section.uid);
+		return;
+	}
+
+	if(!s->name){
+		publishLog('E', "[%s] No event's name defined", s->device.section.uid);
+		return;
+	}
+
+	if(!s->States){
+		publishLog('E', "[%s] No state defined", s->device.section.uid);
+		return;
+	}
+
+	for(struct State_definition *st = s->States; st; st = st->next){ /* states' sanity */
+		if(!st->topic){
+			publishLog('F', "[%s] State \"%s\" has no topic defined", s->device.section.uid, st->state);
+			return;
+		}
+	}
+
+	s->device.section.inerror = false;	/* Initialisation completed */
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -200,7 +245,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device.TaHoma= NULL;
 		nsection->device.url = NULL;
 		nsection->States = NULL;
-//		nsection->device.section.postconfInit = initProbe;
+		nsection->device.section.postconfInit = initEvent;
 		nsection->device.section.sample = 30;
 
 		if(cfg.verbose)	/* Be verbose if requested */

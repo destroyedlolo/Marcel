@@ -61,8 +61,12 @@ struct section_Device {
 	/* Probe definition */
 struct State_definition;
 struct section_Probe {
-	struct section_Device device;	/* MUST BE the 1st field */
-
+		/* Those 2 fields MUST be the first ones as cast
+		 * abruptly in mod_TaHoma.c .
+		 * It would have been cleaner to create a dedicated struct,
+		 * but it would be an overkill as "child" sections are quite basic.
+		 */
+	struct section_Device device;
 	struct State_definition *States;	/* States to extract */
 };
 
@@ -77,10 +81,11 @@ struct section_Probe {
 	 *	...
 	 */
 struct section_Event {
-	struct section_Device device;	/* MUST BE the 1st field */
+		/* Those 2 fields MUST be the first one */
+	struct section_Device device;
+	struct State_definition *States;	/* States to consider */
 
 	const char *name;
-	struct State_definition *States;	/* States to consider */
 };
 
 	/* Query a state */
