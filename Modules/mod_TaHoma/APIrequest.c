@@ -16,13 +16,7 @@
 #include <malloc.h>
 #endif
 
-/* Query the TaHoma
- * -> gateway : the TaHoma to query
- * -> api : API to query
- * -> post : payload to provide (if NULL, use GET method)
- * -> buff : buffer to feed
- */
-bool callAPI(struct section_Device *s, const char *post, struct MemoryStruct *buff){
+static bool internal_callAPI(struct section_Device *s, const char *api, const char *post, struct MemoryStruct *buff){
 	assert(!buff->memory);	/* Otherwise, it's meaning it hasn't been initialized */
 
 #ifdef MCHECK
@@ -61,9 +55,9 @@ bool callAPI(struct section_Device *s, const char *post, struct MemoryStruct *bu
 		return false;
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, s->target_url);
+	curl_easy_setopt(curl, CURLOPT_URL, api);
 	if(cfg.debug){
-		publishLog('d', "[%s] Calling \"%s\"", s->section.uid, s->target_url);
+		publishLog('d', "[%s] Calling \"%s\"", s->section.uid, api);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	}
 
@@ -115,4 +109,20 @@ bool callAPI(struct section_Device *s, const char *post, struct MemoryStruct *bu
 #endif
 
 	return(res == CURLE_OK);
+}
+
+/* Query the TaHoma
+ * -> s : Corresponding device
+ * -> api : API to query (if NULL, use s->target_url)
+ * -> post : payload to provide (if NULL, use GET method)
+ * -> buff : buffer to feed
+ */
+bool callAPI(struct section_Device *s, const char *api, const char *post, struct MemoryStruct *buff){
+	if(!api)
+		return internal_callAPI(s, s->target_url, post, buff);
+
+	char url[s->gateway->url_len + strlen(api) + 1];
+	sprintf(url, "%s%s", s->gateway->baseurl, api);
+
+	return internal_callAPI(s, url, post, buff);
 }

@@ -19,6 +19,7 @@ struct MemoryStruct {
 };
 
 #define EMPTY_MEMCHUNK { NULL, 0 }
+extern void freeResponse(struct MemoryStruct *);
 
 extern size_t WriteMemoryCallback(void *, size_t, size_t, void *);
 extern void init_Curl(void);

@@ -129,6 +129,11 @@ static void initEvent(struct Section *asec){
 	s->device.section.inerror = true;	/* By default, we're in error */
 
 		/* Sanity check */
+	if(s->device.section.sample < 1){
+		publishLog('E', "[%s] Sample must be a non null positive number", s->device.section.uid);
+		return;
+	}
+
 	if(!s->device.TaHoma){
 		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
 		return;
@@ -462,6 +467,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
 	if(sid == ST_PROBE)
 		return processProbe;
+	else if(sid == ST_EVENT)
+		return processEvent;
 	return NULL;
 }
 

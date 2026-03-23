@@ -31,7 +31,7 @@ void *processProbe (void *actx){
 #endif
 		} else if( !first || s->device.section.immediate ){
 			struct MemoryStruct buff = EMPTY_MEMCHUNK;
-			if(callAPI(&s->device, NULL, &buff)){	/* Call succeeded */
+			if(callAPI(&s->device, NULL, NULL, &buff)){	/* Call succeeded */
 				struct json_object *res= json_tokener_parse(buff.memory);
 				if(json_object_is_type(res, json_type_array)){
 					size_t nbr = json_object_array_length(res);	/* get the number of sub objects */
@@ -70,7 +70,7 @@ void *processProbe (void *actx){
 			}
 
 			if(buff.memory)
-				free(buff.memory);
+				freeResponse(&buff);
 		}
 
 		if(s->device.section.sample > 0){

@@ -43,6 +43,14 @@ size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *user
 #include <pthread.h>
 #include <curl/curl.h>
 
+void freeResponse(struct MemoryStruct *buff){
+	if(buff->memory){
+		free(buff->memory);
+		buff->memory = NULL;
+		buff->size = 0;
+	}
+}
+
 static pthread_once_t curl_init_once = PTHREAD_ONCE_INIT;
 
 	/* Global cleanup
