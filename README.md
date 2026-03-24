@@ -1,13 +1,13 @@
 Marcel
 ===
-**Marcel** is a Lightweight, Open, Powerful, and Truly Modular **data gathering and MQTT publisher**.
+**Marcel** is a lightweight, open, and powerful **MQTT publisher** designed for modular data gathering.
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/destroyedlolo/Marcel?label=version&style=flat-square&label=Last%20stable%20version)
 ![GitHub last commit](https://img.shields.io/github/last-commit/destroyedlolo/Marcel/Dev?style=flat-square&label=Last%20commit%20in%20Dev)
 [![Top Language](https://img.shields.io/github/languages/top/destroyedlolo/Marcel?style=flat-square&color=blue)](https://github.com/destroyedlolo/Marcel)
 [![Languages Count](https://img.shields.io/github/languages/count/destroyedlolo/Marcel?style=flat-square)](https://github.com/destroyedlolo/Marcel)
 
-# Table of content
+# 📋 Table of contents
 
 - [Introduction to Marcel ?](#introduction-to-marcel--)
   * [Built for Flexibility, Power, and Efficiency](#built-for-flexibility--power--and-efficiency)
@@ -34,7 +34,7 @@ Marcel
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-# Introduction to Marcel ?
+# 🐇 Introduction to Marcel
 
 **Marcel** is a lightweight daemon designed to collect, process, and publish a broad spectrum of data. Its modular architecture allows you to:
 
@@ -63,7 +63,7 @@ The system embeds a simple but powerful mechanism to manage and communicate thro
 
 Incoming data can be validated and enhanced utilizing the system's powerful **Lua** scripting capabilities. This process is also known as **Brown to Silver** data transformation.
 
-# Installation
+# 🛠️ Installation
 
 ## From sources
 
@@ -100,7 +100,7 @@ In addition, [json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https
 
 [json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https://curl.se/libcurl/) are needed to communicate with your TaHoma.
 
-# Running
+# ⚙️ Running
 
 ## Configuration
 
