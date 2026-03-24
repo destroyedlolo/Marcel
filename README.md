@@ -1,4 +1,4 @@
-Marcel
+<img src="images/Marcel.png" alt="Marcel Logo" width="100" align="left"> Marcel
 ===
 **Marcel** is a lightweight, open, and powerful **MQTT publisher** designed for modular data gathering.
 
@@ -34,7 +34,7 @@ Marcel
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-# 🐇 Introduction to Marcel
+# 🚀 Introduction to Marcel
 
 **Marcel** is a lightweight daemon designed to collect, process, and publish a broad spectrum of data. Its modular architecture allows you to:
 
