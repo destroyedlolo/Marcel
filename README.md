@@ -1,4 +1,4 @@
-<img src="images/Marcel.png" alt="Marcel Logo" width="100" align="left"> Marcel
+![Marcel Logo](images/Marcel.png) Marcel
 ===
 **Marcel** is a lightweight, open, and powerful **MQTT publisher** designed for modular data gathering.
 
