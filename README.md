@@ -1,23 +1,47 @@
 Marcel
 ===
-**Marcel** is a lightweight, versatile **MQTT data publisher**.
+**Marcel** is a Lightweight, Open, Powerful, and Truly Modular **data gathering and MQTT publisher**.
 
-Focusing on smart home automation (but not only), its optional modules publish : 
-- 1-wire probes environmental figures
-- weather forecast
-- UPS figures
-- external MQTT events
-- and many more
+# Introduction to Marcel ?
 
-Can raise some notifications, manage alerts, and control some devices. 
+**Marcel** is a lightweight daemon designed to collect, process, and publish a broad spectrum of data. Its modular architecture allows you to:
 
-**Lua user scripts** can be used to build simple automation and/or, to validate incoming values.
+* **Acquire environmental data** from various sources, such as 1-Wire probes or third-party gateways (e.g., Somfy TaHoma), and drive connected actuators.
+* **Fetch and publish** local weather forecasts.
+* **Monitor UPS** (Uninterruptible Power Supply) metrics and generate corresponding alerts.
+* **Integrate** many other data sources and services
+* and many more ...
+
+## Built for Flexibility, Power, and Efficiency
+
+Adhering to **KISS** (Keep It Simple, Stupid) principles, Marcel features a highly modular architecture composed of dedicated, reliable, and
+independent modules.  
+This design ensures maximum efficiency: you only load the specific modules required for your use case, eliminating bloat and preventing resource
+waste on unused functionalities.
 
 Thanks to its open and powerful module's API, it's *easy* to add new functionalities.
 
-`Build from source.md` contains technical information if you want to compile directly from its source code.
+## Data Quality and Error Management
 
-# Dependencies
+**Marcel** can monitor external MQTT events to ensure timely completion, data quality, and trustworthiness. It can raise alerts if a deviance is detected.  
+The system embeds a simple but powerful mechanism to manage and communicate throughout an issue's lifecycle, from initial detection to final resolution.
+
+
+## Maximum Data Mastering
+
+Incoming data can be validated and enhanced utilizing the system's powerful **Lua** scripting capabilities. This process is also known as **Brown to Silver** data transformation.
+
+# Installation
+
+## From sources
+
+If **Marcel** is not packaged for your distribution, the `Build from source.md` file contains the technical information required to compile it directly from source code.
+
+> [!TIP]
+> **Marcel** is primarily designed and developed for **Linux**. It has been intensively tested on **Linux x86, AMD64, and ARM** architectures.  
+> While there is no known technical barrier to running it on **BSD** systems, it is not officially tested or supported on that platform (yet ?).
+
+## Dependencies
 
 As the communication is based on MQTT messages, you obviously need a ... **broker** :
 I personally use [Mosquitto](http://mosquitto.org/).
@@ -39,6 +63,18 @@ You need to provide your own license key to query the weather forecast, it's fre
 Take a look on : https://openweathermap.org/
 
 In addition, [json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https://curl.se/libcurl/) are needed.
+
+### mod_TaHoma own's
+
+[json-c](https://github.com/json-c/json-c/wiki) and [libcurl](https://curl.se/libcurl/) are needed to communicate with your TaHoma.
+
+# Running
+
+## Configuration
+
+The `Modules` directory contains specific documentation for each module, along with configuration examples. Comprehensive use-case examples are currently in development and will be available soon.
+
+Before diving into specific modules, consulting the `Modules/Marcel` documentation is **essential reading** to understand global configuration directives.
 
 ## Launch options :
 Marcel knows the following options :
@@ -90,11 +126,6 @@ As example, if `Marcel/NamedNotificationChange/p` is published with
 1
 ```
 means, **p** named notification is *enabled*.
-
-## Modules
-
-`Modules` contains the documentation for each module.<br>
-Taking a look in `Modules/Marcel` is a *must-read* about global directives.
   
-## Side note
+# Side note
 The name is a tribute to my late rabbit, who passed away some days before I started this project : he stayed at home as a keeper. RIP.
