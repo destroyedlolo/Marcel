@@ -1,4 +1,4 @@
-![Marcel Logo](images/Marcel.png) Marcel
+![Marcel Logo](Images/Marcel.png) Marcel
 ===
 **Marcel** is a lightweight, open, and powerful **MQTT publisher** designed for modular data gathering.
 
