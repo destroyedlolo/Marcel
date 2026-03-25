@@ -242,10 +242,76 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tURL : '%s'", (*(struct section_Probe **)section)->device.url);
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"**State="))){	/* New state definition */
+			acceptSectionDirective(*section, "**State=");
+
+			struct State_definition *nstate = malloc(sizeof(struct State_definition));	/* Allocate a new state */
+			nstate->state = strdup(arg);
+			assert(nstate->state);
+			nstate->disabled = false;
+			nstate->dontSimulate = false;
+			nstate->topic = NULL;
+			nstate->retained = false;
+			nstate->funcname = NULL;
+			nstate->funcid = LUA_REFNIL;
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tEntering State '%s'", nstate->state);
+
+			nstate->next = (*(struct section_Probe **)section)->States;
+			(*(struct section_Probe **)section)->States = nstate;
+
+			return ACCEPTED;
+		} else if((*(struct section_Probe **)section)->States){
+			/* Handling states' specific directives
+			 * They MUST be refined here : mod_core's doesn't deal with
+			 * the same structure.
+			 */
+			struct State_definition *state = (*(struct section_Probe **)section)->States;
+
+			if((arg = striKWcmp(l, "state_Topic="))){
+				acceptSectionDirective( *section, "state_Topic=" );
+
+				state->topic = strdup(arg);
+				assert(state->topic);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tTopic : '%s'", state->topic);
+
+				return ACCEPTED;
+			} else if((!strcmp(l,"state_Retained"))){
+				acceptSectionDirective(*section, "state_Retained");
+				state->retained = true;
+
+				if(cfg.verbose)	/* Be verbose if requested */
+					publishLog('C', "\t\t\tSent as retained");
+				return ACCEPTED;
+			} else if((!strcmp(l,"state_Disabled"))){
+				acceptSectionDirective(*section, "state_Disabled");
+				state->disabled = true;
+
+				if(cfg.verbose)	/* Be verbose if requested */
+					publishLog('C', "\t\t\tStarting DISABLED");
+				return ACCEPTED;
+			} else if((!strcmp(l,"state_DoNotSimulate"))){
+				acceptSectionDirective(*section, "state_DoNotSimulate");
+				state->dontSimulate = true;
+
+				if(cfg.verbose)	/* Be verbose if requested */
+					publishLog('C', "\t\t\tDISABLED if in simulation mode");
+				return ACCEPTED;
+			}
 		}
 	}
 
 	return REJECTED;
+}
+
+static uint8_t customizePerSubSection( struct Section *section, uint8_t sec_id ){
+	if(sec_id == ST_PROBE && !!((struct section_Probe *)section)->States)
+		return ST_STATE;
+	
+	return sec_id;
 }
 
 static bool acceptSDirective( uint8_t sec_id, const char *directive ){
@@ -279,6 +345,22 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )
 			return true;	/* Accepted */
+	} else if(sec_id == ST_STATE){
+			/* Despite they're having same goal
+			 * I need to prepend with "state_"
+			 * otherwise, it will be take in account by
+			 * mod_core first (and then rejected).
+			 */
+		if( !strcmp(directive, "state_Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "state_Retained") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "state_Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "state_DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "**State=") )	/* To let starting a new state */
+			return true;	/* Accepted */
 	}
 
 	return false;
@@ -292,8 +374,8 @@ void InitModule( void ){
 		 */
 	mod_TaHoma.module.readconf = readconf;
 	mod_TaHoma.module.acceptSDirective = acceptSDirective;
-/*
 	mod_TaHoma.module.customeSID = customizePerSubSection;
+/*
 	mod_TaHoma.module.getSlaveFunction = getSlaveFunction;
 */
 
