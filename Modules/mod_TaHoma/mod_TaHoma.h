@@ -85,4 +85,8 @@ struct State_definition {
 	int funcid;				/* Function id in Lua registry */
 };
 
+extern void *processProbe(void *);
+extern void *processEvent(void *);
+extern bool callAPI(struct section_Device *, const char *, const char *, struct MemoryStruct *);
+
 #endif

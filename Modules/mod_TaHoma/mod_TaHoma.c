@@ -366,6 +366,16 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	return false;
 }
 
+static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
+	if(sid == ST_PROBE)
+		return processProbe;
+#if 0
+	else if(sid == ST_EVENT)
+		return processEvent;
+#endif
+	return NULL;
+}
+
 void InitModule( void ){
 	initModule((struct Module *)&mod_TaHoma, "mod_TaHoma");	/* Identify the module */
 
@@ -375,9 +385,7 @@ void InitModule( void ){
 	mod_TaHoma.module.readconf = readconf;
 	mod_TaHoma.module.acceptSDirective = acceptSDirective;
 	mod_TaHoma.module.customeSID = customizePerSubSection;
-/*
 	mod_TaHoma.module.getSlaveFunction = getSlaveFunction;
-*/
 
 	mod_TaHoma.randomize = false;
 	mod_TaHoma.defaultsampletime = 300;
