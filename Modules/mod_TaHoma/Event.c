@@ -55,10 +55,40 @@ void *processEvent(void *actx){
 	if(cfg.debug)
 		publishLog('d', "[%s] Fetching URI \"%s\"", s->device.section.uid, fetchreq);
 
-	/*
 	for(;;){
+		callAPI(&s->device, fetchreq, "", &buff);
+/*		if(cfg.debug) */
+			publishLog('d', "[%s] Event resp: \"%s\"", s->device.section.uid, buff.memory ? buff.memory : "NULL data");
+
+		if(buff.memory){
+			struct json_object *parsed_json = json_tokener_parse(buff.memory);
+			if(json_object_is_type(parsed_json, json_type_array)){
+				size_t nbre = json_object_array_length(parsed_json);
+				for(size_t i=0; i<nbre; ++i){
+					struct json_object *entry = json_object_array_get_idx(parsed_json, i);
+					const char *dev = getObjString(entry, OBJPATH( "deviceURL", NULL ));
+					const char *name = getObjString(entry, OBJPATH( "name", NULL ));
+					struct json_object *val = getObj(entry,  OBJPATH( "deviceStates", "value", NULL ) );
+					const char *l = json_object_to_json_string(val);
+
+/*					if(cfg.debug) */
+						publishLog('d', "[%s] Event n: %s, u:%s v:%s", s->device.section.uid, name, dev, l);
+
+				}
+			} else /* if(cfg.debug) */
+				publishLog('E', "[%s] Not a JSON array", s->device.section.uid);
+
+			json_object_put(parsed_json);
+			freeResponse(&buff);
+
+			struct timespec ts;
+			ts.tv_sec = (time_t)s->device.section.sample;
+			ts.tv_nsec = (unsigned long int)((s->device.section.sample - (time_t)s->device.section.sample) * 1e9);
+
+			nanosleep( &ts, NULL );
+		}
+	
 	}
-*/
 
 	char unregreq[strlen("events//unregister") + strlen(idobj) +1];
 	sprintf(unregreq, "events/%s/unregister", idobj);

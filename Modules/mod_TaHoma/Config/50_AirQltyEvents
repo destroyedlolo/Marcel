@@ -19,6 +19,7 @@
 
 	# Sample : Delay b/w sample in second
 	# Must be > 0
+	# default : 30s
 	Sample=60
 
 **State=core:TemperatureState
