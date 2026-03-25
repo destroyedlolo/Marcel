@@ -1,0 +1,11 @@
+# Load TaHoma's module
+
+LoadModule=mod_TaHoma.so
+
+# Probes will be randomly delayed to avoid overloading the gateway
+# by too many request at the same time.
+RandomizeProbes
+
+# Sample value to apply when Sample= is absent (in seconds)
+# default value is 300
+DefaultSampleDelay=5.5
