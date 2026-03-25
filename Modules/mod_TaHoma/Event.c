@@ -67,13 +67,19 @@ void *processEvent(void *actx){
 				for(size_t i=0; i<nbre; ++i){
 					struct json_object *entry = json_object_array_get_idx(parsed_json, i);
 					const char *dev = getObjString(entry, OBJPATH( "deviceURL", NULL ));
-					const char *name = getObjString(entry, OBJPATH( "name", NULL ));
-					struct json_object *val = getObj(entry,  OBJPATH( "deviceStates", "value", NULL ) );
-					const char *l = json_object_to_json_string(val);
+					const char *ev = getObjString(entry, OBJPATH( "name", NULL ));
+					struct json_object *vals = getObj(entry,  OBJPATH( "deviceStates", NULL ) );
+					if(json_object_is_type(vals, json_type_array)){
+						size_t nbrev = json_object_array_length(vals);
+						for(size_t j=0; j<nbrev; ++j){
+							struct json_object *v = json_object_array_get_idx(vals, j);
+							const char *name = getObjString(v, OBJPATH( "name", NULL ));
+							const char *l = json_object_to_json_string(getObj(v,  OBJPATH( "value", NULL )));
 
-/*					if(cfg.debug) */
-						publishLog('d', "[%s] Event n: %s, u:%s v:%s", s->device.section.uid, name, dev, l);
-
+	/*						if(cfg.debug) */
+								publishLog('d', "[%s] Event e:%s u:%s n:%s v:%s", s->device.section.uid, ev, dev, name, l);
+						}
+					}
 				}
 			} else /* if(cfg.debug) */
 				publishLog('E', "[%s] Not a JSON array", s->device.section.uid);
