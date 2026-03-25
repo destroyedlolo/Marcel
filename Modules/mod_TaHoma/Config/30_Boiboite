@@ -1,0 +1,16 @@
+# Create a new TaHoma gateway
+
+*TaHoma=Boiboite
+
+	# TaHoma's own
+	TaHoma_host=gateway-2095-0445-1705.local
+	TaHoma_address=192.168.xx.xx
+	TaHoma_port=8443
+
+	# Developer mode token
+	TaHoma_token=xxxxxxxxxxxxxxxxxxxx
+
+	# Don't verify SSL chain
+	DontVerifySSL
+
+	# Listen for this box event's

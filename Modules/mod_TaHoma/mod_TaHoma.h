@@ -31,7 +31,6 @@ enum {
 	ST_TAHOMA = 0,
 	ST_PROBE,
 	ST_ACUATOR,
-	ST_EVENT,
 	ST_STATE	/* Not really a section but used to validate options */
 };
 
@@ -48,5 +47,16 @@ struct section_TaHoma {
 	char *baseurl;	/* How to reach the taHoma */
 	size_t url_len;	/* To avoid to recompute the url length */
 };
+
+	/* Device definition */
+struct section_Device {
+	struct Section section;
+
+	const char *TaHoma;		/* Gateway */
+	struct section_TaHoma *gateway;		/* To whish TaHoma we are connected */
+	const char *url;		/* Probe's location */
+	const char *target_url;	/* URL formating is done only once at startup */
+};
+
 
 #endif
