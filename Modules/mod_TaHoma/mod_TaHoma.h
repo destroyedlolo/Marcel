@@ -58,5 +58,31 @@ struct section_Device {
 	const char *target_url;	/* URL formating is done only once at startup */
 };
 
+	/* Probe definition */
+struct State_definition;
+struct section_Probe {
+	struct section_Device device;
+	struct State_definition *States;	/* States to extract */
+};
+
+	/* Query a state */
+struct State_definition {
+	struct State_definition *next;
+
+	const char *state;	/* State's name */
+
+		/* options */
+	bool disabled;			/* this section is currently disabled */
+	bool dontSimulate;		/* disabled if we're in simulation mode */
+
+		/* MQTT */
+	const char *topic;
+	bool retained;			/* send MQTT retained message */
+
+		/* Lua user function
+		 */
+	const char *funcname;	/* User function to call on data arrival */
+	int funcid;				/* Function id in Lua registry */
+};
 
 #endif

@@ -49,6 +49,81 @@ static void initTaHoma(struct Section *asec){
 	s->section.inerror = false;	/* Initialisation completed */
 }
 
+static void initProbe(struct Section *asec){
+	struct section_Probe *s = (struct section_Probe *)asec;
+
+	s->device.section.inerror = true;	/* By default, we're in error */
+
+		/* Sanity check */
+	if(!s->device.TaHoma){
+		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
+		return;
+	}
+	s->device.gateway = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(!s->device.gateway || strcmp(s->device.gateway->section.kind, "TaHoma")){
+		publishLog('E', "[%s] TaHoma \"%s\" not found", s->device.section.uid, s->device.TaHoma);
+		return;
+	}
+	if(s->device.gateway->section.inerror){
+		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->device.section.uid, s->device.TaHoma);
+		return;
+	}
+
+	if(!s->device.url){
+		publishLog('E', "[%s] No URL defined", s->device.section.uid);
+		return;
+	}
+
+	if(!s->States){
+		publishLog('E', "[%s] No state defined", s->device.section.uid);
+		return;
+	}
+
+	for(struct State_definition *st = s->States; st; st = st->next){ /* states' sanity */
+		if(!st->topic){
+			publishLog('F', "[%s] State \"%s\" has no topic defined", s->device.section.uid, st->state);
+			return;
+		}
+	}
+
+		/* Building URL */
+	CURL *curl = curl_easy_init();
+	if(!curl){
+		publishLog('E', "[%s] Curl init failed", s->device.section.uid);
+		return;
+	}
+	
+	char *enc = curl_easy_escape(curl, s->device.url, 0);
+	if(!enc){
+		publishLog('E', "[%s] curl_easy_escape failed", s->device.section.uid);
+		curl_easy_cleanup(curl);
+		return;
+	}
+
+	s->device.target_url = malloc(
+		( 
+			s->device.gateway->url_len +
+			strlen("setup/devices//states") +
+			strlen(enc)
+		) +1);
+
+	if(!s->device.target_url){
+		publishLog('E', "[%s] No memory", s->device.section.uid);
+		curl_free(enc);
+		curl_easy_cleanup(curl);
+		return;
+	}
+	sprintf((char *)s->device.target_url, "%ssetup/devices/%s/states", s->device.gateway->baseurl, enc);
+
+	curl_free(enc);
+	curl_easy_cleanup(curl);
+
+	if(cfg.debug)
+		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
+		
+	s->device.section.inerror = false;	/* Initialisation completed */
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -75,6 +150,25 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		if(cfg.verbose)
 			publishLog('C', "\tDefault sample time : %f", mod_TaHoma.defaultsampletime);
 
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*Probe="))){	/* Create a new probe */
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_Probe *nsection = malloc(sizeof(struct section_Probe));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_PROBE, strdup(arg), "Probe");
+		nsection->device.TaHoma= NULL;
+		nsection->device.url = NULL;
+		nsection->States = NULL;
+		nsection->device.section.postconfInit = initProbe;
+		nsection->device.section.sample = mod_TaHoma.defaultsampletime;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
 	} else if((arg = striKWcmp(l,"*TaHoma="))){	/* Create a new gateway */
 		if(findSectionByName(arg)){
@@ -132,6 +226,22 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tDon't check SSL chain (unsafe mode)");
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"TaHoma="))){
+			acceptSectionDirective(*section, "TaHoma=");
+			(*(struct section_Probe **)section)->device.TaHoma = strdup(arg);
+			assert((*(struct section_Probe **)section)->device.TaHoma);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_Probe **)section)->device.TaHoma);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"url="))){
+			acceptSectionDirective(*section, "url=");
+			(*(struct section_Probe **)section)->device.url = strdup(arg);
+			assert((*(struct section_Probe **)section)->device.url);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tURL : '%s'", (*(struct section_Probe **)section)->device.url);
+			return ACCEPTED;
 		}
 	}
 
@@ -152,6 +262,23 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "DontVerifySSL") )
 			return true;
+	} else if(sec_id == ST_PROBE){
+		if( !strcmp(directive, "Disabled") )
+			return true;
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Retained") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Immediate") )
+			return true;
+		else if( !strcmp(directive, "Sample=") )
+			return true;
+		else if( !strcmp(directive, "TaHoma=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "url=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "**State=") )
+			return true;	/* Accepted */
 	}
 
 	return false;
