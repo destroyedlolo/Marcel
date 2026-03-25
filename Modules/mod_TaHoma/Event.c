@@ -6,6 +6,24 @@
  * 23/03/2026 - LF - Creation
  */
 
+/*** Event
+[
+        deviceStates :
+                [
+                        value :
+                                573
+                        type :
+                                1
+                        name :
+                                "core:CO2ConcentrationState"
+                ]
+        deviceURL :
+                "zigbee://2095-0445-1705/58849/1#3"
+        name :
+                "DeviceStateChangedEvent"
+]
+***/
+
 #include "mod_TaHoma.h"
 #include "../Marcel/MQTT_tools.h"
 #include "../Marcel/CURL_helpers.h"
