@@ -183,6 +183,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->token = NULL;
 		nsection->port = 8443;
 		nsection->unsafe = false;
+		nsection->expectations = NULL;
 		nsection->section.postconfInit = initTaHoma;
 
 		if(cfg.verbose)	/* Be verbose if requested */
@@ -317,6 +318,8 @@ static uint8_t customizePerSubSection( struct Section *section, uint8_t sec_id )
 static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 	if(sec_id == ST_TAHOMA){
 		if( !strcmp(directive, "Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "DoNotSimulate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "TaHoma_host=") )
 			return true;

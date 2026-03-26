@@ -7,7 +7,7 @@
 	url=zigbee://2095-0445-1705/58849/1#3
 
 	# Gateway it belongs to
-	TaHoma=Boiboite
+	TaHoma=MyTaHoma
 
 	# Lua validation user function
 	# Arguments :

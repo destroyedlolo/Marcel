@@ -35,6 +35,7 @@ enum {
 };
 
 		/* Gateway's */
+struct Expectation_definition;
 struct section_TaHoma {
 	struct Section section;
 
@@ -46,6 +47,28 @@ struct section_TaHoma {
 
 	char *baseurl;	/* How to reach the taHoma */
 	size_t url_len;	/* To avoid to recompute the url length */
+
+	struct Expectation_definition *expectations;
+};
+
+struct Expectation_definition {
+	struct Expectation_definition *next;
+
+	const char *event;	/* Event's name */
+	const char *url;	/* Device's url */
+	const char *name;	/* State's name */
+
+		/* options */
+	bool disabled;			/* this section is currently disabled */
+	bool dontSimulate;		/* disabled if we're in simulation mode */
+
+		/* MQTT */
+	const char *topic;
+	bool retained;			/* send MQTT retained message */
+
+		/* Lua user function */
+	const char *funcname;	/* User function to call on data arrival */
+	int funcid;				/* Function id in Lua registry */
 };
 
 	/* Device definition */
@@ -79,8 +102,7 @@ struct State_definition {
 	const char *topic;
 	bool retained;			/* send MQTT retained message */
 
-		/* Lua user function
-		 */
+		/* Lua user function */
 	const char *funcname;	/* User function to call on data arrival */
 	int funcid;				/* Function id in Lua registry */
 };

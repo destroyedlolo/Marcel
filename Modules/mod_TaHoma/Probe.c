@@ -29,6 +29,11 @@ void *processProbe (void *actx){
 			if(cfg.debug)
 				publishLog('d', "[%s] is disabled", s->device.section.uid);
 #endif
+		} else if(isDisabled(&s->device.gateway->section)){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] TaHoma \"%s\" is disabled", s->device.section.uid, s->device.gateway->section.uid);
+#endif
 		} else if( !first || s->device.section.immediate ){
 			struct MemoryStruct buff = EMPTY_MEMCHUNK;
 			if(callAPI(&s->device, NULL, NULL, &buff)){	/* Call succeeded */

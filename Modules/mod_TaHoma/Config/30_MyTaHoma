@@ -1,6 +1,6 @@
 # Create a new TaHoma gateway
 
-*TaHoma=Boiboite
+*TaHoma=MyTaHoma
 
 	# TaHoma's own
 	TaHoma_host=gateway-2095-0445-1705.local
@@ -12,5 +12,11 @@
 
 	# Don't verify SSL chain
 	DontVerifySSL
+
+	# start Disabled
+	Disabled
+
+	# Disable it if running in simulation mode
+	DoNotSimulate
 
 	# Listen for this box event's
