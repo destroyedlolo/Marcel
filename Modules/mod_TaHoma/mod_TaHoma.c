@@ -247,6 +247,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			acceptSectionDirective(*section, "**State=");
 
 			struct State_definition *nstate = malloc(sizeof(struct State_definition));	/* Allocate a new state */
+			assert(nstate);
 			nstate->state = strdup(arg);
 			assert(nstate->state);
 			nstate->disabled = false;
@@ -261,6 +262,31 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			nstate->next = (*(struct section_Probe **)section)->States;
 			(*(struct section_Probe **)section)->States = nstate;
+
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"**Expect="))){	/* New state definition */
+			acceptSectionDirective(*section, "**Expect=");
+
+			struct Expectation_definition *nstate = malloc(sizeof(struct Expectation_definition));	/* Allocate a new expectation */
+			assert(nstate);
+
+			nstate->uid = strdup(arg);
+			assert(nstate->uid);
+			nstate->event = NULL;
+			nstate->url = NULL;
+			nstate->name = NULL;
+			nstate->disabled = false;
+			nstate->dontSimulate = false;
+			nstate->topic = NULL;
+			nstate->retained = false;
+			nstate->funcname = NULL;
+			nstate->funcid = LUA_REFNIL;
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tEntering Expectation '%s'", nstate->uid);
+
+			nstate->next = (*(struct section_TaHoma **)section)->expectations;
+			(*(struct section_TaHoma **)section)->expectations = nstate;
 
 			return ACCEPTED;
 		} else if((*(struct section_Probe **)section)->States){
@@ -331,6 +357,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "DontVerifySSL") )
 			return true;
+		else if( !strcmp(directive, "**Expect=") )
+			return true;	/* Accepted */
 	} else if(sec_id == ST_PROBE){
 		if( !strcmp(directive, "Disabled") )
 			return true;

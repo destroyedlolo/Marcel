@@ -31,7 +31,10 @@ enum {
 	ST_TAHOMA = 0,
 	ST_PROBE,
 	ST_ACUATOR,
-	ST_STATE	/* Not really a section but used to validate options */
+
+		/* Not really sections but used to validate options */
+	ST_STATE,
+	ST_EXPECTATION
 };
 
 		/* Gateway's */
@@ -53,6 +56,8 @@ struct section_TaHoma {
 
 struct Expectation_definition {
 	struct Expectation_definition *next;
+
+	const char *uid;	/* Identifier */
 
 	const char *event;	/* Event's name */
 	const char *url;	/* Device's url */
