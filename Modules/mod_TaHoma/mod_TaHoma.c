@@ -32,7 +32,7 @@ static void initTaHoma(struct Section *asec){
 	}
 
 	for(struct Expectation_definition *i = s->expectations; i; i = i->next){
-		if(i->event || i->url || i->state || i->topic){
+		if(!i->event || !i->url || !i->state || !i->topic){
 			publishLog('E', "[%s] Expectation \"%s\" is missing some parameters",
 				s->section.uid, i->uid
 			);

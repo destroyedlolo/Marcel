@@ -55,8 +55,8 @@ void *processProbe (void *actx){
 									const char *l = json_object_to_json_string(val);
 
 									mqttpublish(cfg.client, st->topic, strlen(l), (void *)l, st->retained );
-									if(cfg.debug)
-										publishLog('d', "[%s][%s] %s", s->device.section.uid, st->state, l);
+									if(cfg.verbose)
+										publishLog('I', "[%s][%s] value \"%s\"", s->device.section.uid, st->state, l);
 								} else if(cfg.debug)
 									publishLog('d', "[%s][%s] is disabled", s->device.section.uid, st->state);
 								break;
