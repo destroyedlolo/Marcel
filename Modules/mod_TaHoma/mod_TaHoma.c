@@ -246,6 +246,13 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		} else if((arg = striKWcmp(l,"**State="))){	/* New state definition */
 			acceptSectionDirective(*section, "**State=");
 
+			for(struct State_definition *i = (*(struct section_Probe **)section)->States; i; i = i->next){
+				if(!strcmp(i->state, arg)){
+					publishLog('F', "State '%s' is already defined for '%s'", arg, (*section)->uid);
+					exit(EXIT_FAILURE);
+				}
+			}
+
 			struct State_definition *nstate = malloc(sizeof(struct State_definition));	/* Allocate a new state */
 			assert(nstate);
 			nstate->state = strdup(arg);
@@ -266,6 +273,13 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"**Expect="))){	/* New state definition */
 			acceptSectionDirective(*section, "**Expect=");
+
+			for(struct Expectation_definition *i = (*(struct section_TaHoma **)section)->expectations; i; i = i->next){
+				if(!strcmp(i->uid, arg)){
+					publishLog('F', "Expectation '%s' is already defined for '%s'", arg, (*section)->uid);
+					exit(EXIT_FAILURE);
+				}
+			}
 
 			struct Expectation_definition *nstate = malloc(sizeof(struct Expectation_definition));	/* Allocate a new expectation */
 			assert(nstate);
