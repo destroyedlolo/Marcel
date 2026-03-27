@@ -303,7 +303,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			(*(struct section_TaHoma **)section)->expectations = nstate;
 
 			return ACCEPTED;
-		} else if((*(struct section_Probe **)section)->States){
+		} else if((*section)->id == (ST_PROBE <<8 | mod_TaHoma.module.module_index) && (*(struct section_Probe **)section)->States){
 			/* Handling states' specific directives
 			 * They MUST be refined here : mod_core's doesn't deal with
 			 * the same structure.
