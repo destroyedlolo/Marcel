@@ -194,6 +194,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->unsafe = false;
 		nsection->expectations = NULL;
 		nsection->section.postconfInit = initTaHoma;
+		nsection->section.sample = 60;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -450,6 +451,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "TaHoma_token=") )
 			return true;
 		else if( !strcmp(directive, "DontVerifySSL") )
+			return true;
+		else if( !strcmp(directive, "Sample=") )
 			return true;
 		else if( !strcmp(directive, "**Expect=") )
 			return true;	/* Accepted */

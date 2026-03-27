@@ -40,16 +40,15 @@ void *processEvent(void *actx){
 		pthread_exit(0);
 	}
 
-#if 0
 		/* Registering the events handler */
 	struct MemoryStruct buff = EMPTY_MEMCHUNK;
- 	callAPIDev(&s->device, "events/register", "", &buff);
+ 	callAPIGW(s, "events/register", "", &buff);
 	if(cfg.debug)
-		publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
+		publishLog('d', "[%s] response \"%s\"", s->section.uid, buff.memory);
 
 	if(!buff.memory){
-		publishLog('F', "[%s] Empty registering response. Dying ...", s->device.section.uid);
-		SectionError((struct Section *)s, true);
+		publishLog('F', "[%s] Empty registering response. Dying ...", s->section.uid);
+		SectionError(&s->section, true);
 		pthread_exit(0);
 	}
 
@@ -58,13 +57,13 @@ void *processEvent(void *actx){
 	if(!idobj){
 		json_object_put(parsed_json);
 		freeResponse(&buff);
-		publishLog('F', "[%s] Can't find lister's id. Dying ...", s->device.section.uid);
-		SectionError((struct Section *)s, true);
+		publishLog('F', "[%s] Can't find lister's id. Dying ...", s->section.uid);
+		SectionError(&s->section, true);
 		pthread_exit(0);
 	}
 
 	if(cfg.debug)
-		publishLog('d', "[%s] Listener ID : \"%s\"", s->device.section.uid, idobj);
+		publishLog('d', "[%s] Listener ID : \"%s\"", s->section.uid, idobj);
 
 	json_object_put(parsed_json);
 	freeResponse(&buff);
@@ -72,12 +71,12 @@ void *processEvent(void *actx){
 	char fetchreq[strlen("events//fetch") + strlen(idobj) +1];
 	sprintf(fetchreq, "events/%s/fetch", idobj);
 	if(cfg.debug)
-		publishLog('d', "[%s] Fetching URI \"%s\"", s->device.section.uid, fetchreq);
+		publishLog('d', "[%s] Fetching URI \"%s\"", s->section.uid, fetchreq);
 
 	for(;;){
-		callAPI(&s->device, fetchreq, "", &buff);
+		callAPIGW(s, fetchreq, "", &buff);
 /*		if(cfg.debug) */
-			publishLog('d', "[%s] Event resp: \"%s\"", s->device.section.uid, buff.memory ? buff.memory : "NULL data");
+			publishLog('d', "[%s] Event resp: \"%s\"", s->section.uid, buff.memory ? buff.memory : "NULL data");
 
 		if(buff.memory){
 			struct json_object *parsed_json = json_tokener_parse(buff.memory);
@@ -96,35 +95,34 @@ void *processEvent(void *actx){
 							const char *l = json_object_to_json_string(getObj(v,  OBJPATH( "value", NULL )));
 
 	/*						if(cfg.debug) */
-								publishLog('d', "[%s] Event e:%s u:%s n:%s v:%s", s->device.section.uid, ev, dev, name, l);
+								publishLog('d', "[%s] Event e:%s u:%s n:%s v:%s", s->section.uid, ev, dev, name, l);
 						}
 					}
 				}
 			} else /* if(cfg.debug) */
-				publishLog('E', "[%s] Not a JSON array", s->device.section.uid);
+				publishLog('E', "[%s] Not a JSON array", s->section.uid);
 
 			json_object_put(parsed_json);
 			freeResponse(&buff);
-
-			struct timespec ts;
-			ts.tv_sec = (time_t)s->device.section.sample;
-			ts.tv_nsec = (unsigned long int)((s->device.section.sample - (time_t)s->device.section.sample) * 1e9);
-
-			nanosleep( &ts, NULL );
 		}
+
+		struct timespec ts;
+		ts.tv_sec = (time_t)s->section.sample;
+		ts.tv_nsec = (unsigned long int)((s->section.sample - (time_t)s->section.sample) * 1e9);
+
+		nanosleep( &ts, NULL );
 	
 	}
 
 	char unregreq[strlen("events//unregister") + strlen(idobj) +1];
 	sprintf(unregreq, "events/%s/unregister", idobj);
 	if(cfg.debug)
-		publishLog('d', "[%s] unregistering URI \"%s\"", s->device.section.uid, unregreq);
+		publishLog('d', "[%s] unregistering URI \"%s\"", s->section.uid, unregreq);
 	
-	callAPI(&s->device, unregreq, "", &buff);
+	callAPIGW(s, unregreq, "", &buff);
 
 	if(cfg.debug)
-		publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory ? buff.memory : "NULL");
+		publishLog('d', "[%s] response \"%s\"", s->section.uid, buff.memory ? buff.memory : "NULL");
 
-#endif
 	pthread_exit(0);
 }
