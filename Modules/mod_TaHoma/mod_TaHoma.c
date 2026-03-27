@@ -31,6 +31,15 @@ static void initTaHoma(struct Section *asec){
 		return;
 	}
 
+	for(struct Expectation_definition *i = s->expectations; i; i = i->next){
+		if(i->event || i->url || i->state || i->topic){
+			publishLog('E', "[%s] Expectation \"%s\" is missing some parameters",
+				s->section.uid, i->uid
+			);
+			return;
+		}
+	}
+
 		/* Build the url */
 	s->url_len = strlen("https://:/enduser-mobile-web/1/enduserAPI/");
 	s->url_len += strlen(s->ip);
@@ -288,7 +297,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			assert(nstate->uid);
 			nstate->event = NULL;
 			nstate->url = NULL;
-			nstate->name = NULL;
+			nstate->state = NULL;
 			nstate->disabled = false;
 			nstate->dontSimulate = false;
 			nstate->topic = NULL;
@@ -342,6 +351,75 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 					publishLog('C', "\t\t\tDISABLED if in simulation mode");
 				return ACCEPTED;
 			}
+		} else if((*section)->id == (ST_TAHOMA <<8 | mod_TaHoma.module.module_index) && (*(struct section_TaHoma **)section)->expectations){
+			/* Handling expectations' specific directives
+			 * They MUST be refined here : mod_core's doesn't deal with
+			 * the same structure.
+			 */
+			struct Expectation_definition *expectation = (*(struct section_TaHoma **)section)->expectations;
+
+			if((arg = striKWcmp(l, "expect_Event="))){
+				acceptSectionDirective( *section, "expect_Event=" );
+
+				expectation->event = strdup(arg);
+				assert(expectation->event);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tEvent's name : '%s'", expectation->event);
+
+				return ACCEPTED;
+			} else if((arg = striKWcmp(l, "expect_deviceURL="))){
+				acceptSectionDirective( *section, "expect_deviceURL=" );
+
+				expectation->url = strdup(arg);
+				assert(expectation->url);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tDevice's URL : '%s'", expectation->url);
+
+				return ACCEPTED;
+			} else if((arg = striKWcmp(l, "expect_state="))){
+				acceptSectionDirective( *section, "expect_state=" );
+
+				expectation->state= strdup(arg);
+				assert(expectation->state);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tState : '%s'", expectation->state);
+
+				return ACCEPTED;
+			} else if((arg = striKWcmp(l, "expect_Topic="))){
+				acceptSectionDirective( *section, "expect_Topic=" );
+
+				expectation->topic = strdup(arg);
+				assert(expectation->topic);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tTopic : '%s'", expectation->topic);
+
+				return ACCEPTED;
+			} else if((!strcmp(l,"expect_Retained"))){
+				acceptSectionDirective(*section, "expect_Retained");
+				expectation->retained = true;
+
+				if(cfg.verbose)	/* Be verbose if requested */
+					publishLog('C', "\t\t\tSent as retained");
+				return ACCEPTED;
+			} else if((!strcmp(l,"expect_Disabled"))){
+				acceptSectionDirective(*section, "expect_Disabled");
+				expectation->disabled = true;
+
+				if(cfg.verbose)	/* Be verbose if requested */
+					publishLog('C', "\t\t\tStarting DISABLED");
+				return ACCEPTED;
+			} else if((!strcmp(l,"expect_DoNotSimulate"))){
+				acceptSectionDirective(*section, "expect_DoNotSimulate");
+				expectation->dontSimulate = true;
+
+				if(cfg.verbose)	/* Be verbose if requested */
+					publishLog('C', "\t\t\tDISABLED if in simulation mode");
+				return ACCEPTED;
+			}
 		}
 	}
 
@@ -351,6 +429,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 static uint8_t customizePerSubSection( struct Section *section, uint8_t sec_id ){
 	if(sec_id == ST_PROBE && !!((struct section_Probe *)section)->States)
 		return ST_STATE;
+	else if(sec_id == ST_TAHOMA && !!((struct section_TaHoma *)section)->expectations)
+		return ST_EXPECTATION;
 	
 	return sec_id;
 }
@@ -405,6 +485,26 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "state_DoNotSimulate") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )	/* To let starting a new state */
+			return true;	/* Accepted */
+	} else if(sec_id == ST_EXPECTATION){
+			/* Despite they're having same goal
+			 * I need to prepend with "expect_"
+			 * otherwise, it will be take in account by
+			 * mod_core first (and then rejected).
+			 */
+		if( !strcmp(directive, "expect_Event=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_deviceURL=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_state=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_Retained") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_Disabled") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_DoNotSimulate") )
 			return true;	/* Accepted */
 	}
 

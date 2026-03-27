@@ -19,4 +19,40 @@
 	# Disable it if running in simulation mode
 	DoNotSimulate
 
-	# Listen for this box event's
+	#####
+	# Expected events
+	#####
+	# Notez_bien : directives are prepended with a 
+	# 'expect_' in order to avoid confusion with top
+	# level ones. Even if the goals are the same.
+
+	**Expect=CO2
+
+		# Fields to segregate against incoming event
+			# Event's name
+		expect_Event=DeviceStateChangedEvent
+
+			# Device's
+		expect_deviceURL=zigbee://2095-0445-1705/58849/1#3
+		
+			# state's name
+		expect_state=core:CO2ConcentrationState
+
+		# Lua validation user function
+		# Arguments :
+		# 	raw value
+		# 	compensated value
+		# expect_Func=ValTProbe
+
+		# Topic to publish to.
+		expect_Topic=maison/TestAirQualitySensor/CO2
+
+		# submitted as retained message
+		expect_Retained
+
+		# Start this state disabled
+		expect_Disabled
+
+		# Disable this state if running in simulation mode
+		expect_DoNotSimulate
+
