@@ -514,10 +514,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 static ThreadedFunctionPtr getSlaveFunction(uint8_t sid){
 	if(sid == ST_PROBE)
 		return processProbe;
-#if 0
-	else if(sid == ST_EVENT)
+	else if(sid == ST_TAHOMA)
 		return processEvent;
-#endif
 	return NULL;
 }
 

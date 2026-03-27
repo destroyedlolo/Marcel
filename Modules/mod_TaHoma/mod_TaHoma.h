@@ -114,6 +114,7 @@ struct State_definition {
 
 extern void *processProbe(void *);
 extern void *processEvent(void *);
-extern bool callAPI(struct section_Device *, const char *, const char *, struct MemoryStruct *);
+extern bool callAPIDev(struct section_Device *, const char *, const char *, struct MemoryStruct *);
+extern bool callAPIGW(struct section_TaHoma *, const char *, const char *, struct MemoryStruct *);
 
 #endif
