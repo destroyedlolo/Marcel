@@ -96,6 +96,19 @@ void *processEvent(void *actx){
 
 	/*						if(cfg.debug) */
 								publishLog('d', "[%s] Event e:%s u:%s n:%s v:%s", s->section.uid, ev, dev, name, l);
+
+								/* Look for matching entry */
+							for(struct Expectation_definition *e = s->expectations; e; e = e->next){
+								if(
+									!strcmp(ev, e->event) &&
+									!strcmp(dev, e->url) &&
+									!strcmp(name, e->state)
+								){
+/*									if(cfg.debug) */
+										publishLog('d', "[%s] pub :%s", s->section.uid, e->topic);
+										
+								}
+							}
 						}
 					}
 				}

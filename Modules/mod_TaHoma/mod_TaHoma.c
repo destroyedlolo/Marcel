@@ -509,6 +509,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_DoNotSimulate") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "**Expect=") )
+			return true;	/* Accepted */
 	}
 
 	return false;

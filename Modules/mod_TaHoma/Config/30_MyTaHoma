@@ -56,3 +56,20 @@
 		# Disable this state if running in simulation mode
 		expect_DoNotSimulate
 
+	**Expect=Battery
+		expect_Event=DeviceStateChangedEvent
+		expect_deviceURL=zigbee://2095-0445-1705/58849/3
+		expect_state=core:BatteryLevelState
+		expect_Topic=maison/TestAirQualitySensor/Battery
+
+	**Expect=Temperature
+		expect_Event=DeviceStateChangedEvent
+		expect_deviceURL=zigbee://2095-0445-1705/58849/1#1
+		expect_state=core:TemperatureState
+		expect_Topic=maison/TestAirQualitySensor/Temperature
+
+	**Expect=Humidity
+		expect_Event=DeviceStateChangedEvent
+		expect_deviceURL=zigbee://2095-0445-1705/58849/1#2
+		expect_state=core:RelativeHumidityState
+		expect_Topic=maison/TestAirQualitySensor/RelativeHumidity
