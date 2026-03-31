@@ -75,7 +75,7 @@ void *processEvent(void *actx){
 
 	for(;;){
 		callAPIGW(s, fetchreq, "", &buff);
-/*		if(cfg.debug) */
+		if(cfg.debug)
 			publishLog('d', "[%s] Event resp: \"%s\"", s->section.uid, buff.memory ? buff.memory : "NULL data");
 
 		if(buff.memory){
@@ -94,7 +94,7 @@ void *processEvent(void *actx){
 							const char *name = getObjString(v, OBJPATH( "name", NULL ));
 							const char *l = json_object_to_json_string(getObj(v,  OBJPATH( "value", NULL )));
 
-	/*						if(cfg.debug) */
+							if(cfg.debug)
 								publishLog('d', "[%s] Event e:%s u:%s n:%s v:%s", s->section.uid, ev, dev, name, l);
 
 								/* Look for matching entry */
@@ -104,15 +104,22 @@ void *processEvent(void *actx){
 									!strcmp(dev, e->url) &&
 									!strcmp(name, e->state)
 								){
-/*									if(cfg.debug) */
-										publishLog('d', "[%s] pub :%s", s->section.uid, e->topic);
-										
+									if(cfg.debug)
+										publishLog('d', "[%s] pub : %s", s->section.uid, e->topic);
+
+									if(! (e->disabled || (e->dontSimulate && cfg.simulate)) ){
+										mqttpublish(cfg.client, e->topic, strlen(l), (void *)l, e->retained );
+										if(cfg.verbose)
+											publishLog('I', "[%s][%s] value \"%s\"", s->section.uid, e->uid, l);
+									} else if(cfg.debug)
+										publishLog('d', "[%s][%s] is disabled", s->section.uid, e->uid);
+									break;
 								}
 							}
 						}
 					}
 				}
-			} else /* if(cfg.debug) */
+			} else if(cfg.debug)
 				publishLog('E', "[%s] Not a JSON array", s->section.uid);
 
 			json_object_put(parsed_json);

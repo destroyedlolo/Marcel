@@ -23,7 +23,7 @@
 	Immediate
 
 	# Start disabled
-#	Disabled
+	Disabled
 
 	# Disable it if running in simulation mode
 #	DoNotSimulate
