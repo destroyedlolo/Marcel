@@ -65,13 +65,13 @@ void *processEvent(void *actx){
 	if(cfg.debug)
 		publishLog('d', "[%s] Listener ID : \"%s\"", s->section.uid, idobj);
 
-	json_object_put(parsed_json);
-	freeResponse(&buff);
-
 	char fetchreq[strlen("events//fetch") + strlen(idobj) +1];
 	sprintf(fetchreq, "events/%s/fetch", idobj);
 	if(cfg.debug)
 		publishLog('d', "[%s] Fetching URI \"%s\"", s->section.uid, fetchreq);
+
+	json_object_put(parsed_json);
+	freeResponse(&buff);
 
 	for(;;){
 		callAPIGW(s, fetchreq, "", &buff);
