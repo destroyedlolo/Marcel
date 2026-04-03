@@ -156,6 +156,13 @@ The **State=** subsection allows you to specify which state to look for and how 
 * **state_Disabled** this state is initially disabled
 * **state_DoNotSimulate** this state is ignored when Marcel is running in "Simulate" mode
 
+> [!TIP]
+> The most efficient way to implement querying is as follows:
+> - Create Probe sections with Sample=-1 to retrieve the initial value at startup.
+> - In the TaHoma definition, use the Expect= parameter to process events corresponding to your target probes.
+> 
+> Naturally, the same Topic must be specified for both.
+
 # Build dependancies
 
 This module requires `libcurl` and `libjson-c` libraries.
