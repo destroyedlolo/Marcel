@@ -136,6 +136,26 @@ When an event matches the criteria described above, an MQTT message is issued.
 * **expect_Disabled** this expectation is initially disabled
 * **expect_DoNotSimulate** this expection is ignored when Marcel is running in "Simulate" mode
 
+## Section Probe=
+
+The **Probe** section is used to retrieve state values by polling the TaHoma local API.
+
+* **url=** Device's URL
+* **TaHoma=** Gateway it belongs to
+* **Sample=** Delay between samples (`-1` : Query once upon startup)
+* **Immediate** Launch it immediately; otherwise, the first query will occur after the delay specified by `Sample=`.
+* **Disabled** starts as disabled
+* **DoNotSimulate** disable it if Marcel is running in "Simulate" mode.
+
+### Subsection State=
+
+The **State=** subsection allows you to specify which state to look for and how to submit it.
+
+* **state_Topic=** Topic to publish to
+* **state_Retained** a retained message
+* **state_Disabled** this state is initially disabled
+* **state_DoNotSimulate** this state is ignored when Marcel is running in "Simulate" mode
+
 # Build dependancies
 
 This module requires `libcurl` and `libjson-c` libraries.
