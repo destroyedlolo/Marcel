@@ -101,6 +101,10 @@ None
 
 Describe your gateway as discovered above.
 
+> [!TIP]
+> Marcel can manage multiple TaHoma devices simultaneously, each defined in a separate section.
+> The only requirement is to assign a unique identifier to each device (specified in the `TaHoma=` parameter).
+
 * **TaHoma_host=** TaHoma hostname
 * **TaHoma_address=** TaHoma IP address
 * **TaHoma_port=** TaHoma port (`8443` by default)
@@ -108,6 +112,29 @@ Describe your gateway as discovered above.
 
 * **DontVerifySSL** SSL chain enforcement is not required.
 In other words, you don't need to add Overkiz's root certificate to your repository.
+
+* **Sample=** Delay (in seconds) between asking for events.
+
+### Subsection **Expect= : listening TaHoma's events
+
+TaHoma notifies users about changes or the delivery of figures through **events**, which is far more efficient
+than polling for probe figures (as explained later). The Expect= subsections allow you to specify the type of events
+you are interested in.
+
+* **expect_Event=** the event's kind your looking for (i.e : `DeviceStateChangedEvent`)
+* **expect_deviceURL=** URL of the device (`zigbee://xxxx-xxxx-xxxx/58849/1#2`)
+* **expect_state=** state to consider (`core:RelativeHumidityState`)
+
+When an event matches the criteria described above, an MQTT message is issued.
+
+* **expect_Topic=** Topic to publish to
+* **expect_Retained** A retained message
+
+> [!IMPORTANT]
+> Whatever the kind exposed by the TaHoma, the figure is published as a string using `json_object_to_json_string()`.
+
+* **expect_Disabled** this expectation is initially disabled
+* **expect_DoNotSimulate** this expection is ignored when Marcel is running in "Simulate" mode
 
 # Build dependancies
 
