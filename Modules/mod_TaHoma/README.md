@@ -156,12 +156,41 @@ The **State=** subsection allows you to specify which state to look for and how 
 * **state_Disabled** this state is initially disabled
 * **state_DoNotSimulate** this state is ignored when Marcel is running in "Simulate" mode
 
+# Usage
+
 > [!TIP]
 > The most efficient way to implement querying is as follows:
 > - Create Probe sections with Sample=-1 to retrieve the initial value at startup.
 > - In the TaHoma definition, use the Expect= parameter to process events corresponding to your target probes.
 > 
 > Naturally, the same Topic must be specified for both.
+
+The example in the 'Config' folder demonstrates this perfectly:
+
+- `50-*` probes broadcasts initial data at Marcel startup.
+- Subsequent updates are pulled from TaHoma events, in `30_MyTaHoma`, and sent to the same topics.
+
+Corresponding MQTT messages :
+```
+20260404 19:44:55	"maison/TestAirQualitySensor/CO2"	"727"
+20260404 19:49:58	"maison/TestAirQualitySensor/CO2"	"734"
+20260404 19:55:00	"maison/TestAirQualitySensor/CO2"	"768"
+20260404 20:00:02	"maison/TestAirQualitySensor/CO2"	"729"
+20260404 20:04:03	"maison/TestAirQualitySensor/Temperature"	"18"
+20260404 20:06:04	"maison/TestAirQualitySensor/CO2"	"757"
+20260404 20:11:06	"maison/TestAirQualitySensor/CO2"	"730"
+20260404 20:16:08	"maison/TestAirQualitySensor/CO2"	"810"
+20260404 20:21:11	"maison/TestAirQualitySensor/CO2"	"859"
+20260404 20:26:13	"maison/TestAirQualitySensor/CO2"	"810"
+20260404 20:30:15	"maison/TestAirQualitySensor/RelativeHumidity"	"58.9"
+20260404 20:32:16	"maison/TestAirQualitySensor/CO2"	"864"
+20260404 20:33:16	"maison/TestAirQualitySensor/Temperature"	"18.3"
+20260404 20:37:19	"maison/TestAirQualitySensor/CO2"	"833"
+20260404 20:42:20	"maison/TestAirQualitySensor/CO2"	"836"
+20260404 20:47:23	"maison/TestAirQualitySensor/CO2"	"860"
+```
+
+Note that updates are only triggered by value changes. In my environment, `CO2` updates frequently, while `temperature` and `humidity` levels remain stable for longer periods.
 
 # Build dependancies
 
