@@ -1,10 +1,10 @@
-*Probe=AirQualitySensor
+*Probe=Humidity
 	####
 	# settings related to the device itself
 	####
 
 	# Probe settings
-	url=zigbee://2095-0445-1705/58849/1#3
+	url=zigbee://2095-0445-1705/58849/1#2
 
 	# Gateway it belongs to
 	TaHoma=MyTaHoma
@@ -17,16 +17,16 @@
 
 	# Sample : Delay b/w sample
 	# if -1 : only once
-	Sample=30
+	Sample=-1
 
 	# Launch it immediately
 	Immediate
 
 	# Start disabled
-	Disabled
+#	Disabled
 
 	# Disable it if running in simulation mode
-#	DoNotSimulate
+	DoNotSimulate
 
 	####
 	# One of more states from the device.
@@ -36,16 +36,10 @@
 	# The goal is to minimize the gateway's load.
 	####
 
-	#####
-	# States'
-	#####
+**State=core:RelativeHumidityState
 	# Notez_bien : directives are prepended with a 
 	# 'state_' in order to avoid confusion with top
 	# level ones. Even if the goals are the same.
-
-**State=core:BatteryLevelState
-	# Not, this one doesn't exist, so nothing will be published
-	# it's a test
 
 	# Lua validation user function
 	# Arguments :
@@ -54,7 +48,7 @@
 	# state_Func=ValTProbe
 
 	# Topic to publish to.
-	state_Topic=maison/TestAirQualitySensor/BatteryLevel
+	state_Topic=maison/TestAirQualitySensor/RelativeHumidity
 
 	# submitted as retained message
 #	state_Retained
@@ -64,13 +58,3 @@
 
 	# Disable this state if running in simulation mode
 	state_DoNotSimulate
-
-**State=core:CO2ConcentrationState
-	state_Topic=maison/TestAirQualitySensor/CO2
-#	state_Disabled
-#	state_DoNotSimulate
-
-**State=zigbee:LinkQualityIndicatorState
-	state_Topic=maison/TestAirQualitySensor/LinkQualityIndicator
-	state_Disabled
-#	state_DoNotSimulate
