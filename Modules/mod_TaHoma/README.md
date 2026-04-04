@@ -7,6 +7,23 @@ Bridge your **TaHoma Switch** (or derivated) with **MQTT** using a very low foot
 However, as this setup relies solely on the local API, cloud-based feature, such as Cloud-to-Cloud connectivity (like Somfy Protect), TaHoma-managed scenarios, and more - will not be
 accessible.
 
+# Table of contents
+
+- [Setup](#setup)
+    + [Enable the TaHoma local API](#enable-the-tahoma-local-api)
+    + [discover your box](#discover-your-box)
+    + [discover your devices](#discover-your-devices)
+- [Configuration](#configuration)
+    + [Accepted global directives](#accepted-global-directives)
+  * [Section TaHoma=](#section-tahoma-)
+    + [Subsection **Expect= : listening TaHoma's events](#subsection---expect----listening-tahoma-s-events)
+  * [Section Probe=](#section-probe-)
+    + [Subsection State=](#subsection-state-)
+- [Usage](#usage)
+- [Build dependencies](#build-dependancies)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 # Setup
 
 Use **[TaHomaCtl](https://github.com/destroyedlolo/TaHomaCtl)** companion as per the following procedure :
@@ -192,7 +209,7 @@ Corresponding MQTT messages :
 
 Note that updates are only triggered by value changes. In my environment, `CO2` updates frequently, while `temperature` and `humidity` levels remain stable for longer periods.
 
-# Build dependancies
+# Build dependencies
 
 This module requires `libcurl` and `libjson-c` libraries.
 
