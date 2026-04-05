@@ -34,7 +34,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		assert( (mod_alert.countertopic = strdup(arg)) );
+		(mod_alert.countertopic = strdup(arg));
+		assert( mod_alert.countertopic );
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tAlerts Counter's Topic set to \"%s\"", mod_alert.countertopic);
@@ -178,7 +179,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(*section || mod_alert.current){
 		if((arg = striKWcmp(l,"RESTUrl="))){
 			if(mod_alert.current){	/* Named notification */
-				assert(( mod_alert.current->actions.url = strdup(arg) ));
+				mod_alert.current->actions.url = strdup(arg);
+				assert( mod_alert.current->actions.url );
 
 				if(cfg.verbose)
 					publishLog('C', "\t\tRESTUrl : '%s'", mod_alert.current->actions.url);
@@ -196,7 +198,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			}
 		} else	if((arg = striKWcmp(l,"OSCmd="))){
 			if(mod_alert.current){	/* Named notification */
-				assert(( mod_alert.current->actions.cmd = strdup(arg) ));
+				mod_alert.current->actions.cmd = strdup(arg);
+				assert( mod_alert.current->actions.cmd );
 
 				if(cfg.verbose)
 					publishLog('C', "\t\tOSCmd : '%s'", mod_alert.current->actions.cmd);

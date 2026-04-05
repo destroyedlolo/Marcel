@@ -217,7 +217,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **as
 			acceptSectionDirective(*asection, "Var=");
 			struct var *v = malloc(sizeof(struct var));	/* New variable */
 			assert(v);
-			assert( (v->name = strdup( arg )) );
+			v->name = strdup( arg );
+			assert( v->name );
 
 			v->next = (*section)->var_list;	/* add it in the list */
 			(*section)->var_list = v;

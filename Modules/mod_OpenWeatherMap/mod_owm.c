@@ -109,7 +109,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			exit(EXIT_FAILURE);
 		}
 
-		assert(( mod_owm.apikey = strdup(arg) ));
+		mod_owm.apikey = strdup(arg);
+		assert( mod_owm.apikey );
 
 		if(cfg.verbose)
 			publishLog('C', "\tAPIkey : %s", mod_owm.apikey);
@@ -158,21 +159,24 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(*section){
 		if((arg = striKWcmp(l,"City="))){
 			acceptSectionDirective(*section, "City=");
-			assert(( (*(struct section_OWMQuery **)section)->city = strdup(arg) ));
+			(*(struct section_OWMQuery **)section)->city = strdup(arg);
+			assert( (*(struct section_OWMQuery **)section)->city );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tCity : '%s'", (*(struct section_OWMQuery **)section)->city);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Units="))){
 			acceptSectionDirective(*section, "Units=");
-			assert(( (*(struct section_OWMQuery **)section)->units = strdup(arg) ));
+			(*(struct section_OWMQuery **)section)->units = strdup(arg);
+			assert( (*(struct section_OWMQuery **)section)->units );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tUnits : '%s'", (*(struct section_OWMQuery **)section)->units);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Lang="))){
 			acceptSectionDirective(*section, "Lang=");
-			assert(( (*(struct section_OWMQuery **)section)->lang = strdup(arg) ));
+			(*(struct section_OWMQuery **)section)->lang = strdup(arg);
+			assert( (*(struct section_OWMQuery **)section)->lang );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tLanguage : '%s'", (*(struct section_OWMQuery **)section)->lang);

@@ -61,7 +61,8 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 			exit(EXIT_FAILURE);
 		}
 
-		assert(( cfg.Broker = strdup( arg ) ));
+		cfg.Broker = strdup( arg );
+		assert( cfg.Broker );
 		if(cfg.verbose)
 			publishLog('C', "\tBroker : '%s'", cfg.Broker);
 		return ACCEPTED;
@@ -218,7 +219,8 @@ void init_module_core(){
 
 		/* Default values */
 	
-	assert((cfg.ClientID = strdup(t)));
+	cfg.ClientID = strdup(t);
+	assert(cfg.ClientID);
 	cfg.Broker = "tcp://localhost:1883";
 	cfg.client = NULL;
 

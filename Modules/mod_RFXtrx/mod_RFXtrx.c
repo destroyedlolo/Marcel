@@ -78,7 +78,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			publishLog('F', "RFXtrx_Port= can be only defined once");
 			exit(EXIT_FAILURE);
 		}
-		assert( (mod_RFXtrx.RFXdevice = strdup(arg)) );
+		(mod_RFXtrx.RFXdevice = strdup(arg));
+		assert( mod_RFXtrx.RFXdevice );
 
 		if(cfg.verbose)
 			publishLog('C', "\tRFXtrx's device : '%s'", mod_RFXtrx.RFXdevice);
@@ -178,7 +179,8 @@ static int readRFX( int fd ){
 	BYTE *p = &buff.ICMND.packetlength;
 	ssize_t n2read;	/* Number of bytes to read */
 
-	assert(read( fd, &buff.ICMND.packetlength, 1 ));	/* Reading msg size */
+	ssize_t res = read( fd, &buff.ICMND.packetlength, 1 );	/* Reading msg size */
+	assert(res);
 	n2read = buff.ICMND.packetlength;
 	p++;
 
@@ -331,7 +333,8 @@ static void init_RFX( uint8_t mid ){
 		return;
 	}
 
-	assert( signal(SIGALRM, sig_alarm) != SIG_ERR );
+	bool res = (signal(SIGALRM, sig_alarm) != SIG_ERR);
+	assert( res );
 	if(setjmp(env_alarm) != 0){
 		publishLog('E', "Timeout during RFXtrx initialisation");
 		publishLog('F', "RFXtrx disabled");

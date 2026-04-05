@@ -486,8 +486,10 @@ int main(int ac, char **av){
 	publishLog('W', "%s v%s starting ...", basename(av[0]), MARCEL_VERSION);
 
 	pthread_attr_t thread_attr;
-	assert(!pthread_attr_init (&thread_attr));
-	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+	int res = pthread_attr_init (&thread_attr);
+	assert(!res);
+	res = pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED);
+	assert(!res);
 
 	for(struct Section *s = sections; s; s = s->next){
 		uint8_t mid = s->id & 0xff;

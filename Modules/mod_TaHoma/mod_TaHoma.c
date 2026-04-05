@@ -204,28 +204,32 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(*section){
 		if((arg = striKWcmp(l,"TaHoma_host="))){
 			acceptSectionDirective(*section, "TaHoma_host=");
-			assert(( (*(struct section_TaHoma **)section)->hostname = strdup(arg) ));
+			(*(struct section_TaHoma **)section)->hostname = strdup(arg);
+			assert( (*(struct section_TaHoma **)section)->hostname );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tHostname : '%s'", (*(struct section_TaHoma **)section)->hostname);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"TaHoma_address="))){
 			acceptSectionDirective(*section, "TaHoma_address=");
-			assert(( (*(struct section_TaHoma **)section)->ip = strdup(arg) ));
+			(*(struct section_TaHoma **)section)->ip = strdup(arg);
+			assert( (*(struct section_TaHoma **)section)->ip );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tAddress : '%s'", (*(struct section_TaHoma **)section)->ip);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"TaHoma_port="))){
 			acceptSectionDirective(*section, "TaHoma_port=");
-			assert(( (*(struct section_TaHoma **)section)->port = atol(arg) ));
+			(*(struct section_TaHoma **)section)->port = atol(arg);
+			assert( (*(struct section_TaHoma **)section)->port );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tPort : %d", (*(struct section_TaHoma **)section)->port);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"TaHoma_token="))){
 			acceptSectionDirective(*section, "TaHoma_token=");
-			assert(( (*(struct section_TaHoma **)section)->token = strdup(arg) ));
+			(*(struct section_TaHoma **)section)->token = strdup(arg);
+			assert( (*(struct section_TaHoma **)section)->token );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tToken : '%s'", (*(struct section_TaHoma **)section)->token);
