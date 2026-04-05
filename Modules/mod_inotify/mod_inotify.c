@@ -108,7 +108,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(*section){
 		if((arg = striKWcmp(l,"On=")) || (arg = striKWcmp(l,"Dir="))){
 			acceptSectionDirective(*section, "On=");
-			assert(( (*(struct section_Look4Change **)section)->dir = strdup(arg) ));
+			(*(struct section_Look4Change **)section)->dir = strdup(arg);
+			assert( (*(struct section_Look4Change **)section)->dir );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tOn : '%s'", (*(struct section_Look4Change **)section)->dir);
@@ -319,8 +320,10 @@ static void startNotif( uint8_t mid ){
 
 			/* Launch notification thread */
 		pthread_attr_t thread_attr;
-		assert(!pthread_attr_init (&thread_attr));
-		assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+		int res = pthread_attr_init (&thread_attr);
+		assert(!res);
+		res = pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED);
+		assert(!res);
 
 		if(pthread_create( &(mod_inotify.thread), &thread_attr, handleNotification, &mod_inotify) < 0){
 			publishLog('F', "Can't create 1-wire alert reader thread");

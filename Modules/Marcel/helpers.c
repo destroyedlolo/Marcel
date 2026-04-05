@@ -250,7 +250,8 @@ char *replaceVar( const char *arg, struct _VarSubstitution *lookup ){
 			for(t=lookup; t->var; t++){
 				if(!strncmp(arg+idx, t->var, t->lvar)){
 					sz += t->lval - t->lvar;
-					assert((s = realloc(s, sz)));
+					s = realloc(s, sz);
+					assert(s);
 					strcpy(s+idxd, t->val);		/* Insert the value */
 					idxd += t->lval;			/* Skip variable's content */
 					idx += t->lvar-1;			/* Skip variable's name */

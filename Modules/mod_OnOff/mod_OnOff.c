@@ -19,7 +19,8 @@ static struct module_OnOff mod_OnOff;
 
 static void subTopic( uint8_t mid ){
 		/* Sections */
-	assert(( mod_OnOff.topic = malloc( strlen(cfg.ClientID) + 9) ));	/* "/OnOff/#" + \0 */
+	mod_OnOff.topic = malloc( strlen(cfg.ClientID) + 9);	/* "/OnOff/#" + \0 */
+	assert( mod_OnOff.topic );
 	sprintf( mod_OnOff.topic, "%s/OnOff/#", cfg.ClientID );
 
 	if(cfg.verbose)
@@ -33,7 +34,8 @@ static void subTopic( uint8_t mid ){
 	mod_OnOff.topic[strlen(mod_OnOff.topic)-1] = 0;	/* Remove leading '#' */
 
 		/* Named Notification */
-	assert(( mod_OnOff.NNtopic = malloc( strlen(cfg.ClientID) + 19) ));	/* "/NamedNotifOnOff/#" + \0 */
+	mod_OnOff.NNtopic = malloc( strlen(cfg.ClientID) + 19);	/* "/NamedNotifOnOff/#" + \0 */
+	assert( mod_OnOff.NNtopic );
 	sprintf( mod_OnOff.NNtopic, "%s/NamedNotifOnOff/#", cfg.ClientID );
 	
 	if(cfg.verbose)

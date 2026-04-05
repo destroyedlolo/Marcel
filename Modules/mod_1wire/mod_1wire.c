@@ -111,7 +111,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		if(mod_1wire.OwAlarm)
 			publishLog('E', "1wire-Alarm-directory= defined more than once. Let's continue ...");
 
-		assert(( mod_1wire.OwAlarm = strdup(arg) ));
+		mod_1wire.OwAlarm = strdup(arg);
+		assert( mod_1wire.OwAlarm );
 
 		if(cfg.verbose)
 			publishLog('C', "\t1-wire Alarm directory : '%s'", mod_1wire.OwAlarm);
@@ -189,14 +190,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(*section){
 		if((arg = striKWcmp(l,"File="))){
 			acceptSectionDirective(*section, "File=");
-			assert(( (*(struct section_FFV **)section)->common.file = strdup(arg) ));
+			(*(struct section_FFV **)section)->common.file = strdup(arg);
+			assert( (*(struct section_FFV **)section)->common.file );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tFile : '%s'", (*(struct section_FFV **)section)->common.file);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"Latch="))){
 			acceptSectionDirective(*section, "Latch=");
-			assert(( (*(struct section_1wAlarm **)section)->latch = strdup(arg) ));
+			(*(struct section_1wAlarm **)section)->latch = strdup(arg);
+			assert( (*(struct section_1wAlarm **)section)->latch );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tLatch : '%s'", (*(struct section_1wAlarm **)section)->latch);
@@ -211,14 +214,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 #ifdef LUA
 		} else if((arg = striKWcmp(l,"FailFunc="))){
 			acceptSectionDirective(*section, "FailFunc=");
-			assert(( (*(struct section_FFV **)section)->common.failfunc = strdup(arg) ));
+			(*(struct section_FFV **)section)->common.failfunc = strdup(arg);
+			assert( (*(struct section_FFV **)section)->common.failfunc );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tFailFunc: '%s'", (*(struct section_FFV **)section)->common.failfunc);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"InitFunc="))){
 			acceptSectionDirective( *section, "InitFunc=");
-			assert(( (*(struct section_1wAlarm **)section)->initfunc = strdup(arg) ));
+			(*(struct section_1wAlarm **)section)->initfunc = strdup(arg);
+			assert( (*(struct section_1wAlarm **)section)->initfunc );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tInitFunc: '%s'", (*(struct section_1wAlarm **)section)->initfunc);

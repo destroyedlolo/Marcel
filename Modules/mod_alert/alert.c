@@ -53,8 +53,10 @@ bool RiseAlert(const char *id, const char *msg, bool quiet){
 	struct alert *an = findalert(id);
 
 	if(!an){	/* Creating a new alert */
-		assert( (an = malloc( sizeof(struct alert) )) );
-		assert( (an->alert = strdup( id )) );
+		an = malloc( sizeof(struct alert) );
+		assert( an );
+		an->alert = strdup( id );
+		assert( an->alert );
 		DLAdd( &mod_alert.alerts, (struct DLNode *)an );
 
 		if(!quiet)

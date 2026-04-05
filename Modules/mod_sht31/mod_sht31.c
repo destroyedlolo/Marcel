@@ -237,7 +237,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 	} else if(*section){
 		if((arg = striKWcmp(l,"Device="))){
 			acceptSectionDirective(*section, "Device=");
-			assert(( (*(struct section_sht31 **)section)->device = strdup(arg) ));
+			(*(struct section_sht31 **)section)->device = strdup(arg);
+			assert( (*(struct section_sht31 **)section)->device );
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tDevice : '%s'", (*(struct section_sht31 **)section)->device);
