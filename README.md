@@ -38,9 +38,10 @@
 
 **Marcel** is a lightweight daemon designed to collect, process, and publish a broad spectrum of data. Its modular architecture allows you to:
 
-* **Acquire environmental data** from various sources, such as 1-Wire probes or third-party gateways (e.g., Somfy TaHoma), and drive connected actuators.
-* **Fetch and publish** local weather forecasts.
-* **Monitor UPS** (Uninterruptible Power Supply) metrics and generate corresponding alerts.
+* **Acquire environmental data** from various sources, such as [1-Wire probes or GPIO exposed](Modules/mod_1wire/) or third-party gateways (e.g., [Somfy TaHoma](Modules/mod_TaHoma/)), and drive connected actuators.
+* act as **[TaHoma to MQTT gateway](Modules/mod_TaHoma/)**
+* **Fetch and publish** [local weather forecasts](Modules/mod_OpenWeatherMap/).
+* **[Monitor UPS](Modules/mod_ups/)** (Uninterruptible Power Supply) metrics and generate corresponding alerts.
 * **Integrate** many other data sources and services
 * and many more ...
 
