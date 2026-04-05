@@ -1,0 +1,60 @@
+*Probe=AQCO2
+	####
+	# settings related to the device itself
+	####
+
+	# Probe settings
+	url=zigbee://2095-0445-1705/58849/1#3
+
+	# Gateway it belongs to
+	TaHoma=MyTaHoma
+
+	# Lua validation user function
+	# Arguments :
+	# 	raw value
+	# 	compensated value
+#	Func=ValTProbe
+
+	# Sample : Delay b/w sample
+	# if -1 : only once
+	Sample=-1
+
+	# Launch it immediately
+	Immediate
+
+	# Start disabled
+#	Disabled
+
+	# Disable it if running in simulation mode
+	DoNotSimulate
+
+	####
+	# One of more states from the device.
+	#
+	# The device is queried once, then states
+	# are extracted from the result.
+	# The goal is to minimize the gateway's load.
+	####
+
+**State=core:CO2ConcentrationState
+	# Notez_bien : directives are prepended with a 
+	# 'state_' in order to avoid confusion with top
+	# level ones. Even if the goals are the same.
+
+	# Lua validation user function
+	# Arguments :
+	# 	raw value
+	# 	compensated value
+	# state_Func=ValTProbe
+
+	# Topic to publish to.
+	state_Topic=maison/TestAirQualitySensor/CO2
+
+	# submitted as retained message
+#	state_Retained
+
+	# Start this state disabled
+#	state_Disabled
+
+	# Disable this state if running in simulation mode
+	state_DoNotSimulate

@@ -22,5 +22,6 @@ all:
 	$(MAKE) -C Modules/mod_inotify
 	$(MAKE) -C Modules/mod_OpenWeatherMap
 	$(MAKE) -C Modules/mod_RFXtrx
+	$(MAKE) -C Modules/mod_TaHoma
 	$(MAKE) -C Modules/mod_dummy
 	$(MAKE) -C Modules/Marcel

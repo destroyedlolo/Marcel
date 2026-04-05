@@ -9,6 +9,7 @@
  */
 
 #include "mod_owm.h"
+#include "../Marcel/CURL_helpers.h"
 #ifdef LUA
 #	include "../mod_Lua/mod_Lua.h"
 #endif
@@ -104,7 +105,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 	if((arg = striKWcmp(l,"APIkey="))){
 		if(*section){
-			publishLog('F', "RandomizeProbes can't be part of a section");
+			publishLog('F', "APIkey can't be part of a section");
 			exit(EXIT_FAILURE);
 		}
 
@@ -258,4 +259,6 @@ void InitModule( void ){
 		mod_Lua->exposeObjMethods(mod_Lua->L, "Meteo3H", soM);
 	}
 #endif
+
+	init_Curl();
 }

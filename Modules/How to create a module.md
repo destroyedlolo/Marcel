@@ -1,40 +1,40 @@
 # Module creation
 
-| :relaxed:        | This documentation is very technical and targets people wanting to create their own module or ones interested by Marcel's internal way of working |
+| :relaxed:        | This documentation is highly technical and is intended for developers looking to create custom modules or those interested in Marcel’s internal architecture. |
 --- | --- |
 
-As of V8, Marcel moved to a strong dynamically loaded modules' architecture. 
-This architecture reduces the system's footprint by avoiding loading unused pieces of code, makes development easier and,
-all in all, increase modules' security.
-
-This little document explains how to create your own module to improve Marcel's capabilities, taking **mod_dummy** as example.It describes only its skeleton, full explanation is provided in its source code.
-
+Starting with V8, Marcel transitioned to a robust, dynamically loaded module system. This architecture reduces the system's memory
+footprint by loading only necessary code, streamlines development, and enhances overall security. This guide explains how to extend
+Marcel’s capabilities by creating your own module, using **mod_dummy** as a reference. Please note that this document outlines the
+module's skeleton; for a deep dive, please refer to the detailed comments within the source code.
 
 ## Structural concepts
 
 ### Versioning
 
-The version is set at Marcel's level (if a module is touched, the global Marcel's version is bumped) using the following scheme : `MAJOR.MISB`
+The version is set at Marcel's level (if a module is touched, the global Marcel's version is bumped)We follow a MAJOR.MI.SB versioning scheme: `MAJOR.MISB`
 
-- *MAJOR* : if bumped, a structural change happened to Marcel. As an example, V8 introduced the concept of loadable module (versus hard-coded ones) and configuration files dramatically changed.
-Upwards compatibility is not guaranteed, even if the best is done to avoid big bangs as of V8 :smirk:.
-- *MI*nor : feature added. Upwards compatibility **is enforced** between minors versions. 
-- *S*u*B* version : bug fix, small changes not impacting fundamental Marcel's way of working or configuration ... mostly internal changes.
+- *MAJOR*: Indicates a structural change. For instance, V8 introduced dynamic loadable modules and a complete overhaul of configuration files. **Backward compatibility is not guaranteed for major releases**, though we strive to avoid "big bangs" whenever possible :smirk:
+- *MI*nor : Indicates new features. **Backward compatibility is strictly enforced** between minor versions. 
+- *S*u*B* version : Indicates bug fixes or minor adjustments that do not impact Marcel's core logic or configuration. These are primarily internal improvements.
 
 ### Shared objects
 
-Modules technically are shared object (.so) that will be loaded on demand using Marcel's `LoadModule=` directive. The only exposed entry point is `InitModule()` which initialize module's internal structure : other exchanges are done using **callbacks**.
+Technically, modules are **shared objects (.so)** loaded on demand via Marcel's `LoadModule=` directive. The only exposed entry
+point is `InitModule()`, which initializes the module's internal structure; all further interactions are handled through **callbacks**.
 
-The added value of this kind of architecture (*inspired by the way Amiga's libraries*) is to avoid tight links between Marcel's own code and modules, as it would be the case with classical Linux shared libraries.
+The primary advantage of this architecture (*inspired by Amiga libraries*) is the **total decoupling** of Marcel’s core logic from its
+modules. This avoids the tight linking typically found in standard Linux shared libraries.
 
-### Golden rules
+### Development Guidelines
 
-Following guidelines need to be kept in mind when creating a module :
-- no inter-module sharing : there is no need to share anything between modules (no global variable, no cross module functions, ...). The only exception is **mod_lua** and all exchanges is done using callbacks as well.
-- avoid blocking long processing
-- be resource conservative
-- provide a module level `README.md` to document the module
-- in a subdirectory `/Config`, provide comprehensible and documented configuration skeleton.
+Please keep the following principles in mind when creating a new module:
+- **No Inter-Module Sharing**: Modules must remain isolated. There should be no shared global variables or cross-module
+function calls. The only exception is **mod_lua**.
+- **Non-Blocking Design**: Avoid long-running or blocking processes to ensure the system remains responsive.
+- **Resource Efficiency**: Be conservative with memory and CPU usage to maintain a lightweight footprint.
+- **Documentation**: Every module must include its own `README.md` file within its directory.
+- **Configuration**: Provide a well-documented configuration skeleton within a `/Config` subdirectory.
 
 ## Creating a module step by step
 
@@ -63,7 +63,8 @@ BUILD_DUMMY=1
 
 #### Development related
 
-This part contains general build options like compiler flags, where to find external components ... As a matter of fact, few modules have needs here, and it's not the case of our dummy example.
+This part contains general build options like compiler flags, where to find external components ... As a matter of fact, few modules
+have needs here, and it's not the case of our dummy example.
 
 #### Rebuild Makefiles
 

@@ -54,18 +54,19 @@
  * 19/06/2025	- LF - v8.08 - Add ForceHostname
  * 19/06/2025	- LF - v8.09 - Add AXP20x modules
  * 12/10/2025	- LF - v8.10 - Correct Lua leak
+ * 14/03/2026	- LF - v8.11 - Add TaHoma module and its Probe section
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.1000"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.1103"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
 							 */
 
-#define MARCEL_COPYRIGHT "Marcel v"MARCEL_VERSION" (c) L.Faillie 2015-2025"
+#define MARCEL_COPYRIGHT "Marcel v"MARCEL_VERSION" (c) L.Faillie 2015-2026"
 
 #ifdef DEBUG
 #	define DEFAULT_CONFIGURATION_FILE	"Config"

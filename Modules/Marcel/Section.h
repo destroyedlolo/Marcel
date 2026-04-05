@@ -55,7 +55,8 @@ struct Section {
 	int (*publishCustomFigures)(struct Section *);	/* Publish figures specific to this section kind */
 };
 
-extern struct Section *sections;
+extern struct Section *sections,	/* First section */
+					*last_section;	/* the last one */
 
 extern struct Section *findSectionByName(const char *name);
 extern void initSection(struct Section *sec, int8_t module_id, uint8_t section_id, const char *name, const char *kind);

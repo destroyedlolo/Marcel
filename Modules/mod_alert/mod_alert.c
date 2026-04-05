@@ -9,6 +9,7 @@
  */
 
 #include "mod_alert.h"	/* module's own stuffs */
+#include "../Marcel/CURL_helpers.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -280,7 +281,7 @@ static bool processMsg(const char *topic, char *payload){
 
 	/* processing named sessions */
 	if((arg = striKWcmp(topic, "nNotification/"))){	/* Mustn't include wildcard otherwise, use mqtttokcmp() */
-		char *title = strchr(arg, '/');
+		char *title = (char *)strchr(arg, '/');
 
 		if(!title)
 			publishLog('E', "Received named notification \"%s\" without title : ignoring", arg);
@@ -592,4 +593,6 @@ void InitModule( void ){
 		mod_Lua->exposeObjMethods(mod_Lua->L, "NamedNotification", alNamedM);
 	}
 #endif
+
+	init_Curl();
 }

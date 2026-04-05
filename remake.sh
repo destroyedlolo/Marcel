@@ -46,6 +46,9 @@ BUILD_INOTIFY=1
 # Meteo forcast using OpenWeatherMap
 BUILD_METEOOWM=1
 
+# TaHoma's local API
+BUILD_TAHOMA=1
+
 # Freebox v4/v5 figures
 # BUILD_FREEBOXV5=1
 
@@ -64,17 +67,17 @@ BUILD_DUMMY=1
 ###
 
 # Enable debugging messages
-#DEBUG=1
+DEBUG=1
 
 # MCHECK - check memory concistency (see glibc's mcheck())
-#MCHECK=1
+MCHECK=1
 
 # Where to generate ".so" plugins
 # ---
 # production's target directory
-PLUGIN_DIR=/usr/local/lib/Marcel
+#PLUGIN_DIR=/usr/local/lib/Marcel
 # During development, being clean and keep everything in our own directory
-#PLUGIN_DIR=$( pwd )
+PLUGIN_DIR=$( pwd )
 
 # -------------------------------------
 #      END OF CONFIGURATION AREA
@@ -132,8 +135,8 @@ else
 fi
 
 # Enable JSon-c for modules having to handle Json data as well as curl
-if [ ${BUILD_METEOOWM+x} ]; then
-	JSON="\$(shell pkg-config --cflags json-c )"
+if [[ -n "${BUILD_METEOOWM+x}" && -n "${BUILD_TAHOMA+x}" && -n "${BUILD_ALERT+x}" ]]; then
+	JSON="\$(shell pkg-config --cflags json-c ) -DUSE_CURL"
 	JSONLIB="\$(shell pkg-config --libs json-c ) -lcurl"
 else
 	echo 'No need for Curl and json'
@@ -219,6 +222,9 @@ if [ ${BUILD_FREEBOXOS+x} ]; then
 fi
 if [ ${BUILD_RFXTRX+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_RFXtrx' >> Makefile
+fi
+if [ ${BUILD_TAHOMA+x} ]; then
+	echo -e '\t$(MAKE) -C Modules/mod_TaHoma' >> Makefile
 fi
 if [ ${BUILD_DUMMY+x} ]; then
 	echo -e '\t$(MAKE) -C Modules/mod_dummy' >> Makefile
@@ -318,6 +324,12 @@ if [ ${BUILD_RFXTRX+x} ]; then
 	cd ../..
 fi
 
+if [ ${BUILD_TAHOMA+x} ]; then
+	cd Modules/mod_TaHoma
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $JSON $DEBUG $MCHECK" *.c -so=../../mod_TaHoma.so > Makefile
+	cd ../..
+fi
+
 if [ ${BUILD_DUMMY+x} ]; then
 	cd Modules/mod_dummy
 	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $LUA $DEBUG $MCHECK" *.c -so=../../mod_dummy.so > Makefile
@@ -330,7 +342,7 @@ fi
 
 cd Modules/Marcel
 
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUALIB $JSONLIB \
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $JSON $LUALIB $JSONLIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread \
 	" *.c -t=../../Marcel > Makefile
