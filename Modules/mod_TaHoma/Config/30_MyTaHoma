@@ -8,7 +8,10 @@
 	TaHoma_port=8443
 
 	# Developer mode token
-	TaHoma_token=xxxxxxxxxxxxxxxxxxxx
+	# The token can be specified in this configuration file
+#	TaHoma_token=xxxxxxxxxxxxxxxxxxxxx
+	# or it can be stored externally in a file
+	TaHoma_token=@/home/laurent/.tahomatoken
 
 	# Don't verify SSL chain
 	DontVerifySSL
