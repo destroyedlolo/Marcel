@@ -228,7 +228,35 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"TaHoma_token="))){
 			acceptSectionDirective(*section, "TaHoma_token=");
-			(*(struct section_TaHoma **)section)->token = strdup(arg);
+
+			if(*arg == '@'){	/* Read it from a file */
+				FILE *f = fopen(++arg, "r");
+				if(!f)
+					perror(arg);
+				else {
+					char *l = NULL;
+					size_t len = 0;
+				
+					if(getline(&l, &len, f) != -1){
+						char *c = strchr(l, '\n');	// Remove leading CR
+						if(c)
+							*c = 0;
+
+							/* Theoretically, we should use 'l' as it is
+							 * strdup() it decouples the implementation of
+							 * getline() with our application.
+							 */
+						(*(struct section_TaHoma **)section)->token = strdup(l);
+					}
+
+					if(l)
+						free(l);
+
+					fclose(f);
+				}
+			} else
+				(*(struct section_TaHoma **)section)->token = strdup(arg);
+
 			assert( (*(struct section_TaHoma **)section)->token );
 
 			if(cfg.verbose)	/* Be verbose if requested */
