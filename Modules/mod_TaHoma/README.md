@@ -118,7 +118,7 @@ None
 
 Describe your gateway as discovered above.
 
-> [!TIP]
+> [!NOTE]
 > Marcel can manage multiple TaHoma devices simultaneously, each defined in a separate section.
 > The only requirement is to assign a unique identifier to each device (specified in the `TaHoma=` parameter).
 
@@ -126,6 +126,10 @@ Describe your gateway as discovered above.
 * **TaHoma_address=** TaHoma IP address
 * **TaHoma_port=** TaHoma port (`8443` by default)
 * **TaHoma_token=** Application token as provided by the mobile application
+
+> [!TIP]
+> You can specifile in which file the token is stored using a '@' as first character :  
+> `TaHoma_token @/path/to/file`
 
 * **DontVerifySSL** SSL chain enforcement is not required.
 In other words, you don't need to add Overkiz's root certificate to your repository.
