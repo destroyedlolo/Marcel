@@ -22,6 +22,14 @@
 
 struct module_1wire mod_1wire;
 
+static void gend2FFV(struct Section *sec){
+	struct section_FFV *s = (struct section_FFV *)sec;
+
+	fprintf(cfg.fd2, "%s.class : FFF\n", s->common.section.uid);
+	fprintf(cfg.fd2, "\"%s\" { class: topic }\n", s->common.section.topic);
+	fprintf(cfg.fd2, "%s -> \"%s\" { class: publish }\n", s->common.section.uid, s->common.section.topic);
+}
+
 static int publishCustomFiguresFFV(struct Section *asection){
 #ifdef LUA
 	if(mod_Lua){
@@ -153,6 +161,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		nsection->common.section.publishCustomFigures = publishCustomFiguresFFV;
 		nsection->common.section.sample = mod_1wire.defaultsampletime;
+		nsection->common.section.gend2 = gend2FFV;
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
 		nsection->common.failfuncid = LUA_REFNIL;
