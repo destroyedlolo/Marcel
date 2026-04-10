@@ -30,6 +30,14 @@ static void gend2FFV(struct Section *sec){
 	fprintf(cfg.fd2, "%s -> \"%s\" { class: publish }\n", s->common.section.uid, s->common.section.topic);
 }
 
+static void gend2alrm(struct Section *sec){
+	struct section_1wAlarm *s = (struct section_1wAlarm *)sec;
+
+	fprintf(cfg.fd2, "%s.class : 1WAlarm\n", s->common.section.uid);
+	fprintf(cfg.fd2, "\"%s\" { class: topic }\n", s->common.section.topic);
+	fprintf(cfg.fd2, "%s -> \"%s\" { class: publish }\n", s->common.section.uid, s->common.section.topic);
+}
+
 static int publishCustomFiguresFFV(struct Section *asection){
 #ifdef LUA
 	if(mod_Lua){
@@ -186,6 +194,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->common.file = NULL;
 		nsection->common.failfunc = NULL;
 		nsection->common.failfuncid = LUA_REFNIL;
+		nsection->common.section.gend2 = gend2alrm;
 		nsection->initfunc = NULL;
 		nsection->latch = NULL;
 
