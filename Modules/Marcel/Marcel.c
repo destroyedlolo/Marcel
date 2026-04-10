@@ -87,7 +87,7 @@ static void process_conffile(const char *fch, uint8_t level){
 	if(cfg.verbose){
 		char tab[level*4+1];
 		*tab = 0;
-		for(uint8_t i=0; i<level; i++)
+		for(uint8_t i=0; i<level; ++i)
 			strcat(tab, "--\t");
 
 		publishLog('C', "%sReading configuration file : '%s'", tab, fch);
@@ -102,7 +102,7 @@ static void process_conffile(const char *fch, uint8_t level){
 		char *line = l;
 
 		while(isspace(*line))
-			line++;
+			++line;
 
 		if(*line == '#' || *line == '\n' || !*line)
 			continue;
@@ -149,7 +149,7 @@ static void process_conffile(const char *fch, uint8_t level){
 		} else {
 			/* Ask each module if it knows this configuration */
 			enum RC_readconf rc = REJECTED;
-			for(unsigned int i=0; i<number_of_loaded_modules; i++){
+			for(unsigned int i=0; i<number_of_loaded_modules; ++i){
 				if(!modules[i]->readconf)
 					continue;
 
@@ -199,7 +199,7 @@ static void read_configuration( const char *dir, uint8_t level ){
 		exit( EXIT_FAILURE );
 	}
 
-	for(int i=0; i<n; i++)
+	for(int i=0; i<n; ++i)
 		process_conffile(namelist[i]->d_name, level);
 
 		/* Cleanup */
@@ -238,7 +238,7 @@ static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg
 			break;
 	}
 
-	for(unsigned int i=0; i<number_of_loaded_modules; i++){
+	for(unsigned int i=0; i<number_of_loaded_modules; ++i){
 		if(modules[i]->processMsg)
 			modules[i]->processMsg(topic, payload);
 	}
@@ -392,6 +392,16 @@ int main(int ac, char **av){
 
 	read_configuration(conf_file, 0);
 
+	if(cfg.fd2){	/* Generate the documentation */
+		if(cfg.verbose)
+			publishLog('C', "Generating the documentation");
+
+		for(struct Section *s = sections; s; s = s->next){
+			if(s->gend2)
+				s->gend2(s);
+		}
+	}
+
 	if(cfg.configtest){
 		publishLog('W', "Testing only the configuration ... leaving.");
 
@@ -482,7 +492,7 @@ int main(int ac, char **av){
 	if(cfg.verbose)
 		publishLog('C', "Initialising modules");
 
-	for(unsigned int i=0; i<number_of_loaded_modules; i++){
+	for(unsigned int i=0; i<number_of_loaded_modules; ++i){
 		if(modules[i]->postconfInit)
 			modules[i]->postconfInit(i);
 	}
