@@ -20,6 +20,34 @@
 
 struct module_TaHoma mod_TaHoma;
 
+static void gend2(struct Section *sec){
+	struct section_TaHoma *s = (struct section_TaHoma *)sec;
+
+	fprintf(cfg.fd2, "%s.class : TaHoma\n", s->section.uid);
+
+	for(struct Expectation_definition *e = s->expectations; e; e = e->next){
+		fprintf(cfg.fd2, "%s.class : Expectation\n", e->uid);
+		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", e->topic);
+		fprintf(cfg.fd2, "%s -> %s \n", s->section.uid, e->uid);
+		fprintf(cfg.fd2, "%s -> \"%s\" { class: publish }\n", e->uid, e->topic);
+	}
+	fputs("\n", cfg.fd2);
+}
+
+static void gend2Probe(struct Section *sec){
+	struct section_Probe *s = (struct section_Probe *)sec;
+
+	fprintf(cfg.fd2, "%s.class : Probe\n", s->device.section.uid);
+	fprintf(cfg.fd2, "%s -> %s \n", s->device.TaHoma, s->device.section.uid);
+
+	for(struct State_definition *st = s->States; st; st = st->next){
+		fprintf(cfg.fd2, "\"%s\" { class : State }\n", st->state);
+		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", st->topic);
+		fprintf(cfg.fd2, "%s -> \"%s\" \n", s->device.section.uid, st->state);
+		fprintf(cfg.fd2, "\"%s\" -> \"%s\" { class: publish }\n", st->state, st->topic);
+	}
+}
+
 static void initTaHoma(struct Section *asec){
 	struct section_TaHoma *s = (struct section_TaHoma *)asec;
 
@@ -173,6 +201,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->States = NULL;
 		nsection->device.section.postconfInit = initProbe;
 		nsection->device.section.sample = mod_TaHoma.defaultsampletime;
+		nsection->device.section.gend2= gend2Probe;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
@@ -195,6 +224,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->expectations = NULL;
 		nsection->section.postconfInit = initTaHoma;
 		nsection->section.sample = 60;
+		nsection->section.gend2= gend2;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
