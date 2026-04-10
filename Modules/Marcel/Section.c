@@ -133,6 +133,7 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 
 	section->postconfInit = NULL;
 	section->publishCustomFigures = NULL;
+	section->gend2 = NULL;
 
 #ifdef LUA
 	struct module_Lua *mod_Lua;

@@ -53,6 +53,7 @@ struct Section {
 		/* Callback */
 	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */
 	int (*publishCustomFigures)(struct Section *);	/* Publish figures specific to this section kind */
+	void (*gend2)(struct Section *);	/* Generate D2 documentation */
 };
 
 extern struct Section *sections,	/* First section */

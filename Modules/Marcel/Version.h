@@ -55,12 +55,13 @@
  * 19/06/2025	- LF - v8.09 - Add AXP20x modules
  * 12/10/2025	- LF - v8.10 - Correct Lua leak
  * 14/03/2026	- LF - v8.11 - Add TaHoma module and its Probe section
+ * 10/04/2026	- LF - v8.12 - Add d2 documentation generation
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.1105"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.1200"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

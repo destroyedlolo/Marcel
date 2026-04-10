@@ -263,6 +263,12 @@ static void handleInt(int na){
 	exit(EXIT_SUCCESS);
 }
 
+static void closed2(){
+	if(cfg.fd2)
+		fclose(cfg.fd2);
+	cfg.fd2 = NULL;
+}
+
 int main(int ac, char **av){
 	const char *conf_file = DEFAULT_CONFIGURATION_FILE;
 	int c;
@@ -273,11 +279,12 @@ int main(int ac, char **av){
 	cfg.simulate = false;
 	cfg.configtest = false;
 	cfg.sublast = false;
-	cfg.hostname=NULL;
+	cfg.hostname = NULL;
+	cfg.fd2 = NULL;
 
 	mod_Lua = NULL;
 
-	while((c = getopt(ac, av, "hvtdf:SN:")) != EOF) switch(c){
+	while((c = getopt(ac, av, "hvtdf:SN:2:")) != EOF) switch(c){
 #ifdef DEBUG
 	case 'd':
 		cfg.debug = true;
@@ -300,6 +307,14 @@ int main(int ac, char **av){
 	case 'N':
 		cfg.hostname = optarg;
 		break;
+	case '2':
+		cfg.fd2 = fopen(optarg, "w");
+		if(!cfg.fd2){
+			perror(optarg);
+			exit(EXIT_SUCCESS);
+		}
+		atexit(closed2);
+		break;
 	case 'h':
 	default:
 		if( c != '?' && c != 'h'){
@@ -321,7 +336,8 @@ int main(int ac, char **av){
 			"\t-N<name> : Force the hostname\n"
 			"\t-f<directory> : read <directory> for configuration\n"
 			"\t\t(default is '%s')\n"
-			"\t-t : test configuration file and exit\n",
+			"\t-t : test configuration file and exit\n"
+			"\t-2<file> : Generate D2 documentation file\n",
 			conf_file
 		);
 		exit( c=='?' ? EXIT_FAILURE : EXIT_SUCCESS );

@@ -49,6 +49,8 @@ extern struct Config {
 	MQTTClient client;
 
 	const char *hostname;	/* Force hostname */
+
+	FILE *fd2;				/* We have to generate d2 documentation */
 } cfg;
 
 extern struct _VarSubstitution {
