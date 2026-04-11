@@ -200,6 +200,26 @@ static enum RC_readconf mc_readconf(uint8_t mid, const char *l, struct Section *
 				publishLog('C', "\t\tKeep");
 
 			return ACCEPTED;
+		} else if((arg = striKWcmp(l, "desc="))){
+			acceptSectionDirective( *section, "desc=" );
+
+			(*section)->desc = strdup(arg);
+			assert((*section)->desc);
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tDescription : \"%s\"", (*section)->desc);
+
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l, "ecom="))){
+			acceptSectionDirective( *section, "ecom=" );
+
+			(*section)->ecom= strdup(arg);
+			assert((*section)->ecom);
+
+			if(cfg.verbose)
+				publishLog('C', "\t\tEmbedded comment: \"%s\"", (*section)->ecom);
+
+			return ACCEPTED;
 		}
 	}
 

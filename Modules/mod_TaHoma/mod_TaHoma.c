@@ -23,13 +23,17 @@ struct module_TaHoma mod_TaHoma;
 static void gend2(struct Section *sec){
 	struct section_TaHoma *s = (struct section_TaHoma *)sec;
 
-	fprintf(cfg.fd2, "%s.class : TaHoma\n", s->section.uid);
+	fprintf(cfg.fd2, "\"%s\": {\n"
+		"\tclass: TaHoma\n", s->section.uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
 
 	for(struct Expectation_definition *e = s->expectations; e; e = e->next){
 		fprintf(cfg.fd2, "%s.class : Expectation\n", e->uid);
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", e->topic);
 		fprintf(cfg.fd2, "%s -> %s \n", s->section.uid, e->uid);
-		fprintf(cfg.fd2, "%s -> \"%s\" { class: publish }\n", e->uid, e->topic);
+		fprintf(cfg.fd2, "%s -> \"%s\" { class: lpublish }\n", e->uid, e->topic);
 	}
 	fputs("\n", cfg.fd2);
 }
@@ -44,7 +48,7 @@ static void gend2Probe(struct Section *sec){
 		fprintf(cfg.fd2, "\"%s\" { class : State }\n", st->state);
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", st->topic);
 		fprintf(cfg.fd2, "%s -> \"%s\" \n", s->device.section.uid, st->state);
-		fprintf(cfg.fd2, "\"%s\" -> \"%s\" { class: publish }\n", st->state, st->topic);
+		fprintf(cfg.fd2, "\"%s\" -> \"%s\" { class: lpublish }\n", st->state, st->topic);
 	}
 }
 
@@ -515,6 +519,10 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "DontVerifySSL") )
 			return true;
 		else if( !strcmp(directive, "Sample=") )
+			return true;
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
 			return true;
 		else if( !strcmp(directive, "**Expect=") )
 			return true;	/* Accepted */

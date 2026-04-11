@@ -96,6 +96,26 @@ bool isDisabled(struct Section *s){
 }
 
 /**
+ * @brief Generate descriptions shared by all sections
+ * @warning Must be part of an D2 object definition, like
+	fprintf(cfg.fd2, "\"%s\": {\n"
+		"\tclass: TaHoma\n", s->section.uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+ *
+ * @param section section to publish
+ */
+void genGeneralD2(struct Section *s){
+	if(s->desc)
+		fprintf(cfg.fd2, "\ttooltip: %s\n", s->desc);
+	if(s->ecom)
+		fprintf(cfg.fd2,
+			"\tecom: \"%s\"\n"
+			"\tecom.class: Comment\n", s->ecom);
+}
+
+/**
  * @brief Initialize mandatory (only) field of a structure
  *
  * @param section Structure to initialize
@@ -126,6 +146,10 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 
 	section->keep = false;
 	section->sample = 0;
+
+	section->desc = NULL;
+	section->ecom = NULL;
+	section->group = NULL;
 
 	section->funcname = NULL;
 	section->funcid = LUA_REFNIL;

@@ -43,6 +43,11 @@ struct Section {
 	bool immediate;			/* run it immediately */
 	bool quiet;				/* this section will not produce log */
 
+		/* D2 documentation related */
+	const char *desc;	/* Long "tool tips" comment */
+	const char *ecom;	/* Embedded comment */
+	const char *group;	/* Group objects */
+
 		/* Lua user function
 		 * (only applicable to some sections)
 		 */
@@ -66,4 +71,5 @@ extern void SectionError(struct Section *, bool);
 extern void publishSectionStatus(struct Section *);
 extern bool isDisabled(struct Section *);
 
+extern void genGeneralD2(struct Section *);
 #endif

@@ -1,12 +1,24 @@
 # grid-columns : 5
 
 classes: {
+
 	TaHoma :{
+  		icon: https://icons.terrastruct.com/aws/_General/Internet-gateway_light-bg.svg
+  		icon.near: top-center
 		shape: package 
 		style.stroke: red
 		style.stroke-width: 6
 		style.fill: darkgoldenrod
 	}
+
+	Comment: {
+		label.near: bottom-center
+		style {
+			fill: transparent
+			stroke: transparent
+		}
+	}
+
 
 	Probe :{
 		shape: step
@@ -116,16 +128,6 @@ classes: {
 		style.fill: yellowgreen
 	}
 
-	Comment: {
-		label.near: bottom-right
-		style {
-			fill: transparent
-			italic: true
-			bold: true
-			stroke: transparent
-		}
-	}
-
 	Renderer {
 		icon: https://icons.terrastruct.com/essentials/144-television.svg
 #		style.fill: transparent
@@ -160,9 +162,10 @@ classes: {
 		}
 	}
 
-	lneed: {
+	lpublish: {
 		style {
 			stroke-dash: 2
+			stroke: green
 		}
 	}
 

@@ -25,4 +25,6 @@ Tests DoNotSimulate
 
 -----------
 
-TaHoma : lua function
+TaHoma : 
+- lua function
+- RandomizeProbes
