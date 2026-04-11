@@ -48,6 +48,8 @@ struct Section {
 	const char *ecom;	/* Embedded comment */
 	const char *group;	/* Group objects */
 
+	const char *fqid;	/* Fully qualified identifier */
+
 		/* Lua user function
 		 * (only applicable to some sections)
 		 */
@@ -72,4 +74,6 @@ extern void publishSectionStatus(struct Section *);
 extern bool isDisabled(struct Section *);
 
 extern void genGeneralD2(struct Section *);
+extern const char *getFqID(struct Section *);
+
 #endif

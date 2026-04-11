@@ -13,6 +13,7 @@
 #include "MQTT_tools.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 #ifdef LUA
 #	include <lualib.h>
@@ -104,7 +105,7 @@ bool isDisabled(struct Section *s){
 	genGeneralD2(sec);
 	fputs("}\n", cfg.fd2);
  *
- * @param section section to publish
+ * @param section to handle
  */
 void genGeneralD2(struct Section *s){
 	if(s->desc)
@@ -113,6 +114,23 @@ void genGeneralD2(struct Section *s){
 		fprintf(cfg.fd2,
 			"\tecom: \"%s\"\n"
 			"\tecom.class: Comment\n", s->ecom);
+}
+
+/**
+ * @brief Returns fully qualified ID
+ *
+ * @param section to handle
+ */
+const char *getFqID(struct Section *s){
+	if(s->group){
+		if(!s->fqid){
+			s->fqid = malloc(strlen(s->group) + strlen(s->uid) +2);
+			assert(s->fqid);
+			sprintf((char *)s->fqid, "%s.%s", s->group, s->uid);
+		}
+		return(s->fqid);
+	} else
+		return(s->uid);
 }
 
 /**
@@ -150,6 +168,7 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->desc = NULL;
 	section->ecom = NULL;
 	section->group = NULL;
+	section->fqid = NULL;
 
 	section->funcname = NULL;
 	section->funcid = LUA_REFNIL;

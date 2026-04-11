@@ -23,8 +23,9 @@ struct module_TaHoma mod_TaHoma;
 static void gend2(struct Section *sec){
 	struct section_TaHoma *s = (struct section_TaHoma *)sec;
 
-	fprintf(cfg.fd2, "\"%s\": {\n"
-		"\tclass: TaHoma\n", s->section.uid
+	fprintf(cfg.fd2, "%s: {\n"
+		"\tlabel: \"%s\"\n"
+		"\tclass: TaHoma\n", getFqID(sec), sec->uid
 	);
 	genGeneralD2(sec);
 	fputs("}\n", cfg.fd2);
@@ -32,7 +33,7 @@ static void gend2(struct Section *sec){
 	for(struct Expectation_definition *e = s->expectations; e; e = e->next){
 		fprintf(cfg.fd2, "%s.class : Expectation\n", e->uid);
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", e->topic);
-		fprintf(cfg.fd2, "%s -> %s \n", s->section.uid, e->uid);
+		fprintf(cfg.fd2, "%s -> %s \n", getFqID(sec), e->uid);
 		fprintf(cfg.fd2, "%s -> \"%s\" { class: lpublish }\n", e->uid, e->topic);
 	}
 	fputs("\n", cfg.fd2);
@@ -41,8 +42,12 @@ static void gend2(struct Section *sec){
 static void gend2Probe(struct Section *sec){
 	struct section_Probe *s = (struct section_Probe *)sec;
 
+	struct section_TaHoma *tahoma = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(tahoma && strcmp(tahoma->section.kind, "TaHoma"))
+		tahoma = NULL;
+
 	fprintf(cfg.fd2, "%s.class : Probe\n", s->device.section.uid);
-	fprintf(cfg.fd2, "%s -> %s \n", s->device.TaHoma, s->device.section.uid);
+	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, s->device.section.uid);
 
 	for(struct State_definition *st = s->States; st; st = st->next){
 		fprintf(cfg.fd2, "\"%s\" { class : State }\n", st->state);
@@ -523,6 +528,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "desc=") )
 			return true;
 		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
 			return true;
 		else if( !strcmp(directive, "**Expect=") )
 			return true;	/* Accepted */
