@@ -122,15 +122,22 @@ void genGeneralD2(struct Section *s){
  * @param section to handle
  */
 const char *getFqID(struct Section *s){
-	if(s->group){
-		if(!s->fqid){
-			s->fqid = malloc(strlen(s->group) + strlen(s->uid) +2);
-			assert(s->fqid);
-			sprintf((char *)s->fqid, "%s.%s", s->group, s->uid);
-		}
+	if(s->fqid)
 		return(s->fqid);
-	} else
-		return(s->uid);
+
+	if(s->group){
+		s->fqid = malloc(strlen(s->group) + strlen(s->uid) + strlen(s->kind) +3);	/* "_.\0" */
+		assert(s->fqid);
+		sprintf((char *)s->fqid, "%s.%s_%s", s->group, s->kind, s->uid);
+
+		return(s->fqid);
+	} else {
+		s->fqid = malloc(strlen(s->uid) + strlen(s->kind) +2);	/* "_\0" */
+		assert(s->fqid);
+		sprintf((char *)s->fqid, "%s_%s", s->kind, s->uid);
+
+		return(s->fqid);
+	}
 }
 
 /**

@@ -46,13 +46,19 @@ static void gend2Probe(struct Section *sec){
 	if(tahoma && strcmp(tahoma->section.kind, "TaHoma"))
 		tahoma = NULL;
 
-	fprintf(cfg.fd2, "%s.class : Probe\n", s->device.section.uid);
-	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, s->device.section.uid);
+	fprintf(cfg.fd2, "%s: {\n"
+		"\tlabel: \"%s\"\n"
+		"\tclass: Probe\n", getFqID(sec), sec->uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+
+	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, getFqID(sec));
 
 	for(struct State_definition *st = s->States; st; st = st->next){
 		fprintf(cfg.fd2, "\"%s\" { class : State }\n", st->state);
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", st->topic);
-		fprintf(cfg.fd2, "%s -> \"%s\" \n", s->device.section.uid, st->state);
+		fprintf(cfg.fd2, "%s -> \"%s\" \n", getFqID(sec), st->state);
 		fprintf(cfg.fd2, "\"%s\" -> \"%s\" { class: lpublish }\n", st->state, st->topic);
 	}
 }
@@ -548,6 +554,12 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "url=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
+			return true;
 		else if( !strcmp(directive, "**State=") )
 			return true;	/* Accepted */
 	} else if(sec_id == ST_STATE){

@@ -29,6 +29,17 @@
 	DoNotSimulate
 
 	####
+	# D2 documentations
+	####
+
+	# Tool type comment
+	desc=Run at startup
+	# Embedded comment
+#	ecom=Initale value
+	# Grouping
+	group=Initiales values
+
+	####
 	# One of more states from the device.
 	#
 	# The device is queried once, then states

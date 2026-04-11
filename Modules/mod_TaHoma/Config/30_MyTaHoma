@@ -28,14 +28,15 @@
 	# Embedded comment
 	ecom=With developer mode enabled
 	# Grouping
-	group=boxes
+#	group=boxes
 
 	#####
 	# Expected events
 	#####
-	# Notez_bien : directives are prepended with a 
+	# Notez-bien : directives are prepended with a 
 	# 'expect_' in order to avoid confusion with top
 	# level ones. Even if the goals are the same.
+
 
 	**Expect=CO2
 
