@@ -23,7 +23,7 @@ struct module_TaHoma mod_TaHoma;
 static void gend2(struct Section *sec){
 	struct section_TaHoma *s = (struct section_TaHoma *)sec;
 
-	fprintf(cfg.fd2, "%s: {\n"
+	fprintf(cfg.fd2, "\"%s\": {\n"
 		"\tlabel: \"%s\"\n"
 		"\tclass: TaHoma\n", getFqID(sec), sec->uid
 	);
@@ -31,10 +31,13 @@ static void gend2(struct Section *sec){
 	fputs("}\n", cfg.fd2);
 
 	for(struct Expectation_definition *e = s->expectations; e; e = e->next){
-		fprintf(cfg.fd2, "%s.class : Expectation\n", e->uid);
+		fprintf(cfg.fd2, "\"%p_%s\" : {\n"
+			"class : Expectation\n"
+			"label : \"%s\"\n"
+			"}\n", sec, e->uid, e->uid);
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", e->topic);
-		fprintf(cfg.fd2, "%s -> %s \n", getFqID(sec), e->uid);
-		fprintf(cfg.fd2, "%s -> \"%s\" { class: lpublish }\n", e->uid, e->topic);
+		fprintf(cfg.fd2, "%s -> \"%p_%s\" \n", getFqID(sec), sec, e->uid);
+		fprintf(cfg.fd2, "\"%p_%s\" -> \"%s\" { class: lpublish }\n", sec, e->uid, e->topic);
 	}
 	fputs("\n", cfg.fd2);
 }
@@ -56,10 +59,10 @@ static void gend2Probe(struct Section *sec){
 	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, getFqID(sec));
 
 	for(struct State_definition *st = s->States; st; st = st->next){
-		fprintf(cfg.fd2, "\"%s\" { class : State }\n", st->state);
+		fprintf(cfg.fd2, "\"%s\".\"%s\" { class : State }\n", getFqID(sec), st->state);
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", st->topic);
-		fprintf(cfg.fd2, "%s -> \"%s\" \n", getFqID(sec), st->state);
-		fprintf(cfg.fd2, "\"%s\" -> \"%s\" { class: lpublish }\n", st->state, st->topic);
+//		fprintf(cfg.fd2, "%s -> \"%s\" \n", getFqID(sec), st->state);
+		fprintf(cfg.fd2, "\"%s\".\"%s\" -> \"%s\" { class: lpublish }\n", getFqID(sec), st->state, st->topic);
 	}
 }
 
