@@ -25,9 +25,16 @@ struct module_1wire mod_1wire;
 static void gend2FFV(struct Section *sec){
 	struct section_FFV *s = (struct section_FFV *)sec;
 
-	fprintf(cfg.fd2, "%s.class : FFF\n", s->common.section.uid);
+	fprintf(cfg.fd2, "\"%s\" : {\n"
+		"\tlabel: \"%s\"\n"
+		"\tclass: FFV\n", getFqID(sec), s->common.section.uid);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+
 	fprintf(cfg.fd2, "\"%s\" { class: topic }\n", s->common.section.topic);
-	fprintf(cfg.fd2, "%s -> \"%s\" { class: publish }\n", s->common.section.uid, s->common.section.topic);
+	fprintf(cfg.fd2, "\"%s\" -> \"%s\" { class: lpublish }\n", getFqID(sec), s->common.section.topic);
+
+	fputs("\n", cfg.fd2);
 }
 
 static void gend2alrm(struct Section *sec){
@@ -35,7 +42,7 @@ static void gend2alrm(struct Section *sec){
 
 	fprintf(cfg.fd2, "%s.class : 1WAlarm\n", s->common.section.uid);
 	fprintf(cfg.fd2, "\"%s\" { class: topic }\n", s->common.section.topic);
-	fprintf(cfg.fd2, "%s -> \"%s\" { class: publish }\n", s->common.section.uid, s->common.section.topic);
+	fprintf(cfg.fd2, "%s -> \"%s\" { class: lpublish }\n", s->common.section.uid, s->common.section.topic);
 }
 
 static int publishCustomFiguresFFV(struct Section *asection){
@@ -284,6 +291,12 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Safe85") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
+			return true;
 	} else if(sec_id == S1_ALRM){
 		if( !strcmp(directive, "Disabled") )
 			return true;	/* Accepted */
@@ -303,6 +316,12 @@ static bool m1_acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Latch=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
+			return true;
 	}
 	return false;
 }
