@@ -431,6 +431,18 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				if(cfg.verbose)	/* Be verbose if requested */
 					publishLog('C', "\t\t\tDISABLED if in simulation mode");
 				return ACCEPTED;
+#ifdef LUA
+			} else if((arg = striKWcmp(l,"state_Func="))){
+				acceptSectionDirective( *section, "state_Func=" );
+
+				state->funcname = strdup(arg);
+				assert(state->funcname);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tFunc : '%s'", state->funcname);
+
+				return ACCEPTED;
+#endif
 			}
 		} else if((*section)->id == (ST_TAHOMA <<8 | mod_TaHoma.module.module_index) && (*(struct section_TaHoma **)section)->expectations){
 			/* Handling expectations' specific directives
@@ -579,6 +591,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "state_DoNotSimulate") )
 			return true;	/* Accepted */
+		if( !strcmp(directive, "state_Func=") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )	/* To let starting a new state */
 			return true;	/* Accepted */
 	} else if(sec_id == ST_EXPECTATION){
@@ -636,8 +650,12 @@ void InitModule( void ){
 	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
 			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "TaHoma");
 
-			/* Expose mod_owm's own function */
+#if 0
+			/* Expose mod_TaHoma's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "TaHoma", sTs);
+#endif
 	}
 #endif
 
