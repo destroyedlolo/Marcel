@@ -107,36 +107,42 @@ static void initTaHoma(struct Section *asec){
 static void initProbe(struct Section *asec){
 	struct section_Probe *s = (struct section_Probe *)asec;
 
-	s->device.section.inerror = true;	/* By default, we're in error */
+	s->device.section.inerror = false;
 
 		/* Sanity check */
 	if(!s->device.TaHoma){
 		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	s->device.gateway = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
 	if(!s->device.gateway || strcmp(s->device.gateway->section.kind, "TaHoma")){
 		publishLog('E', "[%s] TaHoma \"%s\" not found", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	if(s->device.gateway->section.inerror){
 		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
 	if(!s->device.url){
 		publishLog('E', "[%s] No URL defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
 	if(!s->States){
 		publishLog('E', "[%s] No state defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
 	for(struct State_definition *st = s->States; st; st = st->next){ /* states' sanity */
 		if(!st->topic){
 			publishLog('F', "[%s] State \"%s\" has no topic defined", s->device.section.uid, st->state);
+			SectionError((struct Section *)s, true);
 			return;
 		}
 	}
@@ -145,6 +151,7 @@ static void initProbe(struct Section *asec){
 	CURL *curl = curl_easy_init();
 	if(!curl){
 		publishLog('E', "[%s] Curl init failed", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	
@@ -152,6 +159,7 @@ static void initProbe(struct Section *asec){
 	if(!enc){
 		publishLog('E', "[%s] curl_easy_escape failed", s->device.section.uid);
 		curl_easy_cleanup(curl);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
@@ -166,6 +174,7 @@ static void initProbe(struct Section *asec){
 		publishLog('E', "[%s] No memory", s->device.section.uid);
 		curl_free(enc);
 		curl_easy_cleanup(curl);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	sprintf((char *)s->device.target_url, "%ssetup/devices/%s/states", s->device.gateway->baseurl, enc);
@@ -177,6 +186,111 @@ static void initProbe(struct Section *asec){
 		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
 		
 	s->device.section.inerror = false;	/* Initialisation completed */
+}
+
+static void initCommand(struct Section *asec){
+	struct section_AcCommand *s = (struct section_AcCommand *)asec;
+
+	s->device.section.inerror = false;
+
+		/* Sanity check */
+	if(!s->device.TaHoma){
+		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+	s->device.gateway = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(!s->device.gateway || strcmp(s->device.gateway->section.kind, "TaHoma")){
+		publishLog('E', "[%s] TaHoma \"%s\" not found", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+	if(s->device.gateway->section.inerror){
+		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	if(!s->device.url){
+		publishLog('E', "[%s] No URL defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	if(!s->command){
+		publishLog('E', "[%s] No Command defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	if(!s->device.section.topic){
+		publishLog('E', "[%s] No topic defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+		/* Building URL */
+	CURL *curl = curl_easy_init();
+	if(!curl){
+		publishLog('E', "[%s] Curl init failed", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+	
+	s->encoded_url = curl_easy_escape(curl, s->device.url, 0);
+	if(!s->encoded_url){
+		publishLog('E', "[%s] curl_easy_escape failed", s->device.section.uid);
+		curl_easy_cleanup(curl);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	s->device.target_url = malloc(
+		( 
+			s->device.gateway->url_len +
+			strlen("exec/apply")
+		) +1);
+
+	if(!s->device.target_url){
+		publishLog('E', "[%s] No memory", s->device.section.uid);
+		curl_free((char *)s->device.target_url);
+		s->device.target_url = NULL;
+		curl_easy_cleanup(curl);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	sprintf((char *)s->device.target_url, "%sexec/apply", s->device.gateway->baseurl);
+
+	curl_easy_cleanup(curl);
+
+	if(cfg.debug)
+		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
+
+#if 0	/* TODO */
+#ifdef LUA
+	if(mod_Lua){
+		if(s->section.funcname){	/* if an user function defined ? */
+			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
+					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+					SectionError((struct Section *)s, true);
+					pthread_exit(NULL);
+				}
+			}
+		}
+#endif
+#endif
+
+		/* Subscribing */
+	if(MQTTClient_subscribe( cfg.client, s->device.section.topic, 0 ) != MQTTCLIENT_SUCCESS){
+		publishLog('F', "Can't subscribe to '%s'", s->device.section.topic );
+		exit( EXIT_FAILURE );
+	}
+}
+
+static bool so_processAcCommand(struct Section *asec, const char *topic, char *payload ){
+		/* TODO */
+	return false;	/* Let's try with other sections */
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -223,6 +337,28 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*Command="))){	/* Create a new probe */
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_AcCommand *nsection = malloc(sizeof(struct section_AcCommand));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_COMMAND, strdup(arg), "Command");
+		nsection->command = NULL;
+		nsection->encoded_url = NULL;
+		nsection->device.TaHoma= NULL;
+		nsection->device.url = NULL;
+		nsection->device.section.postconfInit = initCommand;
+		nsection->device.section.processMsg = so_processAcCommand;
+
+		nsection->device.section.gend2= gend2Probe;	/* TODO */
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering Command section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
@@ -324,6 +460,14 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_Probe **)section)->device.TaHoma);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"Command="))){
+			acceptSectionDirective(*section, "Command=");
+			(*(struct section_AcCommand **)section)->command = strdup(arg);
+			assert((*(struct section_AcCommand **)section)->command);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tCommand : '%s'", (*(struct section_AcCommand **)section)->command);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"url="))){
 			acceptSectionDirective(*section, "url=");
@@ -577,6 +721,25 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "**State=") )
 			return true;	/* Accepted */
+	} else if(sec_id == ST_COMMAND){
+		if( !strcmp(directive, "Disabled") )
+			return true;
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "TaHoma=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Command=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "url=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
+			return true;
 	} else if(sec_id == ST_STATE){
 			/* Despite they're having same goal
 			 * I need to prepend with "state_"

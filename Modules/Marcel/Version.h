@@ -56,12 +56,13 @@
  * 12/10/2025	- LF - v8.10 - Correct Lua leak
  * 14/03/2026	- LF - v8.11 - Add TaHoma module and its Probe section
  * 10/04/2026	- LF - v8.12 - Add d2 documentation generation
+ * 15/07/2026	- LF - v8.13 - Command TaHoma devices
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.1201"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.1300"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion
