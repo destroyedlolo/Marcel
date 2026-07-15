@@ -4,7 +4,7 @@ mod_TaHoma
 Bridge your **TaHoma Switch** (or derivated) with **MQTT** using a very low footprint.
 
 **TaHoma** enhances your local automation by supporting a broad range of local devices, including **RTS**, **IO-homecontrol**, **Zigbee**, and soon **Matter** or **KNX**.  
-However, as this setup relies solely on the local API, cloud-based feature, such as Cloud-to-Cloud connectivity (like Somfy Protect), TaHoma-managed scenarios, and more - will not be
+However, as this setup relies solely on the local API. Cloud-based feature, such as Cloud-to-Cloud connectivity (like Somfy Protect), TaHoma-managed scenarios, and more - will not be
 accessible.
 
 # Table of contents
