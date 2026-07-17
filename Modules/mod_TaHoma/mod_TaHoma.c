@@ -10,6 +10,7 @@
  */
 
 #include "mod_TaHoma.h"
+#include "../Marcel/MQTT_tools.h"
 #ifdef LUA
 #	include "../mod_Lua/mod_Lua.h"
 #endif
@@ -267,18 +268,16 @@ static void initCommand(struct Section *asec){
 	if(cfg.debug)
 		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
 
-#if 0	/* TODO */
 #ifdef LUA
 	if(mod_Lua){
-		if(s->section.funcname){	/* if an user function defined ? */
-			if( (s->section.funcid = mod_Lua->findUserFunc(s->section.funcname)) == LUA_REFNIL ){
-					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->section.uid, s->section.funcname);
+		if(s->device.section.funcname){	/* if an user function defined ? */
+			if( (s->device.section.funcid = mod_Lua->findUserFunc(s->device.section.funcname)) == LUA_REFNIL ){
+					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->device.section.uid, s->device.section.funcname);
 					SectionError((struct Section *)s, true);
 					pthread_exit(NULL);
 				}
 			}
 		}
-#endif
 #endif
 
 		/* Subscribing */
@@ -289,7 +288,79 @@ static void initCommand(struct Section *asec){
 }
 
 static bool so_processAcCommand(struct Section *asec, const char *topic, char *payload ){
-		/* TODO */
+	struct section_AcCommand *s = (struct section_AcCommand *)asec;	/* avoid lot of casting */
+
+	if(!mqtttokcmp(s->device.section.topic, topic, NULL)){
+		if(isDisabled((struct Section *)s)){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->device.section.uid);
+#endif
+			return true;
+		}
+
+		bool ret = true;
+#ifdef LUA
+		if(mod_Lua){
+			if(s->device.section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+				mod_Lua->lockState("TAcCommand");
+				mod_Lua->pushFunctionId( s->device.section.funcid );
+				mod_Lua->pushString( s->device.section.uid );
+				mod_Lua->pushString( payload );
+				if(mod_Lua->exec(2, 1)){
+					publishLog('E', "[%s] TaHoma Command : %s", s->device.section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+				} else {
+						/* TODO
+						 * If a string is returned, it replace the payload
+						 * If nil is returned payload is NULL
+						 */
+					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+					mod_Lua->pop(1);
+				}
+				mod_Lua->unlockState("TAcCommand");
+			}
+		}
+#endif
+
+		if(ret){	/* Running the request */
+			const char *cmd = 
+"{\"label\":\"Marcel\","
+"\"actions\":["
+"{\"commands\":["
+"{\"name\":\"%s\","				/* Command to be launched */
+"\"parameters\":[ %c%s%c ]}],"		/* "\"arg\"" or "" if no arg*/
+"\"deviceURL\":\"%s\"}]}";	/* url */
+
+			char bcmd[ 
+				strlen(cmd) +
+				strlen(s->command) +
+				(payload ? strlen(payload) : 0) +
+				strlen(s->encoded_url)
+			+ 3 ];	/* add \"\" and \0 */
+
+			sprintf(bcmd, cmd, 
+				s->command, 
+				payload ? '"':' ', payload ? payload : "", payload ? '"':' ',
+				s->device.url
+			);
+
+			struct MemoryStruct buff = EMPTY_MEMCHUNK;
+			if(callAPIDev(&s->device, NULL, bcmd, &buff)){
+				if(buff.memory)	/* We're in error but a response may have been provided */
+					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
+			} else if(cfg.debug){
+				if(buff.memory)	/* We're in error but a response may have been provided */
+					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
+			}
+
+			if(buff.memory)
+				freeResponse(&buff);
+
+		} else 
+			publishLog('T', "[%s] Command cancelled due to Lua function", s->device.section.uid);
+	}
+
 	return false;	/* Let's try with other sections */
 }
 
