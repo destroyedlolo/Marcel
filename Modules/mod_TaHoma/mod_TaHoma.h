@@ -116,7 +116,6 @@ struct State_definition {
 struct section_AcCommand {
 	struct section_Device device;
 	const char *command;
-	const char *encoded_url;
 };
 
 extern void *processProbe(void *);

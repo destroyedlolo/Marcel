@@ -230,22 +230,6 @@ static void initCommand(struct Section *asec){
 		pthread_exit(NULL);
 	}
 
-		/* Building URL */
-	CURL *curl = curl_easy_init();
-	if(!curl){
-		publishLog('E', "[%s] Curl init failed", s->device.section.uid);
-		SectionError((struct Section *)s, true);
-		pthread_exit(NULL);
-	}
-	
-	s->encoded_url = curl_easy_escape(curl, s->device.url, 0);
-	if(!s->encoded_url){
-		publishLog('E', "[%s] curl_easy_escape failed", s->device.section.uid);
-		curl_easy_cleanup(curl);
-		SectionError((struct Section *)s, true);
-		pthread_exit(NULL);
-	}
-
 	s->device.target_url = malloc(
 		( 
 			s->device.gateway->url_len +
@@ -254,16 +238,11 @@ static void initCommand(struct Section *asec){
 
 	if(!s->device.target_url){
 		publishLog('E', "[%s] No memory", s->device.section.uid);
-		curl_free((char *)s->device.target_url);
-		s->device.target_url = NULL;
-		curl_easy_cleanup(curl);
 		SectionError((struct Section *)s, true);
 		pthread_exit(NULL);
 	}
 
 	sprintf((char *)s->device.target_url, "%sexec/apply", s->device.gateway->baseurl);
-
-	curl_easy_cleanup(curl);
 
 	if(cfg.debug)
 		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
@@ -336,7 +315,7 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 				strlen(cmd) +
 				strlen(s->command) +
 				(payload ? strlen(payload) : 0) +
-				strlen(s->encoded_url)
+				strlen(s->device.url)
 			+ 3 ];	/* add \"\" and \0 */
 
 			sprintf(bcmd, cmd, 
@@ -420,7 +399,6 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		struct section_AcCommand *nsection = malloc(sizeof(struct section_AcCommand));	/* Allocate a new section */
 		initSection( (struct Section *)nsection, mid, ST_COMMAND, strdup(arg), "Command");
 		nsection->command = NULL;
-		nsection->encoded_url = NULL;
 		nsection->device.TaHoma= NULL;
 		nsection->device.url = NULL;
 		nsection->device.section.postconfInit = initCommand;
