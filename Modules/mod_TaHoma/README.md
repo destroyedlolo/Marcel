@@ -9,6 +9,7 @@ accessible.
 
 # Table of contents
 
+- [Status of this module](#status-of-this-module)
 - [Setup](#setup)
     + [Enable the TaHoma local API](#enable-the-tahoma-local-api)
     + [discover your box](#discover-your-box)
@@ -17,10 +18,11 @@ accessible.
     + [Accepted global directives](#accepted-global-directives)
   * [Section TaHoma=](#section-tahoma-)
     + [Subsection **Expect= : listening TaHoma's events](#subsection---expect----listening-tahoma-s-events)
-  * [Section Probe=](#section-probe-)
-    + [Subsection State=](#subsection-state-)
+  * [Section *Command=](#section--command-)
+  * [Section *Probe=](#section--probe-)
+    + [Subsection **State=](#subsection---state-)
 - [Usage](#usage)
-- [Build dependencies](#build-dependancies)
+- [Build dependencies](#build-dependencies)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -171,7 +173,11 @@ The **Command** section lets you control devices connected to your TaHoma, such 
 * **url=** Device's URL
 * **TaHoma=** Gateway it belongs to
 * **Command=** TaHoma command to apply
-* **Command=** MQTT topic to listen too. The payload will be send as argument (note: as the time of writing, the TaHoma accepts and ignore unexpected argument. This may changes and Lua function will be used to ensure zero argument if needed).
+* **Command=** MQTT topic to listen too. The payload will be send as argument
+
+> [!NOTE]
+> As the time of writing, the TaHoma accepts and ignore unexpected argument. This may changes and Lua function will be used to
+> ensure zero argument if needed).
 
 ## Section *Probe=
 
