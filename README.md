@@ -59,10 +59,19 @@ Thanks to its open and powerful module's API, it's *easy* to add new functionali
 **Marcel** can monitor external MQTT events to ensure timely completion, data quality, and trustworthiness. It can raise alerts if a deviance is detected.  
 The system embeds a simple but powerful mechanism to manage and communicate throughout an issue's lifecycle, from initial detection to final resolution.
 
-
 ## Maximum Data Mastering
 
 Incoming data can be validated and enhanced utilizing the system's powerful **Lua** scripting capabilities. This process is also known as **Brown to Silver** data transformation.
+
+## Major Features
+
+- **mod_1wire** : Publishes values exposed as files (such as 1-Wire probes)
+- **mod_alert** : Manages alert lifecycles and sends notifications accordingly
+- **mod_OpenWeatherMap** : Publishes weather forecasts
+- **mod_RFXtrx** : Controls devices via an RFXtrx transceiver (such as RTS shutters)
+- **mod_TaHoma** : Reads data from and controls devices locally via your TaHoma box, without using its cloud service
+- **mod_ups** : Gets UPS information from a NUT server
+- and much more ...
 
 # 🛠️ Installation
 
