@@ -24,6 +24,13 @@ accessible.
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
+# Status of this module
+
+This module was moved to production at the request of users, but it is not yet finalized (for example, the Lua user function is still pending).
+
+> [!CAUTION]
+> We launched this module into production due to user demand, but it remains a work in progress (e.g., Lua user functions are still pending).
+
 # Setup
 
 Use **[TaHomaCtl](https://github.com/destroyedlolo/TaHomaCtl)** companion as per the following procedure :
@@ -157,7 +164,16 @@ When an event matches the criteria described above, an MQTT message is issued.
 * **expect_Disabled** this expectation is initially disabled
 * **expect_DoNotSimulate** this expection is ignored when Marcel is running in "Simulate" mode
 
-## Section Probe=
+## Section *Command=
+
+The **Command** section lets you control devices connected to your TaHoma, such as operating an actuator.
+
+* **url=** Device's URL
+* **TaHoma=** Gateway it belongs to
+* **Command=** TaHoma command to apply
+* **Command=** MQTT topic to listen too. The payload will be send as argument (note: as the time of writing, the TaHoma accepts and ignore unexpected argument. This may changes and Lua function will be used to ensure zero argument if needed).
+
+## Section *Probe=
 
 The **Probe** section is used to retrieve state values by polling the TaHoma local API.
 
@@ -168,7 +184,7 @@ The **Probe** section is used to retrieve state values by polling the TaHoma loc
 * **Disabled** starts as disabled
 * **DoNotSimulate** disable it if Marcel is running in "Simulate" mode.
 
-### Subsection State=
+### Subsection **State=
 
 The **State=** subsection allows you to specify which state to look for and how to submit it.
 
