@@ -1,0 +1,11 @@
+# mod_Lua configuration file
+#
+# Add Lua's user function to Marcel
+
+LoadModule=mod_Lua.so
+
+# Where the Lua script is located
+# Only one UserFuncScript directive can be present. As a workaround,
+# provided scripts/LoadAllScripts.lua will load all *.lua scripts
+# stored in the same directory.
+UserFuncScript=scripts/LoadAllScripts.lua

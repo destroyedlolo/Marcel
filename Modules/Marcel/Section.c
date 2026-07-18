@@ -13,6 +13,7 @@
 #include "MQTT_tools.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 #ifdef LUA
 #	include <lualib.h>
@@ -96,6 +97,50 @@ bool isDisabled(struct Section *s){
 }
 
 /**
+ * @brief Generate descriptions shared by all sections
+ * @warning Must be part of an D2 object definition, like
+	fprintf(cfg.fd2, "\"%s\": {\n"
+		"\tclass: TaHoma\n", s->section.uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+ *
+ * @param section to handle
+ */
+void genGeneralD2(struct Section *s){
+	if(s->desc)
+		fprintf(cfg.fd2, "\ttooltip: %s\n", s->desc);
+	if(s->ecom)
+		fprintf(cfg.fd2,
+			"\tecom: \"%s\"\n"
+			"\tecom.class: Comment\n", s->ecom);
+}
+
+/**
+ * @brief Returns fully qualified ID
+ *
+ * @param section to handle
+ */
+const char *getFqID(struct Section *s){
+	if(s->fqid)
+		return(s->fqid);
+
+	if(s->group){
+		s->fqid = malloc(strlen(s->group) + strlen(s->uid) + strlen(s->kind) +3);	/* "_.\0" */
+		assert(s->fqid);
+		sprintf((char *)s->fqid, "%s.%s_%s", s->group, s->kind, s->uid);
+
+		return(s->fqid);
+	} else {
+		s->fqid = malloc(strlen(s->uid) + strlen(s->kind) +2);	/* "_\0" */
+		assert(s->fqid);
+		sprintf((char *)s->fqid, "%s_%s", s->kind, s->uid);
+
+		return(s->fqid);
+	}
+}
+
+/**
  * @brief Initialize mandatory (only) field of a structure
  *
  * @param section Structure to initialize
@@ -127,12 +172,18 @@ void initSection( struct Section *section, int8_t module_id, uint8_t section_id,
 	section->keep = false;
 	section->sample = 0;
 
+	section->desc = NULL;
+	section->ecom = NULL;
+	section->group = NULL;
+	section->fqid = NULL;
+
 	section->funcname = NULL;
 	section->funcid = LUA_REFNIL;
 	section->arg = NULL,
 
 	section->postconfInit = NULL;
 	section->publishCustomFigures = NULL;
+	section->gend2 = NULL;
 
 #ifdef LUA
 	struct module_Lua *mod_Lua;

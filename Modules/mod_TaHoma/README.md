@@ -4,11 +4,12 @@ mod_TaHoma
 Bridge your **TaHoma Switch** (or derivated) with **MQTT** using a very low footprint.
 
 **TaHoma** enhances your local automation by supporting a broad range of local devices, including **RTS**, **IO-homecontrol**, **Zigbee**, and soon **Matter** or **KNX**.  
-However, as this setup relies solely on the local API, cloud-based feature, such as Cloud-to-Cloud connectivity (like Somfy Protect), TaHoma-managed scenarios, and more - will not be
+However, as this setup relies solely on the local API. Cloud-based feature, such as Cloud-to-Cloud connectivity (like Somfy Protect), TaHoma-managed scenarios, and more - will not be
 accessible.
 
 # Table of contents
 
+- [Status of this module](#status-of-this-module)
 - [Setup](#setup)
     + [Enable the TaHoma local API](#enable-the-tahoma-local-api)
     + [discover your box](#discover-your-box)
@@ -17,12 +18,20 @@ accessible.
     + [Accepted global directives](#accepted-global-directives)
   * [Section TaHoma=](#section-tahoma-)
     + [Subsection **Expect= : listening TaHoma's events](#subsection---expect----listening-tahoma-s-events)
-  * [Section Probe=](#section-probe-)
-    + [Subsection State=](#subsection-state-)
+  * [Section *Command=](#section--command-)
+  * [Section *Probe=](#section--probe-)
+    + [Subsection **State=](#subsection---state-)
 - [Usage](#usage)
-- [Build dependencies](#build-dependancies)
+- [Build dependencies](#build-dependencies)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+# Status of this module
+
+This module was moved to production at the request of users, but it is not yet finalized (for example, the Lua user function is still pending).
+
+> [!CAUTION]
+> We launched this module into production due to user demand, but it remains a work in progress (e.g., Lua user functions are still pending).
 
 # Setup
 
@@ -157,7 +166,20 @@ When an event matches the criteria described above, an MQTT message is issued.
 * **expect_Disabled** this expectation is initially disabled
 * **expect_DoNotSimulate** this expection is ignored when Marcel is running in "Simulate" mode
 
-## Section Probe=
+## Section *Command=
+
+The **Command** section lets you control devices connected to your TaHoma, such as operating an actuator.
+
+* **url=** Device's URL
+* **TaHoma=** Gateway it belongs to
+* **Command=** TaHoma command to apply
+* **Command=** MQTT topic to listen too. The payload will be send as argument
+
+> [!NOTE]
+> As the time of writing, the TaHoma accepts and ignore unexpected argument. This may changes and Lua function will be used to
+> ensure zero argument if needed).
+
+## Section *Probe=
 
 The **Probe** section is used to retrieve state values by polling the TaHoma local API.
 
@@ -168,7 +190,7 @@ The **Probe** section is used to retrieve state values by polling the TaHoma loc
 * **Disabled** starts as disabled
 * **DoNotSimulate** disable it if Marcel is running in "Simulate" mode.
 
-### Subsection State=
+### Subsection **State=
 
 The **State=** subsection allows you to specify which state to look for and how to submit it.
 

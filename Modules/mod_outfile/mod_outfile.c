@@ -76,7 +76,7 @@ static void so_postconfInit(struct Section *asec){
 
 		/* Subscribing */
 	if(MQTTClient_subscribe( cfg.client, s->section.topic, 0 ) != MQTTCLIENT_SUCCESS){
-		publishLog('E', "Can't subscribe to '%s'", s->section.topic );
+		publishLog('F', "Can't subscribe to '%s'", s->section.topic );
 		exit( EXIT_FAILURE );
 	}
 }

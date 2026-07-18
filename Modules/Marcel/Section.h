@@ -43,6 +43,13 @@ struct Section {
 	bool immediate;			/* run it immediately */
 	bool quiet;				/* this section will not produce log */
 
+		/* D2 documentation related */
+	const char *desc;	/* Long "tool tips" comment */
+	const char *ecom;	/* Embedded comment */
+	const char *group;	/* Group objects */
+
+	const char *fqid;	/* Fully qualified identifier */
+
 		/* Lua user function
 		 * (only applicable to some sections)
 		 */
@@ -53,6 +60,7 @@ struct Section {
 		/* Callback */
 	void (*postconfInit)(struct Section *);	/* Initialisation to be done after configuration phase */
 	int (*publishCustomFigures)(struct Section *);	/* Publish figures specific to this section kind */
+	void (*gend2)(struct Section *);	/* Generate D2 documentation */
 };
 
 extern struct Section *sections,	/* First section */
@@ -64,5 +72,8 @@ extern void SectionOnOff(struct Section *, bool);
 extern void SectionError(struct Section *, bool);
 extern void publishSectionStatus(struct Section *);
 extern bool isDisabled(struct Section *);
+
+extern void genGeneralD2(struct Section *);
+extern const char *getFqID(struct Section *);
 
 #endif

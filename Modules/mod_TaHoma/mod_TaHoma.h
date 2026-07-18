@@ -30,7 +30,7 @@ extern struct module_TaHoma mod_TaHoma;
 enum {
 	ST_TAHOMA = 0,
 	ST_PROBE,
-	ST_ACUATOR,
+	ST_COMMAND,
 
 		/* Not really sections but used to validate options */
 	ST_STATE,
@@ -81,7 +81,7 @@ struct section_Device {
 	struct Section section;
 
 	const char *TaHoma;		/* Gateway */
-	struct section_TaHoma *gateway;		/* To whish TaHoma we are connected */
+	struct section_TaHoma *gateway;		/* The TaHoma we are connected to */
 	const char *url;		/* Probe's location */
 	const char *target_url;	/* URL formating is done only once at startup */
 };
@@ -110,6 +110,12 @@ struct State_definition {
 		/* Lua user function */
 	const char *funcname;	/* User function to call on data arrival */
 	int funcid;				/* Function id in Lua registry */
+};
+
+	/* Control an acurator */
+struct section_AcCommand {
+	struct section_Device device;
+	const char *command;
 };
 
 extern void *processProbe(void *);

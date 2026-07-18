@@ -10,6 +10,7 @@
  */
 
 #include "mod_TaHoma.h"
+#include "../Marcel/MQTT_tools.h"
 #ifdef LUA
 #	include "../mod_Lua/mod_Lua.h"
 #endif
@@ -19,6 +20,69 @@
 #include <assert.h>
 
 struct module_TaHoma mod_TaHoma;
+
+static void gend2(struct Section *sec){
+	struct section_TaHoma *s = (struct section_TaHoma *)sec;
+
+	fprintf(cfg.fd2, "\"%s\": {\n"
+		"\tlabel: \"%s\"\n"
+		"\tclass: TaHoma\n", getFqID(sec), sec->uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+
+	for(struct Expectation_definition *e = s->expectations; e; e = e->next){
+		fprintf(cfg.fd2, "\"%p_%s\" : {\n"
+			"class : Expectation\n"
+			"label : \"%s\"\n"
+			"}\n", sec, e->uid, e->uid);
+		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", e->topic);
+		fprintf(cfg.fd2, "%s -> \"%p_%s\" \n", getFqID(sec), sec, e->uid);
+		fprintf(cfg.fd2, "\"%p_%s\" -> \"%s\" { class: lpublish }\n", sec, e->uid, e->topic);
+	}
+	fputs("\n", cfg.fd2);
+}
+
+static void gend2Probe(struct Section *sec){
+	struct section_Probe *s = (struct section_Probe *)sec;
+
+	struct section_TaHoma *tahoma = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(tahoma && strcmp(tahoma->section.kind, "TaHoma"))
+		tahoma = NULL;
+
+	fprintf(cfg.fd2, "%s: {\n"
+		"\tlabel: \"%s\"\n"
+		"\tclass: Probe\n", getFqID(sec), sec->uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+
+	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, getFqID(sec));
+
+	for(struct State_definition *st = s->States; st; st = st->next){
+		fprintf(cfg.fd2, "\"%s\".\"%s\" { class : State }\n", getFqID(sec), st->state);
+		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", st->topic);
+//		fprintf(cfg.fd2, "%s -> \"%s\" \n", getFqID(sec), st->state);
+		fprintf(cfg.fd2, "\"%s\".\"%s\" -> \"%s\" { class: lpublish }\n", getFqID(sec), st->state, st->topic);
+	}
+}
+
+static void gend2Command(struct Section *sec){
+	struct section_AcCommand *s = (struct section_AcCommand *)sec;
+
+	struct section_TaHoma *tahoma = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(tahoma && strcmp(tahoma->section.kind, "TaHoma"))
+		tahoma = NULL;
+
+	fprintf(cfg.fd2, "%s: {\n"
+		"\tlabel: \"%s\"\n"
+		"\tclass: Command\n", getFqID(sec), sec->uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+
+	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, getFqID(sec));
+}
 
 static void initTaHoma(struct Section *asec){
 	struct section_TaHoma *s = (struct section_TaHoma *)asec;
@@ -61,36 +125,42 @@ static void initTaHoma(struct Section *asec){
 static void initProbe(struct Section *asec){
 	struct section_Probe *s = (struct section_Probe *)asec;
 
-	s->device.section.inerror = true;	/* By default, we're in error */
+	s->device.section.inerror = false;
 
 		/* Sanity check */
 	if(!s->device.TaHoma){
 		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	s->device.gateway = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
 	if(!s->device.gateway || strcmp(s->device.gateway->section.kind, "TaHoma")){
 		publishLog('E', "[%s] TaHoma \"%s\" not found", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	if(s->device.gateway->section.inerror){
 		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
 	if(!s->device.url){
 		publishLog('E', "[%s] No URL defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
 	if(!s->States){
 		publishLog('E', "[%s] No state defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
 	for(struct State_definition *st = s->States; st; st = st->next){ /* states' sanity */
 		if(!st->topic){
 			publishLog('F', "[%s] State \"%s\" has no topic defined", s->device.section.uid, st->state);
+			SectionError((struct Section *)s, true);
 			return;
 		}
 	}
@@ -99,6 +169,7 @@ static void initProbe(struct Section *asec){
 	CURL *curl = curl_easy_init();
 	if(!curl){
 		publishLog('E', "[%s] Curl init failed", s->device.section.uid);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	
@@ -106,6 +177,7 @@ static void initProbe(struct Section *asec){
 	if(!enc){
 		publishLog('E', "[%s] curl_easy_escape failed", s->device.section.uid);
 		curl_easy_cleanup(curl);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 
@@ -120,6 +192,7 @@ static void initProbe(struct Section *asec){
 		publishLog('E', "[%s] No memory", s->device.section.uid);
 		curl_free(enc);
 		curl_easy_cleanup(curl);
+		SectionError((struct Section *)s, true);
 		return;
 	}
 	sprintf((char *)s->device.target_url, "%ssetup/devices/%s/states", s->device.gateway->baseurl, enc);
@@ -131,6 +204,160 @@ static void initProbe(struct Section *asec){
 		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
 		
 	s->device.section.inerror = false;	/* Initialisation completed */
+}
+
+static void initCommand(struct Section *asec){
+	struct section_AcCommand *s = (struct section_AcCommand *)asec;
+
+	s->device.section.inerror = false;
+
+		/* Sanity check */
+	if(!s->device.TaHoma){
+		publishLog('E', "[%s] No TaHoma defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+	s->device.gateway = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(!s->device.gateway || strcmp(s->device.gateway->section.kind, "TaHoma")){
+		publishLog('E', "[%s] TaHoma \"%s\" not found", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+	if(s->device.gateway->section.inerror){
+		publishLog('E', "[%s] TaHoma \"%s\" is not configured", s->device.section.uid, s->device.TaHoma);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	if(!s->device.url){
+		publishLog('E', "[%s] No URL defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	if(!s->command){
+		publishLog('E', "[%s] No Command defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	if(!s->device.section.topic){
+		publishLog('E', "[%s] No topic defined", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	s->device.target_url = malloc(
+		( 
+			s->device.gateway->url_len +
+			strlen("exec/apply")
+		) +1);
+
+	if(!s->device.target_url){
+		publishLog('E', "[%s] No memory", s->device.section.uid);
+		SectionError((struct Section *)s, true);
+		pthread_exit(NULL);
+	}
+
+	sprintf((char *)s->device.target_url, "%sexec/apply", s->device.gateway->baseurl);
+
+	if(cfg.debug)
+		publishLog('d', "[%s] url : \"%s\"", s->device.section.uid, s->device.target_url);
+
+#ifdef LUA
+	if(mod_Lua){
+		if(s->device.section.funcname){	/* if an user function defined ? */
+			if( (s->device.section.funcid = mod_Lua->findUserFunc(s->device.section.funcname)) == LUA_REFNIL ){
+					publishLog('F', "[%s] configuration error : user function \"%s\" is not defined. This thread is dying.", s->device.section.uid, s->device.section.funcname);
+					SectionError((struct Section *)s, true);
+					pthread_exit(NULL);
+				}
+			}
+		}
+#endif
+
+		/* Subscribing */
+	if(MQTTClient_subscribe( cfg.client, s->device.section.topic, 0 ) != MQTTCLIENT_SUCCESS){
+		publishLog('F', "Can't subscribe to '%s'", s->device.section.topic );
+		exit( EXIT_FAILURE );
+	}
+}
+
+static bool so_processAcCommand(struct Section *asec, const char *topic, char *payload ){
+	struct section_AcCommand *s = (struct section_AcCommand *)asec;	/* avoid lot of casting */
+
+	if(!mqtttokcmp(s->device.section.topic, topic, NULL)){
+		if(isDisabled((struct Section *)s)){
+#ifdef DEBUG
+			if(cfg.debug)
+				publishLog('d', "[%s] is disabled", s->device.section.uid);
+#endif
+			return true;
+		}
+
+		bool ret = true;
+#ifdef LUA
+		if(mod_Lua){
+			if(s->device.section.funcid != LUA_REFNIL){	/* if an user function defined ? */
+				mod_Lua->lockState("TAcCommand");
+				mod_Lua->pushFunctionId( s->device.section.funcid );
+				mod_Lua->pushString( s->device.section.uid );
+				mod_Lua->pushString( payload );
+				if(mod_Lua->exec(2, 1)){
+					publishLog('E', "[%s] TaHoma Command : %s", s->device.section.uid, mod_Lua->getStringFromStack(-1));
+					mod_Lua->pop(1);	/* pop error message from the stack */
+				} else {
+						/* TODO
+						 * If a string is returned, it replace the payload
+						 * If nil is returned payload is NULL
+						 */
+					ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+					mod_Lua->pop(1);
+				}
+				mod_Lua->unlockState("TAcCommand");
+			}
+		}
+#endif
+
+		if(ret){	/* Running the request */
+			const char *cmd = 
+"{\"label\":\"Marcel\","
+"\"actions\":["
+"{\"commands\":["
+"{\"name\":\"%s\","				/* Command to be launched */
+"\"parameters\":[ %c%s%c ]}],"		/* "\"arg\"" or "" if no arg*/
+"\"deviceURL\":\"%s\"}]}";	/* url */
+
+			char bcmd[ 
+				strlen(cmd) +
+				strlen(s->command) +
+				(payload ? strlen(payload) : 0) +
+				strlen(s->device.url)
+			+ 3 ];	/* add \"\" and \0 */
+
+			sprintf(bcmd, cmd, 
+				s->command, 
+				payload ? '"':' ', payload ? payload : "", payload ? '"':' ',
+				s->device.url
+			);
+
+			struct MemoryStruct buff = EMPTY_MEMCHUNK;
+			if(callAPIDev(&s->device, NULL, bcmd, &buff)){
+				if(buff.memory)	/* We're in error but a response may have been provided */
+					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
+			} else if(cfg.debug){
+				if(buff.memory)	/* We're in error but a response may have been provided */
+					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
+			}
+
+			if(buff.memory)
+				freeResponse(&buff);
+
+		} else 
+			publishLog('T', "[%s] Command cancelled due to Lua function", s->device.section.uid);
+	}
+
+	return false;	/* Let's try with other sections */
 }
 
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
@@ -173,9 +400,31 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->States = NULL;
 		nsection->device.section.postconfInit = initProbe;
 		nsection->device.section.sample = mod_TaHoma.defaultsampletime;
+		nsection->device.section.gend2= gend2Probe;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
+
+		*section = (struct Section *)nsection;	/* we're now in a section */
+		return ACCEPTED;
+	} else if((arg = striKWcmp(l,"*Command="))){	/* Create a new probe */
+		if(findSectionByName(arg)){
+			publishLog('F', "Section '%s' is already defined", arg);
+			exit(EXIT_FAILURE);
+		}
+
+		struct section_AcCommand *nsection = malloc(sizeof(struct section_AcCommand));	/* Allocate a new section */
+		initSection( (struct Section *)nsection, mid, ST_COMMAND, strdup(arg), "Command");
+		nsection->command = NULL;
+		nsection->device.TaHoma= NULL;
+		nsection->device.url = NULL;
+		nsection->device.section.postconfInit = initCommand;
+		nsection->device.section.processMsg = so_processAcCommand;
+
+		nsection->device.section.gend2= gend2Command;
+
+		if(cfg.verbose)	/* Be verbose if requested */
+			publishLog('C', "\tEntering Command section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
 
 		*section = (struct Section *)nsection;	/* we're now in a section */
 		return ACCEPTED;
@@ -195,6 +444,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->expectations = NULL;
 		nsection->section.postconfInit = initTaHoma;
 		nsection->section.sample = 60;
+		nsection->section.gend2= gend2;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -276,6 +526,14 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 			if(cfg.verbose)	/* Be verbose if requested */
 				publishLog('C', "\t\tTaHoma : '%s'", (*(struct section_Probe **)section)->device.TaHoma);
+			return ACCEPTED;
+		} else if((arg = striKWcmp(l,"Command="))){
+			acceptSectionDirective(*section, "Command=");
+			(*(struct section_AcCommand **)section)->command = strdup(arg);
+			assert((*(struct section_AcCommand **)section)->command);
+
+			if(cfg.verbose)	/* Be verbose if requested */
+				publishLog('C', "\t\tCommand : '%s'", (*(struct section_AcCommand **)section)->command);
 			return ACCEPTED;
 		} else if((arg = striKWcmp(l,"url="))){
 			acceptSectionDirective(*section, "url=");
@@ -383,6 +641,18 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				if(cfg.verbose)	/* Be verbose if requested */
 					publishLog('C', "\t\t\tDISABLED if in simulation mode");
 				return ACCEPTED;
+#ifdef LUA
+			} else if((arg = striKWcmp(l,"state_Func="))){
+				acceptSectionDirective( *section, "state_Func=" );
+
+				state->funcname = strdup(arg);
+				assert(state->funcname);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tFunc : '%s'", state->funcname);
+
+				return ACCEPTED;
+#endif
 			}
 		} else if((*section)->id == (ST_TAHOMA <<8 | mod_TaHoma.module.module_index) && (*(struct section_TaHoma **)section)->expectations){
 			/* Handling expectations' specific directives
@@ -486,6 +756,12 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;
 		else if( !strcmp(directive, "Sample=") )
 			return true;
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
+			return true;
 		else if( !strcmp(directive, "**Expect=") )
 			return true;	/* Accepted */
 	} else if(sec_id == ST_PROBE){
@@ -503,8 +779,33 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "url=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
+			return true;
 		else if( !strcmp(directive, "**State=") )
 			return true;	/* Accepted */
+	} else if(sec_id == ST_COMMAND){
+		if( !strcmp(directive, "Disabled") )
+			return true;
+		else if( !strcmp(directive, "DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "TaHoma=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Command=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "url=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "desc=") )
+			return true;
+		else if( !strcmp(directive, "ecom=") )
+			return true;
+		else if( !strcmp(directive, "group=") )
+			return true;
 	} else if(sec_id == ST_STATE){
 			/* Despite they're having same goal
 			 * I need to prepend with "state_"
@@ -518,6 +819,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "state_Disabled") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "state_DoNotSimulate") )
+			return true;	/* Accepted */
+		if( !strcmp(directive, "state_Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )	/* To let starting a new state */
 			return true;	/* Accepted */
@@ -576,8 +879,12 @@ void InitModule( void ){
 	if(mod_Lua){ /* Is mod_Lua loaded ? */
 
 			/* Expose shared methods */
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "TaHoma");
 
-			/* Expose mod_owm's own function */
+#if 0
+			/* Expose mod_TaHoma's own function */
+		mod_Lua->exposeObjMethods(mod_Lua->L, "TaHoma", sTs);
+#endif
 	}
 #endif
 

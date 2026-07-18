@@ -1,0 +1,20 @@
+# Create an acurator's command
+
+*Command=Deco
+	desc=control smart plug
+	ecom=Deco smart plug
+
+	# URL of Device to control
+	url=io://2095-0445-1705/5335270
+
+	# Gateway it belongs to
+	TaHoma=MyTaHoma
+
+	# Command to apply
+	Command=setOnOff
+
+	# Topic to listen to
+	Topic=%ClientID%/Plug
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate

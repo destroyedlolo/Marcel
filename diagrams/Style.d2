@@ -1,0 +1,212 @@
+# grid-columns : 5
+
+classes: {
+
+	TaHoma :{
+  		icon: https://icons.terrastruct.com/aws/_General/Internet-gateway_light-bg.svg
+  		icon.near: top-center
+		shape: package 
+		style.stroke: red
+		style.stroke-width: 6
+		style.fill: darkgoldenrod
+	}
+
+	FFV :{
+  		icon: https://icons.terrastruct.com/aws/Internet%20of%20Things/IoT_Factory_light-bg.svg
+		shape: image
+	}
+
+	Comment: {
+		label.near: bottom-center
+		style {
+			fill: transparent
+			stroke: transparent
+		}
+	}
+
+
+	Probe :{
+		shape: stored_data
+		style.stroke-width: 4
+		style.fill: PaleGreen
+	}
+
+	Expectation :{
+		shape: callout
+		style.stroke: red
+		style.fill: SpringGreen
+	}
+
+	Command :{
+		shape: step
+		style.stroke-width: 4
+		style.fill: PaleGreen
+	}
+
+	State :{
+		shape: oval
+		style.stroke: red
+	}
+
+	FFF :{
+		shape: Page
+	}
+
+	1WAlarm :{
+		shape: Page
+		icon: https://icons.terrastruct.com/essentials/213-alarm.svg
+	}
+
+	Topic:{
+		icon: https://icons.terrastruct.com/essentials/263-notepad.svg
+		shape: document
+		style.stroke-width: 6
+		style.fill: lightsalmon
+	}
+
+	InternalTopic:{
+		icon: https://icons.terrastruct.com/essentials/263-notepad.svg
+		style.italic: true
+		style.fill: transparent
+		style.stroke: transparent
+	}
+
+	Timer:{
+		icon: https://icons.terrastruct.com/essentials/time.svg
+		style.fill: transparent
+		style.stroke: transparent
+	}
+
+	MultiKeysMinMax:{
+		shape: hexagon
+		style.stroke: red
+		style.stroke-dash: 4
+		style.stroke-width: 4
+	}
+
+	Tracker:{
+		shape: package
+		style.stroke-width: 6
+		style.fill: thistle
+		style.stroke: red
+	}
+
+	Shutdown:{
+		shape: step
+		style.stroke: red
+	}
+
+	Handler:{
+		shape: hexagon
+	}
+
+	Resource:{
+		shape: parallelogram
+		style.fill: Crimson
+	}
+
+	Database:{
+		icon: https://icons.terrastruct.com/dev/postgresql.svg
+		shape: cylinder
+	}
+
+	Feed: {
+		shape: queue
+		style.fill: yellowgreen
+	}
+
+	NamedFeed: {
+		shape: queue
+		style.fill: yellowgreen
+		style.stroke-dash: 5
+	}
+
+	AggregatedFeed: {
+		shape: queue
+		style.fill: yellowgreen
+		style.stroke-dash: 2
+		style.stroke: red
+	}
+
+	Archiving: {
+		icon: https://icons.terrastruct.com/infra/011-data-storage.svg
+		shape: stored_data
+		style.fill: yellowgreen
+	}
+
+	Purge: {
+		icon: https://icons.terrastruct.com/infra/011-delete.svg
+		shape: stored_data
+		style.fill: yellowgreen
+	}
+
+	Renderer {
+		icon: https://icons.terrastruct.com/essentials/144-television.svg
+#		style.fill: transparent
+#		style.stroke: transparent
+	}
+
+	Decoration {
+		icon: https://icons.terrastruct.com/essentials/004-picture.svg
+		style.fill: transparent
+		style.stroke: transparent
+	}
+
+	Painting {
+		icon: https://icons.terrastruct.com/essentials/006-window.svg
+		style.fill: transparent
+		style.stroke: transparent
+	}
+
+	Field {
+		icon: https://icons.terrastruct.com/essentials/021-view.svg
+		shape: person
+		style.fill: pink
+#		style.stroke: transparent
+	}
+
+# Links
+	# let the default settings
+
+	llink: {
+		style {
+			stroke: navy
+		}
+	}
+
+	lpublish: {
+		style {
+			stroke-dash: 2
+			stroke: green
+		}
+	}
+
+	lrequiere: {
+		style {
+			stroke-dash: 2
+			stroke-width: 4
+			stroke: red
+		}
+	}
+
+	lwaitresource: {
+		style {
+			stroke: Crimson
+		}
+		source-arrowhead: {
+			shape: diamond
+			style.filled: true
+		}
+		target-arrowhead: {
+    		shape: circle
+  		}
+	}
+
+	ldatabase: {
+		label: Database
+		style {
+			stroke: green
+		}
+	}
+}
+
