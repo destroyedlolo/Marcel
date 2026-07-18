@@ -67,6 +67,23 @@ static void gend2Probe(struct Section *sec){
 	}
 }
 
+static void gend2Command(struct Section *sec){
+	struct section_AcCommand *s = (struct section_AcCommand *)sec;
+
+	struct section_TaHoma *tahoma = (struct section_TaHoma *)findSectionByName(s->device.TaHoma);
+	if(tahoma && strcmp(tahoma->section.kind, "TaHoma"))
+		tahoma = NULL;
+
+	fprintf(cfg.fd2, "%s: {\n"
+		"\tlabel: \"%s\"\n"
+		"\tclass: Command\n", getFqID(sec), sec->uid
+	);
+	genGeneralD2(sec);
+	fputs("}\n", cfg.fd2);
+
+	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, getFqID(sec));
+}
+
 static void initTaHoma(struct Section *asec){
 	struct section_TaHoma *s = (struct section_TaHoma *)asec;
 
@@ -404,7 +421,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device.section.postconfInit = initCommand;
 		nsection->device.section.processMsg = so_processAcCommand;
 
-		nsection->device.section.gend2= gend2Probe;	/* TODO */
+		nsection->device.section.gend2= gend2Command;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Command section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
