@@ -9,29 +9,28 @@
 
 # 📋 Table of contents
 
-- [🚀 Introduction to Marcel](#---introduction-to-marcel)
-  * [Built for Flexibility, Power, and Efficiency](#built-for-flexibility--power--and-efficiency)
+- [🚀 Introduction to Marcel](#introduction-to-marcel)
+  * [Built for Flexibility, Power, and Efficiency](#built-for-flexibility-power-and-efficiency)
   * [Data Quality and Error Management](#data-quality-and-error-management)
   * [Maximum Data Mastering](#maximum-data-mastering)
-- [🛠️ Installation](#----installation)
+- [🛠️ Installation](#installation)
   * [From sources](#from-sources)
   * [Dependencies](#dependencies)
   * [Global dependency](#global-dependency)
   * [Modules related runtime dependencies](#modules-related-runtime-dependencies)
-    + [Lua (mod_Lua)](#lua--mod-lua-)
-    + [1-wire (mod_1wire)](#1-wire--mod-1wire-)
-    + [OpenWeatherMap (mod_OpenWeatherMap)](#openweathermap--mod-openweathermap-)
-    + [mod_TaHoma own's](#mod-tahoma-own-s)
-- [⚙️ Running](#---running)
+    + [Lua (mod_Lua)](#lua-mod_lua)
+    + [1-wire (mod_1wire)](#1-wire-mod_1wire)
+    + [OpenWeatherMap (mod_OpenWeatherMap)](#openweathermap-mod_openweathermap)
+    + [mod_TaHoma own's](#mod_tahoma-owns)
+- [⚙️ Running](#running)
   * [Configuration](#configuration)
-  * [Launch options :](#launch-options--)
+  * [Launch options :](#launch-options-)
   * [Simulation mode](#simulation-mode)
   * [Logging](#logging)
   * [Status change](#status-change)
     + [Section](#section)
-    + [Named Notification (only if mod_alert is loaded)](#named-notification--only-if-mod-alert-is-loaded-)
+    + [Named Notification (only if mod_alert is loaded)](#named-notification-only-if-mod_alert-is-loaded)
 - [Side note](#side-note)
-
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 # 🚀 Introduction to Marcel
