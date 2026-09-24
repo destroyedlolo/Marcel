@@ -28,8 +28,6 @@ accessible.
 
 # Status of this module
 
-This module was moved to production at the request of users, but it is not yet finalized (for example, the Lua user function is still pending).
-
 > [!CAUTION]
 > We launched this module into production due to user demand, but it remains a work in progress (e.g., Lua user functions are still pending).
 
