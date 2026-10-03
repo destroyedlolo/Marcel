@@ -10,11 +10,11 @@ none
 ## Section AXP20x
 ### Accepted directives
 
-* **Topic=** Topic to publish to. `%FIGURE%` will be replaced by Temperature and Humidity as per the submitted value.
+* **Topic=** Topic to publish to. `%FIGURE%` will be replaced by the figure listed bellow
+* **Figures=** can be `ac`, `vbus`, `ips`, `temp` (`bat` is not yet supported)
 * **Device=** I2C device
 * **Address=** Probe I2C address (if not set, default to : 0x34)
 * **Sample=** Number of seconds between samples, in seconds
-* **Figures=** can be `ac`, `vbus`, `ips`, `temp` (`bat` is not yet supported)
 * **Immediate** Launch the first sample at startup
 * **Keep** Don't abort in case of technical error (only if the chip can't be reached, reading errors are always considered as non fatal)
 * **func=** Acceptation function (*see bellow*, **mod_Lua** needed)
