@@ -62,6 +62,7 @@ struct Expectation_definition {
 	const char *event;	/* Event's name */
 	const char *url;	/* Device's url */
 	const char *state;	/* State's name */
+	const char *value;	/* Expected value */
 
 		/* options */
 	bool disabled;			/* this section is currently disabled */

@@ -104,6 +104,11 @@ void *processEvent(void *actx){
 									!strcmp(dev, e->url) &&
 									!strcmp(name, e->state)
 								){
+									if(e->value && strcmp(l, e->value)){
+										publishLog('d', "[%s] value doesn't match \"%s\" vs \"%s\" : %s", e->uid, l, e->value);
+										continue;
+									}
+
 									if(cfg.debug)
 										publishLog('d', "[%s] pub : %s", s->section.uid, e->topic);
 

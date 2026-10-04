@@ -589,6 +589,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			nstate->event = NULL;
 			nstate->url = NULL;
 			nstate->state = NULL;
+			nstate->value = NULL;
 			nstate->disabled = false;
 			nstate->dontSimulate = false;
 			nstate->topic = NULL;
@@ -689,6 +690,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 				if(cfg.verbose)
 					publishLog('C', "\t\t\tState : '%s'", expectation->state);
+
+				return ACCEPTED;
+			} else if((arg = striKWcmp(l, "expect_value="))){
+				acceptSectionDirective( *section, "expect_value=" );
+
+				expectation->value= strdup(arg);
+				assert(expectation->value);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tValue : '%s'", expectation->value);
 
 				return ACCEPTED;
 			} else if((arg = striKWcmp(l, "expect_Topic="))){
