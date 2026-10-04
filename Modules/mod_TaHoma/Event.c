@@ -92,10 +92,20 @@ void *processEvent(void *actx){
 						for(size_t j=0; j<nbrev; ++j){
 							struct json_object *v = json_object_array_get_idx(vals, j);
 							const char *name = getObjString(v, OBJPATH( "name", NULL ));
-							const char *l = json_object_to_json_string(getObj(v,  OBJPATH( "value", NULL )));
+							int type = getObjInt(v, OBJPATH( "type", NULL ));
+							const char *lt = json_object_to_json_string(getObj(v,  OBJPATH( "value", NULL )));
+
+							char l[strlen(lt)+1];
+							if(type==3){	/* Remove "" */
+								strcpy(l, lt + 1);
+								char *p = strchr(l, '"');
+								if(p)
+									*p=0;
+							} else
+								strcpy(l, lt);
 
 							if(cfg.debug)
-								publishLog('d', "[%s] Event e:%s u:%s n:%s v:%s", s->section.uid, ev, dev, name, l);
+								publishLog('d', "[%s] Event e:%s u:%s n:%s t:%d v:%s", s->section.uid, ev, dev, name, type, l);
 
 								/* Look for matching entry */
 							for(struct Expectation_definition *e = s->expectations; e; e = e->next){
@@ -105,7 +115,7 @@ void *processEvent(void *actx){
 									!strcmp(name, e->state)
 								){
 									if(e->value && strcmp(l, e->value)){
-										publishLog('d', "[%s] value doesn't match \"%s\" vs \"%s\" : %s", e->uid, l, e->value);
+										publishLog('d', "[%s] value doesn't match \"%s\" vs \"%s\"", e->uid, l, e->value);
 										continue;
 									}
 

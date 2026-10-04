@@ -847,6 +847,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_state=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_value=") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_Topic=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_Retained") )
