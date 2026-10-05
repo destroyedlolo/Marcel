@@ -123,9 +123,15 @@ void *processEvent(void *actx){
 										publishLog('d', "[%s] pub : %s", s->section.uid, e->topic);
 
 									if(! (e->disabled || (e->dontSimulate && cfg.simulate)) ){
-										mqttpublish(cfg.client, e->topic, strlen(l), (void *)l, e->retained );
+										const char *p;
+										if(e->payload)
+											p = e->payload;
+										else
+											p = l;
+
+										mqttpublish(cfg.client, e->topic, strlen(p), (void *)p, e->retained );
 										if(cfg.verbose)
-											publishLog('I', "[%s][%s] value \"%s\"", s->section.uid, e->uid, l);
+											publishLog('I', "[%s][%s] value \"%s\"", s->section.uid, e->uid, p);
 									} else if(cfg.debug)
 										publishLog('d', "[%s][%s] is disabled", s->section.uid, e->uid);
 									break;

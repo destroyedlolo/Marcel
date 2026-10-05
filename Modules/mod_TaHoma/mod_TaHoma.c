@@ -593,6 +593,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			nstate->disabled = false;
 			nstate->dontSimulate = false;
 			nstate->topic = NULL;
+			nstate->payload = NULL;
 			nstate->retained = false;
 			nstate->funcname = NULL;
 			nstate->funcid = LUA_REFNIL;
@@ -710,6 +711,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 				if(cfg.verbose)
 					publishLog('C', "\t\t\tTopic : '%s'", expectation->topic);
+
+				return ACCEPTED;
+			} else if((arg = striKWcmp(l, "expect_forcePayload="))){
+				acceptSectionDirective( *section, "expect_forcePayload=" );
+
+				expectation->payload= strdup(arg);
+				assert(expectation->payload);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tPayload : '%s'", expectation->payload);
 
 				return ACCEPTED;
 			} else if((!strcmp(l,"expect_Retained"))){
@@ -850,6 +861,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "expect_value=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_forcePayload=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_Retained") )
 			return true;	/* Accepted */

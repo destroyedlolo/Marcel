@@ -70,6 +70,7 @@ struct Expectation_definition {
 
 		/* MQTT */
 	const char *topic;
+	const char *payload;
 	bool retained;			/* send MQTT retained message */
 
 		/* Lua user function */
