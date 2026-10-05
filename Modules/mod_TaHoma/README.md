@@ -152,10 +152,12 @@ you are interested in.
 * **expect_Event=** the event's kind your looking for (i.e : `DeviceStateChangedEvent`)
 * **expect_deviceURL=** URL of the device (`zigbee://xxxx-xxxx-xxxx/58849/1#2`)
 * **expect_state=** state to consider (`core:RelativeHumidityState`)
+* **expect_value=** value to consider (optional, if not provided, any value is accepted)
 
 When an event matches the criteria described above, an MQTT message is issued.
 
 * **expect_Topic=** Topic to publish to
+* **expect_forcePayload=** force the payload to publish to the provided value (optional, if not provided, the `value` of the event is published)
 * **expect_Retained** A retained message
 
 > [!IMPORTANT]
