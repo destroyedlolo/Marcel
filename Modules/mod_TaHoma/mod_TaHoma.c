@@ -350,14 +350,14 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 
 			sprintf(bcmd, cmd, 
 				s->command, 
-				num ? '"':' ', payload, num ? '"':' ',
+				num ? ' ':'"', payload, num ? ' ':'"',
 				s->device.url
 			);
 
 			struct MemoryStruct buff = EMPTY_MEMCHUNK;
-			if(callAPIDev(&s->device, NULL, bcmd, &buff)){
+			if(!callAPIDev(&s->device, NULL, bcmd, &buff)){
 				if(buff.memory)	/* We're in error but a response may have been provided */
-					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
+					publishLog('E', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
 			} else if(cfg.debug){
 				if(buff.memory)	/* We're in error but a response may have been provided */
 					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
@@ -413,7 +413,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->States = NULL;
 		nsection->device.section.postconfInit = initProbe;
 		nsection->device.section.sample = mod_TaHoma.defaultsampletime;
-		nsection->device.section.gend2= gend2Probe;
+		nsection->device.section.gend2 = gend2Probe;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
@@ -434,7 +434,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device.section.postconfInit = initCommand;
 		nsection->device.section.processMsg = so_processAcCommand;
 
-		nsection->device.section.gend2= gend2Command;
+		nsection->device.section.gend2 = gend2Command;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Command section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
@@ -457,7 +457,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->expectations = NULL;
 		nsection->section.postconfInit = initTaHoma;
 		nsection->section.sample = 60;
-		nsection->section.gend2= gend2;
+		nsection->section.gend2 = gend2;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
