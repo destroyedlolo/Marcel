@@ -12,19 +12,17 @@ accessible.
 - [Status of this module](#status-of-this-module)
 - [Setup](#setup)
     + [Enable the TaHoma local API](#enable-the-tahoma-local-api)
-    + [discover your box](#discover-your-box)
-    + [discover your devices](#discover-your-devices)
+    + [Discover your box](#discover-your-box)
+    + [Discover your devices](#discover-your-devices)
 - [Configuration](#configuration)
     + [Accepted global directives](#accepted-global-directives)
-  * [Section TaHoma=](#section-tahoma-)
-    + [Subsection **Expect= : listening TaHoma's events](#subsection---expect----listening-tahoma-s-events)
-  * [Section *Command=](#section--command-)
-  * [Section *Probe=](#section--probe-)
-    + [Subsection **State=](#subsection---state-)
+    + [Section TaHoma=](#section-tahoma-)
+        * [Subsection Expect= : listening TaHoma's events](#subsection-expect---listening-tahomas-events)
+    + [Section *Command=](#section-command)
+    + [Section *Probe=](#section-probe)
+        * [Subsection State=](#subsection-state)
 - [Usage](#usage)
 - [Build dependencies](#build-dependencies)
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 # Status of this module
 
