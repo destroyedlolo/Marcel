@@ -17,6 +17,7 @@
 
 #include <curl/curl.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <assert.h>
 
 struct module_TaHoma mod_TaHoma;
@@ -284,6 +285,7 @@ static void initCommand(struct Section *asec){
 }
 
 static bool so_processAcCommand(struct Section *asec, const char *topic, char *payload ){
+		/* Implementation note : here the payload is expected ... */
 	struct section_AcCommand *s = (struct section_AcCommand *)asec;	/* avoid lot of casting */
 
 	if(!mqtttokcmp(s->device.section.topic, topic, NULL)){
@@ -318,7 +320,8 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 			}
 		}
 #endif
-
+		/* Implementation note : starting here, the payload can be NULL due to Lua call */
+	
 		if(ret){	/* Running the request */
 			const char *cmd = 
 "{\"label\":\"Marcel\","
@@ -327,6 +330,13 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 "{\"name\":\"%s\","				/* Command to be launched */
 "\"parameters\":[ %c%s%c ]}],"		/* "\"arg\"" or "" if no arg*/
 "\"deviceURL\":\"%s\"}]}";	/* url */
+			bool num = true;	/* Numerical parameter */
+			for(const char *p = payload; *p; ++p){
+				if(!isdigit(*p)){
+					num =  false;
+					break;
+				}
+			}
 
 			char bcmd[ 
 				strlen(cmd) +
@@ -335,9 +345,12 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 				strlen(s->device.url)
 			+ 3 ];	/* add \"\" and \0 */
 
+			if(!payload)
+				payload = "";
+
 			sprintf(bcmd, cmd, 
 				s->command, 
-				payload ? '"':' ', payload ? payload : "", payload ? '"':' ',
+				num ? '"':' ', payload, num ? '"':' ',
 				s->device.url
 			);
 
