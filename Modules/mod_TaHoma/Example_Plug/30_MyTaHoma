@@ -1,0 +1,41 @@
+# Create a new TaHoma gateway
+
+*TaHoma=MyTaHoma
+
+	# TaHoma's own
+	TaHoma_host=gateway-xxxx-xxxx-xxxx.local
+	TaHoma_address=192.168.0.27
+	TaHoma_port=8443
+
+	# Developer mode token
+	TaHoma_token=@/home/laurent/.tahomatoken
+
+	# Don't verify SSL chain
+	DontVerifySSL
+
+	# start Disabled
+#	Disabled
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate
+
+	# Delay between each sampling for events
+	# Default : 60s
+	Sample=5
+
+	
+	#####
+	# Expected events
+	#####
+	# Notez_bien : directives are prepended with a 
+	# 'expect_' in order to avoid confusion with top
+	# level ones. Even if the goals are the same.
+
+	**Expect=Smoove
+		expect_Event=DeviceStateChangedEvent
+		expect_deviceURL=io://xxxx-xxxx-xxxx/7011484
+		expect_state=io:OneWayControllerButtonState
+		expect_value=stop
+		expect_Topic=%ClientID%/Plug/Ambiance
+		expect_forcePayload=30
+

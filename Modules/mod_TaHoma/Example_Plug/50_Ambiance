@@ -1,0 +1,20 @@
+# Create an acurator's command
+
+*Command=Ambiance
+	desc=control Ambiance smart plug
+	ecom=Ambiance smart plug
+
+	# URL of Device to control
+	url=io://xxxx-xxxx-xxxx/5335270
+
+	# Gateway it belongs to
+	TaHoma=MyTaHoma
+
+	# Command to apply
+	Command=onWithTimer
+
+	# Topic to listen to
+	Topic=%ClientID%/Plug/Ambiance
+
+	# Disable it if running in simulation mode
+#	DoNotSimulate
