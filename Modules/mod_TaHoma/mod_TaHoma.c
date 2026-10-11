@@ -17,6 +17,7 @@
 
 #include <curl/curl.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <assert.h>
 
 struct module_TaHoma mod_TaHoma;
@@ -33,9 +34,19 @@ static void gend2(struct Section *sec){
 
 	for(struct Expectation_definition *e = s->expectations; e; e = e->next){
 		fprintf(cfg.fd2, "\"%p_%s\" : {\n"
-			"class : Expectation\n"
-			"label : \"%s\"\n"
-			"}\n", sec, e->uid, e->uid);
+			"\tclass : Expectation\n"
+			"\tlabel : \"%s\"\n"
+			"\tstate : \"State: %s",
+		sec, e->uid, e->uid, e->state);
+
+		if(e->value)
+			fprintf(cfg.fd2,"\\nValue: %s", e->value);
+		
+		fputs( "\"\n"
+			"\tstate.class: Comment\n"
+			"}\n",
+		cfg.fd2);
+
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", e->topic);
 		fprintf(cfg.fd2, "%s -> \"%p_%s\" \n", getFqID(sec), sec, e->uid);
 		fprintf(cfg.fd2, "\"%p_%s\" -> \"%s\" { class: lpublish }\n", sec, e->uid, e->topic);
@@ -82,6 +93,7 @@ static void gend2Command(struct Section *sec){
 	fputs("}\n", cfg.fd2);
 
 	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, getFqID(sec));
+	fprintf(cfg.fd2, "\"%s\" -> %s  { class: lsubscribe }\n", sec->topic, getFqID(sec));
 }
 
 static void initTaHoma(struct Section *asec){
@@ -284,6 +296,7 @@ static void initCommand(struct Section *asec){
 }
 
 static bool so_processAcCommand(struct Section *asec, const char *topic, char *payload ){
+		/* Implementation note : here the payload is expected ... */
 	struct section_AcCommand *s = (struct section_AcCommand *)asec;	/* avoid lot of casting */
 
 	if(!mqtttokcmp(s->device.section.topic, topic, NULL)){
@@ -318,7 +331,8 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 			}
 		}
 #endif
-
+		/* Implementation note : starting here, the payload can be NULL due to Lua call */
+	
 		if(ret){	/* Running the request */
 			const char *cmd = 
 "{\"label\":\"Marcel\","
@@ -327,6 +341,13 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 "{\"name\":\"%s\","				/* Command to be launched */
 "\"parameters\":[ %c%s%c ]}],"		/* "\"arg\"" or "" if no arg*/
 "\"deviceURL\":\"%s\"}]}";	/* url */
+			bool num = true;	/* Numerical parameter */
+			for(const char *p = payload; *p; ++p){
+				if(!isdigit(*p)){
+					num =  false;
+					break;
+				}
+			}
 
 			char bcmd[ 
 				strlen(cmd) +
@@ -335,16 +356,19 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 				strlen(s->device.url)
 			+ 3 ];	/* add \"\" and \0 */
 
+			if(!payload)
+				payload = "";
+
 			sprintf(bcmd, cmd, 
 				s->command, 
-				payload ? '"':' ', payload ? payload : "", payload ? '"':' ',
+				num ? ' ':'"', payload, num ? ' ':'"',
 				s->device.url
 			);
 
 			struct MemoryStruct buff = EMPTY_MEMCHUNK;
-			if(callAPIDev(&s->device, NULL, bcmd, &buff)){
+			if(!callAPIDev(&s->device, NULL, bcmd, &buff)){
 				if(buff.memory)	/* We're in error but a response may have been provided */
-					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
+					publishLog('E', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
 			} else if(cfg.debug){
 				if(buff.memory)	/* We're in error but a response may have been provided */
 					publishLog('d', "[%s] response \"%s\"", s->device.section.uid, buff.memory);
@@ -400,7 +424,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->States = NULL;
 		nsection->device.section.postconfInit = initProbe;
 		nsection->device.section.sample = mod_TaHoma.defaultsampletime;
-		nsection->device.section.gend2= gend2Probe;
+		nsection->device.section.gend2 = gend2Probe;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
@@ -421,7 +445,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device.section.postconfInit = initCommand;
 		nsection->device.section.processMsg = so_processAcCommand;
 
-		nsection->device.section.gend2= gend2Command;
+		nsection->device.section.gend2 = gend2Command;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Command section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
@@ -444,7 +468,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->expectations = NULL;
 		nsection->section.postconfInit = initTaHoma;
 		nsection->section.sample = 60;
-		nsection->section.gend2= gend2;
+		nsection->section.gend2 = gend2;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -589,9 +613,11 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 			nstate->event = NULL;
 			nstate->url = NULL;
 			nstate->state = NULL;
+			nstate->value = NULL;
 			nstate->disabled = false;
 			nstate->dontSimulate = false;
 			nstate->topic = NULL;
+			nstate->payload = NULL;
 			nstate->retained = false;
 			nstate->funcname = NULL;
 			nstate->funcid = LUA_REFNIL;
@@ -691,6 +717,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 					publishLog('C', "\t\t\tState : '%s'", expectation->state);
 
 				return ACCEPTED;
+			} else if((arg = striKWcmp(l, "expect_value="))){
+				acceptSectionDirective( *section, "expect_value=" );
+
+				expectation->value= strdup(arg);
+				assert(expectation->value);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tValue : '%s'", expectation->value);
+
+				return ACCEPTED;
 			} else if((arg = striKWcmp(l, "expect_Topic="))){
 				acceptSectionDirective( *section, "expect_Topic=" );
 
@@ -699,6 +735,16 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 
 				if(cfg.verbose)
 					publishLog('C', "\t\t\tTopic : '%s'", expectation->topic);
+
+				return ACCEPTED;
+			} else if((arg = striKWcmp(l, "expect_forcePayload="))){
+				acceptSectionDirective( *section, "expect_forcePayload=" );
+
+				expectation->payload= strdup(arg);
+				assert(expectation->payload);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tPayload : '%s'", expectation->payload);
 
 				return ACCEPTED;
 			} else if((!strcmp(l,"expect_Retained"))){
@@ -836,7 +882,11 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_state=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_value=") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_forcePayload=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_Retained") )
 			return true;	/* Accepted */
