@@ -34,9 +34,19 @@ static void gend2(struct Section *sec){
 
 	for(struct Expectation_definition *e = s->expectations; e; e = e->next){
 		fprintf(cfg.fd2, "\"%p_%s\" : {\n"
-			"class : Expectation\n"
-			"label : \"%s\"\n"
-			"}\n", sec, e->uid, e->uid);
+			"\tclass : Expectation\n"
+			"\tlabel : \"%s\"\n"
+			"\tstate : \"State: %s",
+		sec, e->uid, e->uid, e->state);
+
+		if(e->value)
+			fprintf(cfg.fd2,"\\nValue: %s", e->value);
+		
+		fputs( "\"\n"
+			"\tstate.class: Comment\n"
+			"}\n",
+		cfg.fd2);
+
 		fprintf(cfg.fd2, "\"%s\" { class: topic }\n", e->topic);
 		fprintf(cfg.fd2, "%s -> \"%p_%s\" \n", getFqID(sec), sec, e->uid);
 		fprintf(cfg.fd2, "\"%p_%s\" -> \"%s\" { class: lpublish }\n", sec, e->uid, e->topic);
@@ -83,6 +93,7 @@ static void gend2Command(struct Section *sec){
 	fputs("}\n", cfg.fd2);
 
 	fprintf(cfg.fd2, "%s -> %s \n", tahoma ? getFqID(&tahoma->section) : s->device.TaHoma, getFqID(sec));
+	fprintf(cfg.fd2, "\"%s\" -> %s  { class: lsubscribe }\n", sec->topic, getFqID(sec));
 }
 
 static void initTaHoma(struct Section *asec){
