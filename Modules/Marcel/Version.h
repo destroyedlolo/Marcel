@@ -58,12 +58,13 @@
  * 10/04/2026	- LF - v8.12 - Add d2 documentation generation
  * 15/07/2026	- LF - v8.13 - Command TaHoma devices
  * 09/09/2026	- LF - v8.14 - Add expect_value
+ * 14/10/2026	- LF - v8.15 - Add Lua Support for mod_TaHoma
  */
 
 #ifndef MARCEL_VERSION_H
 #define MARCEL_VERSION_H
 
-#define MARCEL_VERSION "8.1404"	/* Need to stay numerique as exposed to Lua 
+#define MARCEL_VERSION "8.1500"	/* Need to stay numerique as exposed to Lua 
 							 * VV.SSMM :
 							 * 	VV - Version
 							 * 	SS - SubVersion

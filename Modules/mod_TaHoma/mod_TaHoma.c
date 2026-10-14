@@ -315,8 +315,9 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 				mod_Lua->lockState("TAcCommand");
 				mod_Lua->pushFunctionId( s->device.section.funcid );
 				mod_Lua->pushString( s->device.section.uid );
+				mod_Lua->pushString( s->device.section.topic);
 				mod_Lua->pushString( payload );
-				if(mod_Lua->exec(2, 1)){
+				if(mod_Lua->exec(3, 1)){
 					publishLog('E', "[%s] TaHoma Command : %s", s->device.section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 				} else {
@@ -845,6 +846,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "url=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "desc=") )
 			return true;
