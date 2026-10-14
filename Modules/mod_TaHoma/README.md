@@ -172,6 +172,19 @@ The **Command** section lets you control devices connected to your TaHoma, such 
 * **TaHoma=** Gateway it belongs to
 * **Command=** TaHoma command to apply
 * **Topic=** MQTT topic to listen too. The payload will be send as argument
+* **Func=** Acceptance function (**mod_Lua** needed).
+
+Arguments :
+
+	* Section id
+ 	* Topic
+  	* Topic payload
+
+Return :
+
+	* `true` or nothing : value used as command argument
+ 	* `false` reject the request, no command sent
+  	* *string* send the command with *string* as argument 
 
 > [!NOTE]
 > As the time of writing, the TaHoma accepts and ignore unexpected argument. This may changes and Lua function will be used to
