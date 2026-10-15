@@ -209,7 +209,19 @@ The **State=** subsection allows you to specify which state to look for and how 
 * **state_Retained** a retained message
 * **state_Disabled** this state is initially disabled
 * **state_DoNotSimulate** this state is ignored when Marcel is running in "Simulate" mode
+* **state_Func=** Acceptance function (**mod_Lua** needed).
 
+Arguments :
+
+	* Section id
+ 	* State id
+  	* state's value
+
+Return :
+
+	* `true` or nothing : value used as command argument
+ 	* `false` reject the request, no command sent
+<!--  	* *string* send the command with *string* as argument  -->
 # Usage
 
 > [!TIP]
