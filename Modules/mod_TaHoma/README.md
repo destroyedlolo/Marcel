@@ -184,7 +184,7 @@ Return :
 
 	* `true` or nothing : value used as command argument
  	* `false` reject the request, no command sent
-  	* *string* send the command with *string* as argument 
+<!--  	* *string* send the command with *string* as argument  -->
 
 > [!NOTE]
 > As the time of writing, the TaHoma accepts and ignore unexpected argument. This may changes and Lua function will be used to
