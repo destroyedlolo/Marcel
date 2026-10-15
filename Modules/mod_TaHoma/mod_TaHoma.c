@@ -175,6 +175,16 @@ static void initProbe(struct Section *asec){
 			SectionError((struct Section *)s, true);
 			return;
 		}
+#ifdef LUA
+		if(mod_Lua){
+			if(st->funcname){	/* User function defined */
+				if( (st->funcid = mod_Lua->findUserFunc(st->funcname)) == LUA_REFNIL ){
+					publishLog('E', "[%s/%s] configuration error : user function \"%s\" is not defined.", s->device.section.uid, st->state, s->device.section.funcname);
+					SectionError((struct Section *)s, true);
+				}
+			}
+		}
+#endif
 	}
 
 		/* Building URL */
