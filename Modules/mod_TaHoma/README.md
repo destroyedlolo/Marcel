@@ -9,15 +9,17 @@ accessible.
 
 # Table of contents
 
+# Table of contents
+
 - [Status of this module](#status-of-this-module)
 - [Setup](#setup)
     + [Enable the TaHoma local API](#enable-the-tahoma-local-api)
-    + [Discover your box](#discover-your-box)
-    + [Discover your devices](#discover-your-devices)
+    + [discover your box](#discover-your-box)
+    + [discover your devices](#discover-your-devices)
 - [Configuration](#configuration)
     + [Accepted global directives](#accepted-global-directives)
-    + [Section TaHoma=](#section-tahoma-)
-        * [Subsection Expect= : listening TaHoma's events](#subsection-expect---listening-tahomas-events)
+    + [Section TaHoma=](#section-tahoma)
+        * [Subsection Expect= : listening TaHoma's events](#subsection-expect--listening-tahomas-events)
     + [Section *Command=](#section-command)
     + [Section *Probe=](#section-probe)
         * [Subsection State=](#subsection-state)
