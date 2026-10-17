@@ -114,6 +114,16 @@ static void initTaHoma(struct Section *asec){
 			);
 			return;
 		}
+#ifdef LUA
+		if(mod_Lua){
+			if(i->funcname){	/* User function defined */
+				if( (i->funcid = mod_Lua->findUserFunc(i->funcname)) == LUA_REFNIL ){
+					publishLog('E', "[%s/%s] configuration error : user function \"%s\" is not defined.", s->section.uid, i->uid, i->funcname);
+					SectionError((struct Section *)s, true);
+				}
+			}
+		}
+#endif
 	}
 
 		/* Build the url */
@@ -325,7 +335,7 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 				mod_Lua->lockState("TAcCommand");
 				mod_Lua->pushFunctionId( s->device.section.funcid );
 				mod_Lua->pushString( s->device.section.uid );
-				mod_Lua->pushString( s->device.section.topic);
+				mod_Lua->pushString( s->device.section.topic );
 				mod_Lua->pushString( payload );
 				if(mod_Lua->exec(3, 1)){
 					publishLog('E', "[%s] TaHoma Command : %s", s->device.section.uid, mod_Lua->getStringFromStack(-1));
@@ -849,6 +859,18 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				if(cfg.verbose)	/* Be verbose if requested */
 					publishLog('C', "\t\t\tDISABLED if in simulation mode");
 				return ACCEPTED;
+#ifdef LUA
+			} else if((arg = striKWcmp(l,"expect_Func="))){
+				acceptSectionDirective( *section, "expect_Func=" );
+
+				expectation->funcname = strdup(arg);
+				assert(expectation->funcname);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tFunc : '%s'", expectation->funcname);
+
+				return ACCEPTED;
+#endif
 			}
 		}
 	}
@@ -949,7 +971,7 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "state_DoNotSimulate") )
 			return true;	/* Accepted */
-		if( !strcmp(directive, "state_Func=") )
+		else if( !strcmp(directive, "state_Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )	/* To let starting a new state */
 			return true;	/* Accepted */
@@ -976,6 +998,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "expect_Disabled") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**Expect=") )
 			return true;	/* Accepted */
