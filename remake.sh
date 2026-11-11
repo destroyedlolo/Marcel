@@ -1,7 +1,7 @@
 #!/bin/bash
-# this script is used
+# this script is used to
 # - enable / disable the build of particular modules
-# - to create/update Makefiles
+# - create/update Makefiles
 
 # ==================
 # Configuration Area
@@ -60,24 +60,24 @@ BUILD_RFXTRX=1
 
 # Example plugin
 # This one is strictly NO-USE. Its only purpose is to demonstrate how to build a plugin
-BUILD_DUMMY=1
+# BUILD_DUMMY=1
 
 ### 
 # Development related
 ###
 
 # Enable debugging messages
-DEBUG=1
+# DEBUG=1
 
 # MCHECK - check memory concistency (see glibc's mcheck())
-MCHECK=1
+# MCHECK=1
 
 # Where to generate ".so" plugins
 # ---
 # production's target directory
-#PLUGIN_DIR=/usr/local/lib/Marcel
+PLUGIN_DIR=/usr/local/lib/Marcel
 # During development, being clean and keep everything in our own directory
-PLUGIN_DIR=$( pwd )
+# PLUGIN_DIR=$( pwd )
 
 # -------------------------------------
 #      END OF CONFIGURATION AREA
