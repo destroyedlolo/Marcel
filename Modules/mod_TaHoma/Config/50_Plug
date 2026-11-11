@@ -16,5 +16,10 @@
 	# Topic to listen to
 	Topic=%ClientID%/Plug
 
+	# Lua validation user function
+	# Arguments :
+	# 	raw value
+	Func=ValCommand
+	
 	# Disable it if running in simulation mode
 #	DoNotSimulate

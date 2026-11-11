@@ -9,15 +9,17 @@ accessible.
 
 # Table of contents
 
+# Table of contents
+
 - [Status of this module](#status-of-this-module)
 - [Setup](#setup)
     + [Enable the TaHoma local API](#enable-the-tahoma-local-api)
-    + [Discover your box](#discover-your-box)
-    + [Discover your devices](#discover-your-devices)
+    + [discover your box](#discover-your-box)
+    + [discover your devices](#discover-your-devices)
 - [Configuration](#configuration)
     + [Accepted global directives](#accepted-global-directives)
-    + [Section TaHoma=](#section-tahoma-)
-        * [Subsection Expect= : listening TaHoma's events](#subsection-expect---listening-tahomas-events)
+    + [Section TaHoma=](#section-tahoma)
+        * [Subsection Expect= : listening TaHoma's events](#subsection-expect--listening-tahomas-events)
     + [Section *Command=](#section-command)
     + [Section *Probe=](#section-probe)
         * [Subsection State=](#subsection-state)
@@ -172,6 +174,19 @@ The **Command** section lets you control devices connected to your TaHoma, such 
 * **TaHoma=** Gateway it belongs to
 * **Command=** TaHoma command to apply
 * **Topic=** MQTT topic to listen too. The payload will be send as argument
+* **Func=** Acceptance function (**mod_Lua** needed).
+
+Arguments :
+
+	* Section id
+ 	* Topic
+  	* Topic payload
+
+Return :
+
+	* `true` or nothing : value used as command argument
+ 	* `false` reject the request, no command sent
+<!--  	* *string* send the command with *string* as argument  -->
 
 > [!NOTE]
 > As the time of writing, the TaHoma accepts and ignore unexpected argument. This may changes and Lua function will be used to
@@ -196,7 +211,19 @@ The **State=** subsection allows you to specify which state to look for and how 
 * **state_Retained** a retained message
 * **state_Disabled** this state is initially disabled
 * **state_DoNotSimulate** this state is ignored when Marcel is running in "Simulate" mode
+* **state_Func=** Acceptance function (**mod_Lua** needed).
 
+Arguments :
+
+	* Section id
+ 	* State id
+  	* state's value
+
+Return :
+
+	* `true` or nothing : value used as command argument
+ 	* `false` reject the request, no command sent
+<!--  	* *string* send the command with *string* as argument  -->
 # Usage
 
 > [!TIP]

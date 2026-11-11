@@ -9,12 +9,6 @@
 	# Gateway it belongs to
 	TaHoma=MyTaHoma
 
-	# Lua validation user function
-	# Arguments :
-	# 	raw value
-	# 	compensated value
-#	Func=ValTProbe
-
 	# Sample : Delay b/w sample
 	# if -1 : only once
 	Sample=-1
@@ -54,9 +48,10 @@
 
 	# Lua validation user function
 	# Arguments :
-	# 	raw value
-	# 	compensated value
-	# state_Func=ValTProbe
+	# 	Section id
+	#	State id
+	# 	state's value
+	# state_Func=ValState
 
 	# Topic to publish to.
 	state_Topic=maison/TestAirQualitySensor/Battery

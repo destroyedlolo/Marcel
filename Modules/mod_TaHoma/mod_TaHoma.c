@@ -114,6 +114,16 @@ static void initTaHoma(struct Section *asec){
 			);
 			return;
 		}
+#ifdef LUA
+		if(mod_Lua){
+			if(i->funcname){	/* User function defined */
+				if( (i->funcid = mod_Lua->findUserFunc(i->funcname)) == LUA_REFNIL ){
+					publishLog('E', "[%s/%s] configuration error : user function \"%s\" is not defined.", s->section.uid, i->uid, i->funcname);
+					SectionError((struct Section *)s, true);
+				}
+			}
+		}
+#endif
 	}
 
 		/* Build the url */
@@ -175,6 +185,16 @@ static void initProbe(struct Section *asec){
 			SectionError((struct Section *)s, true);
 			return;
 		}
+#ifdef LUA
+		if(mod_Lua){
+			if(st->funcname){	/* User function defined */
+				if( (st->funcid = mod_Lua->findUserFunc(st->funcname)) == LUA_REFNIL ){
+					publishLog('E', "[%s/%s] configuration error : user function \"%s\" is not defined.", s->device.section.uid, st->state, st->funcname);
+					SectionError((struct Section *)s, true);
+				}
+			}
+		}
+#endif
 	}
 
 		/* Building URL */
@@ -315,8 +335,9 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 				mod_Lua->lockState("TAcCommand");
 				mod_Lua->pushFunctionId( s->device.section.funcid );
 				mod_Lua->pushString( s->device.section.uid );
+				mod_Lua->pushString( s->device.section.topic );
 				mod_Lua->pushString( payload );
-				if(mod_Lua->exec(2, 1)){
+				if(mod_Lua->exec(3, 1)){
 					publishLog('E', "[%s] TaHoma Command : %s", s->device.section.uid, mod_Lua->getStringFromStack(-1));
 					mod_Lua->pop(1);	/* pop error message from the stack */
 				} else {
@@ -384,6 +405,71 @@ static bool so_processAcCommand(struct Section *asec, const char *topic, char *p
 	return false;	/* Let's try with other sections */
 }
 
+static int publishCustomFiguresTaHoma(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_TaHoma *s = (struct section_TaHoma *)asection;
+
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "Hostname");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->hostname);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "IP");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->ip);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "Port");			/* Push the index */
+		lua_pushinteger(mod_Lua->L, s->port);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
+static void fillCustomDevice(struct section_Device *s){
+		lua_newtable(mod_Lua->L);
+
+		lua_pushstring(mod_Lua->L, "TaHoma");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->TaHoma);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		lua_pushstring(mod_Lua->L, "URL");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->url);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+}
+
+static int publishCustomFiguresTaHomaProbe(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_Probe *s = (struct section_Probe *)asection;
+		fillCustomDevice(&s->device);
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
+static int publishCustomFiguresTaHomaCommand(struct Section *asection){
+#ifdef LUA
+	if(mod_Lua){
+		struct section_AcCommand *s = (struct section_AcCommand *)asection;
+
+		fillCustomDevice(&s->device);
+
+		lua_pushstring(mod_Lua->L, "Command");			/* Push the index */
+		lua_pushstring(mod_Lua->L, s->command);	/* the value */
+		lua_rawset(mod_Lua->L, -3);	/* Add it in the table */
+
+		return 1;
+	} else
+#endif
+	return 0;
+}
+
 static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **section ){
 	const char *arg;
 
@@ -418,7 +504,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_Probe *nsection = malloc(sizeof(struct section_Probe));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_PROBE, strdup(arg), "Probe");
+		initSection( (struct Section *)nsection, mid, ST_PROBE, strdup(arg), "TaHomaProbe");
 		nsection->device.TaHoma= NULL;
 		nsection->device.url = NULL;
 		nsection->States = NULL;
@@ -426,6 +512,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device.section.sample = mod_TaHoma.defaultsampletime;
 		nsection->device.section.gend2 = gend2Probe;
 
+		nsection->device.section.publishCustomFigures = publishCustomFiguresTaHomaProbe;
+	
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Probe section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
 
@@ -438,7 +526,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		}
 
 		struct section_AcCommand *nsection = malloc(sizeof(struct section_AcCommand));	/* Allocate a new section */
-		initSection( (struct Section *)nsection, mid, ST_COMMAND, strdup(arg), "Command");
+		initSection( (struct Section *)nsection, mid, ST_COMMAND, strdup(arg), "TaHomaCommand");
 		nsection->command = NULL;
 		nsection->device.TaHoma= NULL;
 		nsection->device.url = NULL;
@@ -446,6 +534,7 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->device.section.processMsg = so_processAcCommand;
 
 		nsection->device.section.gend2 = gend2Command;
+		nsection->device.section.publishCustomFigures = publishCustomFiguresTaHomaCommand;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering Command section '%s' (%04x)", nsection->device.section.uid, nsection->device.section.id);
@@ -469,6 +558,8 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 		nsection->section.postconfInit = initTaHoma;
 		nsection->section.sample = 60;
 		nsection->section.gend2 = gend2;
+
+		nsection->section.publishCustomFigures = publishCustomFiguresTaHoma;
 
 		if(cfg.verbose)	/* Be verbose if requested */
 			publishLog('C', "\tEntering TaHoma section '%s' (%04x)", nsection->section.uid, nsection->section.id);
@@ -768,6 +859,18 @@ static enum RC_readconf readconf(uint8_t mid, const char *l, struct Section **se
 				if(cfg.verbose)	/* Be verbose if requested */
 					publishLog('C', "\t\t\tDISABLED if in simulation mode");
 				return ACCEPTED;
+#ifdef LUA
+			} else if((arg = striKWcmp(l,"expect_Func="))){
+				acceptSectionDirective( *section, "expect_Func=" );
+
+				expectation->funcname = strdup(arg);
+				assert(expectation->funcname);
+
+				if(cfg.verbose)
+					publishLog('C', "\t\t\tFunc : '%s'", expectation->funcname);
+
+				return ACCEPTED;
+#endif
 			}
 		}
 	}
@@ -846,6 +949,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "Topic=") )
 			return true;	/* Accepted */
+		else if( !strcmp(directive, "Func=") )
+			return true;	/* Accepted */
 		else if( !strcmp(directive, "desc=") )
 			return true;
 		else if( !strcmp(directive, "ecom=") )
@@ -866,7 +971,7 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "state_DoNotSimulate") )
 			return true;	/* Accepted */
-		if( !strcmp(directive, "state_Func=") )
+		else if( !strcmp(directive, "state_Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**State=") )	/* To let starting a new state */
 			return true;	/* Accepted */
@@ -893,6 +998,8 @@ static bool acceptSDirective( uint8_t sec_id, const char *directive ){
 		else if( !strcmp(directive, "expect_Disabled") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "expect_DoNotSimulate") )
+			return true;	/* Accepted */
+		else if( !strcmp(directive, "expect_Func=") )
 			return true;	/* Accepted */
 		else if( !strcmp(directive, "**Expect=") )
 			return true;	/* Accepted */
@@ -930,6 +1037,8 @@ void InitModule( void ){
 
 			/* Expose shared methods */
 		mod_Lua->initSectionSharedMethods(mod_Lua->L, "TaHoma");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "TaHomaProbe");
+		mod_Lua->initSectionSharedMethods(mod_Lua->L, "TaHomaCommand");
 
 #if 0
 			/* Expose mod_TaHoma's own function */

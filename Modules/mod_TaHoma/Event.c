@@ -27,6 +27,9 @@
 #include "mod_TaHoma.h"
 #include "../Marcel/MQTT_tools.h"
 #include "../Marcel/CURL_helpers.h"
+#ifdef LUA
+#	include "../mod_Lua/mod_Lua.h"
+#endif
 
 #include <stdlib.h>
 
@@ -129,9 +132,37 @@ void *processEvent(void *actx){
 										else
 											p = l;
 
-										mqttpublish(cfg.client, e->topic, strlen(p), (void *)p, e->retained );
-										if(cfg.verbose)
-											publishLog('I', "[%s][%s] value \"%s\"", s->section.uid, e->uid, p);
+										bool ret = true;
+#ifdef LUA
+										if(mod_Lua){
+											if(e->funcid != LUA_REFNIL){	/* if an user function defined ? */
+												mod_Lua->lockState("TAcEvent");
+												mod_Lua->pushFunctionId( e->funcid );
+												mod_Lua->pushString( s->section.uid );
+												mod_Lua->pushString( e->uid );
+												mod_Lua->pushString( p );
+												if(mod_Lua->exec(3, 1)){
+													publishLog('E', "[%s] TaHoma expect \"%s\" : %s", s->section.uid, e->uid, mod_Lua->getStringFromStack(-1));
+												mod_Lua->pop(1);	/* pop error message from the stack */
+												} else {
+						/* TODO
+						 * If a string is returned, it replace the payload
+						 * If nil is returned payload is NULL
+						 */
+													ret = mod_Lua->getBooleanFromStack(-1);	/* Check the return code */
+													mod_Lua->pop(1);
+												}
+												mod_Lua->unlockState("TAcEvent");
+											}
+										}
+#endif
+
+										if(ret){
+											mqttpublish(cfg.client, e->topic, strlen(p), (void *)p, e->retained );
+											if(cfg.verbose)
+												publishLog('I', "[%s][%s] value \"%s\"", s->section.uid, e->uid, p);
+										} else 
+											publishLog('T', "[%s][%s] Expect cancelled due to Lua function", s->section.uid, e->uid);
 									} else if(cfg.debug)
 										publishLog('d', "[%s][%s] is disabled", s->section.uid, e->uid);
 									break;
