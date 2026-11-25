@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import time
 from somfy_protect_api.api.somfy_protect_api import SomfyProtectApi
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 
